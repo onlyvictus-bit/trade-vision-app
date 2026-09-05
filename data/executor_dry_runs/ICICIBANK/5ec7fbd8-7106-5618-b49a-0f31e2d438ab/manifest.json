@@ -1,0 +1,15 @@
+{
+  "contains_broker_credentials": false,
+  "contains_broker_orders": false,
+  "created_at": "2026-06-12T14:29:22.426731+00:00",
+  "dry_run_only": true,
+  "live_trading_blocked": true,
+  "manifest_version": "openalgo-executor-dry-run-manifest.v0.50",
+  "package_file": "package.json",
+  "package_id": "5ec7fbd8-7106-5618-b49a-0f31e2d438ab",
+  "package_sha256": "e23ccd9850570fb4660df39e3bfc036b4555a2b07f30ccb40072214b0e2220b8",
+  "package_size_bytes": 9535,
+  "retention_days": 30,
+  "symbol": "ICICIBANK",
+  "target_executor": "openalgo"
+}

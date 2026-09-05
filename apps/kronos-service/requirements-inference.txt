@@ -1,0 +1,11 @@
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch>=2.7
+numpy
+pandas==2.2.2
+einops==0.8.1
+huggingface_hub==0.33.1
+safetensors==0.6.2
+tqdm==4.67.1
+fastapi>=0.115,<2
+uvicorn[standard]>=0.34,<1
+pydantic>=2.10,<3

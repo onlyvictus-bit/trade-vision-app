@@ -1,0 +1,15 @@
+{
+  "contains_broker_credentials": false,
+  "contains_broker_orders": false,
+  "created_at": "2026-07-24T02:38:42.018593+00:00",
+  "dry_run_only": true,
+  "live_trading_blocked": true,
+  "manifest_version": "openalgo-executor-dry-run-manifest.v0.50",
+  "package_file": "package.json",
+  "package_id": "d90875a8-a648-5776-a028-cf8a446e3718",
+  "package_sha256": "2c6976be6d13e7f36cbc6a6c2361d9fd1e63bd86e19ed161fdb0dd01f1b38b9b",
+  "package_size_bytes": 9519,
+  "retention_days": 30,
+  "symbol": "INFY",
+  "target_executor": "openalgo"
+}

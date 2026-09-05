@@ -1,0 +1,16 @@
+﻿node_modules/
+.git/
+.pytest_cache/
+.pytest_tmp*/
+.pytest_tmp_*/
+pytest-of-*/
+**/__pycache__/
+**/*.pyc
+data/
+legacy/
+external/kronos/
+*.log
+tmp_*
+api-*.log
+web-*.log
+**/.test_cache/

@@ -1,0 +1,57 @@
+{
+  "a1c78a28-d1fd-5ad3-a2f5-7ef9dde26d3a": {
+    "combo_id": "ba1121c62248ed991403",
+    "config": {
+      "breakout_buffer_pct": 0.0,
+      "direction": "both",
+      "entry_cutoff": "11:30",
+      "orb_bar_count": 3,
+      "range_end": "09:20",
+      "range_mode": "clock_window",
+      "range_start": "09:15",
+      "require_close_confirmation": true,
+      "require_volume_confirmation": false,
+      "require_vwap_confirmation": false,
+      "reward_risk_ratio": 3.0,
+      "strategy_family": "orb_breakout"
+    },
+    "live_trading_blocked": true,
+    "metrics": {
+      "clock_window": [
+        "09:15",
+        "09:20"
+      ],
+      "combo_id": "ba1121c62248ed991403",
+      "composite_score": 53.88865067,
+      "gross_r": 74.75554084,
+      "loss_count": 247,
+      "max_drawdown_r": 11.12077724,
+      "minimum_trades_pass": true,
+      "net_r": 60.19033926,
+      "no_future_leakage": true,
+      "orb_bar_count": null,
+      "profit_factor": 1.30057013,
+      "profitable_period_rate": 0.7037037,
+      "range_mode": "clock_window",
+      "require_volume_confirmation": false,
+      "reward_risk_ratio": 3.0,
+      "strategy_family": "orb_breakout",
+      "trade_count": 515,
+      "win_count": 268,
+      "win_rate": 0.5203883495145631
+    },
+    "order_routing_enabled": false,
+    "playbook_id": "a1c78a28-d1fd-5ad3-a2f5-7ef9dde26d3a",
+    "playbook_version": "orb-playbook.v1.91",
+    "promoted_at": "2026-08-26T13:08:22.543038+00:00",
+    "promoted_by": "sakth (explicit approval 2026-08-26)",
+    "proof_hash": "6ebe278851186e38d50b869cabcece6fe415747e3a9b77241d2f39ccdc4b5082",
+    "proof_id": "ab7b3163-cee6-5c0c-987c-68db75717273",
+    "research_only": true,
+    "status": "active",
+    "storage_backend": "atomic_json",
+    "symbol": "BEL",
+    "timeframe": "5m",
+    "trade_allowed": false
+  }
+}

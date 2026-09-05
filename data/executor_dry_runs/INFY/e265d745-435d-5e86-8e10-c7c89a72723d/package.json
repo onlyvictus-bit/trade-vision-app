@@ -1,0 +1,290 @@
+{
+  "broker_credentials_present": false,
+  "broker_order_created": false,
+  "created_at": "2026-06-21T14:12:57.040255+00:00",
+  "dry_run_only": true,
+  "executor_required_checks": [
+    "Verify package SHA-256 and manifest SHA-256 before parsing.",
+    "Verify intent signature from canonical intent fields.",
+    "Reject duplicate duplicate_key values.",
+    "Reject expired valid_until values.",
+    "Reject if kill_switch_state is not armed.",
+    "Require human approval before any external paper/live action.",
+    "Run external risk check and account-state check.",
+    "Reject if package reports broker_order_created=true.",
+    "Reject if order_routing_enabled=true inside Trade Vision.",
+    "Reject if live_trading_blocked=false inside Trade Vision."
+  ],
+  "handoff_contract": {
+    "consumer": "external OpenAlgo/trading-bot adapter",
+    "contract_version": "openalgo-executor-handoff-contract.v0.50",
+    "external_executor_must_recheck": [
+      "intent signature",
+      "duplicate key",
+      "valid_until expiry",
+      "kill switch state",
+      "human approval",
+      "risk limits",
+      "account state",
+      "paper/live mode permission",
+      "broker duplicate order state"
+    ],
+    "forbidden_trade_vision_fields": [
+      "broker_api_key",
+      "broker_access_token",
+      "broker_session_cookie",
+      "order_id",
+      "exchange_order_id"
+    ],
+    "format": "json",
+    "handoff_file": "package.json",
+    "manifest_file": "manifest.json",
+    "producer": "Trade Vision research-only API",
+    "required_top_level_fields": [
+      "intent",
+      "verification",
+      "executor_required_checks",
+      "rejection_examples",
+      "dry_run_only",
+      "broker_order_created",
+      "order_routing_enabled",
+      "live_trading_blocked"
+    ],
+    "routing_policy": "Trade Vision produces a dry-run intent package only; the external executor must reject or review it and must not treat it as an order."
+  },
+  "intent": {
+    "behavior_decision": "FAKEOUT_WARNING",
+    "broker_credentials_present": false,
+    "broker_order_created": false,
+    "data_version": "point_in_time_mock",
+    "duplicate_intent_blocked": false,
+    "duplicate_key": "97d338c70bcc7507c86baf67ead36a1fdb50fba1d7d2c30054a021aa9ae35d3d",
+    "entry_zone": "preview_only_no_order",
+    "evidence_hash": "802a29b35349d475795778297386d7c107b5f953b581fa20dee3ff73e1e0e8de",
+    "expired": false,
+    "expiry_enforced": true,
+    "export_allowed": false,
+    "export_status": "preview_only",
+    "feature_version": "behavior_kronos_twin_mock",
+    "human_veto_active": false,
+    "human_veto_required": true,
+    "intent_id": "67b35f08-4f0d-5790-a353-5176313ad185",
+    "intent_signature": "bab01b4d4ec5236aaad904acecd8e72e5009c6ca176ffef4f268c1fb3cad0995",
+    "intent_version": "openalgo-signal-intent.preview.v0.48",
+    "kill_switch_rechecked": true,
+    "kill_switch_state": "armed",
+    "kronos_decision": "LONG",
+    "live_trading_blocked": true,
+    "mode": "MOCK",
+    "mode_permission": "mock_preview_only",
+    "model_version": "kronos.mock.v0.45",
+    "notes": [
+      "This is a signed OpenAlgo intent draft only; no broker order is created.",
+      "OpenAlgo must re-check risk, expiry, kill switch, duplicate orders, and account state externally."
+    ],
+    "order_routing_enabled": false,
+    "permission_matrix": [
+      {
+        "evidence": "mode=SystemModeValue.MOCK; permission=mock_preview_only",
+        "gate": "mode_allows_preview",
+        "passed": true
+      },
+      {
+        "evidence": "kill_switch=armed",
+        "gate": "kill_switch_rechecked",
+        "passed": true
+      },
+      {
+        "evidence": "external executor must require human approval before paper/live use",
+        "gate": "human_veto_required",
+        "passed": true
+      },
+      {
+        "evidence": "valid_until=2026-06-21T15:12:57.068108+00:00",
+        "gate": "expiry_enforced",
+        "passed": true
+      },
+      {
+        "evidence": "97d338c70bcc7507",
+        "gate": "duplicate_key_generated",
+        "passed": true
+      },
+      {
+        "evidence": "Trade Vision generated an intent preview only",
+        "gate": "broker_order_created",
+        "passed": false
+      }
+    ],
+    "position_size_suggestion": 0,
+    "replay_snapshot_id": null,
+    "risk_reward": 0.0,
+    "rule_version": "twin-machine-arbiter.v0.47",
+    "side": "NO_TRADE",
+    "stop_loss": null,
+    "symbol": "INFY",
+    "target": null,
+    "timeframe": "5m",
+    "trade_allowed": false,
+    "twin_agreement_hash": "b8429a407606ce4dceb604d4f7f42ba793107fb4c6b125ddea3c6f100311e0c1",
+    "twin_decision": "NO_TRADE",
+    "valid_until": "2026-06-21T15:12:57.068108+00:00"
+  },
+  "live_trading_blocked": true,
+  "order_routing_enabled": false,
+  "package_id": "e265d745-435d-5e86-8e10-c7c89a72723d",
+  "package_version": "openalgo-executor-dry-run-package.v0.50",
+  "rejection_examples": [
+    {
+      "case_id": "OA-DRY-REJECT-EXPIRED",
+      "expected_executor_action": "reject",
+      "expected_rejection_reasons": [
+        "Intent is expired."
+      ],
+      "mutated_fields": {
+        "expired": true,
+        "valid_until": "2000-01-01T00:00:00+00:00"
+      },
+      "title": "Expired intent must be rejected"
+    },
+    {
+      "case_id": "OA-DRY-REJECT-DUPLICATE",
+      "expected_executor_action": "reject",
+      "expected_rejection_reasons": [
+        "Duplicate intent key detected."
+      ],
+      "mutated_fields": {
+        "seen_duplicate_keys": [
+          "97d338c70bcc7507c86baf67ead36a1fdb50fba1d7d2c30054a021aa9ae35d3d"
+        ]
+      },
+      "title": "Duplicate key must be rejected"
+    },
+    {
+      "case_id": "OA-DRY-REJECT-TAMPERED-SIDE",
+      "expected_executor_action": "reject",
+      "expected_rejection_reasons": [
+        "Intent signature is invalid."
+      ],
+      "mutated_fields": {
+        "side": "LONG"
+      },
+      "title": "Tampered side must fail signature verification"
+    },
+    {
+      "case_id": "OA-DRY-REVIEW-MISSING-EXTERNAL-CHECKS",
+      "expected_executor_action": "manual_review_only",
+      "expected_rejection_reasons": [
+        "External human approval is missing.",
+        "External risk check is missing or failed.",
+        "External account state was not checked."
+      ],
+      "mutated_fields": {
+        "external_account_state_checked": false,
+        "external_human_approval_present": false,
+        "external_risk_check_passed": false
+      },
+      "title": "Missing external checks remain manual review only"
+    }
+  ],
+  "requested_by": "local_user",
+  "symbol": "INFY",
+  "target_executor": "openalgo",
+  "trade_allowed": false,
+  "verification": {
+    "accepted_for_external_review": false,
+    "broker_credentials_present": false,
+    "broker_order_created": false,
+    "duplicate_detected": false,
+    "expired": false,
+    "export_allowed": false,
+    "external_account_state_checked": false,
+    "external_human_approval_present": false,
+    "external_risk_check_passed": false,
+    "gate_results": [
+      {
+        "evidence": "bab01b4d4ec5236a",
+        "gate": "signature_valid",
+        "passed": true
+      },
+      {
+        "evidence": "97d338c70bcc7507",
+        "gate": "duplicate_not_seen",
+        "passed": true
+      },
+      {
+        "evidence": "2026-06-21T15:12:57.068108+00:00",
+        "gate": "not_expired",
+        "passed": true
+      },
+      {
+        "evidence": "mock_preview_only",
+        "gate": "mode_permission_preview_only",
+        "passed": true
+      },
+      {
+        "evidence": "armed",
+        "gate": "kill_switch_armed",
+        "passed": true
+      },
+      {
+        "evidence": "True",
+        "gate": "human_veto_required",
+        "passed": true
+      },
+      {
+        "evidence": "False",
+        "gate": "external_human_approval_present",
+        "passed": false
+      },
+      {
+        "evidence": "False",
+        "gate": "external_risk_check_passed",
+        "passed": false
+      },
+      {
+        "evidence": "False",
+        "gate": "external_account_state_checked",
+        "passed": false
+      },
+      {
+        "evidence": "False",
+        "gate": "no_broker_credentials_inside_trade_vision",
+        "passed": true
+      },
+      {
+        "evidence": "False",
+        "gate": "no_broker_order_created",
+        "passed": true
+      },
+      {
+        "evidence": "trade=False;routing=False;live_blocked=True",
+        "gate": "trade_vision_safety_flags_locked",
+        "passed": true
+      }
+    ],
+    "human_veto_required": true,
+    "intent_id": "67b35f08-4f0d-5790-a353-5176313ad185",
+    "kill_switch_rechecked": true,
+    "live_trading_blocked": true,
+    "mode_permission": "mock_preview_only",
+    "notes": [
+      "v0.49 verifies an intent draft for external OpenAlgo/trading-bot review only.",
+      "Accepted for external review does not mean executable inside Trade Vision.",
+      "A broker-connected executor must still perform its own account, order, and exchange checks."
+    ],
+    "order_routing_enabled": false,
+    "rejected": true,
+    "rejection_reasons": [
+      "External human approval is missing.",
+      "External risk check is missing or failed.",
+      "External account state was not checked."
+    ],
+    "signature_valid": true,
+    "symbol": "INFY",
+    "target_executor": "openalgo",
+    "trade_allowed": false,
+    "verification_hash": "e054d3111648f99fa702921cccbaa22b50bbc9193964f8e523ba4d97077441d9",
+    "verified_at": "2026-06-21T14:12:57.068725+00:00",
+    "verifier_version": "openalgo-bot-handoff-verifier.v0.49"
+  }
+}

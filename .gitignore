@@ -1,0 +1,32 @@
+.venv/
+apps/kronos-service/models/
+# vendored upstream with its own git history (large; not part of this build)
+external/kronos/
+node_modules/
+dist/
+.pytest_cache/
+.pytest_tmp/
+.pytest_tmp*/
+pytest-of-*/
+.test_cache/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+
+# local databases (large test/runtime state; may embed encrypted blobs)
+data/*.db
+data/*.db-shm
+data/*.db-wal
+# per-run release evidence bundles (hundreds of generated receipts)
+data/release_evidence_artifacts/
+# secrets: encryption keys + credential files - NEVER commit
+data/secrets/
+# runtime caches, checkpoints, logs
+data/indicator_result_cache/
+data/orb_research/checkpoints/
+*.log
+tmp_*.out
+tmp_*.err
+api-*.log
+web-*.log

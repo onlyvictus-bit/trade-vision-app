@@ -1,0 +1,252 @@
+{
+  "schema_version": "indicator-intelligence-coverage.v1",
+  "totals": {
+    "registry_entries": 94,
+    "contracts_written": 94,
+    "self_indc": 71,
+    "pta_markers": 23,
+    "promoted_runtime_computed": 49,
+    "registered_not_promoted": 21,
+    "registered_probe_only_pta": 23,
+    "validated": 86,
+    "proxy": 7
+  },
+  "promoted_runtime_computed": [
+    "si_adaptive_flow",
+    "si_bahai",
+    "si_bb_break",
+    "si_bos",
+    "si_cdl",
+    "si_cdl_mb",
+    "si_choch",
+    "si_cm_strg_pivt",
+    "si_cpr",
+    "si_cpr_v4",
+    "si_dbl",
+    "si_dual_ma_osc",
+    "si_fib",
+    "si_fmfm300",
+    "si_fractal",
+    "si_fvg",
+    "si_hourly_pvt",
+    "si_hs",
+    "si_ichi_trend_osc",
+    "si_impulse",
+    "si_inside_out",
+    "si_inside_candle_strategy",
+    "si_liq_intelg",
+    "si_liquidity_entry",
+    "si_lrb",
+    "si_macd_ta",
+    "si_mk_inside",
+    "si_mp_va",
+    "si_nbar",
+    "si_ob",
+    "si_outside_rev",
+    "si_rsi_div",
+    "si_rsi_ss",
+    "si_sbs",
+    "si_sfp",
+    "si_st_talipp",
+    "si_strg_pivt",
+    "si_swing_break",
+    "si_swing_str",
+    "si_sweep_inside_rr",
+    "si_three_inside",
+    "si_trend_sig",
+    "si_trendln",
+    "si_twin_range",
+    "si_vwap_bb_ml_conf",
+    "si_vwap_conf",
+    "si_vwap_super",
+    "si_wekly_pivot",
+    "si_zz_swing"
+  ],
+  "registered_not_promoted": [
+    "si_chandelier",
+    "si_ctz_gann",
+    "si_curve",
+    "si_dark_cloud",
+    "si_delta_vp",
+    "si_har_zz",
+    "si_harmonic",
+    "si_hyb_opening_range_rev",
+    "si_hybrid_ml",
+    "si_hybrid_ml_cpr",
+    "si_ichimoku",
+    "si_kc_pyti",
+    "si_opening_range_rev",
+    "si_problty_grid",
+    "si_pta_cdl",
+    "si_rev_radar",
+    "si_rsi_div_auto",
+    "si_sar_tapy",
+    "si_sfb_hybrid",
+    "si_three_inside_filtered",
+    "si_vol_exh"
+  ],
+  "registered_probe_only_pta": [
+    "pta_amat",
+    "pta_aroon_sig",
+    "pta_chop",
+    "pta_cmf",
+    "pta_drawdown",
+    "pta_dsp",
+    "pta_ebsw",
+    "pta_entropy",
+    "pta_fisher_sig",
+    "pta_hlc3",
+    "pta_kdj",
+    "pta_kurtosis",
+    "pta_log_ret",
+    "pta_long_run",
+    "pta_mfi_sig",
+    "pta_rsx",
+    "pta_short_run",
+    "pta_skew",
+    "pta_squeeze",
+    "pta_tsi",
+    "pta_ttm",
+    "pta_vortex",
+    "pta_zscore"
+  ],
+  "near_stub_constant_output": [
+    "si_flowscope"
+  ],
+  "bucket_reconciliation": "promoted_runtime_computed + registered_not_promoted + registered_probe_only_pta + near_stub_constant_output == registry_entries == 94",
+  "proxy_reasons": {
+    "empty_no_signal_on_sample": [
+      "si_chandelier",
+      "si_har_zz",
+      "si_harmonic",
+      "si_kc_pyti",
+      "si_pta_cdl",
+      "si_sar_tapy"
+    ],
+    "pta_all_proxy_pending_pit_audit": [
+      "pta_entropy"
+    ]
+  },
+  "future_outcome_leakage": {
+    "si_delta_vp": "trades[].outcome computed over following hold_bars (self_indc.py:2110)",
+    "si_hybrid_ml_cpr": "success_after_10 weight updates from close 10 bars later (self_indc.py:5225)",
+    "si_sweep_inside_rr": "forward TP/SL fills in dashboard/trades (self_indc.py:6859)",
+    "si_opening_range_rev": "forward TP/SL fill simulation (self_indc.py:4611)",
+    "si_hyb_opening_range_rev": "forward TP/SL fill simulation (self_indc.py:4778)",
+    "si_problty_grid": "hit probabilities calibrate from completed sessions only (sequentially causal per code); kept explanation-only as conservative in-sample-calibration guard (self_indc.py:2460-2528)"
+  },
+  "duplicate_wiring": {
+    "si_har_zz": "duplicate module wiring of si_harmonic",
+    "si_mk_inside": "duplicate logic family of si_inside_out"
+  },
+  "shadowed_definitions_in_self_indc": [
+    "dark_cloud_piercing L423->L452",
+    "cpr_levels L545->L645",
+    "swing_structure L588->L710",
+    "inside_outside_bar L834->L861",
+    "sfp_markers L923->L936",
+    "bahai_reversal_markers L1140->L4253",
+    "trendln_breakout_markers L3287->L6092"
+  ],
+  "redundancy_families": {
+    "harmonic_zigzag": [
+      "si_harmonic",
+      "si_har_zz",
+      "si_zz_swing"
+    ],
+    "inside_outside_bar": [
+      "si_inside_out",
+      "si_mk_inside"
+    ],
+    "pivot_levels": [
+      "si_cpr",
+      "si_cpr_v4",
+      "si_wekly_pivot",
+      "si_hourly_pvt",
+      "si_strg_pivt",
+      "si_cm_strg_pivt"
+    ],
+    "vwap_confluence": [
+      "si_vwap_conf",
+      "si_vwap_super",
+      "si_vwap_bb_ml_conf",
+      "si_hybrid_ml",
+      "si_hybrid_ml_cpr"
+    ],
+    "atr_trailing_flip": [
+      "si_st_talipp",
+      "si_trend_sig",
+      "si_chandelier"
+    ],
+    "rsi_exhaustion": [
+      "si_rsi_div",
+      "si_rsi_div_auto",
+      "si_rsi_ss"
+    ],
+    "smc_structure": [
+      "si_bos",
+      "si_choch",
+      "si_ob",
+      "si_fvg",
+      "si_swing_str",
+      "si_impulse",
+      "si_liq_intelg",
+      "si_liquidity_entry",
+      "si_sfb_hybrid",
+      "si_sfp"
+    ],
+    "orb_family": [
+      "si_opening_range_rev",
+      "si_hyb_opening_range_rev"
+    ],
+    "ichimoku_pair": [
+      "si_ichimoku",
+      "si_ichi_trend_osc"
+    ],
+    "ma_cross_generic": [
+      "si_twin_range",
+      "si_dual_ma_osc",
+      "pta_hlc3",
+      "pta_amat",
+      "pta_ttm",
+      "pta_long_run",
+      "pta_short_run"
+    ],
+    "momentum_pta_cross": [
+      "pta_rsx",
+      "pta_fisher_sig",
+      "pta_kdj",
+      "pta_tsi",
+      "pta_mfi_sig"
+    ],
+    "volatility_regime": [
+      "pta_chop",
+      "pta_squeeze",
+      "si_bb_break",
+      "si_kc_pyti"
+    ],
+    "statistical_distribution": [
+      "pta_zscore",
+      "pta_skew",
+      "pta_kurtosis",
+      "pta_entropy",
+      "pta_log_ret"
+    ]
+  },
+  "category_unclassified_in_old_registry": 41,
+  "unknown_field_policy": "fields that cannot be verified from code or registry are written UNKNOWN/not_established and never invented",
+  "known_limitations": [
+    "9C-DNA evidence path uses real HSTRY bars when available (v1.98); symbols without local history fall back to synthetic candles labelled source_mode=synthetic_fallback",
+    "all indicator API routes report CapabilityStatus.MOCK",
+    "~25 self_indc groups depend on exec-loaded external modules from hardcoded local paths",
+    "EMPTY_NO_SIGNAL_ON_SAMPLE proxy labels are stale (single past sweep, never re-checked)",
+    "vendor self_indc.py ahead of shared/indicators original (tz fix not backported)"
+  ],
+  "follow_up_proposals_out_of_catalog_scope": [
+    "backport weekly-VWAP tz fix to shared/indicators/self_indc.py",
+    "replace synthetic 9C candle source with real closed candles",
+    "remove shadowed duplicate definitions in self_indc.py",
+    "re-run EMPTY_NO_SIGNAL_ON_SAMPLE sweep against current sample data",
+    "parameterize external module paths via env/config"
+  ]
+}

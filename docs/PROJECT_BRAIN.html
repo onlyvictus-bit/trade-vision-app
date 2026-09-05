@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Trade Vision — PROJECT BRAIN</title>
+<style>
+:root {
+  --bg: #070b12;
+  --text: #e8eef9;
+  --muted: #8b9bb8;
+  --line: #1e2f4a;
+  --card: #0c1220;
+  --accent: #2dd4bf;
+  --data: #2dd4bf;
+  --engine: #818cf8;
+  --safety: #ff6b6b;
+  --ui: #22d3ee;
+  --store: #34d399;
+  --research: #ffd56a;
+  --external: #fb923c;
+  --hub: #60a5fa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, "Segoe UI", sans-serif;
+  font-size: 13px;
+  line-height: 1.35;
+  padding-bottom: 48px;
+}
+.top {
+  position: sticky; top: 0; z-index: 20;
+  background: rgba(7,11,18,.94);
+  border-bottom: 1px solid var(--line);
+  padding: 14px 16px 12px;
+  backdrop-filter: blur(8px);
+}
+.top h1 { font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
+.top .sum { color: var(--muted); margin-top: 4px; max-width: 760px; font-size: 12.5px; }
+.badge {
+  display: inline-block; margin-left: 8px; vertical-align: middle;
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+  background: #12352f; color: var(--accent); border: 1px solid #1f6b5c;
+}
+.wrap { max-width: 1200px; margin: 0 auto; padding: 16px; }
+.section-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--muted); margin: 18px 0 10px; display: flex; align-items: center; gap: 8px;
+}
+.section-title::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.path-box {
+  border: 1px solid var(--line); border-left: 3px solid var(--accent);
+  background: var(--card); border-radius: 12px; padding: 12px 14px;
+  font-size: 13px; color: #c5d4ef;
+}
+.path-box b { color: var(--accent); }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  border-left: 4px solid var(--kind, var(--accent));
+  padding: 11px 12px 12px;
+}
+.card h3 { font-size: 14px; font-weight: 800; margin-bottom: 2px; letter-spacing: -.01em; }
+.card .id { font-size: 10px; color: var(--muted); font-family: ui-monospace, Consolas, monospace; margin-bottom: 4px; }
+.card .tag {
+  display: inline-block; font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--kind); margin-bottom: 4px;
+}
+.card dt {
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .04em; margin-top: 6px;
+}
+.card dd { margin: 1px 0 0; color: #d7e2f5; font-size: 12.5px; }
+.card ul { margin: 2px 0 0 14px; padding: 0; }
+.card li { margin: 1px 0; }
+.files {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 10.5px; color: #9ec5ff; word-break: break-word;
+}
+.warn {
+  margin-top: 7px; padding: 6px 8px; border-radius: 8px;
+  background: #1a1214; border: 1px solid #4a2430;
+  color: #ffb4b4; font-size: 11.5px; font-weight: 600;
+}
+.conn {
+  border: 1px solid var(--line); border-radius: 12px; background: var(--card);
+  padding: 12px 14px;
+}
+.conn ol { margin: 0 0 0 18px; color: #c5d4ef; }
+.conn li { margin: 4px 0; font-size: 12.5px; }
+.conn b { color: #fff; }
+.glossary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.g-item {
+  border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--card);
+}
+.g-item b { display: block; color: var(--accent); font-size: 12px; }
+.g-item span { color: var(--muted); font-size: 12px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
+.legend span {
+  font-size: 10px; padding: 3px 8px; border-radius: 999px;
+  border: 1px solid var(--line); color: var(--muted);
+}
+.legend i {
+  display: inline-block; width: 8px; height: 8px; border-radius: 2px;
+  margin-right: 4px; vertical-align: middle;
+}
+.foot { margin-top: 22px; color: var(--muted); font-size: 11px; text-align: center; }
+.boss-glow { box-shadow: inset 0 0 0 1px #60a5fa55; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Trade Vision — PROJECT BRAIN <span class="badge">v1.94 · MOCK</span></h1>
+  <p class="sum">Paper trading helper. Reads candles. Judges idea. Suggests practice trades. Never places real broker orders.</p>
+</header>
+
+<main class="wrap">
+
+  <div class="section-title">The Path</div>
+  <div class="path-box">
+    <b>Story:</b> Human hits Analyze → <b>Candle Source</b> loads 1m bars → <b>UI Build</b> cleans pack → <b>HTTP In</b> posts to server →
+    <b>Safety</b> can hard-stop → <b>Snapshot</b> freezes closed bars → <b>Evidence Pack</b> runs 8 tools →
+    <b>Arbiter</b> judges → <b>ORB</b> may propose entry/stop/target → Arbiter judges again →
+    <b>Guidance Out</b> → <b>UI Screen</b> → optional <b>Paper Ledger</b> Record → later <b>Outcome Watcher</b>.
+    Side toys (Jarvis, Kronos, Twin, AI, TrendForge, 9C, Regime, Lag) only show stuff. Live money stays off.
+  </div>
+
+  <div class="legend">
+    <span><i style="background:var(--data)"></i>data</span>
+    <span><i style="background:var(--engine)"></i>engine</span>
+    <span><i style="background:var(--hub)"></i>hub (boss)</span>
+    <span><i style="background:var(--research)"></i>research</span>
+    <span><i style="background:var(--store)"></i>store</span>
+    <span><i style="background:var(--safety)"></i>safety</span>
+    <span><i style="background:var(--ui)"></i>ui</span>
+    <span><i style="background:var(--external)"></i>external</span>
+  </div>
+
+  <!-- DATA -->
+  <div class="section-title">The Blocks · Data</div>
+  <div class="grid">
+
+    <article class="card" style="--kind:var(--data)">
+      <div class="tag">data</div>
+      <h3>CANDLE SOURCE</h3>
+      <div class="id">candle_src</div>
+      <dl>
+        <dt>One-liner</dt><dd>Box of raw 1-minute price bars from local files.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Loads lab RELIANCE 1m bars on Analyze.</li>
+          <li>Gives open/high/low/close/volume numbers.</li>
+          <li>Holds bars in memory for this run only.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Need free offline prices without a live exchange feed.</dd>
+        <dt>When it wakes up</dt><dd>Analyze button click.</dd>
+        <dt>Who calls it</dt><dd>Web Shell · UI Build · human.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">client.behaviorImportLocalReliancePreview · GET /api/v1/behavior/data/local/reliance-1m/preview</dd>
+        <dt>Caveman analogy</dt><dd>Weather printout before you pack the umbrella.</dd>
+      </dl>
+      <div class="warn">⚠️ Lab path often forces RELIANCE 1m. Not a live broker feed.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--data)">
+      <div class="tag">data</div>
+      <h3>UI BUILD</h3>
+      <div class="id">ui_build</div>
+      <dl>
+        <dt>One-liner</dt><dd>Turns raw bars into clean payloads for the backend.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Resamples 1m into higher timeframes.</li>
+          <li>Keeps only finished (closed) candles.</li>
+          <li>Builds PaperGuidanceRequest package.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Server wants one neat multi-timeframe lunchbox, not raw mess.</dd>
+        <dt>When it wakes up</dt><dd>Right after candle load, still in Analyze.</dd>
+        <dt>Who calls it</dt><dd>Candle Source · App.tsx helpers.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">App.tsx buildOrbGuidancePayload · resampleNseSeries</dd>
+        <dt>Caveman analogy</dt><dd>Chop veggies and pack lunch before kitchen window.</dd>
+      </dl>
+      <div class="warn">⚠️ Higher-timeframe bars ride in same POST body — not a separate DB.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--data)">
+      <div class="tag">data</div>
+      <h3>HTTP IN</h3>
+      <div class="id">http_in</div>
+      <dl>
+        <dt>One-liner</dt><dd>Sends the clean payload from browser to server.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Posts JSON from browser client.</li>
+          <li>Hits paper-guidance run door.</li>
+          <li>Returns guidance envelope to UI.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>One official door so UI and tests share one spine.</dd>
+        <dt>When it wakes up</dt><dd>On Analyze after payload build.</dd>
+        <dt>Who calls it</dt><dd>UI Build · client.paperGuidanceRun.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">client.ts paperGuidanceRun · POST /paper-guidance/run</dd>
+        <dt>Caveman analogy</dt><dd>Front desk window — hand form, wait for stamp.</dd>
+      </dl>
+      <div class="warn">⚠️ HTTP only on this path. Live trading still blocked by Safety.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--data)">
+      <div class="tag">data</div>
+      <h3>SNAPSHOT FREEZE</h3>
+      <div class="id">snapshot</div>
+      <dl>
+        <dt>One-liner</dt><dd>Locks data so nobody cheats with future prices.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Drops bars still open at decision time.</li>
+          <li>Freezes closed-candle snapshot for the run.</li>
+          <li>Stamps snapshot_hash fingerprint (SHA-256).</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Without freeze, engines disagree which bars “count.”</dd>
+        <dt>When it wakes up</dt><dd>Early in /run after quality + safety gates.</dd>
+        <dt>Who calls it</dt><dd>Paper spine · Safety gates first.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">paper_guidance_spine P0 · freeze_d2_closed_candle_snapshot</dd>
+        <dt>Caveman analogy</dt><dd>Polaroid mid-game — only study that photo.</dd>
+      </dl>
+      <div class="warn">⚠️ If Safety / D1 fails, no freeze — only blocked guidance.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--data)">
+      <div class="tag">data</div>
+      <h3>GUIDANCE OUT</h3>
+      <div class="id">guidance_out</div>
+      <dl>
+        <dt>One-liner</dt><dd>Packages final decision into JSON for the screen.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Wraps final_band, plan, blockers.</li>
+          <li>Builds PaperTradeGuidance object.</li>
+          <li>Sends envelope() result back over HTTP.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Product needs one typed answer, not ten loud engines.</dd>
+        <dt>When it wakes up</dt><dd>End of /run packaging.</dd>
+        <dt>Who calls it</dt><dd>Arbiter · ORB · paper spine envelope.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">models.PaperTradeGuidance · envelope()</dd>
+        <dt>Caveman analogy</dt><dd>Exam grade sheet: wait / watch / enter + why.</dd>
+      </dl>
+      <div class="warn">⚠️ Always practice-mode packaging. Not a broker order ticket.</div>
+    </article>
+
+  </div>
+
+  <!-- ENGINE -->
+  <div class="section-title">The Blocks · Engine</div>
+  <div class="grid">
+
+    <article class="card" style="--kind:var(--engine)">
+      <div class="tag">engine</div>
+      <h3>EVIDENCE PACK</h3>
+      <div class="id">evidence</div>
+      <dl>
+        <dt>One-liner</dt><dd>Runs 8 mini tools on frozen data to score the idea.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Runs chart, candle, levels, indicators, MTF, memory, liquidity, OI/risk.</li>
+          <li>Writes receipts even if one tool fails (degraded).</li>
+          <li>Hands scores to Arbiter, not the screen boss.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Split hard market checks into small, testable votes.</dd>
+        <dt>When it wakes up</dt><dd>After Snapshot freeze, inside /run.</dd>
+        <dt>Who calls it</dt><dd>Paper spine · Snapshot.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">CHART_REASONING · CANDLE_CONDITION · LEVEL_CONTEXT · SNAPSHOT_INDICATOR_RUNTIME · MTF_CONFIRMATION · PERSISTED_INDICATOR_MEMORY · MARKET_STRUCTURE_LIQUIDITY · EXECUTION_EVENT_OI_RISK</dd>
+        <dt>Caveman analogy</dt><dd>Eight scouts write notes; none is the general.</dd>
+      </dl>
+      <div class="warn">⚠️ Kronos / AI / Twin do not get real boss power from this pack.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--engine)">
+      <div class="tag">engine</div>
+      <h3>9C INDICATORS</h3>
+      <div class="id">ninec</div>
+      <dl>
+        <dt>One-liner</dt><dd>Extra indicator panels for research only.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Shows nine-candle / indicator research views.</li>
+          <li>Serves reliability-style research routes.</li>
+          <li>Stays off the main paper boss path.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Deep pattern toys without making them the referee.</dd>
+        <dt>When it wakes up</dt><dd>Jarvis / research panel use.</dd>
+        <dt>Who calls it</dt><dd>Jarvis Room · research UI.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">nine_candle_* · indicator_registry · reliability routes</dd>
+        <dt>Caveman analogy</dt><dd>Microscope on the bench — cool, not the whistle.</dd>
+      </dl>
+      <div class="warn">⚠️ Not used in main paper path. Indicator vote forced 0 on /run boss request.</div>
+    </article>
+
+  </div>
+
+  <!-- HUB / BOSS -->
+  <div class="section-title">The Blocks · Hub (boss)</div>
+  <div class="grid">
+
+    <article class="card boss-glow" style="--kind:var(--hub)">
+      <div class="tag">hub · BOSS</div>
+      <h3>ARBITER (BOSS)</h3>
+      <div class="id">arbiter</div>
+      <dl>
+        <dt>One-liner</dt><dd>The judge. Reads scores. Picks WAIT, WATCH, or ENTER_PAPER.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Reads evidence scores and ORB plan authority.</li>
+          <li>Decides final_band for the product.</li>
+          <li>Maps internal PAPER-CANDIDATE to ENTER_PAPER when eligible.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>One boss only — engines must not fight for the band.</dd>
+        <dt>When it wakes up</dt><dd>Twice per /run: before and after ORB plan.</dd>
+        <dt>Who calls it</dt><dd>Paper spine · Evidence Pack · ORB Playbook.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">final_confluence_arbiter.py</dd>
+        <dt>Caveman analogy</dt><dd>Only referee with a whistle on the field.</dd>
+      </dl>
+      <div class="warn">⚠️ On /run: indicator score 0, external AI score 0. Boss ignores pretty side panels.</div>
+    </article>
+
+  </div>
+
+  <!-- RESEARCH -->
+  <div class="section-title">The Blocks · Research</div>
+  <div class="grid">
+
+    <article class="card" style="--kind:var(--research)">
+      <div class="tag">research</div>
+      <h3>ORB PLAYBOOK</h3>
+      <div class="id">orb</div>
+      <dl>
+        <dt>One-liner</dt><dd>Looks for Opening Range Breakout; suggests entry, stop, target.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Loads active playbooks from list.</li>
+          <li>Builds ORB candidate on frozen bars.</li>
+          <li>Hands entry plan to Arbiter pass #2.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Team trades first-range breakouts with proved recipes.</dd>
+        <dt>When it wakes up</dt><dd>Inside /run after Arbiter pass #1.</dd>
+        <dt>Who calls it</dt><dd>Paper spine · Snapshot series.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">orb/core/build_orb_candidate.py · list_orb_playbooks</dd>
+        <dt>Caveman analogy</dt><dd>Coach draws the play — referee still calls the score.</dd>
+      </dl>
+      <div class="warn">⚠️ Only proposes. Cannot trade real money. No playbook → no plan.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--research)">
+      <div class="tag">research</div>
+      <h3>KRONOS</h3>
+      <div class="id">kronos</div>
+      <dl>
+        <dt>One-liner</dt><dd>Forecast research engine. Pretty charts. Not the boss.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Builds forecast research views.</li>
+          <li>Shows charts in side panels.</li>
+          <li>Stays out of final paper band.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Want forecast toys without giving them trade power.</dd>
+        <dt>When it wakes up</dt><dd>Jarvis / Kronos panel actions.</dd>
+        <dt>Who calls it</dt><dd>Jarvis Room · kronos routes.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">kronos_proxy · kronos routes</dd>
+        <dt>Caveman analogy</dt><dd>Weather app on phone — you still pick the coat.</dd>
+      </dl>
+      <div class="warn">⚠️ Does NOT affect the boss decision. Skipped on paper packaging path.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--research)">
+      <div class="tag">research</div>
+      <h3>TWIN</h3>
+      <div class="id">twin</div>
+      <dl>
+        <dt>One-liner</dt><dd>Second-opinion research. Parallel lane. Not wired to Arbiter.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Runs dual / full twin analysis.</li>
+          <li>Shows comparison research in UI.</li>
+          <li>Never sets final_band.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Catch bias by comparing two research stories.</dd>
+        <dt>When it wakes up</dt><dd>Twin panel / research actions.</dd>
+        <dt>Who calls it</dt><dd>Jarvis Room · twin routes.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">twin_arbiter · full_twin_analysis</dd>
+        <dt>Caveman analogy</dt><dd>Two scouts, different trails, same mountain.</dd>
+      </dl>
+      <div class="warn">⚠️ Parallel only. Not connected to Arbiter on paper path.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--research)">
+      <div class="tag">research</div>
+      <h3>TRENDFORGE BRIDGE</h3>
+      <div class="id">trendforge</div>
+      <dl>
+        <dt>One-liner</dt><dd>Pulls signed outside research packets. Read-only store.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Pulls latest TrendForge packets over API.</li>
+          <li>Checks signature so fakes bounce.</li>
+          <li>Stores packets for humans to read.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Import outside research without trusting unsigned junk.</dd>
+        <dt>When it wakes up</dt><dd>Pull-latest / bridge action.</dd>
+        <dt>Who calls it</dt><dd>Integrations UI · external TrendForge.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">trendforge_bridge.py · POST /api/v1/integrations/trendforge/pull-latest</dd>
+        <dt>Caveman analogy</dt><dd>Sealed mail with wax stamp — no stamp, bin it.</dd>
+      </dl>
+      <div class="warn">⚠️ Reading only. Does not own paper final_band.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--research)">
+      <div class="tag">research</div>
+      <h3>GEMINI + GROK</h3>
+      <div class="id">ai</div>
+      <dl>
+        <dt>One-liner</dt><dd>AI review panel. Talks a lot. Boss ignores the score.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Reads evidence for narrative review.</li>
+          <li>Calls Gemini / Grok providers.</li>
+          <li>Shows opinions in comparison UI.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Want second opinions without giving AI the whistle.</dd>
+        <dt>When it wakes up</dt><dd>AI panel / review actions.</dd>
+        <dt>Who calls it</dt><dd>Jarvis Room · review UI.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">gemini_provider · grok_provider</dd>
+        <dt>Caveman analogy</dt><dd>TV sports commentators — loud, zero whistle power.</dd>
+      </dl>
+      <div class="warn">⚠️ Scores ignored by Arbiter. external_ai_score forced 0 on /run.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--research)">
+      <div class="tag">research</div>
+      <h3>REGIME FEEDBACK</h3>
+      <div class="id">regime_fb</div>
+      <dl>
+        <dt>One-liner</dt><dd>Market mood reporter. Separate API. Off paper run.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Reports trending vs choppy style context.</li>
+          <li>Serves separate research API.</li>
+          <li>Stays out of paper /run boss loop.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Mood research is useful; spine keeps a simpler score path.</dd>
+        <dt>When it wakes up</dt><dd>Separate API / panel call.</dd>
+        <dt>Who calls it</dt><dd>Research UI · not Arbiter.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">market_regime_feedback.py</dd>
+        <dt>Caveman analogy</dt><dd>Radio traffic report — helpful, not the steering wheel.</dd>
+      </dl>
+      <div class="warn">⚠️ Not used inside paper run. Parallel research only.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--research)">
+      <div class="tag">research</div>
+      <h3>LAG VOTING</h3>
+      <div class="id">lag_vote</div>
+      <dl>
+        <dt>One-liner</dt><dd>Checks if indicators are lying with late signals.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Studies lag / late-indicator tricks.</li>
+          <li>Serves separate research route.</li>
+          <li>Does not promote ENTER_PAPER alone.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Late signals look smart and still lose money in real time.</dd>
+        <dt>When it wakes up</dt><dd>Separate route / panel.</dd>
+        <dt>Who calls it</dt><dd>Research UI · not paper boss.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">indicator_lag_voting.py</dd>
+        <dt>Caveman analogy</dt><dd>Friend yelling “I knew it!” after the goal already scored.</dd>
+      </dl>
+      <div class="warn">⚠️ Score hardcoded to 0 on main path. Separate route only.</div>
+    </article>
+
+  </div>
+
+  <!-- STORE -->
+  <div class="section-title">The Blocks · Store</div>
+  <div class="grid">
+
+    <article class="card" style="--kind:var(--store)">
+      <div class="tag">store</div>
+      <h3>PAPER LEDGER</h3>
+      <div class="id">paper_store</div>
+      <dl>
+        <dt>One-liner</dt><dd>Saves the fake trade locally when user clicks Record.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Checks ticket + confirm phrase + hash.</li>
+          <li>Writes simulated row to TV local ledger.</li>
+          <li>Uses atomic JSON store so files do not half-write.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Practice book without broker or Stock App database.</dd>
+        <dt>When it wakes up</dt><dd>Human Record click only.</dd>
+        <dt>Who calls it</dt><dd>UI Screen · human confirm.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">simulated_paper_ledger · atomic_json_store · POST /record-simulated</dd>
+        <dt>Caveman analogy</dt><dd>Practice scorebook — pencil only, no cash drawer.</dd>
+      </dl>
+      <div class="warn">⚠️ Fake trade only. Does not write Stock App sim_trading.db.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--store)">
+      <div class="tag">store</div>
+      <h3>OUTCOME WATCHER</h3>
+      <div class="id">outcome_out</div>
+      <dl>
+        <dt>One-liner</dt><dd>Watches the fake trade later; reports win or loss.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Observes later closed bars after Record.</li>
+          <li>Grades paper outcome for the card.</li>
+          <li>Updates reliability-style feedback over time.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Paper without score is just a diary of hopes.</dd>
+        <dt>When it wakes up</dt><dd>Observe / Evaluate after a paper row exists.</dd>
+        <dt>Who calls it</dt><dd>Human Observe · UI Screen.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">orb_paper_lifecycle · POST /observe</dd>
+        <dt>Caveman analogy</dt><dd>Coach watching film of yesterday’s practice match.</dd>
+      </dl>
+      <div class="warn">⚠️ Needs later bars. Still not live broker P&amp;L.</div>
+    </article>
+
+  </div>
+
+  <!-- SAFETY -->
+  <div class="section-title">The Blocks · Safety</div>
+  <div class="grid">
+
+    <article class="card" style="--kind:var(--safety)">
+      <div class="tag">safety</div>
+      <h3>SAFETY &amp; AUDIT</h3>
+      <div class="id">safety</div>
+      <dl>
+        <dt>One-liner</dt><dd>Kill switch and live-trade blocker. “No” stops everything.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Keeps MOCK mode; blocks live orders.</li>
+          <li>Runs hard safety checks before freeze / run.</li>
+          <li>Holds kill switch + red-team audit tools.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Trading stack without hard safety is a loaded gun on a desk.</dd>
+        <dt>When it wakes up</dt><dd>Always for mode; every /run; audit routes on demand.</dd>
+        <dt>Who calls it</dt><dd>Paper spine · state · ops panels.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">state.py · SAFETY_INVARIANTS · operational_safety · red_team_final_gate</dd>
+        <dt>Caveman analogy</dt><dd>Seatbelts + airbags + inspection sticker.</dd>
+      </dl>
+      <div class="warn">⚠️ If this says no, everything stops. Live trading blocked. Cannot trade real money.</div>
+    </article>
+
+  </div>
+
+  <!-- UI -->
+  <div class="section-title">The Blocks · UI</div>
+  <div class="grid">
+
+    <article class="card" style="--kind:var(--ui)">
+      <div class="tag">ui</div>
+      <h3>UI SCREEN</h3>
+      <div class="id">ui_out</div>
+      <dl>
+        <dt>One-liner</dt><dd>Shows final card with band, plan, and blockers.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Renders ORB Paper Guidance card.</li>
+          <li>Sets orb guidance state from JSON.</li>
+          <li>Offers Record / Observe when allowed.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Humans need one clear card, not raw engine dumps.</dd>
+        <dt>When it wakes up</dt><dd>After /run returns · after Record · after Observe.</dd>
+        <dt>Who calls it</dt><dd>Guidance Out · Paper Ledger · Outcome Watcher.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">App.tsx setOrbGuidance · ORB Paper Guidance card</dd>
+        <dt>Caveman analogy</dt><dd>Scoreboard over the court — big numbers, few words.</dd>
+      </dl>
+      <div class="warn">⚠️ Human must still click Record. Screen never auto-trades live.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--ui)">
+      <div class="tag">ui</div>
+      <h3>JARVIS ROOM</h3>
+      <div class="id">jarvis</div>
+      <dl>
+        <dt>One-liner</dt><dd>Side dashboard with extra research panels and widgets.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Hosts many jarvis_* research panels.</li>
+          <li>Shows Kronos, AI, Twin, OpenAlgo previews.</li>
+          <li>Sits beside paper card; does not steal boss job.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>One cockpit for paper path plus research toys.</dd>
+        <dt>When it wakes up</dt><dd>User opens Jarvis decision room.</dd>
+        <dt>Who calls it</dt><dd>Web Shell · human operator.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">jarvis_decision_room · many jarvis_* panels</dd>
+        <dt>Caveman analogy</dt><dd>Mission control — lots of screens, one Analyze launch key.</dd>
+      </dl>
+      <div class="warn">⚠️ Side panels inform humans. Arbiter still owns final_band.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--ui)">
+      <div class="tag">ui</div>
+      <h3>WEB SHELL</h3>
+      <div class="id">ui</div>
+      <dl>
+        <dt>One-liner</dt><dd>Main app shell. Holds Analyze button and all cards.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Boots React Trade Vision frontend.</li>
+          <li>Holds Analyze button and navigation.</li>
+          <li>Owns client.ts API helpers.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Single browser house for the product.</dd>
+        <dt>When it wakes up</dt><dd>Browser open / app load.</dd>
+        <dt>Who calls it</dt><dd>Human operator.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">App.tsx · client.ts · main.tsx</dd>
+        <dt>Caveman analogy</dt><dd>Car body + dashboard; engines hide under the hood.</dd>
+      </dl>
+      <div class="warn">⚠️ Paper path uses HTTP only from this shell (no WS on that path).</div>
+    </article>
+
+  </div>
+
+  <!-- EXTERNAL -->
+  <div class="section-title">The Blocks · External</div>
+  <div class="grid">
+
+    <article class="card" style="--kind:var(--external)">
+      <div class="tag">external</div>
+      <h3>OPENALGO</h3>
+      <div class="id">openalgo</div>
+      <dl>
+        <dt>One-liner</dt><dd>Broker preview tool. Dry-run only. No real orders.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Packages preview handoffs to OpenAlgo transport.</li>
+          <li>Runs handoff gate checks.</li>
+          <li>Keeps real routing disabled here.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Future executor edge without breaking safety today.</dd>
+        <dt>When it wakes up</dt><dd>OpenAlgo / execution-lab panels.</dd>
+        <dt>Who calls it</dt><dd>Jarvis ops UI · Safety still blocks live.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">openalgo_transport · handoff_gate</dd>
+        <dt>Caveman analogy</dt><dd>Loading dock painted “DRY RUN ONLY.”</dd>
+      </dl>
+      <div class="warn">⚠️ No real orders allowed. Not auto after Paper Ledger Record.</div>
+    </article>
+
+    <article class="card" style="--kind:var(--external)">
+      <div class="tag">external</div>
+      <h3>STOCK APP</h3>
+      <div class="id">stock</div>
+      <dl>
+        <dt>One-liner</dt><dd>Separate product with its own database. Silent to TV paper.</dd>
+        <dt>Job</dt>
+        <dd><ul>
+          <li>Runs stock charts / ML / sim APIs.</li>
+          <li>Owns /api/sim/* multi-account sim book.</li>
+          <li>Does not auto-sync TV paper ledger.</li>
+        </ul></dd>
+        <dt>Why exist</dt><dd>Older sibling platform kept separate for safety and clarity.</dd>
+        <dt>When it wakes up</dt><dd>When Stock App operators use it.</dd>
+        <dt>Who calls it</dt><dd>Stock App users · optional chart embed only.</dd>
+        <dt>Files / APIs</dt>
+        <dd class="files">server.py · /api/sim/*</dd>
+        <dt>Caveman analogy</dt><dd>Different store in same mall — shared parking, separate cash.</dd>
+      </dl>
+      <div class="warn">⚠️ Does not talk to TV paper ledger. Separate cash register forever.</div>
+    </article>
+
+  </div>
+
+  <!-- CONNECTIONS -->
+  <div class="section-title">The Connections</div>
+  <div class="conn">
+    <ol>
+      <li><b>Candle Source</b> sends 1m bars to <b>UI Build</b> so UI Build can clean a multi-timeframe payload.</li>
+      <li><b>UI Build</b> sends the payload to <b>HTTP In</b> so the server can start one paper run.</li>
+      <li><b>HTTP In</b> sends the pack through <b>Safety &amp; Audit</b> so a hard “no” can stop the whole run.</li>
+      <li><b>Safety</b> allows the run, then <b>Snapshot Freeze</b> locks closed bars so later tools share one photo.</li>
+      <li><b>Snapshot</b> sends frozen bars to <b>Evidence Pack</b> so 8 mini tools can score the idea.</li>
+      <li><b>Evidence Pack</b> sends scores to <b>Arbiter (BOSS)</b> so the boss can pick WAIT / WATCH first pass.</li>
+      <li><b>ORB Playbook</b> sends entry/stop/target to <b>Arbiter</b> so pass #2 can allow ENTER_PAPER when eligible.</li>
+      <li><b>Arbiter</b> sends final_band to <b>Guidance Out</b> so <b>UI Screen</b> can show the human the card.</li>
+      <li><b>UI Screen</b> sends Record confirm to <b>Paper Ledger</b> so a fake trade row is saved locally.</li>
+      <li><b>Paper Ledger</b> sends paper ids to <b>Outcome Watcher</b> so later bars can mark win/loss; side toys (Jarvis, Kronos, Twin, AI, TrendForge, 9C, Regime, Lag, OpenAlgo, Stock App) only talk to humans for display / dry-run.</li>
+    </ol>
+  </div>
+
+  <!-- GLOSSARY -->
+  <div class="section-title">Word List</div>
+  <div class="glossary">
+    <div class="g-item"><b>final_band</b><span>Boss label on paper card.</span></div>
+    <div class="g-item"><b>ENTER_PAPER</b><span>OK to record fake trade.</span></div>
+    <div class="g-item"><b>Arbiter</b><span>Only boss of paper band.</span></div>
+    <div class="g-item"><b>snapshot_hash</b><span>Fingerprint of frozen bars.</span></div>
+    <div class="g-item"><b>ORB</b><span>Opening range breakout recipe.</span></div>
+    <div class="g-item"><b>Paper trade</b><span>Fake row, not broker order.</span></div>
+    <div class="g-item"><b>MOCK mode</b><span>Live orders always blocked.</span></div>
+    <div class="g-item"><b>Evidence Pack</b><span>Eight scouts, one report pile.</span></div>
+    <div class="g-item"><b>Jarvis</b><span>Side research dashboard room.</span></div>
+    <div class="g-item"><b>Stock App</b><span>Sibling product, separate DB.</span></div>
+  </div>
+
+  <p class="foot">
+    Trade Vision PROJECT BRAIN · 23/23 blocks from nodes array · React/TS · Python FastAPI · local paper ledger · live trading blocked ·
+    companion: TV_COMPLETE_FLOW_MAP.html (Tabs 1–5 · Tab 5 = code-truth + audit + work log)
+  </p>
+</main>
+</body>
+</html>

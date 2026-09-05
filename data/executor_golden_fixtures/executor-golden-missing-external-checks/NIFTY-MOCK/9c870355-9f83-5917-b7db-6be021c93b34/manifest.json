@@ -1,0 +1,15 @@
+{
+  "contains_broker_credentials": false,
+  "contains_broker_orders": false,
+  "created_at": "2026-01-05T03:45:00+00:00",
+  "dry_run_only": true,
+  "live_trading_blocked": true,
+  "manifest_version": "openalgo-executor-dry-run-manifest.v0.50",
+  "package_file": "package.json",
+  "package_id": "9c870355-9f83-5917-b7db-6be021c93b34",
+  "package_sha256": "5d0267b1bf341dc632dd95e81877bfe3eb7d0740470d75e65f05d8305140fe23",
+  "package_size_bytes": 9514,
+  "retention_days": 365,
+  "symbol": "NIFTY-MOCK",
+  "target_executor": "openalgo"
+}

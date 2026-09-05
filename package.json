@@ -1,0 +1,20 @@
+{
+  "name": "trade-vision-app",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/web",
+    "packages/contracts"
+  ],
+  "scripts": {
+    "dev": "npm --workspace apps/web run dev",
+    "build": "npm --workspace packages/contracts run build && npm --workspace apps/web run build",
+    "typecheck": "npm --workspace packages/contracts run typecheck && npm --workspace apps/web run typecheck",
+    "serve:web:8765": "powershell -ExecutionPolicy Bypass -File scripts/serve-web-static-8765.ps1",
+    "generate-api": "openapi-typescript http://127.0.0.1:8000/openapi.json --output packages/contracts/src/openapi.generated.ts"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.6.1",
+    "typescript": "^5.7.3"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "contains_broker_credentials": false,
+  "contains_broker_orders": false,
+  "created_at": "2026-06-30T10:32:43.284125+00:00",
+  "dry_run_only": true,
+  "live_trading_blocked": true,
+  "manifest_version": "openalgo-executor-dry-run-manifest.v0.50",
+  "package_file": "package.json",
+  "package_id": "2dec7cf1-cdaa-59c4-a2c4-bfc8b49dd4c3",
+  "package_sha256": "c6d66410b06c556ca4dd4f6075e69a7f9fb1ffe0cab1252e6179df4ef1c9bef6",
+  "package_size_bytes": 9531,
+  "retention_days": 30,
+  "symbol": "RELIANCE",
+  "target_executor": "openalgo"
+}

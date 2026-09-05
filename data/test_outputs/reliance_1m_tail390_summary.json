@@ -1,0 +1,481 @@
+{
+  "import_preview": {
+    "status_code": 200,
+    "symbol": "RELIANCE",
+    "timeframe": "1m",
+    "quality": {
+      "data_quality_score": 0.965,
+      "invalid_ohlc_count": 0,
+      "duplicate_timestamp_count": 0,
+      "gap_count": 1,
+      "blocks_trade": false
+    },
+    "point_in_time": {
+      "passed": true,
+      "allowed_bars": 390,
+      "future_bar_blocked": 0,
+      "incomplete_candle_blocked": 0,
+      "blocks_trade": false
+    },
+    "series": {
+      "bar_count": 390,
+      "first_bar": {
+        "symbol": "RELIANCE",
+        "timeframe": "1m",
+        "timestamp_ns": 1773913500000000000,
+        "open": 1385.7,
+        "high": 1387.7,
+        "low": 1385.6,
+        "close": 1386.7,
+        "volume": 153105.0,
+        "source": "user_csv",
+        "sequence_number": 1
+      },
+      "latest_bar": {
+        "symbol": "RELIANCE",
+        "timeframe": "1m",
+        "timestamp_ns": 1774000740000000000,
+        "open": 1415.2,
+        "high": 1418.0,
+        "low": 1413.1,
+        "close": 1414.0,
+        "volume": 92112.0,
+        "source": "user_csv",
+        "sequence_number": 390
+      }
+    },
+    "warnings": {
+      "count": 0,
+      "sample": []
+    }
+  },
+  "jarvis_state": {
+    "status_code": 200,
+    "symbol": "RELIANCE",
+    "timeframe": "1m",
+    "final_action": "WATCH_ONLY"
+  },
+  "jarvis_master": {
+    "status_code": 200,
+    "symbol": "RELIANCE",
+    "timeframe": "1m",
+    "final_action": "WAIT"
+  },
+  "chart_reasoning": {
+    "status_code": 200,
+    "symbol": "RELIANCE",
+    "timeframe": "1m",
+    "gates": {
+      "count": 7,
+      "sample": [
+        {
+          "gate_id": "MAX-008",
+          "name": "No future candle enters morphology calculation",
+          "passed": true,
+          "severity": "block",
+          "evidence": "Only supplied closed candles are consumed.",
+          "remediation": null
+        },
+        {
+          "gate_id": "MAX-004",
+          "name": "EMA tangled state is visible",
+          "passed": true,
+          "severity": "info",
+          "evidence": "EMA geometry is reported as evidence, not an execution trigger.",
+          "remediation": null
+        },
+        {
+          "gate_id": "VOL-001",
+          "name": "ATR percentile uses prior closed data",
+          "passed": true,
+          "severity": "warn",
+          "evidence": "ATR percentile=90.69.",
+          "remediation": null
+        },
+        {
+          "gate_id": "VOL-002",
+          "name": "BB-width compression is classified",
+          "passed": true,
+          "severity": "info",
+          "evidence": "BB-width percentile=68.11.",
+          "remediation": null
+        },
+        {
+          "gate_id": "VCP-001",
+          "name": "VCP contraction state computed",
+          "passed": true,
+          "severity": "info",
+          "evidence": "vcp_contraction_with_volume_dryup",
+          "remediation": null
+        }
+      ]
+    }
+  },
+  "market_structure": {
+    "status_code": 200,
+    "symbol": "RELIANCE",
+    "timeframe": "1m",
+    "confidence_cap": "WAIT",
+    "trap_score": 0.34,
+    "profile_shape": "D",
+    "wyckoff_phase": "utad",
+    "gates": {
+      "count": 8,
+      "sample": [
+        {
+          "gate_id": "AUC-001",
+          "name": "Volume POC calculated",
+          "passed": true,
+          "severity": "info",
+          "evidence": "poc=1412.626087",
+          "remediation": null
+        },
+        {
+          "gate_id": "AUC-002",
+          "name": "Value area covers configured volume",
+          "passed": true,
+          "severity": "info",
+          "evidence": "ratio=0.78",
+          "remediation": null
+        },
+        {
+          "gate_id": "AUC-006",
+          "name": "TPO profile calculated",
+          "passed": true,
+          "severity": "info",
+          "evidence": "single_prints=4",
+          "remediation": null
+        },
+        {
+          "gate_id": "VSA-004",
+          "name": "VSA downgrade visible",
+          "passed": true,
+          "severity": "warn",
+          "evidence": "neutral_effort_result",
+          "remediation": "Do not trust raw breakout strength while effort/result downgrades."
+        },
+        {
+          "gate_id": "SMC-001",
+          "name": "Liquidity pool scan completed",
+          "passed": true,
+          "severity": "info",
+          "evidence": "pool=both",
+          "remediation": null
+        }
+      ]
+    }
+  },
+  "execution_event_oi": {
+    "status_code": 200,
+    "symbol": "RELIANCE",
+    "timeframe": "1m",
+    "confidence_cap": "WATCH",
+    "execution_plan_status": "WATCH_ONLY",
+    "slippage_risk": 0.313842,
+    "gates": {
+      "count": 14,
+      "sample": [
+        {
+          "gate_id": "EXEC-001",
+          "name": "Single-tick wick entry risk is blocked",
+          "passed": true,
+          "severity": "info",
+          "evidence": "single_tick_wick_risk=False.",
+          "remediation": null
+        },
+        {
+          "gate_id": "EXEC-002",
+          "name": "High spread blocks paper-candidate",
+          "passed": true,
+          "severity": "info",
+          "evidence": "spread_pct=0.0624.",
+          "remediation": null
+        },
+        {
+          "gate_id": "EXEC-003",
+          "name": "Low volume blocks position sizing",
+          "passed": true,
+          "severity": "info",
+          "evidence": "volume_percentile=82.7763.",
+          "remediation": null
+        },
+        {
+          "gate_id": "EXEC-004",
+          "name": "Impact cost must not exceed expected edge",
+          "passed": true,
+          "severity": "info",
+          "evidence": "impact_cost_pct=0.0000.",
+          "remediation": null
+        },
+        {
+          "gate_id": "EXEC-005",
+          "name": "Missing depth is explicitly marked as proxy",
+          "passed": true,
+          "severity": "warn",
+          "evidence": "depth_context_status=ohlcv_proxy.",
+          "remediation": null
+        }
+      ]
+    }
+  },
+  "final_confluence": {
+    "status_code": 200,
+    "symbol": "RELIANCE",
+    "timeframe": "1m",
+    "final_decision": "WAIT",
+    "dominant_blocker": null,
+    "confluence_score": -1,
+    "gates": {
+      "count": 9,
+      "sample": [
+        {
+          "gate_id": "ARB-001",
+          "name": "Bullish indicators at daily resistance are downgraded",
+          "passed": true,
+          "severity": "info",
+          "evidence": "daily_resistance_conflict=False; indicator_score=-0.77.",
+          "remediation": null
+        },
+        {
+          "gate_id": "ARB-002",
+          "name": "Weak sector reduces long confidence",
+          "passed": true,
+          "severity": "info",
+          "evidence": "weak_sector=False.",
+          "remediation": null
+        },
+        {
+          "gate_id": "ARB-003",
+          "name": "High trap score overrides analog or indicator strength",
+          "passed": true,
+          "severity": "info",
+          "evidence": "trap_score=0.34.",
+          "remediation": null
+        },
+        {
+          "gate_id": "ARB-004",
+          "name": "Event risk downgrades candidate state",
+          "passed": true,
+          "severity": "info",
+          "evidence": "event_risk_score=0.35.",
+          "remediation": null
+        },
+        {
+          "gate_id": "ARB-005",
+          "name": "Liquidity C blocks PAPER-CANDIDATE",
+          "passed": true,
+          "severity": "info",
+          "evidence": "liquidity_grade=B; final_decision=WAIT.",
+          "remediation": null
+        }
+      ]
+    }
+  },
+  "nine_candle": {
+    "status_code": 200,
+    "symbol": "RELIANCE",
+    "timeframe": "1m"
+  },
+  "indicator_alignment": {
+    "status_code": 200,
+    "type": "list",
+    "count": 94,
+    "sample": [
+      {
+        "indicator_id": "si_adaptive_flow",
+        "feature_block": "indicator:indicator_misc",
+        "manifest_slot": 0,
+        "last_9_values": [
+          null,
+          null,
+          -0.6552,
+          -0.1481,
+          0.7485,
+          -0.5556,
+          -0.6721,
+          0.5124,
+          null
+        ],
+        "last_9_signals": [
+          "missing",
+          "missing",
+          "bearish",
+          "neutral",
+          "bullish",
+          "bearish",
+          "bearish",
+          "bullish",
+          "missing"
+        ],
+        "matched_winner_count": 20,
+        "matched_failure_count": 9,
+        "historical_effect": "visible for explanation only; excluded from calibrated probability until PIT audit passes",
+        "current_alignment": 0.657,
+        "source_mode": "mock",
+        "runtime_status": "mock_generated",
+        "normalized_from": "deterministic_mock_unit",
+        "raw_output_present": true,
+        "explanation_only": false,
+        "usable_for_probability": false,
+        "missing_reason": "indicator output unavailable in current 9C mock snapshot"
+      },
+      {
+        "indicator_id": "si_bahai",
+        "feature_block": "indicator:indicator_misc",
+        "manifest_slot": 1,
+        "last_9_values": [
+          0.48,
+          -0.2821,
+          -0.8811,
+          0.5448,
+          0.2945,
+          0.2816,
+          -0.4718,
+          -0.4396,
+          -0.0187
+        ],
+        "last_9_signals": [
+          "bullish",
+          "neutral",
+          "bearish",
+          "bullish",
+          "neutral",
+          "neutral",
+          "bearish",
+          "neutral",
+          "neutral"
+        ],
+        "matched_winner_count": 27,
+        "matched_failure_count": 4,
+        "historical_effect": "visible for explanation only; excluded from calibrated probability until PIT audit passes",
+        "current_alignment": 0.931,
+        "source_mode": "mock",
+        "runtime_status": "mock_generated",
+        "normalized_from": "deterministic_mock_unit",
+        "raw_output_present": true,
+        "explanation_only": false,
+        "usable_for_probability": false,
+        "missing_reason": null
+      },
+      {
+        "indicator_id": "si_bb_break",
+        "feature_block": "indicator:volatility",
+        "manifest_slot": 2,
+        "last_9_values": [
+          0.3509,
+          -0.4402,
+          0.1765,
+          -0.4086,
+          -0.1151,
+          0.9189,
+          0.3162,
+          -0.5962,
+          0.7732
+        ],
+        "last_9_signals": [
+          "neutral",
+          "neutral",
+          "neutral",
+          "neutral",
+          "neutral",
+          "bullish",
+          "neutral",
+          "bearish",
+          "bullish"
+        ],
+        "matched_winner_count": 28,
+        "matched_failure_count": 3,
+        "historical_effect": "visible for explanation only; excluded from calibrated probability until PIT audit passes",
+        "current_alignment": 0.985,
+        "source_mode": "mock",
+        "runtime_status": "mock_generated",
+        "normalized_from": "deterministic_mock_unit",
+        "raw_output_present": true,
+        "explanation_only": false,
+        "usable_for_probability": false,
+        "missing_reason": null
+      },
+      {
+        "indicator_id": "si_bos",
+        "feature_block": "indicator:price_structure",
+        "manifest_slot": 3,
+        "last_9_values": [
+          0.7534,
+          0.4996,
+          0.3151,
+          -0.3731,
+          0.3844,
+          0.0504,
+          0.7841,
+          0.0913,
+          0.3915
+        ],
+        "last_9_signals": [
+          "bullish",
+          "bullish",
+          "neutral",
+          "neutral",
+          "neutral",
+          "neutral",
+          "bullish",
+          "neutral",
+          "neutral"
+        ],
+        "matched_winner_count": 6,
+        "matched_failure_count": 19,
+        "historical_effect": "visible for explanation only; excluded from calibrated probability until PIT audit passes",
+        "current_alignment": 0.077,
+        "source_mode": "mock",
+        "runtime_status": "mock_generated",
+        "normalized_from": "deterministic_mock_unit",
+        "raw_output_present": true,
+        "explanation_only": false,
+        "usable_for_probability": false,
+        "missing_reason": null
+      },
+      {
+        "indicator_id": "si_cdl",
+        "feature_block": "indicator:candlestick",
+        "manifest_slot": 4,
+        "last_9_values": [
+          0.835,
+          -0.7536,
+          -0.6308,
+          -0.5262,
+          0.4308,
+          -0.9382,
+          0.9985,
+          0.1814,
+          -0.2017
+        ],
+        "last_9_signals": [
+          "bullish",
+          "bearish",
+          "bearish",
+          "bearish",
+          "neutral",
+          "bearish",
+          "bullish",
+          "neutral",
+          "neutral"
+        ],
+        "matched_winner_count": 19,
+        "matched_failure_count": 10,
+        "historical_effect": "visible for explanation only; excluded from calibrated probability until PIT audit passes",
+        "current_alignment": 0.603,
+        "source_mode": "mock",
+        "runtime_status": "mock_generated",
+        "normalized_from": "deterministic_mock_unit",
+        "raw_output_present": true,
+        "explanation_only": false,
+        "usable_for_probability": false,
+        "missing_reason": null
+      }
+    ]
+  },
+  "indicator_summary": {
+    "status_code": 200,
+    "symbol": "RELIANCE",
+    "total_indicators": 94
+  }
+}

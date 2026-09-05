@@ -1,0 +1,153 @@
+{
+  "manifest_version": "tradevision-release-candidate-manifest.v0.59",
+  "release_id": "tv-v059-faf7d57b2883ed9b",
+  "generated_at": "2026-06-14T06:46:08.245534+00:00",
+  "target": "research_mock_stack",
+  "artifact_count": 17,
+  "artifacts": [
+    {
+      "artifact_id": "apps:api:app:main.py",
+      "relative_path": "apps/api/app/main.py",
+      "sha256": "2f375664369a26c1550c6aee424e31b99992501faf1e0198ac722f1dbb793c71",
+      "size_bytes": 164513,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "apps:api:app:models.py",
+      "relative_path": "apps/api/app/models.py",
+      "sha256": "824e98d0a0c16a7f594b67c79d50b9498bd49660791c21bf508ce7816e93a154",
+      "size_bytes": 115835,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "apps:api:app:behavior:constants.py",
+      "relative_path": "apps/api/app/behavior/constants.py",
+      "sha256": "4a36a7dd37eba2ff060d3de670a3d5dcec0aa8f355cc80a41eaeb85ab492624b",
+      "size_bytes": 12071,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "apps:api:app:behavior:deployment_recovery.py",
+      "relative_path": "apps/api/app/behavior/deployment_recovery.py",
+      "sha256": "2f0dde641ae6318db085f77785d29163ccef6849feb2ca87d88814867ab9e66c",
+      "size_bytes": 10086,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "apps:api:app:behavior:final_release_audit.py",
+      "relative_path": "apps/api/app/behavior/final_release_audit.py",
+      "sha256": "b1a3ac0cf03558e2e21292c4737c66d616296a58905d2413196902cf1ff111e0",
+      "size_bytes": 13251,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "apps:api:app:behavior:openalgo_transport.py",
+      "relative_path": "apps/api/app/behavior/openalgo_transport.py",
+      "sha256": "5da73a169f78596a81fdd692a4a0352d75df99929e9fc1b081c08dede81e0eaa",
+      "size_bytes": 24268,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "apps:api:app:behavior:transport_security.py",
+      "relative_path": "apps/api/app/behavior/transport_security.py",
+      "sha256": "e9f299ad85b996fce889463315096b8b405c6f6e1fc05cdbcbc55b31cee02b42",
+      "size_bytes": 6282,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "apps:api:app:behavior:transport_resilience.py",
+      "relative_path": "apps/api/app/behavior/transport_resilience.py",
+      "sha256": "e71fd0a8c295dd810cd0c4f1337f62e15d0b4ba570e2aca4b2d001d885a67ade",
+      "size_bytes": 14335,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "apps:openalgo-adapter:adapter_app:main.py",
+      "relative_path": "apps/openalgo-adapter/adapter_app/main.py",
+      "sha256": "7e20fd84f3014f2b2e4e53aac0f2f5b1012d3f06d15d0ad236a2543947a8b2c5",
+      "size_bytes": 10002,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "apps:web:src:App.tsx",
+      "relative_path": "apps/web/src/App.tsx",
+      "sha256": "d9f1cc20fa6d69d8d3ed2c8f82bf9425e73568cdb9e20b59fd2413e4ab1a95fe",
+      "size_bytes": 147983,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "apps:web:src:api:client.ts",
+      "relative_path": "apps/web/src/api/client.ts",
+      "sha256": "3ff80fb71f267c142a09e10a8237db3d6833279a62dfe5bc904f08ccc78fc7a7",
+      "size_bytes": 23260,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "apps:web:src:api:schemas.ts",
+      "relative_path": "apps/web/src/api/schemas.ts",
+      "sha256": "d31b669f7cd3985d306c739b1da2c2ee828508c3f7b7b7f85f434241a1bda7ed",
+      "size_bytes": 84136,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "docs:IMPLEMENTATION_STATUS.md",
+      "relative_path": "docs/IMPLEMENTATION_STATUS.md",
+      "sha256": "5c03c0688084762c398b01f329f53264ceed5e89cfe9ba3bcf5a02457ae49a91",
+      "size_bytes": 160244,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "docs:runbooks:deployment-backup-restore.md",
+      "relative_path": "docs/runbooks/deployment-backup-restore.md",
+      "sha256": "50e28b13dbd85e9ecd0ae799067e9c671cceddd8fa203d6863e841145668c385",
+      "size_bytes": 546,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": ".env.research.example",
+      "relative_path": ".env.research.example",
+      "sha256": "12ce7e81312e0946f0ae77b6054b69d803095134e0eb68a1ea16062963de72ff",
+      "size_bytes": 542,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "scripts:start-research-stack.ps1",
+      "relative_path": "scripts/start-research-stack.ps1",
+      "sha256": "094f79aaf518a7bf9fd48038ac27bcc6ad5aaba5b1ea7585a49a2537f095f281",
+      "size_bytes": 2118,
+      "required": true,
+      "present": true
+    },
+    {
+      "artifact_id": "scripts:stop-research-stack.ps1",
+      "relative_path": "scripts/stop-research-stack.ps1",
+      "sha256": "865ccb3c1f444cfc370194df903f578325e1b23f0330bed4ff7ecede2e00535d",
+      "size_bytes": 681,
+      "required": true,
+      "present": true
+    }
+  ],
+  "manifest_sha256": "faf7d57b2883ed9bf7c6b561522b8948e59afd332513ae4fe6eb50b64136c2f8",
+  "manifest_path": "D:\\Projects\\trading-platforms\\stock-app\\trade-vision-app\\data\\release_candidates\\tv-v059-faf7d57b2883ed9b.json",
+  "immutable": true,
+  "contains_secrets": false,
+  "contains_broker_credentials": false,
+  "contains_live_orders": false,
+  "order_routing_enabled": false,
+  "live_trading_blocked": true
+}

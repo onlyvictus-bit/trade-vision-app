@@ -1,0 +1,1018 @@
+{
+  "version": "tradevision-kronos-twin-real.v0.48",
+  "symbol": "RELIANCE",
+  "point_in_time": "2026-03-20T15:29:00+05:30",
+  "source_file": "C:\\Users\\sakth\\Downloads\\HSTRY\\RELIANCE_NSE_1m.csv",
+  "engines": {
+    "trade_vision": "Compact candle/indicator/history behavior analyzer",
+    "kronos": "Real NeoQuasar/Kronos-base with its official paired tokenizer",
+    "twin": "Conflict-reducing research arbiter; never order authority"
+  },
+  "timeframes": {
+    "1m": {
+      "input": {
+        "snapshot_id": "reliance-2026-03-20T15:29:00+05:30-1m-400",
+        "candle_count": 400,
+        "last_timestamp": "2026-03-20T15:29:00+05:30",
+        "input_snapshot_hash": "6483b699f00798aa3f8c7271a988312a792f6a2a23396aee6f1bdb3deebe6ba2",
+        "same_point_in_time_source": true
+      },
+      "trade_vision": {
+        "recommendation": "WAIT",
+        "raw_action": "SHORT",
+        "analysis_direction": "SHORT",
+        "directional_score": -0.3275,
+        "patterns": [
+          "upper_wick_rejection",
+          "range_expansion",
+          "neutral_momentum"
+        ],
+        "analog_summary": {
+          "match_count": 30,
+          "displayed_match_count": 5,
+          "direction": "SHORT",
+          "direction_support_pct": 43.33,
+          "average_future_return_pct": 0.0992,
+          "evidence": "MEDIUM",
+          "warning": "Top analog display is descriptive; calibrated probability requires at least 30 non-overlapping matches."
+        },
+        "plan": {
+          "action": "WAIT",
+          "preferred_side": "SHORT",
+          "trigger": "WAIT: conditional short plan activates only after a closed candle below support and a non-failing retest.",
+          "entry_low": 1410.4114,
+          "entry_high": 1410.6,
+          "stop_loss": 1414.371,
+          "invalidation": "Close back above breakdown level or structural resistance.",
+          "target_1r": 1406.6404,
+          "target_2r": 1402.7752,
+          "target_3r": 1398.9099,
+          "risk_per_share": 3.8653,
+          "risk_reward_to_3r": 3.0
+        }
+      },
+      "kronos": {
+        "model_name": "NeoQuasar/Kronos-base",
+        "model_version": "local-snapshot",
+        "tokenizer_name": "NeoQuasar/Kronos-Tokenizer-base",
+        "direction": "SIDEWAYS",
+        "expected_return_pct": 0.0931,
+        "expected_move_atr": 0.7174,
+        "continuation_probability": 50.326,
+        "reversal_probability": 49.674,
+        "range_probability": 54.8137,
+        "forecast_confidence": 0.5065,
+        "forecast_path": [
+          {
+            "timestamp_ns": 1774237500000000000,
+            "open": 1413.6119,
+            "high": 1415.1465,
+            "low": 1413.1169,
+            "close": 1414.6443,
+            "volume": 182777.375
+          },
+          {
+            "timestamp_ns": 1774237560000000000,
+            "open": 1414.4282,
+            "high": 1415.5178,
+            "low": 1413.7626,
+            "close": 1415.1138,
+            "volume": 103218.8438
+          },
+          {
+            "timestamp_ns": 1774237620000000000,
+            "open": 1413.0443,
+            "high": 1417.8224,
+            "low": 1410.1477,
+            "close": 1415.6606,
+            "volume": 128036.4297
+          },
+          {
+            "timestamp_ns": 1774237680000000000,
+            "open": 1414.8907,
+            "high": 1416.4053,
+            "low": 1413.2163,
+            "close": 1414.9325,
+            "volume": 144357.7656
+          },
+          {
+            "timestamp_ns": 1774237740000000000,
+            "open": 1408.8317,
+            "high": 1415.3599,
+            "low": 1402.6294,
+            "close": 1415.1807,
+            "volume": 138978.8281
+          },
+          {
+            "timestamp_ns": 1774237800000000000,
+            "open": 1413.9303,
+            "high": 1416.327,
+            "low": 1408.8259,
+            "close": 1415.7888,
+            "volume": 109242.375
+          },
+          {
+            "timestamp_ns": 1774237860000000000,
+            "open": 1414.6464,
+            "high": 1415.3395,
+            "low": 1410.4799,
+            "close": 1413.8792,
+            "volume": 103788.8438
+          },
+          {
+            "timestamp_ns": 1774237920000000000,
+            "open": 1413.6837,
+            "high": 1415.0021,
+            "low": 1413.0054,
+            "close": 1414.412,
+            "volume": 80387.375
+          },
+          {
+            "timestamp_ns": 1774237980000000000,
+            "open": 1414.2688,
+            "high": 1417.5278,
+            "low": 1413.0884,
+            "close": 1413.7314,
+            "volume": 88886.9766
+          },
+          {
+            "timestamp_ns": 1774238040000000000,
+            "open": 1408.8191,
+            "high": 1415.2404,
+            "low": 1402.8805,
+            "close": 1414.9285,
+            "volume": 124969.8672
+          },
+          {
+            "timestamp_ns": 1774238100000000000,
+            "open": 1413.5479,
+            "high": 1414.7811,
+            "low": 1411.7374,
+            "close": 1413.4762,
+            "volume": 90211.4141
+          },
+          {
+            "timestamp_ns": 1774238160000000000,
+            "open": 1410.9827,
+            "high": 1416.2762,
+            "low": 1409.9896,
+            "close": 1413.7811,
+            "volume": 143204.5156
+          },
+          {
+            "timestamp_ns": 1774238220000000000,
+            "open": 1414.2749,
+            "high": 1415.0524,
+            "low": 1413.1703,
+            "close": 1414.058,
+            "volume": 54541.3438
+          },
+          {
+            "timestamp_ns": 1774238280000000000,
+            "open": 1413.3846,
+            "high": 1415.5905,
+            "low": 1412.495,
+            "close": 1415.1292,
+            "volume": 118358.8203
+          },
+          {
+            "timestamp_ns": 1774238340000000000,
+            "open": 1415.0831,
+            "high": 1415.91,
+            "low": 1414.3885,
+            "close": 1415.3169,
+            "volume": 75978.625
+          }
+        ],
+        "sanity_check": {
+          "passed": true,
+          "max_allowed_move_pct": 18.0,
+          "max_observed_move_pct": 0.1265,
+          "impossible_move_blocked": false,
+          "reason": "Real Kronos-mini forecast passed input and market-physics bounds."
+        },
+        "output_hash": "236c6a04b51e2228dd376505b28616ac4501b7035f4104afff42abfc34573598",
+        "notes": [
+          "Forecast generated by the real upstream Kronos-mini model and Kronos-Tokenizer-2k.",
+          "Inference device: cuda:0; latency: 1156.26 ms; max context: 512.",
+          "Kronos remains a research prior and cannot execute or override Trade Vision safety."
+        ]
+      },
+      "twin": {
+        "agreement_state": "SOFT_CONFLICT",
+        "arbiter_action": "WAIT",
+        "reason": "Trade Vision did not pass its evidence gates; Kronos cannot promote it.",
+        "trade_allowed": false,
+        "order_routing_enabled": false,
+        "live_trading_blocked": true
+      }
+    },
+    "3m": {
+      "input": {
+        "snapshot_id": "reliance-2026-03-20T15:29:00+05:30-3m-400",
+        "candle_count": 400,
+        "last_timestamp": "2026-03-20T15:29:00+05:30",
+        "input_snapshot_hash": "eec096ae937209dcea3d232616a37bae729ffaa5aa4bb8b3c2c236d6536699e5",
+        "same_point_in_time_source": true
+      },
+      "trade_vision": {
+        "recommendation": "WAIT",
+        "raw_action": "SHORT",
+        "analysis_direction": "SHORT",
+        "directional_score": -0.6229,
+        "patterns": [
+          "bearish_ema_structure",
+          "strong_trend_strength",
+          "upper_wick_rejection",
+          "range_expansion",
+          "neutral_momentum"
+        ],
+        "analog_summary": {
+          "match_count": 30,
+          "displayed_match_count": 5,
+          "direction": "SHORT",
+          "direction_support_pct": 36.67,
+          "average_future_return_pct": -0.1222,
+          "evidence": "MEDIUM",
+          "warning": "Top analog display is descriptive; calibrated probability requires at least 30 non-overlapping matches."
+        },
+        "plan": {
+          "action": "WAIT",
+          "preferred_side": "SHORT",
+          "trigger": "WAIT: conditional short plan activates only after a closed candle below support and a non-failing retest.",
+          "entry_low": 1410.3111,
+          "entry_high": 1410.6,
+          "stop_loss": 1416.3782,
+          "invalidation": "Close back above breakdown level or structural resistance.",
+          "target_1r": 1404.5329,
+          "target_2r": 1398.6103,
+          "target_3r": 1392.6876,
+          "risk_per_share": 5.9226,
+          "risk_reward_to_3r": 3.0
+        }
+      },
+      "kronos": {
+        "model_name": "NeoQuasar/Kronos-base",
+        "model_version": "local-snapshot",
+        "tokenizer_name": "NeoQuasar/Kronos-Tokenizer-base",
+        "direction": "LONG",
+        "expected_return_pct": 0.2577,
+        "expected_move_atr": 1.1592,
+        "continuation_probability": 50.9018,
+        "reversal_probability": 49.0982,
+        "range_probability": 54.4847,
+        "forecast_confidence": 0.5082,
+        "forecast_path": [
+          {
+            "timestamp_ns": 1774237620000000000,
+            "open": 1420.3732,
+            "high": 1421.3472,
+            "low": 1412.606,
+            "close": 1413.6556,
+            "volume": 756397.0625
+          },
+          {
+            "timestamp_ns": 1774237800000000000,
+            "open": 1412.7638,
+            "high": 1416.3359,
+            "low": 1411.7742,
+            "close": 1414.468,
+            "volume": 260008.3438
+          },
+          {
+            "timestamp_ns": 1774237980000000000,
+            "open": 1416.4821,
+            "high": 1421.0098,
+            "low": 1415.7264,
+            "close": 1420.3573,
+            "volume": 135371.2188
+          },
+          {
+            "timestamp_ns": 1774238160000000000,
+            "open": 1418.6117,
+            "high": 1419.0702,
+            "low": 1415.0636,
+            "close": 1416.1445,
+            "volume": 112695.3828
+          },
+          {
+            "timestamp_ns": 1774238340000000000,
+            "open": 1415.3335,
+            "high": 1419.2427,
+            "low": 1412.6813,
+            "close": 1412.6813,
+            "volume": 229401.875
+          },
+          {
+            "timestamp_ns": 1774238520000000000,
+            "open": 1413.0485,
+            "high": 1415.7677,
+            "low": 1412.1493,
+            "close": 1414.468,
+            "volume": 163631.9844
+          },
+          {
+            "timestamp_ns": 1774238700000000000,
+            "open": 1414.5155,
+            "high": 1415.8339,
+            "low": 1413.6123,
+            "close": 1415.0623,
+            "volume": 60856.2109
+          },
+          {
+            "timestamp_ns": 1774238880000000000,
+            "open": 1414.9012,
+            "high": 1415.0724,
+            "low": 1413.5287,
+            "close": 1414.3445,
+            "volume": 83941.5312
+          },
+          {
+            "timestamp_ns": 1774239060000000000,
+            "open": 1414.5468,
+            "high": 1417.2803,
+            "low": 1413.9562,
+            "close": 1416.719,
+            "volume": 82630.8906
+          },
+          {
+            "timestamp_ns": 1774239240000000000,
+            "open": 1416.7878,
+            "high": 1418.2545,
+            "low": 1416.0702,
+            "close": 1417.6432,
+            "volume": 55958.2812
+          }
+        ],
+        "sanity_check": {
+          "passed": true,
+          "max_allowed_move_pct": 18.0,
+          "max_observed_move_pct": 0.4496,
+          "impossible_move_blocked": false,
+          "reason": "Real Kronos-mini forecast passed input and market-physics bounds."
+        },
+        "output_hash": "a601c1dd5f13ba29fa1579f8893d4891aec4fdb132e7b06036a7b36b0da6ad66",
+        "notes": [
+          "Forecast generated by the real upstream Kronos-mini model and Kronos-Tokenizer-2k.",
+          "Inference device: cuda:0; latency: 1892.40 ms; max context: 512.",
+          "Kronos remains a research prior and cannot execute or override Trade Vision safety."
+        ]
+      },
+      "twin": {
+        "agreement_state": "SOFT_CONFLICT",
+        "arbiter_action": "WAIT",
+        "reason": "Trade Vision did not pass its evidence gates; Kronos cannot promote it.",
+        "trade_allowed": false,
+        "order_routing_enabled": false,
+        "live_trading_blocked": true
+      }
+    },
+    "5m": {
+      "input": {
+        "snapshot_id": "reliance-2026-03-20T15:29:00+05:30-5m-400",
+        "candle_count": 400,
+        "last_timestamp": "2026-03-20T15:29:00+05:30",
+        "input_snapshot_hash": "aa0dd4a9be32c30d739b0e970c24812267504b4b5e3e2893022bf70b385dcbbc",
+        "same_point_in_time_source": true
+      },
+      "trade_vision": {
+        "recommendation": "WAIT",
+        "raw_action": "SHORT",
+        "analysis_direction": "SHORT",
+        "directional_score": -0.7128,
+        "patterns": [
+          "bearish_ema_structure",
+          "strong_trend_strength",
+          "outside_bar_expansion",
+          "upper_wick_rejection",
+          "range_expansion",
+          "bearish_momentum"
+        ],
+        "analog_summary": {
+          "match_count": 30,
+          "displayed_match_count": 5,
+          "direction": "SHORT",
+          "direction_support_pct": 36.67,
+          "average_future_return_pct": 0.1295,
+          "evidence": "MEDIUM",
+          "warning": "Top analog display is descriptive; calibrated probability requires at least 30 non-overlapping matches."
+        },
+        "plan": {
+          "action": "WAIT",
+          "preferred_side": "SHORT",
+          "trigger": "WAIT: conditional short plan activates only after a closed candle below support and a non-failing retest.",
+          "entry_low": 1410.2687,
+          "entry_high": 1410.6,
+          "stop_loss": 1417.2255,
+          "invalidation": "Close back above breakdown level or structural resistance.",
+          "target_1r": 1403.6432,
+          "target_2r": 1396.852,
+          "target_3r": 1390.0609,
+          "risk_per_share": 6.7912,
+          "risk_reward_to_3r": 3.0
+        }
+      },
+      "kronos": {
+        "model_name": "NeoQuasar/Kronos-base",
+        "model_version": "local-snapshot",
+        "tokenizer_name": "NeoQuasar/Kronos-Tokenizer-base",
+        "direction": "SIDEWAYS",
+        "expected_return_pct": 0.0196,
+        "expected_move_atr": 0.0787,
+        "continuation_probability": 50.0686,
+        "reversal_probability": 49.9314,
+        "range_probability": 54.9608,
+        "forecast_confidence": 0.5058,
+        "forecast_path": [
+          {
+            "timestamp_ns": 1774237740000000000,
+            "open": 1417.22,
+            "high": 1419.5062,
+            "low": 1405.426,
+            "close": 1405.426,
+            "volume": 395547.0625
+          },
+          {
+            "timestamp_ns": 1774238040000000000,
+            "open": 1404.9768,
+            "high": 1407.6863,
+            "low": 1399.952,
+            "close": 1403.0342,
+            "volume": 471652.375
+          },
+          {
+            "timestamp_ns": 1774238340000000000,
+            "open": 1405.9783,
+            "high": 1408.7587,
+            "low": 1404.9124,
+            "close": 1407.4592,
+            "volume": 259380.2188
+          },
+          {
+            "timestamp_ns": 1774238640000000000,
+            "open": 1408.019,
+            "high": 1410.5104,
+            "low": 1406.9365,
+            "close": 1409.4233,
+            "volume": 175900.5625
+          },
+          {
+            "timestamp_ns": 1774238940000000000,
+            "open": 1410.0238,
+            "high": 1410.937,
+            "low": 1409.0093,
+            "close": 1409.9967,
+            "volume": 115874.1016
+          },
+          {
+            "timestamp_ns": 1774239240000000000,
+            "open": 1411.3594,
+            "high": 1413.3987,
+            "low": 1410.4818,
+            "close": 1412.6381,
+            "volume": 112901.875
+          },
+          {
+            "timestamp_ns": 1774239540000000000,
+            "open": 1413.105,
+            "high": 1414.6104,
+            "low": 1411.8298,
+            "close": 1413.6355,
+            "volume": 146693.125
+          },
+          {
+            "timestamp_ns": 1774239840000000000,
+            "open": 1413.7075,
+            "high": 1415.1709,
+            "low": 1412.6321,
+            "close": 1414.277,
+            "volume": 109090.7812
+          }
+        ],
+        "sanity_check": {
+          "passed": true,
+          "max_allowed_move_pct": 18.0,
+          "max_observed_move_pct": 0.7755,
+          "impossible_move_blocked": false,
+          "reason": "Real Kronos-mini forecast passed input and market-physics bounds."
+        },
+        "output_hash": "379ccde1c3b53f2eb15e5f941ebf5489b92971cb97a33b78a40564f8a67f0137",
+        "notes": [
+          "Forecast generated by the real upstream Kronos-mini model and Kronos-Tokenizer-2k.",
+          "Inference device: cuda:0; latency: 960.53 ms; max context: 512.",
+          "Kronos remains a research prior and cannot execute or override Trade Vision safety."
+        ]
+      },
+      "twin": {
+        "agreement_state": "SOFT_CONFLICT",
+        "arbiter_action": "WAIT",
+        "reason": "Trade Vision did not pass its evidence gates; Kronos cannot promote it.",
+        "trade_allowed": false,
+        "order_routing_enabled": false,
+        "live_trading_blocked": true
+      }
+    },
+    "15m": {
+      "input": {
+        "snapshot_id": "reliance-2026-03-20T15:29:00+05:30-15m-400",
+        "candle_count": 400,
+        "last_timestamp": "2026-03-20T15:29:00+05:30",
+        "input_snapshot_hash": "23ea76f1589444cb35ac5299c9df160bcff811679cb850ee5f93249bae7cf168",
+        "same_point_in_time_source": true
+      },
+      "trade_vision": {
+        "recommendation": "WAIT",
+        "raw_action": "WAIT",
+        "analysis_direction": "LONG",
+        "directional_score": 0.1691,
+        "patterns": [
+          "lower_wick_rejection",
+          "absorption_proxy",
+          "neutral_momentum"
+        ],
+        "analog_summary": {
+          "match_count": 30,
+          "displayed_match_count": 5,
+          "direction": "LONG",
+          "direction_support_pct": 63.33,
+          "average_future_return_pct": 0.1376,
+          "evidence": "MEDIUM",
+          "warning": "Top analog display is descriptive; calibrated probability requires at least 30 non-overlapping matches."
+        },
+        "plan": {
+          "action": "WAIT",
+          "preferred_side": "LONG",
+          "trigger": "WAIT: conditional long plan activates only after a closed candle above resistance and a valid retest.",
+          "entry_low": 1430.0,
+          "entry_high": 1430.5288,
+          "stop_loss": 1419.425,
+          "invalidation": "Close below breakout level or structural support.",
+          "target_1r": 1441.1038,
+          "target_2r": 1451.9432,
+          "target_3r": 1462.7826,
+          "risk_per_share": 10.8394,
+          "risk_reward_to_3r": 3.0
+        }
+      },
+      "kronos": {
+        "model_name": "NeoQuasar/Kronos-base",
+        "model_version": "local-snapshot",
+        "tokenizer_name": "NeoQuasar/Kronos-Tokenizer-base",
+        "direction": "LONG",
+        "expected_return_pct": 0.4383,
+        "expected_move_atr": 1.3289,
+        "continuation_probability": 51.5342,
+        "reversal_probability": 48.4658,
+        "range_probability": 54.1233,
+        "forecast_confidence": 0.51,
+        "forecast_path": [
+          {
+            "timestamp_ns": 1774238340000000000,
+            "open": 1414.6361,
+            "high": 1420.2157,
+            "low": 1412.8204,
+            "close": 1417.4647,
+            "volume": 1779537.5
+          },
+          {
+            "timestamp_ns": 1774239240000000000,
+            "open": 1418.6196,
+            "high": 1422.9482,
+            "low": 1416.8937,
+            "close": 1420.7979,
+            "volume": 869478.25
+          },
+          {
+            "timestamp_ns": 1774240140000000000,
+            "open": 1422.325,
+            "high": 1425.7603,
+            "low": 1417.621,
+            "close": 1418.8041,
+            "volume": 668625.625
+          },
+          {
+            "timestamp_ns": 1774241040000000000,
+            "open": 1418.6984,
+            "high": 1419.899,
+            "low": 1414.9205,
+            "close": 1416.3335,
+            "volume": 346219.375
+          },
+          {
+            "timestamp_ns": 1774241940000000000,
+            "open": 1416.8719,
+            "high": 1420.2023,
+            "low": 1415.9467,
+            "close": 1418.3673,
+            "volume": 250064.8125
+          },
+          {
+            "timestamp_ns": 1774242840000000000,
+            "open": 1418.662,
+            "high": 1422.0416,
+            "low": 1417.2178,
+            "close": 1420.1982,
+            "volume": 338769.3438
+          }
+        ],
+        "sanity_check": {
+          "passed": true,
+          "max_allowed_move_pct": 18.0,
+          "max_observed_move_pct": 0.4808,
+          "impossible_move_blocked": false,
+          "reason": "Real Kronos-mini forecast passed input and market-physics bounds."
+        },
+        "output_hash": "202b1bf0695d5f76af8e13463632f0e22986f0019d8aa231628cc4e0195e0052",
+        "notes": [
+          "Forecast generated by the real upstream Kronos-mini model and Kronos-Tokenizer-2k.",
+          "Inference device: cuda:0; latency: 290.01 ms; max context: 512.",
+          "Kronos remains a research prior and cannot execute or override Trade Vision safety."
+        ]
+      },
+      "twin": {
+        "agreement_state": "LATENT_AGREEMENT_BUT_BEHAVIOR_WAIT",
+        "arbiter_action": "WAIT",
+        "reason": "Trade Vision did not pass its evidence gates; Kronos cannot promote it.",
+        "trade_allowed": false,
+        "order_routing_enabled": false,
+        "live_trading_blocked": true
+      }
+    },
+    "1H": {
+      "input": {
+        "snapshot_id": "reliance-2026-03-20T15:29:00+05:30-1H-400",
+        "candle_count": 400,
+        "last_timestamp": "2026-03-20T15:29:00+05:30",
+        "input_snapshot_hash": "8f7b85a2af295db528c2746d34dd591f1bf5f26164a5a8f9d26a89e82bf52b46",
+        "same_point_in_time_source": true
+      },
+      "trade_vision": {
+        "recommendation": "WAIT",
+        "raw_action": "LONG",
+        "analysis_direction": "LONG",
+        "directional_score": 0.3154,
+        "patterns": [
+          "bullish_ema_structure",
+          "weak_or_range_strength",
+          "lower_wick_rejection",
+          "neutral_momentum"
+        ],
+        "analog_summary": {
+          "match_count": 30,
+          "displayed_match_count": 5,
+          "direction": "LONG",
+          "direction_support_pct": 50.0,
+          "average_future_return_pct": -0.0216,
+          "evidence": "MEDIUM",
+          "warning": "Top analog display is descriptive; calibrated probability requires at least 30 non-overlapping matches."
+        },
+        "plan": {
+          "action": "WAIT",
+          "preferred_side": "LONG",
+          "trigger": "WAIT: conditional long plan activates only after a closed candle above resistance and a valid retest.",
+          "entry_low": 1430.0,
+          "entry_high": 1431.0548,
+          "stop_loss": 1408.9044,
+          "invalidation": "Close below breakout level or structural support.",
+          "target_1r": 1452.1504,
+          "target_2r": 1473.7735,
+          "target_3r": 1495.3965,
+          "risk_per_share": 21.623,
+          "risk_reward_to_3r": 3.0
+        }
+      },
+      "kronos": {
+        "model_name": "NeoQuasar/Kronos-base",
+        "model_version": "local-snapshot",
+        "tokenizer_name": "NeoQuasar/Kronos-Tokenizer-base",
+        "direction": "SHORT",
+        "expected_return_pct": -2.8306,
+        "expected_move_atr": -3.4064,
+        "continuation_probability": 40.0928,
+        "reversal_probability": 59.9072,
+        "range_probability": 49.3388,
+        "forecast_confidence": 0.5339,
+        "forecast_path": [
+          {
+            "timestamp_ns": 1774241040000000000,
+            "open": 1396.6974,
+            "high": 1402.236,
+            "low": 1368.4561,
+            "close": 1380.2849,
+            "volume": 5169615.0
+          },
+          {
+            "timestamp_ns": 1774244640000000000,
+            "open": 1385.9093,
+            "high": 1388.9763,
+            "low": 1376.9126,
+            "close": 1380.4161,
+            "volume": 2300301.75
+          },
+          {
+            "timestamp_ns": 1774248240000000000,
+            "open": 1379.6627,
+            "high": 1381.9709,
+            "low": 1372.7294,
+            "close": 1374.6475,
+            "volume": 1246375.25
+          },
+          {
+            "timestamp_ns": 1774251840000000000,
+            "open": 1376.2539,
+            "high": 1380.4191,
+            "low": 1368.5939,
+            "close": 1373.9751,
+            "volume": 2391143.0
+          }
+        ],
+        "sanity_check": {
+          "passed": true,
+          "max_allowed_move_pct": 18.0,
+          "max_observed_move_pct": 2.8306,
+          "impossible_move_blocked": false,
+          "reason": "Real Kronos-mini forecast passed input and market-physics bounds."
+        },
+        "output_hash": "6c3caec90904426c76a7c986ab0cef2200b8ddb69718619f354e816cd1383fa7",
+        "notes": [
+          "Forecast generated by the real upstream Kronos-mini model and Kronos-Tokenizer-2k.",
+          "Inference device: cuda:0; latency: 255.61 ms; max context: 512.",
+          "Kronos remains a research prior and cannot execute or override Trade Vision safety."
+        ]
+      },
+      "twin": {
+        "agreement_state": "SOFT_CONFLICT",
+        "arbiter_action": "WAIT",
+        "reason": "Trade Vision did not pass its evidence gates; Kronos cannot promote it.",
+        "trade_allowed": false,
+        "order_routing_enabled": false,
+        "live_trading_blocked": true
+      }
+    },
+    "daily": {
+      "input": {
+        "snapshot_id": "reliance-2026-03-20T15:29:00+05:30-daily-400",
+        "candle_count": 400,
+        "last_timestamp": "2026-03-20T15:29:00+05:30",
+        "input_snapshot_hash": "c941eabede17629c0dbc0cd4e152e7b10922dffba82b226a665420617ad95299",
+        "same_point_in_time_source": true
+      },
+      "trade_vision": {
+        "recommendation": "WAIT",
+        "raw_action": "SHORT",
+        "analysis_direction": "SHORT",
+        "directional_score": -0.2889,
+        "patterns": [
+          "upper_wick_rejection",
+          "neutral_momentum"
+        ],
+        "analog_summary": {
+          "match_count": 30,
+          "displayed_match_count": 5,
+          "direction": "SHORT",
+          "direction_support_pct": 70.0,
+          "average_future_return_pct": -0.2707,
+          "evidence": "MEDIUM",
+          "warning": "Top analog display is descriptive; calibrated probability requires at least 30 non-overlapping matches."
+        },
+        "plan": {
+          "action": "WAIT",
+          "preferred_side": "SHORT",
+          "trigger": "WAIT: conditional short plan activates only after a closed candle below support and a non-failing retest.",
+          "entry_low": 1303.6678,
+          "entry_high": 1307.0,
+          "stop_loss": 1373.6436,
+          "invalidation": "Close back above breakdown level or structural resistance.",
+          "target_1r": 1237.0243,
+          "target_2r": 1168.7146,
+          "target_3r": 1100.405,
+          "risk_per_share": 68.3096,
+          "risk_reward_to_3r": 3.0
+        }
+      },
+      "kronos": {
+        "model_name": "NeoQuasar/Kronos-base",
+        "model_version": "local-snapshot",
+        "tokenizer_name": "NeoQuasar/Kronos-Tokenizer-base",
+        "direction": "LONG",
+        "expected_return_pct": 2.0111,
+        "expected_move_atr": 0.802,
+        "continuation_probability": 57.0388,
+        "reversal_probability": 42.9612,
+        "range_probability": 50.9778,
+        "forecast_confidence": 0.5175,
+        "forecast_path": [
+          {
+            "timestamp_ns": 1774259940000000000,
+            "open": 1416.7985,
+            "high": 1428.7874,
+            "low": 1406.9878,
+            "close": 1417.2891,
+            "volume": 15347669.0
+          },
+          {
+            "timestamp_ns": 1774346340000000000,
+            "open": 1423.2281,
+            "high": 1433.2764,
+            "low": 1414.786,
+            "close": 1421.0295,
+            "volume": 9344380.0
+          },
+          {
+            "timestamp_ns": 1774432740000000000,
+            "open": 1422.4889,
+            "high": 1439.2366,
+            "low": 1417.423,
+            "close": 1431.4336,
+            "volume": 14266313.0
+          },
+          {
+            "timestamp_ns": 1774519140000000000,
+            "open": 1432.3478,
+            "high": 1449.2662,
+            "low": 1424.5629,
+            "close": 1440.3567,
+            "volume": 12454245.0
+          },
+          {
+            "timestamp_ns": 1774605540000000000,
+            "open": 1440.3544,
+            "high": 1450.9338,
+            "low": 1432.6962,
+            "close": 1442.4369,
+            "volume": 9975039.0
+          }
+        ],
+        "sanity_check": {
+          "passed": true,
+          "max_allowed_move_pct": 18.0,
+          "max_observed_move_pct": 2.0111,
+          "impossible_move_blocked": false,
+          "reason": "Real Kronos-mini forecast passed input and market-physics bounds."
+        },
+        "output_hash": "0a8ae4db5573b0e6028f751f5bee466bf54a11345011993f9a4f56f59e040e8e",
+        "notes": [
+          "Forecast generated by the real upstream Kronos-mini model and Kronos-Tokenizer-2k.",
+          "Inference device: cuda:0; latency: 268.54 ms; max context: 512.",
+          "Kronos remains a research prior and cannot execute or override Trade Vision safety."
+        ]
+      },
+      "twin": {
+        "agreement_state": "SOFT_CONFLICT",
+        "arbiter_action": "WAIT",
+        "reason": "Trade Vision did not pass its evidence gates; Kronos cannot promote it.",
+        "trade_allowed": false,
+        "order_routing_enabled": false,
+        "live_trading_blocked": true
+      }
+    },
+    "weekly": {
+      "input": {
+        "snapshot_id": "reliance-2026-03-20T15:29:00+05:30-weekly-400",
+        "candle_count": 400,
+        "last_timestamp": "2026-03-20T15:29:00+05:30",
+        "input_snapshot_hash": "1172ab4f07077219258d144a5f89f37c9c2441e2c66b13cf9899326f9f8f4bb6",
+        "same_point_in_time_source": true
+      },
+      "trade_vision": {
+        "recommendation": "WAIT",
+        "raw_action": "SHORT",
+        "analysis_direction": "SHORT",
+        "directional_score": -0.2291,
+        "patterns": [
+          "bearish_ema_structure",
+          "weak_or_range_strength",
+          "neutral_momentum"
+        ],
+        "analog_summary": {
+          "match_count": 30,
+          "displayed_match_count": 5,
+          "direction": "SHORT",
+          "direction_support_pct": 30.0,
+          "average_future_return_pct": 3.3534,
+          "evidence": "MEDIUM",
+          "warning": "Top analog display is descriptive; calibrated probability requires at least 30 non-overlapping matches."
+        },
+        "plan": {
+          "action": "WAIT",
+          "preferred_side": "SHORT",
+          "trigger": "WAIT: conditional short plan activates only after a closed candle below support and a non-failing retest.",
+          "entry_low": 1300.509,
+          "entry_high": 1307.0,
+          "stop_loss": 1436.8192,
+          "invalidation": "Close back above breakdown level or structural resistance.",
+          "target_1r": 1170.6899,
+          "target_2r": 1037.6252,
+          "target_3r": 904.5606,
+          "risk_per_share": 133.0646,
+          "risk_reward_to_3r": 3.0
+        }
+      },
+      "kronos": {
+        "model_name": "NeoQuasar/Kronos-base",
+        "model_version": "local-snapshot",
+        "tokenizer_name": "NeoQuasar/Kronos-Tokenizer-base",
+        "direction": "LONG",
+        "expected_return_pct": 1.6067,
+        "expected_move_atr": 0.3215,
+        "continuation_probability": 55.6235,
+        "reversal_probability": 44.3765,
+        "range_probability": 51.7866,
+        "forecast_confidence": 0.4911,
+        "forecast_path": [
+          {
+            "timestamp_ns": 1774605540000000000,
+            "open": 1415.8,
+            "high": 1428.2788,
+            "low": 1364.1152,
+            "close": 1380.8833,
+            "volume": 87712144.0
+          },
+          {
+            "timestamp_ns": 1775210340000000000,
+            "open": 1391.7373,
+            "high": 1409.3018,
+            "low": 1358.5286,
+            "close": 1388.5793,
+            "volume": 113495040.0
+          },
+          {
+            "timestamp_ns": 1775815140000000000,
+            "open": 1390.9011,
+            "high": 1451.7633,
+            "low": 1376.0709,
+            "close": 1434.3324,
+            "volume": 69976056.0
+          },
+          {
+            "timestamp_ns": 1776419940000000000,
+            "open": 1426.3171,
+            "high": 1458.4711,
+            "low": 1400.5129,
+            "close": 1436.7189,
+            "volume": 66341536.0
+          }
+        ],
+        "sanity_check": {
+          "passed": true,
+          "max_allowed_move_pct": 18.0,
+          "max_observed_move_pct": 2.3421,
+          "impossible_move_blocked": false,
+          "reason": "Real Kronos-mini forecast passed input and market-physics bounds."
+        },
+        "output_hash": "5a9f042a3f3e589db39beb8db781b5bd9e1895ea3534944a617c389f8bd9653d",
+        "notes": [
+          "Forecast generated by the real upstream Kronos-mini model and Kronos-Tokenizer-2k.",
+          "Inference device: cuda:0; latency: 232.72 ms; max context: 512.",
+          "Kronos remains a research prior and cannot execute or override Trade Vision safety."
+        ]
+      },
+      "twin": {
+        "agreement_state": "SOFT_CONFLICT",
+        "arbiter_action": "WAIT",
+        "reason": "Trade Vision did not pass its evidence gates; Kronos cannot promote it.",
+        "trade_allowed": false,
+        "order_routing_enabled": false,
+        "live_trading_blocked": true
+      }
+    }
+  },
+  "overall": {
+    "result": "NO_TRADE",
+    "trade_vision_actions": {
+      "1m": "WAIT",
+      "3m": "WAIT",
+      "5m": "WAIT",
+      "15m": "WAIT",
+      "1H": "WAIT",
+      "daily": "WAIT",
+      "weekly": "WAIT"
+    },
+    "kronos_directions": {
+      "1m": "SIDEWAYS",
+      "3m": "LONG",
+      "5m": "SIDEWAYS",
+      "15m": "LONG",
+      "1H": "SHORT",
+      "daily": "LONG",
+      "weekly": "LONG"
+    },
+    "twin_actions": {
+      "1m": "WAIT",
+      "3m": "WAIT",
+      "5m": "WAIT",
+      "15m": "WAIT",
+      "1H": "WAIT",
+      "daily": "WAIT",
+      "weekly": "WAIT"
+    },
+    "reason": "Any unresolved timeframe conflict or Trade Vision WAIT keeps the overall decision at NO_TRADE."
+  },
+  "safety": {
+    "research_only": true,
+    "trade_allowed": false,
+    "order_routing_enabled": false,
+    "live_trading_blocked": true,
+    "warning": "Source ends 2026-03-20. This is historical validation, not a current market recommendation."
+  }
+}

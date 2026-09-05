@@ -1,0 +1,1481 @@
+{
+  "schema_version": "tradevision.project_graph.v1.99.2-flowreaudit",
+  "generated_at": "2026-08-26T09:30:00+05:30",
+  "root": "Trade Vision",
+  "summary": {
+    "nodes": 88,
+    "edges": 205,
+    "source": "v1.99.2_flowreaudit_graph_refresh",
+    "previous_schema_version": "tradevision.project_graph.v1.99-coverage",
+    "previous_source": "v1.99_coverage_graph_refresh"
+  },
+  "nodes": [
+    {
+      "id": "trade-vision-app",
+      "label": "Trade Vision App",
+      "type": "application"
+    },
+    {
+      "id": "api",
+      "label": "FastAPI Backend",
+      "type": "service"
+    },
+    {
+      "id": "web",
+      "label": "React Workspace",
+      "type": "frontend"
+    },
+    {
+      "id": "kronos-service",
+      "label": "Isolated Kronos Service Process",
+      "type": "service"
+    },
+    {
+      "id": "openalgo-adapter",
+      "label": "Isolated OpenAlgo Adapter Process",
+      "type": "service"
+    },
+    {
+      "id": "behavior-intelligence",
+      "label": "Behavior Intelligence Engine",
+      "type": "domain"
+    },
+    {
+      "id": "jarvis-decision-room",
+      "label": "Jarvis Decision Room",
+      "type": "workspace"
+    },
+    {
+      "id": "research-workbench",
+      "label": "Research Chart And Indicator Workbench",
+      "type": "workspace"
+    },
+    {
+      "id": "replay-evidence",
+      "label": "Replay Evidence Panels",
+      "type": "replay"
+    },
+    {
+      "id": "indicator-registry",
+      "label": "Indicator Registry",
+      "type": "contract"
+    },
+    {
+      "id": "indicator-intelligence",
+      "label": "Indicator Intelligence v1.80-v1.85 Completed",
+      "type": "domain"
+    },
+    {
+      "id": "trendforge-intake-v186",
+      "label": "Signed TrendForge Research Intake v1.86",
+      "type": "external_research"
+    },
+    {
+      "id": "ai-credentials-vault",
+      "label": "External AI Credentials Vault",
+      "type": "security"
+    },
+    {
+      "id": "context-md",
+      "label": "docs/context.md",
+      "type": "documentation"
+    },
+    {
+      "id": "graph-md",
+      "label": "docs/graph.md",
+      "type": "documentation"
+    },
+    {
+      "id": "packages-contracts",
+      "label": "packages/contracts Shared Contracts",
+      "type": "package"
+    },
+    {
+      "id": "external-kronos-tree",
+      "label": "external/kronos Vendored Model Tree",
+      "type": "external_research"
+    },
+    {
+      "id": "deployment-ops",
+      "label": "Deployment Backup Restore Smoke",
+      "type": "ops"
+    },
+    {
+      "id": "observability-audit",
+      "label": "Observability And Audit Routes",
+      "type": "ops"
+    },
+    {
+      "id": "feature-store",
+      "label": "Columnar Feature Store",
+      "type": "storage"
+    },
+    {
+      "id": "event-sequence-mining",
+      "label": "Event Sequence Mining",
+      "type": "reasoning_engine"
+    },
+    {
+      "id": "corporate-action-memory",
+      "label": "Corporate Action Abnormal Market Memory",
+      "type": "reasoning_engine"
+    },
+    {
+      "id": "walk-forward-validation",
+      "label": "Walk-Forward Validation",
+      "type": "validation"
+    },
+    {
+      "id": "paper-executor-permission",
+      "label": "Paper Executor Permission Matrix",
+      "type": "safety_rule"
+    },
+    {
+      "id": "indicator-ontology-v180",
+      "label": "Indicator Intelligence Contract And Ontology v1.80",
+      "type": "reasoning_engine"
+    },
+    {
+      "id": "indicator-reliability-v181",
+      "label": "Per-Indicator Reliability Memory v1.81",
+      "type": "reasoning_engine"
+    },
+    {
+      "id": "full-timeframe-contract-v182",
+      "label": "Full Timeframe Contract Expansion v1.82",
+      "type": "contract"
+    },
+    {
+      "id": "indicator-signal-history-v183",
+      "label": "Persistent Indicator Signal History v1.83",
+      "type": "storage"
+    },
+    {
+      "id": "indicator-signal-history-ingestion-v184",
+      "label": "Current Indicator Signal History Ingestion v1.84",
+      "type": "ingestion"
+    },
+    {
+      "id": "indicator-pending-outcome-completion-v185",
+      "label": "Pending Indicator Outcome Completion v1.85",
+      "type": "labeling"
+    },
+    {
+      "id": "confirmation-delay-voting",
+      "label": "Lag-Aware Indicator Voting",
+      "type": "safety_rule"
+    },
+    {
+      "id": "nine-candle-dna",
+      "label": "9C DNA And Analog Reasoning",
+      "type": "reasoning_engine"
+    },
+    {
+      "id": "real-mtf-pullback",
+      "label": "Real MTF Pullback Engine v1.63",
+      "type": "reasoning_engine"
+    },
+    {
+      "id": "indicator-cache",
+      "label": "Indicator Result Cache",
+      "type": "storage"
+    },
+    {
+      "id": "indicator-cache-controls",
+      "label": "Indicator Cache Frontend Controls v1.65",
+      "type": "frontend"
+    },
+    {
+      "id": "kronos",
+      "label": "Kronos Research Forecast Engine",
+      "type": "external_research"
+    },
+    {
+      "id": "twin-machine",
+      "label": "Twin Machine Arbiter",
+      "type": "arbiter"
+    },
+    {
+      "id": "gemini-review",
+      "label": "Gemini Review Room",
+      "type": "external_ai_review"
+    },
+    {
+      "id": "grok-review",
+      "label": "Grok Review Room",
+      "type": "external_ai_review"
+    },
+    {
+      "id": "openalgo-handoff",
+      "label": "OpenAlgo Paper Review Handoff",
+      "type": "external_executor_boundary"
+    },
+    {
+      "id": "safety-invariants",
+      "label": "Safety Invariants",
+      "type": "governance"
+    },
+    {
+      "id": "knowledge-graph",
+      "label": "Knowledge Graph Endpoint",
+      "type": "knowledge"
+    },
+    {
+      "id": "implementation-status",
+      "label": "Implementation Status",
+      "type": "documentation"
+    },
+    {
+      "id": "full-indicator-memory-plan",
+      "label": "Full Indicator Memory Plan",
+      "type": "documentation"
+    },
+    {
+      "id": "max-chart-reasoning-plan",
+      "label": "Max Chart Reasoning Plan",
+      "type": "documentation"
+    },
+    {
+      "id": "next-build-target",
+      "label": "Next Build Target",
+      "type": "documentation"
+    },
+    {
+      "id": "api-endpoint-index",
+      "label": "API Endpoint Index",
+      "type": "documentation"
+    },
+    {
+      "id": "frontend-panel-map",
+      "label": "Frontend Panel Map",
+      "type": "documentation"
+    },
+    {
+      "id": "test-id-index",
+      "label": "Test ID Index",
+      "type": "documentation"
+    },
+    {
+      "id": "spec",
+      "label": "SPEC.md",
+      "type": "documentation"
+    },
+    {
+      "id": "architecture",
+      "label": "ARCHITECTURE.md",
+      "type": "documentation"
+    },
+    {
+      "id": "test-plan",
+      "label": "TEST_PLAN.md",
+      "type": "documentation"
+    },
+    {
+      "id": "readme",
+      "label": "TRADE_VISION_README.md",
+      "type": "documentation"
+    },
+    {
+      "id": "milestone-easy-explanation",
+      "label": "Milestone Easy Explanation",
+      "type": "documentation"
+    },
+    {
+      "id": "legacy-stock-app",
+      "label": "Copied Stock-App Chart Indicator Backtest References",
+      "type": "legacy_reference"
+    },
+    {
+      "id": "golden-replay",
+      "label": "Golden Replay Fixtures",
+      "type": "replay"
+    },
+    {
+      "id": "golden-fixture-regression-pack",
+      "label": "Golden Fixture Regression Pack v1.66",
+      "type": "replay"
+    },
+    {
+      "id": "tv-prod-red-001-final-gate",
+      "label": "TV-PROD-RED-001 Final Red-Team Gate v1.67",
+      "type": "governance"
+    },
+    {
+      "id": "final-audit-performance-hardening",
+      "label": "Final Audit Performance Hardening v1.68",
+      "type": "governance"
+    },
+    {
+      "id": "release-readiness-evidence-v169",
+      "label": "Release-readiness Evidence Refresh v1.69",
+      "type": "governance"
+    },
+    {
+      "id": "chart-reasoning-volatility-v170",
+      "label": "Chart Reasoning And Volatility Regime v1.70",
+      "type": "reasoning_engine"
+    },
+    {
+      "id": "market-regime-feedback-v171",
+      "label": "Market Regime Breadth RS Bayesian v1.71",
+      "type": "reasoning_engine"
+    },
+    {
+      "id": "market-structure-liquidity-v172",
+      "label": "Market Structure Liquidity Engine v1.72",
+      "type": "reasoning_engine"
+    },
+    {
+      "id": "execution-event-oi-risk-v173",
+      "label": "Execution Event OI Risk Guard v1.73",
+      "type": "reasoning_engine"
+    },
+    {
+      "id": "post-entry-lifecycle-v174",
+      "label": "Post-Entry Lifecycle Manager v1.74",
+      "type": "reasoning_engine"
+    },
+    {
+      "id": "final-confluence-arbiter-v175",
+      "label": "Final Confluence Conflict Arbiter v1.75",
+      "type": "reasoning_engine"
+    },
+    {
+      "id": "paper-guidance-spine-v187",
+      "label": "Paper Guidance Spine v1.87-v1.88",
+      "type": "decision_contract"
+    },
+    {
+      "id": "orb-core-v189",
+      "label": "NSE ORB Core v1.89",
+      "type": "reasoning_engine"
+    },
+    {
+      "id": "orb-discovery-v190",
+      "label": "Offline ORB Discovery v1.90",
+      "type": "research_engine"
+    },
+    {
+      "id": "orb-proof-v191",
+      "label": "ORB Proof And Playbook Promotion v1.91",
+      "type": "validation"
+    },
+    {
+      "id": "orb-guidance-v192",
+      "label": "Jarvis ORB Paper Guidance v1.92",
+      "type": "decision_contract"
+    },
+    {
+      "id": "orb-paper-ledger-v193",
+      "label": "Human-Approved Simulated Paper Ledger v1.93",
+      "type": "storage"
+    },
+    {
+      "id": "orb-paper-lifecycle-v194",
+      "label": "Explicit ORB Paper Lifecycle And Reliability v1.94",
+      "type": "paper_feedback"
+    },
+    {
+      "id": "release-evidence",
+      "label": "Release Evidence Artifacts",
+      "type": "governance"
+    },
+    {
+      "label": "FILE_DOCUMENT_INDEX.md (master doc map)",
+      "id": "file-document-index",
+      "type": "documentation"
+    },
+    {
+      "label": "FINAL_REQUIRED_FLOW.md (product spine)",
+      "id": "final-required-flow",
+      "type": "documentation"
+    },
+    {
+      "label": "BUILD_AUDIT.md (plan vs code evidence)",
+      "id": "build-audit",
+      "type": "documentation"
+    },
+    {
+      "id": "indicator-intelligence-catalog-v196",
+      "label": "Indicator Intelligence Catalog v1.96",
+      "type": "documentation"
+    },
+    {
+      "id": "indicator-contracts-json",
+      "label": "indicator_contracts.v1.json (94 contracts)",
+      "type": "data-artifact"
+    },
+    {
+      "id": "indicator-coverage-report",
+      "label": "indicator_coverage_report.json",
+      "type": "data-artifact"
+    },
+    {
+      "id": "indicator-catalog-generator",
+      "label": "build_indicator_intelligence_catalog.py",
+      "type": "script"
+    },
+    {
+      "id": "indicator-catalog-gates",
+      "label": "CAT-V196-001..009 test gates",
+      "type": "test"
+    },
+    {
+      "id": "orb-timing-research-v197",
+      "label": "ORB Timing Research v1.97 (per-stock clock-window study)",
+      "type": "domain"
+    },
+    {
+      "id": "orb-timing-loader",
+      "label": "hstry_csv.py HSTRY CSV loader",
+      "type": "module"
+    },
+    {
+      "id": "nine-candle-real-candles-v198",
+      "label": "9C real HSTRY candles + synthetic_fallback label (v1.98)",
+      "type": "module"
+    },
+    {
+      "id": "indicator-wave1a-v198",
+      "label": "Wave 1a: 9 clean indicator promotions (22/94 live)",
+      "type": "domain"
+    },
+    {
+      "id": "indicator-coverage-v199",
+      "label": "v1.99 complete safe coverage: 49/94 runtime, 86/7/1 registry, PTA fix",
+      "type": "domain"
+    },
+    {
+      "id": "flow-reaudit-v199",
+      "label": "Flow re-audit on real data + session-aware quality + compute window (v1.99.1-2)",
+      "type": "domain"
+    }
+  ],
+  "edges": [
+    {
+      "from": "trade-vision-app",
+      "to": "api",
+      "label": "serves"
+    },
+    {
+      "from": "trade-vision-app",
+      "to": "web",
+      "label": "renders"
+    },
+    {
+      "from": "trade-vision-app",
+      "to": "kronos-service",
+      "label": "isolates_forecast_process"
+    },
+    {
+      "from": "trade-vision-app",
+      "to": "openalgo-adapter",
+      "label": "isolates_boundary_simulator"
+    },
+    {
+      "from": "api",
+      "to": "paper-guidance-spine-v187",
+      "label": "serves_typed_p0_route"
+    },
+    {
+      "from": "paper-guidance-spine-v187",
+      "to": "safety-invariants",
+      "label": "enforces_d1_and_no_execution"
+    },
+    {
+      "from": "paper-guidance-spine-v187",
+      "to": "api-endpoint-index",
+      "label": "documents_typed_route"
+    },
+    {
+      "from": "paper-guidance-spine-v187",
+      "to": "implementation-status",
+      "label": "verified_by_598_backend_tests"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "orb-core-v189",
+      "label": "builds_session_locked_orb_setups"
+    },
+    {
+      "from": "orb-core-v189",
+      "to": "safety-invariants",
+      "label": "closed_candle_research_only"
+    },
+    {
+      "from": "orb-core-v189",
+      "to": "orb-discovery-v190",
+      "label": "feeds_offline_parameter_search"
+    },
+    {
+      "from": "orb-discovery-v190",
+      "to": "orb-proof-v191",
+      "label": "submits_candidates_for_oos_proof"
+    },
+    {
+      "from": "orb-proof-v191",
+      "to": "orb-guidance-v192",
+      "label": "promotes_server_side_playbooks"
+    },
+    {
+      "from": "paper-guidance-spine-v187",
+      "to": "orb-guidance-v192",
+      "label": "provides_snapshot_bound_evidence"
+    },
+    {
+      "from": "orb-guidance-v192",
+      "to": "final-confluence-arbiter-v175",
+      "label": "submits_candidate_to_sole_arbiter"
+    },
+    {
+      "from": "orb-guidance-v192",
+      "to": "jarvis-decision-room",
+      "label": "renders_primary_orb_ticket"
+    },
+    {
+      "from": "orb-guidance-v192",
+      "to": "orb-paper-ledger-v193",
+      "label": "eligible_ticket_requires_human_approval"
+    },
+    {
+      "from": "orb-paper-ledger-v193",
+      "to": "safety-invariants",
+      "label": "local_simulation_no_broker_order"
+    },
+    {
+      "from": "orb-paper-ledger-v193",
+      "to": "orb-paper-lifecycle-v194",
+      "label": "explicit_replay_observation_only"
+    },
+    {
+      "from": "api",
+      "to": "orb-paper-lifecycle-v194",
+      "label": "serves_outcome_reliability_and_monitor_routes"
+    },
+    {
+      "from": "web",
+      "to": "orb-paper-lifecycle-v194",
+      "label": "renders_lifecycle_and_reliability"
+    },
+    {
+      "from": "orb-paper-lifecycle-v194",
+      "to": "safety-invariants",
+      "label": "reduce_only_feedback_no_execution"
+    },
+    {
+      "from": "orb-paper-lifecycle-v194",
+      "to": "jarvis-decision-room",
+      "label": "shows_explicit_paper_outcome"
+    },
+    {
+      "from": "orb-paper-lifecycle-v194",
+      "to": "release-evidence",
+      "label": "adds_operational_store_evidence"
+    },
+    {
+      "from": "api",
+      "to": "orb-guidance-v192",
+      "label": "serves_orb_guidance_routes"
+    },
+    {
+      "from": "web",
+      "to": "orb-guidance-v192",
+      "label": "renders_orb_guidance_panel"
+    },
+    {
+      "from": "api",
+      "to": "orb-paper-ledger-v193",
+      "label": "serves_simulated_record_routes"
+    },
+    {
+      "from": "api",
+      "to": "kronos",
+      "label": "proxies_research_forecast"
+    },
+    {
+      "from": "kronos",
+      "to": "kronos-service",
+      "label": "runs_in"
+    },
+    {
+      "from": "openalgo-handoff",
+      "to": "openalgo-adapter",
+      "label": "dry_run_transport"
+    },
+    {
+      "from": "api",
+      "to": "behavior-intelligence",
+      "label": "implements"
+    },
+    {
+      "from": "api",
+      "to": "trendforge-intake-v186",
+      "label": "pulls_signed_research_packets"
+    },
+    {
+      "from": "trendforge-intake-v186",
+      "to": "safety-invariants",
+      "label": "enforces_research_only_envelope"
+    },
+    {
+      "from": "trendforge-intake-v186",
+      "to": "jarvis-decision-room",
+      "label": "research_evidence_only"
+    },
+    {
+      "from": "trendforge-intake-v186",
+      "to": "api-endpoint-index",
+      "label": "adds_trendforge_routes"
+    },
+    {
+      "from": "web",
+      "to": "ai-credentials-vault",
+      "label": "displays_gemini_grok_slots"
+    },
+    {
+      "from": "ai-credentials-vault",
+      "to": "safety-invariants",
+      "label": "no_broker_credentials"
+    },
+    {
+      "from": "graph-md",
+      "to": "knowledge-graph",
+      "label": "human_readable_twin"
+    },
+    {
+      "from": "trade-vision-app",
+      "to": "packages-contracts",
+      "label": "shares_contracts_package"
+    },
+    {
+      "from": "kronos",
+      "to": "external-kronos-tree",
+      "label": "vendors_model_sources"
+    },
+    {
+      "from": "api",
+      "to": "deployment-ops",
+      "label": "exposes_backup_restore_smoke"
+    },
+    {
+      "from": "deployment-ops",
+      "to": "safety-invariants",
+      "label": "ops_only_no_live_trading"
+    },
+    {
+      "from": "api",
+      "to": "observability-audit",
+      "label": "exposes_request_and_audit_logs"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "feature-store",
+      "label": "persists_feature_snapshots"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "event-sequence-mining",
+      "label": "mines_lagged_sequences"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "corporate-action-memory",
+      "label": "quarantines_contaminated_memory"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "walk-forward-validation",
+      "label": "validates_out_of_sample"
+    },
+    {
+      "from": "openalgo-handoff",
+      "to": "paper-executor-permission",
+      "label": "requires_permission_matrix"
+    },
+    {
+      "from": "paper-executor-permission",
+      "to": "safety-invariants",
+      "label": "human_approval_and_kill_switch"
+    },
+    {
+      "from": "web",
+      "to": "jarvis-decision-room",
+      "label": "displays"
+    },
+    {
+      "from": "web",
+      "to": "research-workbench",
+      "label": "displays"
+    },
+    {
+      "from": "web",
+      "to": "replay-evidence",
+      "label": "displays"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "indicator-registry",
+      "label": "uses"
+    },
+    {
+      "from": "indicator-registry",
+      "to": "indicator-intelligence",
+      "label": "must_be_annotated_by"
+    },
+    {
+      "from": "indicator-intelligence",
+      "to": "indicator-ontology-v180",
+      "label": "implements_contract_and_lag_voting"
+    },
+    {
+      "from": "indicator-intelligence",
+      "to": "indicator-reliability-v181",
+      "label": "implements_outcome_backed_reliability"
+    },
+    {
+      "from": "indicator-intelligence",
+      "to": "full-timeframe-contract-v182",
+      "label": "expands_to_30m_and_4h"
+    },
+    {
+      "from": "full-timeframe-contract-v182",
+      "to": "indicator-registry",
+      "label": "locks_nine_timeframes_per_indicator"
+    },
+    {
+      "from": "full-timeframe-contract-v182",
+      "to": "indicator-reliability-v181",
+      "label": "extends_reliability_to_30m_and_4h"
+    },
+    {
+      "from": "full-timeframe-contract-v182",
+      "to": "frontend-panel-map",
+      "label": "adds_indicator_reliability_drilldown"
+    },
+    {
+      "from": "full-timeframe-contract-v182",
+      "to": "api-endpoint-index",
+      "label": "documents_legacy_route_with_nine_timeframe_payload"
+    },
+    {
+      "from": "full-timeframe-contract-v182",
+      "to": "test-id-index",
+      "label": "adds_v1_82_tests"
+    },
+    {
+      "from": "full-timeframe-contract-v182",
+      "to": "safety-invariants",
+      "label": "closed_candle_research_only_no_routing"
+    },
+    {
+      "from": "indicator-reliability-v181",
+      "to": "indicator-signal-history-v183",
+      "label": "prefers_persisted_labels_before_fixture_fallback"
+    },
+    {
+      "from": "indicator-signal-history-v183",
+      "to": "frontend-panel-map",
+      "label": "adds_reliability_drilldown_card"
+    },
+    {
+      "from": "indicator-signal-history-v183",
+      "to": "api-endpoint-index",
+      "label": "adds_save_history_signal_history_drilldown_routes"
+    },
+    {
+      "from": "indicator-signal-history-v183",
+      "to": "test-id-index",
+      "label": "adds_v1_83_tests"
+    },
+    {
+      "from": "indicator-signal-history-v183",
+      "to": "confirmation-delay-voting",
+      "label": "feeds_reliability_multiplier"
+    },
+    {
+      "from": "indicator-signal-history-v183",
+      "to": "safety-invariants",
+      "label": "research_only_no_probability_or_orders"
+    },
+    {
+      "from": "indicator-signal-history-v183",
+      "to": "indicator-signal-history-ingestion-v184",
+      "label": "provides_persistent_table_for_pending_current_signals"
+    },
+    {
+      "from": "indicator-signal-history-ingestion-v184",
+      "to": "frontend-panel-map",
+      "label": "adds_manual_ingest_current_signals_action"
+    },
+    {
+      "from": "indicator-signal-history-ingestion-v184",
+      "to": "api-endpoint-index",
+      "label": "adds_ingest_current_route"
+    },
+    {
+      "from": "indicator-signal-history-ingestion-v184",
+      "to": "test-id-index",
+      "label": "adds_v1_84_tests"
+    },
+    {
+      "from": "indicator-signal-history-ingestion-v184",
+      "to": "safety-invariants",
+      "label": "pending_only_no_future_label_no_routing"
+    },
+    {
+      "from": "indicator-signal-history-ingestion-v184",
+      "to": "indicator-pending-outcome-completion-v185",
+      "label": "creates_pending_rows_for_future_completion"
+    },
+    {
+      "from": "indicator-pending-outcome-completion-v185",
+      "to": "api-endpoint-index",
+      "label": "adds_complete_pending_route"
+    },
+    {
+      "from": "indicator-pending-outcome-completion-v185",
+      "to": "test-id-index",
+      "label": "adds_v1_85_tests"
+    },
+    {
+      "from": "indicator-pending-outcome-completion-v185",
+      "to": "indicator-reliability-v181",
+      "label": "feeds_completed_research_labels"
+    },
+    {
+      "from": "indicator-pending-outcome-completion-v185",
+      "to": "safety-invariants",
+      "label": "explicit_future_bars_only_no_routing"
+    },
+    {
+      "from": "indicator-ontology-v180",
+      "to": "confirmation-delay-voting",
+      "label": "consumes_confirmation_delay_bars"
+    },
+    {
+      "from": "indicator-ontology-v180",
+      "to": "api-endpoint-index",
+      "label": "adds_indicator_ontology_lag_vote_routes"
+    },
+    {
+      "from": "indicator-ontology-v180",
+      "to": "test-id-index",
+      "label": "adds_v1_80_indicator_intelligence_tests"
+    },
+    {
+      "from": "indicator-ontology-v180",
+      "to": "safety-invariants",
+      "label": "keeps_lagging_indicators_research_only"
+    },
+    {
+      "from": "indicator-reliability-v181",
+      "to": "confirmation-delay-voting",
+      "label": "weights_votes_by_reliability"
+    },
+    {
+      "from": "indicator-reliability-v181",
+      "to": "api-endpoint-index",
+      "label": "adds_indicator_reliability_routes"
+    },
+    {
+      "from": "indicator-reliability-v181",
+      "to": "test-id-index",
+      "label": "adds_v1_81_indicator_reliability_tests"
+    },
+    {
+      "from": "indicator-reliability-v181",
+      "to": "safety-invariants",
+      "label": "quarantines_low_evidence_reliability"
+    },
+    {
+      "from": "indicator-intelligence",
+      "to": "confirmation-delay-voting",
+      "label": "requires"
+    },
+    {
+      "from": "confirmation-delay-voting",
+      "to": "safety-invariants",
+      "label": "prevents_late_false_confirmation"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "nine-candle-dna",
+      "label": "feeds"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "real-mtf-pullback",
+      "label": "implements_closed_candle_mtf_pullback"
+    },
+    {
+      "from": "real-mtf-pullback",
+      "to": "safety-invariants",
+      "label": "keeps_wait_watch_avoid_only"
+    },
+    {
+      "from": "real-mtf-pullback",
+      "to": "api-endpoint-index",
+      "label": "adds_timeframes_pullback_routes"
+    },
+    {
+      "from": "real-mtf-pullback",
+      "to": "frontend-panel-map",
+      "label": "adds_behavior_panel_map_entry"
+    },
+    {
+      "from": "indicator-cache",
+      "to": "nine-candle-dna",
+      "label": "speed_artifact_not_authority"
+    },
+    {
+      "from": "indicator-cache",
+      "to": "safety-invariants",
+      "label": "reference_only_no_probability_authority"
+    },
+    {
+      "from": "indicator-cache",
+      "to": "api-endpoint-index",
+      "label": "save_status_results_delete_routes"
+    },
+    {
+      "from": "web",
+      "to": "indicator-cache-controls",
+      "label": "renders_reload_save_recompute_clear"
+    },
+    {
+      "from": "indicator-cache-controls",
+      "to": "indicator-cache",
+      "label": "controls_bounded_cache_actions"
+    },
+    {
+      "from": "indicator-cache-controls",
+      "to": "safety-invariants",
+      "label": "cannot_promote_probability_or_orders"
+    },
+    {
+      "from": "legacy-stock-app",
+      "to": "research-workbench",
+      "label": "reference_only"
+    },
+    {
+      "from": "legacy-stock-app",
+      "to": "indicator-registry",
+      "label": "migration_reference"
+    },
+    {
+      "from": "kronos",
+      "to": "twin-machine",
+      "label": "forecast_prior_only"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "twin-machine",
+      "label": "safety_authority"
+    },
+    {
+      "from": "twin-machine",
+      "to": "jarvis-decision-room",
+      "label": "compares"
+    },
+    {
+      "from": "gemini-review",
+      "to": "jarvis-decision-room",
+      "label": "display_only_review"
+    },
+    {
+      "from": "grok-review",
+      "to": "jarvis-decision-room",
+      "label": "display_only_review"
+    },
+    {
+      "from": "openalgo-handoff",
+      "to": "safety-invariants",
+      "label": "blocked_from_live_authority"
+    },
+    {
+      "from": "jarvis-decision-room",
+      "to": "openalgo-handoff",
+      "label": "paper_review_preview_only"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "golden-replay",
+      "label": "verifies"
+    },
+    {
+      "from": "golden-fixture-regression-pack",
+      "to": "golden-replay",
+      "label": "expands_to_16_deterministic_scenarios"
+    },
+    {
+      "from": "golden-fixture-regression-pack",
+      "to": "release-evidence",
+      "label": "feeds_scenario_coverage_v1_66"
+    },
+    {
+      "from": "golden-fixture-regression-pack",
+      "to": "safety-invariants",
+      "label": "fixtures_cannot_enable_trading"
+    },
+    {
+      "from": "tv-prod-red-001-final-gate",
+      "to": "release-evidence",
+      "label": "blocks_final_release_audit_when_failed"
+    },
+    {
+      "from": "tv-prod-red-001-final-gate",
+      "to": "safety-invariants",
+      "label": "blocks_paper_candidate_and_live_routing"
+    },
+    {
+      "from": "tv-prod-red-001-final-gate",
+      "to": "api-endpoint-index",
+      "label": "documented_final_audit_gate"
+    },
+    {
+      "from": "final-audit-performance-hardening",
+      "to": "release-evidence",
+      "label": "reuses_short_lived_audit_evidence"
+    },
+    {
+      "from": "final-audit-performance-hardening",
+      "to": "safety-invariants",
+      "label": "cache_cannot_hide_red_team_failure"
+    },
+    {
+      "from": "final-audit-performance-hardening",
+      "to": "release-readiness-evidence-v169",
+      "label": "feeds_cached_final_audit_summary"
+    },
+    {
+      "from": "release-readiness-evidence-v169",
+      "to": "release-evidence",
+      "label": "summarizes_audit_scan_manifest"
+    },
+    {
+      "from": "release-readiness-evidence-v169",
+      "to": "safety-invariants",
+      "label": "read_only_evidence_no_execution_authority"
+    },
+    {
+      "from": "release-readiness-evidence-v169",
+      "to": "api-endpoint-index",
+      "label": "adds_release_readiness_evidence_route"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "chart-reasoning-volatility-v170",
+      "label": "adds_closed_candle_chart_context"
+    },
+    {
+      "from": "chart-reasoning-volatility-v170",
+      "to": "safety-invariants",
+      "label": "read_only_no_probability_or_order_authority"
+    },
+    {
+      "from": "chart-reasoning-volatility-v170",
+      "to": "api-endpoint-index",
+      "label": "adds_chart_reasoning_routes"
+    },
+    {
+      "from": "max-chart-reasoning-plan",
+      "to": "chart-reasoning-volatility-v170",
+      "label": "implements_v1_70"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "market-regime-feedback-v171",
+      "label": "adds_market_breadth_rs_feedback"
+    },
+    {
+      "from": "market-regime-feedback-v171",
+      "to": "safety-invariants",
+      "label": "caps_confidence_without_execution_authority"
+    },
+    {
+      "from": "market-regime-feedback-v171",
+      "to": "api-endpoint-index",
+      "label": "adds_market_regime_feedback_routes"
+    },
+    {
+      "from": "max-chart-reasoning-plan",
+      "to": "market-regime-feedback-v171",
+      "label": "implements_v1_71"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "market-structure-liquidity-v172",
+      "label": "adds_auction_liquidity_trap_context"
+    },
+    {
+      "from": "market-structure-liquidity-v172",
+      "to": "safety-invariants",
+      "label": "caps_confidence_without_execution_authority"
+    },
+    {
+      "from": "market-structure-liquidity-v172",
+      "to": "api-endpoint-index",
+      "label": "adds_market_structure_liquidity_routes"
+    },
+    {
+      "from": "max-chart-reasoning-plan",
+      "to": "market-structure-liquidity-v172",
+      "label": "implements_v1_72"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "execution-event-oi-risk-v173",
+      "label": "adds_execution_event_oi_constraints"
+    },
+    {
+      "from": "execution-event-oi-risk-v173",
+      "to": "safety-invariants",
+      "label": "caps_confidence_without_execution_authority"
+    },
+    {
+      "from": "execution-event-oi-risk-v173",
+      "to": "api-endpoint-index",
+      "label": "adds_execution_event_oi_routes"
+    },
+    {
+      "from": "max-chart-reasoning-plan",
+      "to": "execution-event-oi-risk-v173",
+      "label": "implements_v1_73"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "post-entry-lifecycle-v174",
+      "label": "adds_post_entry_thesis_management"
+    },
+    {
+      "from": "post-entry-lifecycle-v174",
+      "to": "safety-invariants",
+      "label": "simulation_guidance_without_execution_authority"
+    },
+    {
+      "from": "post-entry-lifecycle-v174",
+      "to": "api-endpoint-index",
+      "label": "adds_post_entry_lifecycle_routes"
+    },
+    {
+      "from": "max-chart-reasoning-plan",
+      "to": "post-entry-lifecycle-v174",
+      "label": "implements_v1_74"
+    },
+    {
+      "from": "behavior-intelligence",
+      "to": "final-confluence-arbiter-v175",
+      "label": "adds_final_conflict_resolution"
+    },
+    {
+      "from": "final-confluence-arbiter-v175",
+      "to": "safety-invariants",
+      "label": "wait_first_reason_tree_without_execution_authority"
+    },
+    {
+      "from": "final-confluence-arbiter-v175",
+      "to": "api-endpoint-index",
+      "label": "adds_final_confluence_arbiter_routes"
+    },
+    {
+      "from": "max-chart-reasoning-plan",
+      "to": "final-confluence-arbiter-v175",
+      "label": "implements_v1_75"
+    },
+    {
+      "from": "golden-replay",
+      "to": "release-evidence",
+      "label": "supports"
+    },
+    {
+      "from": "release-evidence",
+      "to": "safety-invariants",
+      "label": "must_preserve"
+    },
+    {
+      "from": "full-indicator-memory-plan",
+      "to": "indicator-intelligence",
+      "label": "defines"
+    },
+    {
+      "from": "max-chart-reasoning-plan",
+      "to": "indicator-intelligence",
+      "label": "details"
+    },
+    {
+      "from": "spec",
+      "to": "architecture",
+      "label": "drives"
+    },
+    {
+      "from": "architecture",
+      "to": "test-plan",
+      "label": "verified_by"
+    },
+    {
+      "from": "api",
+      "to": "knowledge-graph",
+      "label": "loads_project_graph_json"
+    },
+    {
+      "from": "safety-invariants",
+      "to": "trade-vision-app",
+      "label": "live_trading_remains_blocked"
+    },
+    {
+      "from": "replay-evidence",
+      "to": "research-workbench",
+      "label": "chart_replay_distinction"
+    },
+    {
+      "from": "indicator-intelligence",
+      "to": "nine-candle-dna",
+      "label": "feeds_all_indicator_feature_bank"
+    },
+    {
+      "from": "max-chart-reasoning-plan",
+      "to": "next-build-target",
+      "label": "future_reasoning"
+    },
+    {
+      "from": "full-indicator-memory-plan",
+      "to": "next-build-target",
+      "label": "future_indicator_memory"
+    },
+    {
+      "label": "points_to_doc_map",
+      "from": "readme",
+      "to": "file-document-index"
+    },
+    {
+      "label": "routes_to",
+      "from": "file-document-index",
+      "to": "api-endpoint-index"
+    },
+    {
+      "label": "routes_to",
+      "from": "file-document-index",
+      "to": "frontend-panel-map"
+    },
+    {
+      "label": "routes_to",
+      "from": "file-document-index",
+      "to": "test-id-index"
+    },
+    {
+      "label": "routes_to",
+      "from": "file-document-index",
+      "to": "spec"
+    },
+    {
+      "label": "routes_to",
+      "from": "file-document-index",
+      "to": "architecture"
+    },
+    {
+      "label": "routes_to",
+      "from": "file-document-index",
+      "to": "test-plan"
+    },
+    {
+      "label": "routes_to",
+      "from": "file-document-index",
+      "to": "readme"
+    },
+    {
+      "label": "routes_to",
+      "from": "file-document-index",
+      "to": "implementation-status"
+    },
+    {
+      "label": "routes_to",
+      "from": "file-document-index",
+      "to": "next-build-target"
+    },
+    {
+      "label": "routes_to",
+      "from": "file-document-index",
+      "to": "final-required-flow"
+    },
+    {
+      "label": "routes_to",
+      "from": "file-document-index",
+      "to": "build-audit"
+    },
+    {
+      "label": "routes_to",
+      "from": "file-document-index",
+      "to": "graph-md"
+    },
+    {
+      "label": "routes_to",
+      "from": "file-document-index",
+      "to": "milestone-easy-explanation"
+    },
+    {
+      "label": "handoff_points_to_tip",
+      "from": "readme",
+      "to": "implementation-status"
+    },
+    {
+      "label": "tip_and_handoff_section",
+      "from": "implementation-status",
+      "to": "readme"
+    },
+    {
+      "label": "doc_map_companion",
+      "from": "knowledge-graph",
+      "to": "file-document-index"
+    },
+    {
+      "label": "nav_via_doc_map",
+      "from": "context-md",
+      "to": "file-document-index"
+    },
+    {
+      "label": "maintenance_keeps_graph_current",
+      "from": "readme",
+      "to": "knowledge-graph"
+    },
+    {
+      "label": "product_spine_requirement",
+      "from": "implementation-status",
+      "to": "final-required-flow"
+    },
+    {
+      "label": "product_spine",
+      "from": "readme",
+      "to": "final-required-flow"
+    },
+    {
+      "label": "aligns_with_production_boundary",
+      "from": "final-required-flow",
+      "to": "architecture"
+    },
+    {
+      "label": "requires_spine",
+      "from": "final-required-flow",
+      "to": "paper-guidance-spine-v187"
+    },
+    {
+      "label": "no_live_broker",
+      "from": "final-required-flow",
+      "to": "safety-invariants"
+    },
+    {
+      "label": "verifies_claims",
+      "from": "build-audit",
+      "to": "implementation-status"
+    },
+    {
+      "label": "audits_against_spine",
+      "from": "build-audit",
+      "to": "final-required-flow"
+    },
+    {
+      "label": "checks_graph_truth",
+      "from": "build-audit",
+      "to": "knowledge-graph"
+    },
+    {
+      "from": "indicator-intelligence",
+      "to": "indicator-intelligence-catalog-v196",
+      "label": "documented_by_catalog_v196"
+    },
+    {
+      "from": "indicator-catalog-generator",
+      "to": "indicator-registry",
+      "label": "reads_live_locked_registry"
+    },
+    {
+      "from": "indicator-catalog-generator",
+      "to": "indicator-contracts-json",
+      "label": "generates"
+    },
+    {
+      "from": "indicator-catalog-generator",
+      "to": "indicator-coverage-report",
+      "label": "generates"
+    },
+    {
+      "from": "indicator-intelligence-catalog-v196",
+      "to": "indicator-contracts-json",
+      "label": "explains_machine_truth"
+    },
+    {
+      "from": "indicator-catalog-gates",
+      "to": "indicator-contracts-json",
+      "label": "gates_completeness_and_safety"
+    },
+    {
+      "from": "indicator-catalog-gates",
+      "to": "test-id-index",
+      "label": "listed_in"
+    },
+    {
+      "from": "indicator-intelligence-catalog-v196",
+      "to": "file-document-index",
+      "label": "indexed_in"
+    },
+    {
+      "from": "orb-timing-research-v197",
+      "to": "orb-discovery-v190",
+      "label": "reuses_unchanged_sweep_engine"
+    },
+    {
+      "from": "orb-timing-loader",
+      "to": "orb-timing-research-v197",
+      "label": "feeds_candle_series"
+    },
+    {
+      "from": "orb-timing-research-v197",
+      "to": "file-document-index",
+      "label": "indexed_in"
+    },
+    {
+      "from": "orb-timing-research-v197",
+      "to": "test-id-index",
+      "label": "gated_by_orb_t197"
+    },
+    {
+      "from": "nine-candle-real-candles-v198",
+      "to": "nine-candle-dna",
+      "label": "feeds_real_bars"
+    },
+    {
+      "from": "indicator-wave1a-v198",
+      "to": "indicator-registry",
+      "label": "promotes_from_validated_clean"
+    },
+    {
+      "from": "indicator-wave1a-v198",
+      "to": "indicator-intelligence-catalog-v196",
+      "label": "catalog_reads_live_promotion_set"
+    },
+    {
+      "from": "indicator-coverage-v199",
+      "to": "indicator-wave1a-v198",
+      "label": "extends_promotion_waves"
+    },
+    {
+      "from": "indicator-coverage-v199",
+      "to": "full-indicator-memory-plan",
+      "label": "completes_audit_invariant"
+    },
+    {
+      "from": "indicator-coverage-v199",
+      "to": "indicator-intelligence-catalog-v196",
+      "label": "audited_via_catalog"
+    },
+    {
+      "from": "flow-reaudit-v199",
+      "to": "file-document-index",
+      "label": "indexed_in"
+    },
+    {
+      "from": "flow-reaudit-v199",
+      "to": "test-id-index",
+      "label": "recorded_in"
+    }
+  ]
+}

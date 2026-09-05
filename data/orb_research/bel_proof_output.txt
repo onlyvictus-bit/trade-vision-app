@@ -1,0 +1,17 @@
+DATA BEL 5m bars=41229
+DISCOVERY best_composite=ba1121c62248ed991403 net_r=60.19033926 pf=1.30057013 window=('09:15', '09:20') family=orb_breakout rr=3.0
+PROOF_COMPLETE
+PROOF_ID=ab7b3163-cee6-5c0c-987c-68db75717273
+ELIGIBLE_COMBOS=5
+TRAIN_DAYS=414 HOLDOUT_DAYS=138
+WINNER combo=ba1121c62248ed991403
+WINNER_OVERALL trades=515 wr=0.520 pf=1.301 net_r=60.19 consistency=0.704
+WINNER_HOLDOUT trades=126 wr=0.516 pf=1.271 net_r=12.08
+WALK_FORWARD_FOLDS=4 pass_rate=1.000
+  FOLD WF-01 2024-01-01..2024-07-22 passed=True trades=134 pf=1.13 net_r=7.89
+  FOLD WF-02 2024-07-23..2025-02-06 passed=True trades=128 pf=1.44 net_r=24.78
+  FOLD WF-03 2025-02-07..2025-09-01 passed=True trades=127 pf=1.41 net_r=15.44
+  FOLD WF-04 2025-09-02..2026-03-20 passed=True trades=126 pf=1.27 net_r=12.08
+OOS_PASSED=True REPEATED_SUCCESS=True PROMOTION_ELIGIBLE=True
+VERDICT=ELIGIBLE
+SAFETY research_only=True trade_allowed=False live_trading_blocked=True

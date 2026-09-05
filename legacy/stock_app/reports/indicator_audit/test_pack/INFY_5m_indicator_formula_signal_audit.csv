@@ -1,0 +1,30 @@
+indicator,formula,sample_signal_or_value_count,block_reason_counts,chart_source,test_status
+Doji,Candle body <= 10% of high-low range. Neutral marker. Use as warning/filter only.,1306,"{""NO_SIGNAL"": 276, ""OK"": 24}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+HMA,"Hull Moving Average length 20 from pandas-ta-classic: WMA(2*WMA(close,n/2)-WMA(close,n),sqrt(n)). Overlay line.",600,{},backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+Skew Reversal,Rolling return skew period 30 crosses below -0.5. Contrarian bullish marker.,931,"{""EXPECTED_BLOCKED_SESSION_OPEN"": 2, ""NO_SIGNAL"": 293, ""OK"": 5}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+ZScore,z=(close-rolling_mean_50)/rolling_std_50. Bull if crosses below -2. Bear if crosses above +2.,951,"{""EXPECTED_BLOCKED_SESSION_OPEN"": 2, ""NO_SIGNAL"": 289, ""OK"": 9}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+TTM Trend,pandas-ta-classic TTM Trend length 6. Marker when trend state flips bullish.,1055,"{""NO_SIGNAL"": 269, ""OK"": 31}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+Aroon,Aroon Up/Down length 25 from pandas-ta-classic. Subpanel lines.,1391,{},backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+ADX,"Wilder ADX14 with +DI/-DI. Subpanel. Trend strength, not standalone entry.",300,{},backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+Williams %R,%R14=-100*(HH14-close)/(HH14-LL14). Bull crosses up -80. Bear crosses down -20.,37,{},backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+CCI,CCI20=(typical_price-SMA20)/(0.015*mean_abs_dev20). Bull crosses up -100. Bear crosses down +100.,915,{},backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+RSI,Wilder RSI14. Bull crosses up 30. Bear crosses down 70. Filter/warning only.,300,{},backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+MACD,"EMA12-EMA26, signal EMA9, histogram. Bull/bear cross markers.",21,{},backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+Short Run Bear,"EMA21<EMA55, close<EMA21, both EMA slopes down 8 bars, spread>0.15*ATR14, sustained 5 bars, first confirmed bar only.",295,{},backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+Long Run Bull,"EMA21>EMA55, close>EMA21, both EMA slopes up 8 bars, spread>0.15*ATR14, sustained 5 bars, first confirmed bar only.",598,{},backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+Drawdown Recovery,Rolling 50-bar drawdown recovers after deep pullback. Bullish bounce filter.,277,{},backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+Trend Signal,UAlgo trend signal wrapper from self-indc. Markers sanitized and cooldown applied.,34,{},backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+EBSW Cycle,Even Better Sine Wave from pandas-ta-classic. Bull/bear when cycle crosses zero.,1393,"{""EXPECTED_BLOCKED_SESSION_OPEN"": 1, ""NO_SIGNAL"": 201, ""OK"": 98}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+TS Signal,Trend Signal TP/SL wrapper from self-indc. Marker only; exact TP/SL requires strategy validation.,1618,{},backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+AMAT Bull,Adaptive Moving Average Trend from pandas-ta-classic. Bull/bear trend-state flips.,1083,"{""EXPECTED_BLOCKED_SESSION_OPEN"": 1, ""NO_SIGNAL"": 263, ""OK"": 36}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+HLC3 MA,HLC3=(high+low+close)/3. Fast SMA10 crosses slow SMA30.,1860,"{""NO_SIGNAL"": 288, ""OK"": 12}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+Aroon Signal,"Aroon Up crosses above/down crosses above, length 25.",1391,"{""EXPECTED_BLOCKED_SESSION_OPEN"": 2, ""NO_SIGNAL"": 281, ""OK"": 17}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+Vortex Signal,Vortex VI+/VI- length 14 cross.,481,"{""EXPECTED_BLOCKED_SESSION_OPEN"": 2, ""NO_SIGNAL"": 263, ""OK"": 35}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+CMF Signal,Chaikin Money Flow length 20 crosses zero.,1016,"{""EXPECTED_BLOCKED_SESSION_OPEN"": 2, ""NO_SIGNAL"": 276, ""OK"": 22}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+MFI Signal,MFI14 crosses up 30/down 70.,1290,"{""NO_SIGNAL"": 282, ""OK"": 18}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+Long Return Momentum,Rolling mean log return period 10 crosses threshold 0.,598,"{""NO_SIGNAL"": 265, ""OK"": 35}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+TSI Signal,True Strength Index fast13 slow25 signal13 cross.,1615,"{""NO_SIGNAL"": 277, ""OK"": 23}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+KDJ Signal,KDJ stochastic-derived K/D cross length 9.,2093,"{""EXPECTED_BLOCKED_SESSION_OPEN"": 1, ""NO_SIGNAL"": 241, ""OK"": 58}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+Fisher Signal,Fisher Transform length 9 line/signal cross.,2393,"{""EXPECTED_BLOCKED_SESSION_OPEN"": 1, ""NO_SIGNAL"": 241, ""OK"": 58}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+RSX Signal,RSX threshold/cross wrapper from pandas-ta-classic. Momentum marker.,988,"{""EXPECTED_BLOCKED_SESSION_OPEN"": 1, ""NO_SIGNAL"": 282, ""OK"": 17}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI
+Market Profile VA,"Previous-session Market Profile Value Area. VAH/VAL/POC from prior session volume profile, 24 bins, 70% value area. Bull when close crosses above prior VAH; bear when close crosses below prior VAL.",344,"{""EXPECTED_BLOCKED_SESSION_OPEN"": 4, ""NO_SIGNAL"": 287, ""OK"": 9}",backend API payload; no frontend recalculation,NEEDS_REVIEW_BY_EXTERNAL_AI

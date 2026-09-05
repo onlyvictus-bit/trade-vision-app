@@ -1,0 +1,641 @@
+﻿{
+    "readiness_version":  "behavior-runtime-readiness.v0.32",
+    "generated_at":  "2026-06-14T08:26:43.268242+00:00",
+    "project_root":  "D:\\Projects\\trading-platforms\\stock-app\\trade-vision-app",
+    "stock_app_source_root":  "D:\\Projects\\trading-platforms\\stock-app\\trade-vision-app\\legacy\\stock_app",
+    "self_indicator_total":  67,
+    "self_indicator_returned":  67,
+    "pta_marker_total":  23,
+    "total_output_groups":  90,
+    "non_empty_sample_outputs":  55,
+    "empty_no_signal_outputs":  12,
+    "automated_indicator_tests_passed":  79,
+    "automated_indicator_tests_skipped":  1,
+    "chart_screens":  {
+                          "legacy_chart_screen":  true,
+                          "legacy_research_screen":  true,
+                          "legacy_backtest_screen":  true,
+                          "production_workspace_shell":  true
+                      },
+    "research_surfaces":  {
+                              "legacy_research_engine":  true,
+                              "legacy_indicator_registry":  true,
+                              "legacy_pta_marker_registry":  true,
+                              "pit_snapshot_store":  true
+                          },
+    "replay_surfaces":  {
+                            "deterministic_replay_api":  true,
+                            "golden_replay_fixtures":  true,
+                            "scenario_coverage":  true,
+                            "replay_frontend_controls":  true
+                        },
+    "indicator_groups":  [
+                             {
+                                 "group_id":  "si_adaptive_flow",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_bahai",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_bb_break",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_bos",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_cdl",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_cdl_mb",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_chandelier",
+                                 "source":  "self_indc",
+                                 "sample_status":  "empty_no_signal_on_sample",
+                                 "notes":  "Computed successfully but no event was triggered on the deterministic sample."
+                             },
+                             {
+                                 "group_id":  "si_choch",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_cm_strg_pivt",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_cpr",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_cpr_v4",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_ctz_gann",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_curve",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_dark_cloud",
+                                 "source":  "self_indc",
+                                 "sample_status":  "empty_no_signal_on_sample",
+                                 "notes":  "Computed successfully but no event was triggered on the deterministic sample."
+                             },
+                             {
+                                 "group_id":  "si_dbl",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_delta_vp",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_dual_ma_osc",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_fib",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_flowscope",
+                                 "source":  "self_indc",
+                                 "sample_status":  "empty_no_signal_on_sample",
+                                 "notes":  "Computed successfully but no event was triggered on the deterministic sample."
+                             },
+                             {
+                                 "group_id":  "si_fractal",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_fvg",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_har_zz",
+                                 "source":  "self_indc",
+                                 "sample_status":  "empty_no_signal_on_sample",
+                                 "notes":  "Computed successfully but no event was triggered on the deterministic sample."
+                             },
+                             {
+                                 "group_id":  "si_harmonic",
+                                 "source":  "self_indc",
+                                 "sample_status":  "empty_no_signal_on_sample",
+                                 "notes":  "Computed successfully but no event was triggered on the deterministic sample."
+                             },
+                             {
+                                 "group_id":  "si_hourly_pvt",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_hs",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_hyb_opening_range_rev",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_hybrid_ml",
+                                 "source":  "self_indc",
+                                 "sample_status":  "empty_no_signal_on_sample",
+                                 "notes":  "Computed successfully but no event was triggered on the deterministic sample."
+                             },
+                             {
+                                 "group_id":  "si_hybrid_ml_cpr",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_ichimoku",
+                                 "source":  "self_indc",
+                                 "sample_status":  "empty_no_signal_on_sample",
+                                 "notes":  "Computed successfully but no event was triggered on the deterministic sample."
+                             },
+                             {
+                                 "group_id":  "si_impulse",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_inside_out",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_kc_pyti",
+                                 "source":  "self_indc",
+                                 "sample_status":  "empty_no_signal_on_sample",
+                                 "notes":  "Computed successfully but no event was triggered on the deterministic sample."
+                             },
+                             {
+                                 "group_id":  "si_liq_intelg",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_liquidity_entry",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_lrb",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_macd_ta",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_mk_inside",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_mp_va",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_nbar",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_ob",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_opening_range_rev",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_outside_rev",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_problty_grid",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_pta_cdl",
+                                 "source":  "self_indc",
+                                 "sample_status":  "empty_no_signal_on_sample",
+                                 "notes":  "Computed successfully but no event was triggered on the deterministic sample."
+                             },
+                             {
+                                 "group_id":  "si_rev_radar",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_rsi_div",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_rsi_div_auto",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_rsi_ss",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_sar_tapy",
+                                 "source":  "self_indc",
+                                 "sample_status":  "empty_no_signal_on_sample",
+                                 "notes":  "Computed successfully but no event was triggered on the deterministic sample."
+                             },
+                             {
+                                 "group_id":  "si_sbs",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_sfb_hybrid",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_sfp",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_st_talipp",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_strg_pivt",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_swing_break",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_swing_str",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_three_inside",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_three_inside_filtered",
+                                 "source":  "self_indc",
+                                 "sample_status":  "empty_no_signal_on_sample",
+                                 "notes":  "Computed successfully but no event was triggered on the deterministic sample."
+                             },
+                             {
+                                 "group_id":  "si_trend_sig",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_trendln",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_twin_range",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_vol_exh",
+                                 "source":  "self_indc",
+                                 "sample_status":  "empty_no_signal_on_sample",
+                                 "notes":  "Computed successfully but no event was triggered on the deterministic sample."
+                             },
+                             {
+                                 "group_id":  "si_vwap_bb_ml_conf",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_vwap_conf",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_vwap_super",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_wekly_pivot",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "si_zz_swing",
+                                 "source":  "self_indc",
+                                 "sample_status":  "non_empty_sample",
+                                 "notes":  "Computed successfully and returned sample data."
+                             },
+                             {
+                                 "group_id":  "pta_amat",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_aroon_sig",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_chop",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_cmf",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_drawdown",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_dsp",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_ebsw",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_entropy",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_fisher_sig",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_hlc3",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_kdj",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_kurtosis",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_log_ret",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_long_run",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_mfi_sig",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_rsx",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_short_run",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_skew",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_squeeze",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_tsi",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_ttm",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_vortex",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             },
+                             {
+                                 "group_id":  "pta_zscore",
+                                 "source":  "pta_signal_markers",
+                                 "sample_status":  "registered_marker",
+                                 "notes":  "Registered PTA marker output group."
+                             }
+                         ],
+    "gates":  [
+                  {
+                      "gate_id":  "TV-RUNTIME-001",
+                      "name":  "Indicator output inventory",
+                      "status":  "pass",
+                      "evidence":  "67 self_indc groups and 23 PTA marker groups are registered.",
+                      "blocks_research":  false,
+                      "remediation":  null
+                  },
+                  {
+                      "gate_id":  "TV-RUNTIME-002",
+                      "name":  "Indicator regression evidence",
+                      "status":  "pass",
+                      "evidence":  "Latest broad indicator sweep: 79 passed, 1 skipped.",
+                      "blocks_research":  false,
+                      "remediation":  null
+                  },
+                  {
+                      "gate_id":  "TV-RUNTIME-003",
+                      "name":  "Chart screen assets copied",
+                      "status":  "pass",
+                      "evidence":  "legacy_chart_screen=present; legacy_research_screen=present; legacy_backtest_screen=present; production_workspace_shell=present",
+                      "blocks_research":  false,
+                      "remediation":  null
+                  },
+                  {
+                      "gate_id":  "TV-RUNTIME-004",
+                      "name":  "Research activity surfaces copied",
+                      "status":  "pass",
+                      "evidence":  "legacy_research_engine=present; legacy_indicator_registry=present; legacy_pta_marker_registry=present; pit_snapshot_store=present",
+                      "blocks_research":  false,
+                      "remediation":  null
+                  },
+                  {
+                      "gate_id":  "TV-RUNTIME-005",
+                      "name":  "Replay control surfaces available",
+                      "status":  "pass",
+                      "evidence":  "deterministic_replay_api=present; golden_replay_fixtures=present; scenario_coverage=present; replay_frontend_controls=present",
+                      "blocks_research":  false,
+                      "remediation":  null
+                  },
+                  {
+                      "gate_id":  "TV-RUNTIME-006",
+                      "name":  "Live trading blocked",
+                      "status":  "pass",
+                      "evidence":  "Runtime readiness is research/mock evidence only; no broker route is enabled.",
+                      "blocks_research":  false,
+                      "remediation":  null
+                  }
+              ],
+    "indicator_output_ready":  true,
+    "chart_output_ready":  true,
+    "research_activity_ready":  true,
+    "replay_ready":  true,
+    "safe_mode":  true,
+    "live_trading_blocked":  true,
+    "browser_recommended_ports":  [
+                                      5173,
+                                      8765,
+                                      8010
+                                  ],
+    "notes":  [
+                  "The six Research cards in the UI are placeholders; the migrated output registry currently exposes 90 output groups.",
+                  "Empty event-list outputs are not failures; those patterns simply did not fire on the deterministic sample.",
+                  "This readiness report does not import the legacy stock-app runtime, so the new app remains decoupled.",
+                  "Use port 8765 for static preview if the in-app browser blocks Vite port 5174."
+              ]
+}

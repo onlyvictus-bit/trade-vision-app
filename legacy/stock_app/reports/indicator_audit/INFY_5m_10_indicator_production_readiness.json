@@ -1,0 +1,4917 @@
+{
+  "summary": {
+    "symbol": "INFY",
+    "tf": "5m_from_1m",
+    "rows": 205033,
+    "start": "2015-02-02 09:15:00",
+    "end": "2026-03-20 15:25:00",
+    "strategies_tested": 11,
+    "passed": 0,
+    "best": {
+      "strategy": "L_trend_dd_recovery",
+      "direction": "long",
+      "passed": false,
+      "display_verdict": "REJECT",
+      "fail_reasons": "full trades 60 < 100; validation trades 2 < 20; holdout trades 2 < 20; full PF 0.432 < 1.15",
+      "warning": "Do not trust split metrics with less than 20 trades.",
+      "full_trades": 60,
+      "full_win_rate": 33.33,
+      "full_return_pct": -16.52,
+      "full_pf": 0.432,
+      "full_sharpe": -58.363,
+      "full_maxdd_pct": -16.79,
+      "full_avg_ret_pct": -0.2981,
+      "full_reliable": true,
+      "train_trades": 56,
+      "train_win_rate": 32.14,
+      "train_return_pct": -16.79,
+      "train_pf": 0.401,
+      "train_sharpe": -64.083,
+      "train_maxdd_pct": -16.12,
+      "train_avg_ret_pct": -0.3254,
+      "train_reliable": true,
+      "val_trades": 2,
+      "val_win_rate": 50.0,
+      "val_return_pct": -0.11,
+      "val_pf": 0.875,
+      "val_sharpe": -6.481,
+      "val_maxdd_pct": 0.0,
+      "val_avg_ret_pct": -0.05,
+      "val_reliable": false,
+      "hold_trades": 2,
+      "hold_win_rate": 50.0,
+      "hold_return_pct": 0.44,
+      "hold_pf": 2.661,
+      "hold_sharpe": 44.106,
+      "hold_maxdd_pct": -0.26,
+      "hold_avg_ret_pct": 0.2185,
+      "hold_reliable": false
+    }
+  },
+  "strategies": [
+    {
+      "strategy": "L_trend_dd_recovery",
+      "direction": "long",
+      "passed": false,
+      "display_verdict": "REJECT",
+      "fail_reasons": "full trades 60 < 100; validation trades 2 < 20; holdout trades 2 < 20; full PF 0.432 < 1.15",
+      "warning": "Do not trust split metrics with less than 20 trades.",
+      "full_trades": 60,
+      "full_win_rate": 33.33,
+      "full_return_pct": -16.52,
+      "full_pf": 0.432,
+      "full_sharpe": -58.363,
+      "full_maxdd_pct": -16.79,
+      "full_avg_ret_pct": -0.2981,
+      "full_reliable": true,
+      "train_trades": 56,
+      "train_win_rate": 32.14,
+      "train_return_pct": -16.79,
+      "train_pf": 0.401,
+      "train_sharpe": -64.083,
+      "train_maxdd_pct": -16.12,
+      "train_avg_ret_pct": -0.3254,
+      "train_reliable": true,
+      "val_trades": 2,
+      "val_win_rate": 50.0,
+      "val_return_pct": -0.11,
+      "val_pf": 0.875,
+      "val_sharpe": -6.481,
+      "val_maxdd_pct": 0.0,
+      "val_avg_ret_pct": -0.05,
+      "val_reliable": false,
+      "hold_trades": 2,
+      "hold_win_rate": 50.0,
+      "hold_return_pct": 0.44,
+      "hold_pf": 2.661,
+      "hold_sharpe": 44.106,
+      "hold_maxdd_pct": -0.26,
+      "hold_avg_ret_pct": 0.2185,
+      "hold_reliable": false
+    },
+    {
+      "strategy": "L_trend_macd_aroon",
+      "direction": "long",
+      "passed": false,
+      "display_verdict": "REJECT",
+      "fail_reasons": "full PF 0.398 < 1.15; validation PF 0.447 < 1.0; holdout PF 0.531 < 1.0; full maxDD -92.78% <= -25%; validation return -25.76% <= -10%; holdout return -20.67% <= -10%",
+      "warning": "",
+      "full_trades": 1024,
+      "full_win_rate": 32.32,
+      "full_return_pct": -92.73,
+      "full_pf": 0.398,
+      "full_sharpe": -58.929,
+      "full_maxdd_pct": -92.78,
+      "full_avg_ret_pct": -0.2539,
+      "full_reliable": true,
+      "train_trades": 744,
+      "train_win_rate": 30.51,
+      "train_return_pct": -87.65,
+      "train_pf": 0.37,
+      "train_sharpe": -64.443,
+      "train_maxdd_pct": -88.01,
+      "train_avg_ret_pct": -0.279,
+      "train_reliable": true,
+      "val_trades": 146,
+      "val_win_rate": 36.99,
+      "val_return_pct": -25.76,
+      "val_pf": 0.447,
+      "val_sharpe": -49.454,
+      "val_maxdd_pct": -26.79,
+      "val_avg_ret_pct": -0.2023,
+      "val_reliable": true,
+      "hold_trades": 134,
+      "hold_win_rate": 37.31,
+      "hold_return_pct": -20.67,
+      "hold_pf": 0.531,
+      "hold_sharpe": -39.059,
+      "hold_maxdd_pct": -21.45,
+      "hold_avg_ret_pct": -0.1709,
+      "hold_reliable": true
+    },
+    {
+      "strategy": "L_strict_long_run",
+      "direction": "long",
+      "passed": false,
+      "display_verdict": "REJECT",
+      "fail_reasons": "full PF 0.369 < 1.15; validation PF 0.367 < 1.0; holdout PF 0.342 < 1.0; full maxDD -99.22% <= -25%; validation return -44.53% <= -10%; holdout return -53.95% <= -10%",
+      "warning": "",
+      "full_trades": 1828,
+      "full_win_rate": 30.69,
+      "full_return_pct": -99.21,
+      "full_pf": 0.369,
+      "full_sharpe": -63.028,
+      "full_maxdd_pct": -99.22,
+      "full_avg_ret_pct": -0.263,
+      "full_reliable": true,
+      "train_trades": 1290,
+      "train_win_rate": 31.16,
+      "train_return_pct": -96.92,
+      "train_pf": 0.376,
+      "train_sharpe": -62.62,
+      "train_maxdd_pct": -96.96,
+      "train_avg_ret_pct": -0.2676,
+      "train_reliable": true,
+      "val_trades": 265,
+      "val_win_rate": 29.43,
+      "val_return_pct": -44.53,
+      "val_pf": 0.367,
+      "val_sharpe": -59.937,
+      "val_maxdd_pct": -45.13,
+      "val_avg_ret_pct": -0.2209,
+      "val_reliable": true,
+      "hold_trades": 273,
+      "hold_win_rate": 29.67,
+      "hold_return_pct": -53.95,
+      "hold_pf": 0.342,
+      "hold_sharpe": -68.208,
+      "hold_maxdd_pct": -53.97,
+      "hold_avg_ret_pct": -0.282,
+      "hold_reliable": true
+    },
+    {
+      "strategy": "L_trend_macd_rsi_mfi",
+      "direction": "long",
+      "passed": false,
+      "display_verdict": "REJECT",
+      "fail_reasons": "full PF 0.355 < 1.15; validation PF 0.325 < 1.0; holdout PF 0.372 < 1.0; full maxDD -89.34% <= -25%; validation return -28.13% <= -10%; holdout return -23.69% <= -10%",
+      "warning": "",
+      "full_trades": 792,
+      "full_win_rate": 29.04,
+      "full_return_pct": -89.42,
+      "full_pf": 0.355,
+      "full_sharpe": -66.475,
+      "full_maxdd_pct": -89.34,
+      "full_avg_ret_pct": -0.2816,
+      "full_reliable": true,
+      "train_trades": 563,
+      "train_win_rate": 28.42,
+      "train_return_pct": -80.72,
+      "train_pf": 0.358,
+      "train_sharpe": -66.839,
+      "train_maxdd_pct": -80.56,
+      "train_avg_ret_pct": -0.2902,
+      "train_reliable": true,
+      "val_trades": 127,
+      "val_win_rate": 29.92,
+      "val_return_pct": -28.13,
+      "val_pf": 0.325,
+      "val_sharpe": -68.592,
+      "val_maxdd_pct": -29.48,
+      "val_avg_ret_pct": -0.2584,
+      "val_reliable": true,
+      "hold_trades": 102,
+      "hold_win_rate": 31.37,
+      "hold_return_pct": -23.69,
+      "hold_pf": 0.372,
+      "hold_sharpe": -62.222,
+      "hold_maxdd_pct": -23.58,
+      "hold_avg_ret_pct": -0.263,
+      "hold_reliable": true
+    },
+    {
+      "strategy": "L_trend_pullback_willr",
+      "direction": "long",
+      "passed": false,
+      "display_verdict": "REJECT",
+      "fail_reasons": "full PF 0.324 < 1.15; validation PF 0.395 < 1.0; holdout PF 0.235 < 1.0; full maxDD -75.13% <= -25%; validation return -12.13% <= -10%; holdout return -27.74% <= -10%",
+      "warning": "",
+      "full_trades": 480,
+      "full_win_rate": 28.12,
+      "full_return_pct": -74.96,
+      "full_pf": 0.324,
+      "full_sharpe": -71.212,
+      "full_maxdd_pct": -75.13,
+      "full_avg_ret_pct": -0.2865,
+      "full_reliable": true,
+      "train_trades": 320,
+      "train_win_rate": 29.06,
+      "train_return_pct": -60.56,
+      "train_pf": 0.34,
+      "train_sharpe": -68.966,
+      "train_maxdd_pct": -61.11,
+      "train_avg_ret_pct": -0.2887,
+      "train_reliable": true,
+      "val_trades": 72,
+      "val_win_rate": 27.78,
+      "val_return_pct": -12.13,
+      "val_pf": 0.395,
+      "val_sharpe": -53.685,
+      "val_maxdd_pct": -13.47,
+      "val_avg_ret_pct": -0.1783,
+      "val_reliable": true,
+      "hold_trades": 88,
+      "hold_win_rate": 25.0,
+      "hold_return_pct": -27.74,
+      "hold_pf": 0.235,
+      "hold_sharpe": -94.76,
+      "hold_maxdd_pct": -28.01,
+      "hold_avg_ret_pct": -0.3671,
+      "hold_reliable": true
+    },
+    {
+      "strategy": "S_strict_short_run",
+      "direction": "short",
+      "passed": false,
+      "display_verdict": "REJECT",
+      "fail_reasons": "full PF 0.32 < 1.15; validation PF 0.348 < 1.0; holdout PF 0.267 < 1.0; full maxDD -99.61% <= -25%; validation return -50.1% <= -10%; holdout return -60.34% <= -10%",
+      "warning": "",
+      "full_trades": 1876,
+      "full_win_rate": 28.04,
+      "full_return_pct": -99.61,
+      "full_pf": 0.32,
+      "full_sharpe": -72.262,
+      "full_maxdd_pct": -99.61,
+      "full_avg_ret_pct": -0.2934,
+      "full_reliable": true,
+      "train_trades": 1323,
+      "train_win_rate": 27.51,
+      "train_return_pct": -98.02,
+      "train_pf": 0.327,
+      "train_sharpe": -71.443,
+      "train_maxdd_pct": -98.04,
+      "train_avg_ret_pct": -0.2943,
+      "train_reliable": true,
+      "val_trades": 266,
+      "val_win_rate": 29.7,
+      "val_return_pct": -50.1,
+      "val_pf": 0.348,
+      "val_sharpe": -65.324,
+      "val_maxdd_pct": -50.48,
+      "val_avg_ret_pct": -0.2595,
+      "val_reliable": true,
+      "hold_trades": 287,
+      "hold_win_rate": 28.92,
+      "hold_return_pct": -60.34,
+      "hold_pf": 0.267,
+      "hold_sharpe": -83.036,
+      "hold_maxdd_pct": -60.52,
+      "hold_avg_ret_pct": -0.3203,
+      "hold_reliable": true
+    },
+    {
+      "strategy": "L_trend_pullback_cci",
+      "direction": "long",
+      "passed": false,
+      "display_verdict": "REJECT",
+      "fail_reasons": "validation trades 19 < 20; full PF 0.306 < 1.15; holdout PF 0.371 < 1.0; full maxDD -29.19% <= -25%",
+      "warning": "Do not trust split metrics with less than 20 trades.",
+      "full_trades": 109,
+      "full_win_rate": 30.28,
+      "full_return_pct": -29.26,
+      "full_pf": 0.306,
+      "full_sharpe": -75.584,
+      "full_maxdd_pct": -29.19,
+      "full_avg_ret_pct": -0.3155,
+      "full_reliable": true,
+      "train_trades": 69,
+      "train_win_rate": 28.99,
+      "train_return_pct": -21.73,
+      "train_pf": 0.284,
+      "train_sharpe": -82.749,
+      "train_maxdd_pct": -21.65,
+      "train_avg_ret_pct": -0.3528,
+      "train_reliable": true,
+      "val_trades": 19,
+      "val_win_rate": 26.32,
+      "val_return_pct": -4.64,
+      "val_pf": 0.335,
+      "val_sharpe": -64.16,
+      "val_maxdd_pct": -4.8,
+      "val_avg_ret_pct": -0.2482,
+      "val_reliable": false,
+      "hold_trades": 21,
+      "hold_win_rate": 38.1,
+      "hold_return_pct": -5.23,
+      "hold_pf": 0.371,
+      "hold_sharpe": -59.617,
+      "hold_maxdd_pct": -5.76,
+      "hold_avg_ret_pct": -0.2537,
+      "hold_reliable": true
+    },
+    {
+      "strategy": "S_trend_macd_rsi_mfi",
+      "direction": "short",
+      "passed": false,
+      "display_verdict": "REJECT",
+      "fail_reasons": "full PF 0.303 < 1.15; validation PF 0.46 < 1.0; holdout PF 0.23 < 1.0; full maxDD -93.0% <= -25%; validation return -20.68% <= -10%; holdout return -33.75% <= -10%",
+      "warning": "",
+      "full_trades": 837,
+      "full_win_rate": 26.88,
+      "full_return_pct": -92.91,
+      "full_pf": 0.303,
+      "full_sharpe": -76.947,
+      "full_maxdd_pct": -93.0,
+      "full_avg_ret_pct": -0.3141,
+      "full_reliable": true,
+      "train_trades": 608,
+      "train_win_rate": 26.48,
+      "train_return_pct": -86.51,
+      "train_pf": 0.293,
+      "train_sharpe": -79.892,
+      "train_maxdd_pct": -86.6,
+      "train_avg_ret_pct": -0.3273,
+      "train_reliable": true,
+      "val_trades": 109,
+      "val_win_rate": 35.78,
+      "val_return_pct": -20.68,
+      "val_pf": 0.46,
+      "val_sharpe": -48.455,
+      "val_maxdd_pct": -20.77,
+      "val_avg_ret_pct": -0.2105,
+      "val_reliable": true,
+      "hold_trades": 120,
+      "hold_win_rate": 20.83,
+      "hold_return_pct": -33.75,
+      "hold_pf": 0.23,
+      "hold_sharpe": -92.175,
+      "hold_maxdd_pct": -33.96,
+      "hold_avg_ret_pct": -0.3412,
+      "hold_reliable": true
+    },
+    {
+      "strategy": "S_trend_pullback_willr",
+      "direction": "short",
+      "passed": false,
+      "display_verdict": "REJECT",
+      "fail_reasons": "full PF 0.292 < 1.15; validation PF 0.221 < 1.0; holdout PF 0.256 < 1.0; full maxDD -77.22% <= -25%; validation return -19.03% <= -10%; holdout return -19.46% <= -10%",
+      "warning": "",
+      "full_trades": 476,
+      "full_win_rate": 26.26,
+      "full_return_pct": -77.25,
+      "full_pf": 0.292,
+      "full_sharpe": -77.629,
+      "full_maxdd_pct": -77.22,
+      "full_avg_ret_pct": -0.3091,
+      "full_reliable": true,
+      "train_trades": 345,
+      "train_win_rate": 28.12,
+      "train_return_pct": -65.11,
+      "train_pf": 0.312,
+      "train_sharpe": -74.315,
+      "train_maxdd_pct": -65.17,
+      "train_avg_ret_pct": -0.3032,
+      "train_reliable": true,
+      "val_trades": 64,
+      "val_win_rate": 17.19,
+      "val_return_pct": -19.03,
+      "val_pf": 0.221,
+      "val_sharpe": -91.619,
+      "val_maxdd_pct": -19.55,
+      "val_avg_ret_pct": -0.3282,
+      "val_reliable": true,
+      "hold_trades": 67,
+      "hold_win_rate": 25.37,
+      "hold_return_pct": -19.46,
+      "hold_pf": 0.256,
+      "hold_sharpe": -82.787,
+      "hold_maxdd_pct": -18.81,
+      "hold_avg_ret_pct": -0.321,
+      "hold_reliable": true
+    },
+    {
+      "strategy": "S_trend_macd_aroon",
+      "direction": "short",
+      "passed": false,
+      "display_verdict": "REJECT",
+      "fail_reasons": "full PF 0.287 < 1.15; validation PF 0.285 < 1.0; holdout PF 0.289 < 1.0; full maxDD -97.1% <= -25%; validation return -37.86% <= -10%; holdout return -41.15% <= -10%",
+      "warning": "",
+      "full_trades": 1081,
+      "full_win_rate": 26.73,
+      "full_return_pct": -97.12,
+      "full_pf": 0.287,
+      "full_sharpe": -80.325,
+      "full_maxdd_pct": -97.1,
+      "full_avg_ret_pct": -0.3261,
+      "full_reliable": true,
+      "train_trades": 755,
+      "train_win_rate": 27.02,
+      "train_return_pct": -92.13,
+      "train_pf": 0.287,
+      "train_sharpe": -81.049,
+      "train_maxdd_pct": -92.08,
+      "train_avg_ret_pct": -0.3345,
+      "train_reliable": true,
+      "val_trades": 157,
+      "val_win_rate": 28.03,
+      "val_return_pct": -37.86,
+      "val_pf": 0.285,
+      "val_sharpe": -77.957,
+      "val_maxdd_pct": -37.44,
+      "val_avg_ret_pct": -0.3012,
+      "val_reliable": true,
+      "hold_trades": 169,
+      "hold_win_rate": 24.26,
+      "hold_return_pct": -41.15,
+      "hold_pf": 0.289,
+      "hold_sharpe": -78.954,
+      "hold_maxdd_pct": -40.94,
+      "hold_avg_ret_pct": -0.3118,
+      "hold_reliable": true
+    },
+    {
+      "strategy": "S_trend_pullback_cci",
+      "direction": "short",
+      "passed": false,
+      "display_verdict": "REJECT",
+      "fail_reasons": "validation trades 12 < 20; holdout trades 16 < 20; full PF 0.274 < 1.15; full maxDD -31.05% <= -25%",
+      "warning": "Do not trust split metrics with less than 20 trades.",
+      "full_trades": 103,
+      "full_win_rate": 25.24,
+      "full_return_pct": -30.95,
+      "full_pf": 0.274,
+      "full_sharpe": -85.438,
+      "full_maxdd_pct": -31.05,
+      "full_avg_ret_pct": -0.3572,
+      "full_reliable": true,
+      "train_trades": 75,
+      "train_win_rate": 25.33,
+      "train_return_pct": -24.03,
+      "train_pf": 0.257,
+      "train_sharpe": -89.313,
+      "train_maxdd_pct": -25.19,
+      "train_avg_ret_pct": -0.3642,
+      "train_reliable": true,
+      "val_trades": 12,
+      "val_win_rate": 25.0,
+      "val_return_pct": -3.23,
+      "val_pf": 0.392,
+      "val_sharpe": -58.133,
+      "val_maxdd_pct": -3.13,
+      "val_avg_ret_pct": -0.2717,
+      "val_reliable": false,
+      "hold_trades": 16,
+      "hold_win_rate": 25.0,
+      "hold_return_pct": -6.07,
+      "hold_pf": 0.278,
+      "hold_sharpe": -85.962,
+      "hold_maxdd_pct": -5.97,
+      "hold_avg_ret_pct": -0.3889,
+      "hold_reliable": false
+    }
+  ],
+  "sample_trades": {
+    "L_trend_macd_rsi_mfi": [
+      {
+        "entry_i": 539,
+        "exit_i": 544,
+        "entry_time": "2015-02-11 10:25:00",
+        "exit_time": "2015-02-11 10:50:00",
+        "return": -0.007999999999999959,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 682,
+        "exit_i": 699,
+        "entry_time": "2015-02-13 09:50:00",
+        "exit_time": "2015-02-13 11:15:00",
+        "return": -0.007999999999999953,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 972,
+        "exit_i": 979,
+        "entry_time": "2015-02-19 15:15:00",
+        "exit_time": "2015-02-20 09:35:00",
+        "return": -0.007999999999999978,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1908,
+        "exit_i": 1932,
+        "entry_time": "2015-03-10 12:00:00",
+        "exit_time": "2015-03-10 14:00:00",
+        "return": -0.0016181315684206865,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2096,
+        "exit_i": 2100,
+        "entry_time": "2015-03-12 15:10:00",
+        "exit_time": "2015-03-13 09:15:00",
+        "return": -0.008000000000000073,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2243,
+        "exit_i": 2244,
+        "entry_time": "2015-03-16 15:20:00",
+        "exit_time": "2015-03-16 15:25:00",
+        "return": -0.008000000000000073,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2246,
+        "exit_i": 2248,
+        "entry_time": "2015-03-17 09:20:00",
+        "exit_time": "2015-03-17 09:30:00",
+        "return": -0.008000000000000021,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2334,
+        "exit_i": 2342,
+        "entry_time": "2015-03-18 10:25:00",
+        "exit_time": "2015-03-18 11:05:00",
+        "return": -0.008,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3362,
+        "exit_i": 3386,
+        "entry_time": "2015-04-08 14:50:00",
+        "exit_time": "2015-04-09 10:35:00",
+        "return": -0.0023075170842824684,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3439,
+        "exit_i": 3457,
+        "entry_time": "2015-04-09 15:00:00",
+        "exit_time": "2015-04-10 10:15:00",
+        "return": 0.006999999999999915,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 3590,
+        "exit_i": 3593,
+        "entry_time": "2015-04-13 15:05:00",
+        "exit_time": "2015-04-13 15:20:00",
+        "return": -0.00800000000000001,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3803,
+        "exit_i": 3820,
+        "entry_time": "2015-04-17 14:05:00",
+        "exit_time": "2015-04-20 09:15:00",
+        "return": -0.007999999999999976,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4121,
+        "exit_i": 4121,
+        "entry_time": "2015-04-24 09:20:00",
+        "exit_time": "2015-04-24 09:20:00",
+        "return": 0.007000000000000004,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 4262,
+        "exit_i": 4279,
+        "entry_time": "2015-05-15 14:40:00",
+        "exit_time": "2015-05-18 09:50:00",
+        "return": 0.006999999999999986,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 4318,
+        "exit_i": 4342,
+        "entry_time": "2015-05-18 13:05:00",
+        "exit_time": "2015-05-18 15:05:00",
+        "return": 0.0026860721584815606,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4576,
+        "exit_i": 4596,
+        "entry_time": "2015-05-22 09:35:00",
+        "exit_time": "2015-05-22 11:15:00",
+        "return": -0.007999999999999952,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4960,
+        "exit_i": 4980,
+        "entry_time": "2015-05-29 10:20:00",
+        "exit_time": "2015-05-29 12:00:00",
+        "return": 0.006999999999999946,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 5382,
+        "exit_i": 5388,
+        "entry_time": "2015-06-05 14:15:00",
+        "exit_time": "2015-06-05 14:45:00",
+        "return": -0.008000000000000038,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 6063,
+        "exit_i": 6071,
+        "entry_time": "2015-06-18 14:45:00",
+        "exit_time": "2015-06-18 15:25:00",
+        "return": -0.007999999999999952,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7498,
+        "exit_i": 7512,
+        "entry_time": "2015-07-16 09:20:00",
+        "exit_time": "2015-07-16 10:30:00",
+        "return": -0.007999999999999983,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7522,
+        "exit_i": 7546,
+        "entry_time": "2015-07-16 11:20:00",
+        "exit_time": "2015-07-16 13:20:00",
+        "return": -0.001176956733106512,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 7624,
+        "exit_i": 7640,
+        "entry_time": "2015-07-17 13:35:00",
+        "exit_time": "2015-07-17 14:55:00",
+        "return": 0.006999999999999995,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 8237,
+        "exit_i": 8247,
+        "entry_time": "2015-07-29 14:40:00",
+        "exit_time": "2015-07-30 09:15:00",
+        "return": -0.008000000000000024,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 8617,
+        "exit_i": 8622,
+        "entry_time": "2015-08-05 15:05:00",
+        "exit_time": "2015-08-06 09:15:00",
+        "return": 0.0069999999999999065,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 8773,
+        "exit_i": 8797,
+        "entry_time": "2015-08-10 09:20:00",
+        "exit_time": "2015-08-10 11:20:00",
+        "return": -0.002090661089388015,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 8985,
+        "exit_i": 8996,
+        "entry_time": "2015-08-12 14:30:00",
+        "exit_time": "2015-08-12 15:25:00",
+        "return": -0.007999999999999965,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9034,
+        "exit_i": 9058,
+        "entry_time": "2015-08-13 12:20:00",
+        "exit_time": "2015-08-13 14:20:00",
+        "return": 0.004607849917869763,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 9216,
+        "exit_i": 9219,
+        "entry_time": "2015-08-17 15:00:00",
+        "exit_time": "2015-08-17 15:15:00",
+        "return": -0.008000000000000063,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9493,
+        "exit_i": 9499,
+        "entry_time": "2015-08-21 13:05:00",
+        "exit_time": "2015-08-21 13:35:00",
+        "return": -0.00799999999999991,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9509,
+        "exit_i": 9515,
+        "entry_time": "2015-08-21 14:25:00",
+        "exit_time": "2015-08-21 14:55:00",
+        "return": 0.0070000000000000765,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 9784,
+        "exit_i": 9808,
+        "entry_time": "2015-08-27 12:20:00",
+        "exit_time": "2015-08-27 14:20:00",
+        "return": -0.001253291167169145,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 10073,
+        "exit_i": 10082,
+        "entry_time": "2015-09-02 11:25:00",
+        "exit_time": "2015-09-02 12:10:00",
+        "return": 0.007000000000000004,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 10198,
+        "exit_i": 10198,
+        "entry_time": "2015-09-04 09:20:00",
+        "exit_time": "2015-09-04 09:20:00",
+        "return": -0.007999999999999906,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 10831,
+        "exit_i": 10855,
+        "entry_time": "2015-09-16 12:05:00",
+        "exit_time": "2015-09-16 14:05:00",
+        "return": -0.0027823642497007426,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 10896,
+        "exit_i": 10920,
+        "entry_time": "2015-09-18 11:15:00",
+        "exit_time": "2015-09-18 13:15:00",
+        "return": -0.0014725416906267563,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 11164,
+        "exit_i": 11166,
+        "entry_time": "2015-09-23 14:50:00",
+        "exit_time": "2015-09-23 15:00:00",
+        "return": -0.007999999999999965,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 11464,
+        "exit_i": 11472,
+        "entry_time": "2015-09-30 14:50:00",
+        "exit_time": "2015-10-01 09:15:00",
+        "return": 0.006999999999999962,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 11511,
+        "exit_i": 11515,
+        "entry_time": "2015-10-01 12:30:00",
+        "exit_time": "2015-10-01 12:50:00",
+        "return": -0.008000000000000073,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 12346,
+        "exit_i": 12370,
+        "entry_time": "2015-10-19 13:20:00",
+        "exit_time": "2015-10-19 15:20:00",
+        "return": 0.0004727845254160145,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 12473,
+        "exit_i": 12482,
+        "entry_time": "2015-10-21 11:25:00",
+        "exit_time": "2015-10-21 12:10:00",
+        "return": -0.007999999999999927,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 12500,
+        "exit_i": 12524,
+        "entry_time": "2015-10-21 13:40:00",
+        "exit_time": "2015-10-23 09:25:00",
+        "return": -0.007302019315188842,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 12589,
+        "exit_i": 12597,
+        "entry_time": "2015-10-23 14:50:00",
+        "exit_time": "2015-10-26 09:15:00",
+        "return": 0.007000000000000059,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 13123,
+        "exit_i": 13124,
+        "entry_time": "2015-11-04 09:20:00",
+        "exit_time": "2015-11-04 09:25:00",
+        "return": -0.008000000000000038,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 13316,
+        "exit_i": 13328,
+        "entry_time": "2015-11-06 12:55:00",
+        "exit_time": "2015-11-06 13:55:00",
+        "return": -0.008000000000000038,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 13838,
+        "exit_i": 13862,
+        "entry_time": "2015-11-19 11:30:00",
+        "exit_time": "2015-11-19 13:30:00",
+        "return": -0.00594468609261343,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 13873,
+        "exit_i": 13883,
+        "entry_time": "2015-11-19 14:25:00",
+        "exit_time": "2015-11-19 15:15:00",
+        "return": 0.0069999999999999655,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 13950,
+        "exit_i": 13957,
+        "entry_time": "2015-11-20 14:35:00",
+        "exit_time": "2015-11-20 15:10:00",
+        "return": -0.007999999999999906,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 14159,
+        "exit_i": 14183,
+        "entry_time": "2015-11-26 13:15:00",
+        "exit_time": "2015-11-26 15:15:00",
+        "return": -0.0028097882943715923,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 14258,
+        "exit_i": 14261,
+        "entry_time": "2015-11-27 15:15:00",
+        "exit_time": "2015-11-30 09:15:00",
+        "return": -0.00800000000000011,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 15083,
+        "exit_i": 15091,
+        "entry_time": "2015-12-14 15:15:00",
+        "exit_time": "2015-12-15 09:40:00",
+        "return": -0.007999999999999985,
+        "reason": "sl"
+      }
+    ],
+    "L_trend_macd_aroon": [
+      {
+        "entry_i": 273,
+        "exit_i": 283,
+        "entry_time": "2015-02-05 13:15:00",
+        "exit_time": "2015-02-05 14:05:00",
+        "return": 0.006999999999999998,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 302,
+        "exit_i": 318,
+        "entry_time": "2015-02-06 09:25:00",
+        "exit_time": "2015-02-06 10:45:00",
+        "return": -0.007999999999999948,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 378,
+        "exit_i": 378,
+        "entry_time": "2015-02-09 09:30:00",
+        "exit_time": "2015-02-09 09:30:00",
+        "return": -0.007999999999999934,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 380,
+        "exit_i": 404,
+        "entry_time": "2015-02-09 09:40:00",
+        "exit_time": "2015-02-09 11:40:00",
+        "return": -0.007999999999999948,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 430,
+        "exit_i": 450,
+        "entry_time": "2015-02-09 13:50:00",
+        "exit_time": "2015-02-10 09:15:00",
+        "return": 0.006999999999999915,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 515,
+        "exit_i": 517,
+        "entry_time": "2015-02-10 14:40:00",
+        "exit_time": "2015-02-10 14:50:00",
+        "return": -0.008000000000000007,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 682,
+        "exit_i": 699,
+        "entry_time": "2015-02-13 09:50:00",
+        "exit_time": "2015-02-13 11:15:00",
+        "return": -0.007999999999999953,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 902,
+        "exit_i": 926,
+        "entry_time": "2015-02-19 09:25:00",
+        "exit_time": "2015-02-19 11:25:00",
+        "return": 0.0048234530506274026,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 1231,
+        "exit_i": 1241,
+        "entry_time": "2015-02-25 11:50:00",
+        "exit_time": "2015-02-25 12:40:00",
+        "return": -0.007999999999999933,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2215,
+        "exit_i": 2234,
+        "entry_time": "2015-03-16 13:00:00",
+        "exit_time": "2015-03-16 14:35:00",
+        "return": -0.008000000000000007,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2334,
+        "exit_i": 2342,
+        "entry_time": "2015-03-18 10:25:00",
+        "exit_time": "2015-03-18 11:05:00",
+        "return": -0.008,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2867,
+        "exit_i": 2888,
+        "entry_time": "2015-03-27 11:05:00",
+        "exit_time": "2015-03-27 12:50:00",
+        "return": -0.007999999999999933,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3208,
+        "exit_i": 3232,
+        "entry_time": "2015-04-06 14:30:00",
+        "exit_time": "2015-04-07 10:15:00",
+        "return": -0.0018388166989217667,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3318,
+        "exit_i": 3342,
+        "entry_time": "2015-04-08 11:10:00",
+        "exit_time": "2015-04-08 13:10:00",
+        "return": -0.001668004744092659,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3439,
+        "exit_i": 3457,
+        "entry_time": "2015-04-09 15:00:00",
+        "exit_time": "2015-04-10 10:15:00",
+        "return": 0.006999999999999915,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 3590,
+        "exit_i": 3593,
+        "entry_time": "2015-04-13 15:05:00",
+        "exit_time": "2015-04-13 15:20:00",
+        "return": -0.00800000000000001,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3803,
+        "exit_i": 3820,
+        "entry_time": "2015-04-17 14:05:00",
+        "exit_time": "2015-04-20 09:15:00",
+        "return": -0.007999999999999976,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3952,
+        "exit_i": 3975,
+        "entry_time": "2015-04-21 14:00:00",
+        "exit_time": "2015-04-22 09:40:00",
+        "return": -0.007999999999999906,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4121,
+        "exit_i": 4121,
+        "entry_time": "2015-04-24 09:20:00",
+        "exit_time": "2015-04-24 09:20:00",
+        "return": 0.007000000000000004,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 4246,
+        "exit_i": 4270,
+        "entry_time": "2015-05-15 13:20:00",
+        "exit_time": "2015-05-15 15:20:00",
+        "return": 0.00047840320831540623,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4318,
+        "exit_i": 4342,
+        "entry_time": "2015-05-18 13:05:00",
+        "exit_time": "2015-05-18 15:05:00",
+        "return": 0.0026860721584815606,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4383,
+        "exit_i": 4407,
+        "entry_time": "2015-05-19 12:15:00",
+        "exit_time": "2015-05-19 14:15:00",
+        "return": -0.005574869275867556,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4576,
+        "exit_i": 4596,
+        "entry_time": "2015-05-22 09:35:00",
+        "exit_time": "2015-05-22 11:15:00",
+        "return": -0.007999999999999952,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4903,
+        "exit_i": 4906,
+        "entry_time": "2015-05-28 11:50:00",
+        "exit_time": "2015-05-28 12:05:00",
+        "return": -0.007999999999999993,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4949,
+        "exit_i": 4973,
+        "entry_time": "2015-05-29 09:25:00",
+        "exit_time": "2015-05-29 11:25:00",
+        "return": 0.006163961681577064,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4976,
+        "exit_i": 4995,
+        "entry_time": "2015-05-29 11:40:00",
+        "exit_time": "2015-05-29 13:15:00",
+        "return": -0.008000000000000028,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5382,
+        "exit_i": 5388,
+        "entry_time": "2015-06-05 14:15:00",
+        "exit_time": "2015-06-05 14:45:00",
+        "return": -0.008000000000000038,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5625,
+        "exit_i": 5634,
+        "entry_time": "2015-06-11 09:30:00",
+        "exit_time": "2015-06-11 10:15:00",
+        "return": -0.00800000000000002,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 6203,
+        "exit_i": 6213,
+        "entry_time": "2015-06-22 13:55:00",
+        "exit_time": "2015-06-22 14:45:00",
+        "return": 0.0070000000000000505,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 6698,
+        "exit_i": 6722,
+        "entry_time": "2015-07-01 11:25:00",
+        "exit_time": "2015-07-01 13:25:00",
+        "return": -0.006806471000701147,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6973,
+        "exit_i": 6997,
+        "entry_time": "2015-07-07 09:20:00",
+        "exit_time": "2015-07-07 11:20:00",
+        "return": -0.0022288961038961132,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 7424,
+        "exit_i": 7448,
+        "entry_time": "2015-07-15 09:25:00",
+        "exit_time": "2015-07-15 11:25:00",
+        "return": 0.0032512810002049836,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 7464,
+        "exit_i": 7472,
+        "entry_time": "2015-07-15 12:45:00",
+        "exit_time": "2015-07-15 13:25:00",
+        "return": -0.007999999999999972,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7498,
+        "exit_i": 7512,
+        "entry_time": "2015-07-16 09:20:00",
+        "exit_time": "2015-07-16 10:30:00",
+        "return": -0.007999999999999983,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7705,
+        "exit_i": 7721,
+        "entry_time": "2015-07-20 14:05:00",
+        "exit_time": "2015-07-20 15:25:00",
+        "return": -0.00799999999999999,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7723,
+        "exit_i": 7723,
+        "entry_time": "2015-07-21 09:20:00",
+        "exit_time": "2015-07-21 09:20:00",
+        "return": -0.007999999999999972,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7772,
+        "exit_i": 7779,
+        "entry_time": "2015-07-21 13:25:00",
+        "exit_time": "2015-07-21 14:00:00",
+        "return": 0.006999999999999967,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 8211,
+        "exit_i": 8224,
+        "entry_time": "2015-07-29 12:30:00",
+        "exit_time": "2015-07-29 13:35:00",
+        "return": -0.007999999999999929,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 8617,
+        "exit_i": 8622,
+        "entry_time": "2015-08-05 15:05:00",
+        "exit_time": "2015-08-06 09:15:00",
+        "return": 0.0069999999999999065,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 8773,
+        "exit_i": 8797,
+        "entry_time": "2015-08-10 09:20:00",
+        "exit_time": "2015-08-10 11:20:00",
+        "return": -0.002090661089388015,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 8985,
+        "exit_i": 8996,
+        "entry_time": "2015-08-12 14:30:00",
+        "exit_time": "2015-08-12 15:25:00",
+        "return": -0.007999999999999965,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9007,
+        "exit_i": 9017,
+        "entry_time": "2015-08-13 10:05:00",
+        "exit_time": "2015-08-13 10:55:00",
+        "return": -0.00799999999999998,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9216,
+        "exit_i": 9219,
+        "entry_time": "2015-08-17 15:00:00",
+        "exit_time": "2015-08-17 15:15:00",
+        "return": -0.008000000000000063,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9472,
+        "exit_i": 9483,
+        "entry_time": "2015-08-21 11:20:00",
+        "exit_time": "2015-08-21 12:15:00",
+        "return": -0.007999999999999906,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9509,
+        "exit_i": 9515,
+        "entry_time": "2015-08-21 14:25:00",
+        "exit_time": "2015-08-21 14:55:00",
+        "return": 0.0070000000000000765,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 9882,
+        "exit_i": 9891,
+        "entry_time": "2015-08-28 14:15:00",
+        "exit_time": "2015-08-28 15:00:00",
+        "return": -0.007999999999999927,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 10073,
+        "exit_i": 10082,
+        "entry_time": "2015-09-02 11:25:00",
+        "exit_time": "2015-09-02 12:10:00",
+        "return": 0.007000000000000004,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 10198,
+        "exit_i": 10198,
+        "entry_time": "2015-09-04 09:20:00",
+        "exit_time": "2015-09-04 09:20:00",
+        "return": -0.007999999999999906,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 10896,
+        "exit_i": 10920,
+        "entry_time": "2015-09-18 11:15:00",
+        "exit_time": "2015-09-18 13:15:00",
+        "return": -0.0014725416906267563,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 11164,
+        "exit_i": 11166,
+        "entry_time": "2015-09-23 14:50:00",
+        "exit_time": "2015-09-23 15:00:00",
+        "return": -0.007999999999999965,
+        "reason": "sl"
+      }
+    ],
+    "L_trend_pullback_willr": [
+      {
+        "entry_i": 269,
+        "exit_i": 274,
+        "entry_time": "2015-02-05 12:55:00",
+        "exit_time": "2015-02-05 13:20:00",
+        "return": 0.006999999999999913,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 676,
+        "exit_i": 700,
+        "entry_time": "2015-02-13 09:20:00",
+        "exit_time": "2015-02-13 11:20:00",
+        "return": -0.0038304067262945147,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2255,
+        "exit_i": 2278,
+        "entry_time": "2015-03-17 10:05:00",
+        "exit_time": "2015-03-17 12:00:00",
+        "return": -0.007999999999999962,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2532,
+        "exit_i": 2556,
+        "entry_time": "2015-03-20 14:25:00",
+        "exit_time": "2015-03-23 10:10:00",
+        "return": -0.0016384212759938078,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2557,
+        "exit_i": 2563,
+        "entry_time": "2015-03-23 10:15:00",
+        "exit_time": "2015-03-23 10:45:00",
+        "return": -0.008000000000000033,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2898,
+        "exit_i": 2902,
+        "entry_time": "2015-03-27 13:40:00",
+        "exit_time": "2015-03-27 14:00:00",
+        "return": -0.008000000000000033,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2953,
+        "exit_i": 2977,
+        "entry_time": "2015-03-30 12:00:00",
+        "exit_time": "2015-03-30 14:00:00",
+        "return": -0.00011139194800501408,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4251,
+        "exit_i": 4272,
+        "entry_time": "2015-05-15 13:45:00",
+        "exit_time": "2015-05-18 09:15:00",
+        "return": 0.007000000000000042,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 4369,
+        "exit_i": 4391,
+        "entry_time": "2015-05-19 11:05:00",
+        "exit_time": "2015-05-19 12:55:00",
+        "return": 0.006999999999999955,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 4992,
+        "exit_i": 4995,
+        "entry_time": "2015-05-29 13:00:00",
+        "exit_time": "2015-05-29 13:15:00",
+        "return": -0.008000000000000007,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5941,
+        "exit_i": 5947,
+        "entry_time": "2015-06-17 10:50:00",
+        "exit_time": "2015-06-17 11:20:00",
+        "return": -0.008000000000000042,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7474,
+        "exit_i": 7498,
+        "entry_time": "2015-07-15 13:35:00",
+        "exit_time": "2015-07-16 09:20:00",
+        "return": 0.000494656426510566,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 7723,
+        "exit_i": 7723,
+        "entry_time": "2015-07-21 09:20:00",
+        "exit_time": "2015-07-21 09:20:00",
+        "return": -0.007999999999999972,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9020,
+        "exit_i": 9044,
+        "entry_time": "2015-08-13 11:10:00",
+        "exit_time": "2015-08-13 13:10:00",
+        "return": 0.004062539043520598,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 9501,
+        "exit_i": 9515,
+        "entry_time": "2015-08-21 13:45:00",
+        "exit_time": "2015-08-21 14:55:00",
+        "return": 0.006999999999999936,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 10605,
+        "exit_i": 10606,
+        "entry_time": "2015-09-11 12:00:00",
+        "exit_time": "2015-09-11 12:05:00",
+        "return": -0.008000000000000071,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 10915,
+        "exit_i": 10939,
+        "entry_time": "2015-09-18 12:50:00",
+        "exit_time": "2015-09-18 14:50:00",
+        "return": -0.008000000000000014,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 11163,
+        "exit_i": 11167,
+        "entry_time": "2015-09-23 14:45:00",
+        "exit_time": "2015-09-23 15:05:00",
+        "return": -0.008000000000000038,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 11398,
+        "exit_i": 11398,
+        "entry_time": "2015-09-30 09:20:00",
+        "exit_time": "2015-09-30 09:20:00",
+        "return": -0.008000000000000052,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 11624,
+        "exit_i": 11625,
+        "entry_time": "2015-10-06 09:25:00",
+        "exit_time": "2015-10-06 09:30:00",
+        "return": -0.008000000000000028,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 12329,
+        "exit_i": 12353,
+        "entry_time": "2015-10-19 11:55:00",
+        "exit_time": "2015-10-19 13:55:00",
+        "return": -0.0020978800180424,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 13095,
+        "exit_i": 13119,
+        "entry_time": "2015-11-03 13:15:00",
+        "exit_time": "2015-11-03 15:15:00",
+        "return": -0.0015657565634129111,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 13123,
+        "exit_i": 13124,
+        "entry_time": "2015-11-04 09:20:00",
+        "exit_time": "2015-11-04 09:25:00",
+        "return": -0.008000000000000038,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 14004,
+        "exit_i": 14014,
+        "entry_time": "2015-11-23 12:50:00",
+        "exit_time": "2015-11-23 13:40:00",
+        "return": -0.007999999999999965,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 14099,
+        "exit_i": 14109,
+        "entry_time": "2015-11-24 14:30:00",
+        "exit_time": "2015-11-24 15:20:00",
+        "return": -0.007999999999999938,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 14249,
+        "exit_i": 14262,
+        "entry_time": "2015-11-27 14:30:00",
+        "exit_time": "2015-11-30 09:20:00",
+        "return": -0.007999999999999965,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 15434,
+        "exit_i": 15458,
+        "entry_time": "2015-12-21 13:15:00",
+        "exit_time": "2015-12-21 15:15:00",
+        "return": 0.004979840403191945,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 15840,
+        "exit_i": 15864,
+        "entry_time": "2015-12-30 09:50:00",
+        "exit_time": "2015-12-30 11:50:00",
+        "return": -0.00508227710581585,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 16639,
+        "exit_i": 16645,
+        "entry_time": "2016-01-14 13:55:00",
+        "exit_time": "2016-01-14 14:25:00",
+        "return": -0.008000000000000049,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 17055,
+        "exit_i": 17072,
+        "entry_time": "2016-01-22 11:05:00",
+        "exit_time": "2016-01-22 12:30:00",
+        "return": -0.008000000000000031,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 17435,
+        "exit_i": 17454,
+        "entry_time": "2016-02-01 11:30:00",
+        "exit_time": "2016-02-01 13:05:00",
+        "return": -0.008000000000000038,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 18177,
+        "exit_i": 18201,
+        "entry_time": "2016-02-15 10:50:00",
+        "exit_time": "2016-02-15 12:50:00",
+        "return": -0.003917431192660551,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 18913,
+        "exit_i": 18915,
+        "entry_time": "2016-02-29 09:40:00",
+        "exit_time": "2016-02-29 09:50:00",
+        "return": -0.008000000000000004,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 19004,
+        "exit_i": 19028,
+        "entry_time": "2016-03-01 11:00:00",
+        "exit_time": "2016-03-01 13:00:00",
+        "return": 0.0014564240790656208,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 19080,
+        "exit_i": 19102,
+        "entry_time": "2016-03-02 11:05:00",
+        "exit_time": "2016-03-02 12:55:00",
+        "return": 0.006999999999999993,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 19909,
+        "exit_i": 19933,
+        "entry_time": "2016-03-18 11:25:00",
+        "exit_time": "2016-03-18 13:25:00",
+        "return": -0.003255297421496004,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 20495,
+        "exit_i": 20500,
+        "entry_time": "2016-04-01 10:15:00",
+        "exit_time": "2016-04-01 10:40:00",
+        "return": -0.007999999999999983,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 21038,
+        "exit_i": 21059,
+        "entry_time": "2016-04-12 11:45:00",
+        "exit_time": "2016-04-12 13:30:00",
+        "return": -0.00799999999999999,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 21199,
+        "exit_i": 21220,
+        "entry_time": "2016-04-18 12:40:00",
+        "exit_time": "2016-04-18 14:25:00",
+        "return": -0.007999999999999948,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 22043,
+        "exit_i": 22067,
+        "entry_time": "2016-05-04 14:15:00",
+        "exit_time": "2016-05-05 10:00:00",
+        "return": -0.004214370045538923,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 23334,
+        "exit_i": 23351,
+        "entry_time": "2016-05-30 09:20:00",
+        "exit_time": "2016-05-30 10:45:00",
+        "return": 0.006999999999999988,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 24256,
+        "exit_i": 24280,
+        "entry_time": "2016-06-15 11:10:00",
+        "exit_time": "2016-06-15 13:10:00",
+        "return": -0.0020683492843229364,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 26022,
+        "exit_i": 26033,
+        "entry_time": "2016-07-19 14:35:00",
+        "exit_time": "2016-07-20 09:15:00",
+        "return": -0.008000000000000044,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 27060,
+        "exit_i": 27084,
+        "entry_time": "2016-08-08 13:35:00",
+        "exit_time": "2016-08-09 09:20:00",
+        "return": -0.004580072497444043,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 27194,
+        "exit_i": 27218,
+        "entry_time": "2016-08-10 12:15:00",
+        "exit_time": "2016-08-10 14:15:00",
+        "return": -0.004202034211742907,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 27804,
+        "exit_i": 27806,
+        "entry_time": "2016-08-23 13:05:00",
+        "exit_time": "2016-08-23 13:15:00",
+        "return": -0.007999999999999901,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 28167,
+        "exit_i": 28186,
+        "entry_time": "2016-08-30 12:05:00",
+        "exit_time": "2016-08-30 13:40:00",
+        "return": 0.006999999999999927,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 28278,
+        "exit_i": 28278,
+        "entry_time": "2016-08-31 15:05:00",
+        "exit_time": "2016-08-31 15:05:00",
+        "return": -0.007999999999999913,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 28710,
+        "exit_i": 28733,
+        "entry_time": "2016-09-09 13:35:00",
+        "exit_time": "2016-09-12 09:15:00",
+        "return": -0.007999999999999922,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 28793,
+        "exit_i": 28808,
+        "entry_time": "2016-09-12 14:15:00",
+        "exit_time": "2016-09-14 09:15:00",
+        "return": -0.008000000000000045,
+        "reason": "sl"
+      }
+    ],
+    "L_trend_pullback_cci": [
+      {
+        "entry_i": 58,
+        "exit_i": 68,
+        "entry_time": "2015-02-02 14:05:00",
+        "exit_time": "2015-02-02 14:55:00",
+        "return": -0.007999999999999946,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7622,
+        "exit_i": 7640,
+        "entry_time": "2015-07-17 13:25:00",
+        "exit_time": "2015-07-17 14:55:00",
+        "return": 0.006999999999999955,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 7723,
+        "exit_i": 7723,
+        "entry_time": "2015-07-21 09:20:00",
+        "exit_time": "2015-07-21 09:20:00",
+        "return": -0.007999999999999972,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9501,
+        "exit_i": 9515,
+        "entry_time": "2015-08-21 13:45:00",
+        "exit_time": "2015-08-21 14:55:00",
+        "return": 0.006999999999999936,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 9898,
+        "exit_i": 9898,
+        "entry_time": "2015-08-31 09:20:00",
+        "exit_time": "2015-08-31 09:20:00",
+        "return": -0.007999999999999945,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 11398,
+        "exit_i": 11398,
+        "entry_time": "2015-09-30 09:20:00",
+        "exit_time": "2015-09-30 09:20:00",
+        "return": -0.008000000000000052,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 12223,
+        "exit_i": 12224,
+        "entry_time": "2015-10-16 09:20:00",
+        "exit_time": "2015-10-16 09:25:00",
+        "return": -0.00800000000000006,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 12523,
+        "exit_i": 12523,
+        "entry_time": "2015-10-23 09:20:00",
+        "exit_time": "2015-10-23 09:20:00",
+        "return": -0.007999999999999906,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 13123,
+        "exit_i": 13124,
+        "entry_time": "2015-11-04 09:20:00",
+        "exit_time": "2015-11-04 09:25:00",
+        "return": -0.008000000000000038,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 18511,
+        "exit_i": 18535,
+        "entry_time": "2016-02-19 13:40:00",
+        "exit_time": "2016-02-22 09:25:00",
+        "return": 0.0017111111111110704,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 22051,
+        "exit_i": 22075,
+        "entry_time": "2016-05-04 14:55:00",
+        "exit_time": "2016-05-05 10:40:00",
+        "return": -0.005141833206847281,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 28211,
+        "exit_i": 28214,
+        "entry_time": "2016-08-31 09:30:00",
+        "exit_time": "2016-08-31 09:45:00",
+        "return": -0.008000000000000044,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 29634,
+        "exit_i": 29657,
+        "entry_time": "2016-09-29 09:20:00",
+        "exit_time": "2016-09-29 11:15:00",
+        "return": -0.007999999999999938,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 30601,
+        "exit_i": 30625,
+        "entry_time": "2016-10-19 14:55:00",
+        "exit_time": "2016-10-20 10:40:00",
+        "return": -0.0020411904579274373,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 32473,
+        "exit_i": 32497,
+        "entry_time": "2016-11-25 13:40:00",
+        "exit_time": "2016-11-28 09:25:00",
+        "return": 0.004067065426686854,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 34194,
+        "exit_i": 34216,
+        "entry_time": "2016-12-28 13:20:00",
+        "exit_time": "2016-12-28 15:10:00",
+        "return": -0.008000000000000031,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 36396,
+        "exit_i": 36420,
+        "entry_time": "2017-02-09 09:20:00",
+        "exit_time": "2017-02-09 11:20:00",
+        "return": -0.0036801998086937893,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 38579,
+        "exit_i": 38601,
+        "entry_time": "2017-03-24 10:00:00",
+        "exit_time": "2017-03-24 11:50:00",
+        "return": -0.00800000000000007,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 40827,
+        "exit_i": 40848,
+        "entry_time": "2017-05-10 09:50:00",
+        "exit_time": "2017-05-10 11:35:00",
+        "return": -0.008000000000000014,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 44071,
+        "exit_i": 44080,
+        "entry_time": "2017-07-12 09:45:00",
+        "exit_time": "2017-07-12 10:30:00",
+        "return": -0.008000000000000049,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 47556,
+        "exit_i": 47580,
+        "entry_time": "2017-09-18 12:40:00",
+        "exit_time": "2017-09-18 14:40:00",
+        "return": -0.005668124658283275,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 49913,
+        "exit_i": 49932,
+        "entry_time": "2017-11-03 14:20:00",
+        "exit_time": "2017-11-06 09:40:00",
+        "return": -0.007999999999999986,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 51804,
+        "exit_i": 51807,
+        "entry_time": "2017-12-11 09:25:00",
+        "exit_time": "2017-12-11 09:40:00",
+        "return": -0.008000000000000026,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 54345,
+        "exit_i": 54346,
+        "entry_time": "2018-01-29 14:55:00",
+        "exit_time": "2018-01-29 15:00:00",
+        "return": -0.007999999999999917,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 54860,
+        "exit_i": 54869,
+        "entry_time": "2018-02-07 14:05:00",
+        "exit_time": "2018-02-07 14:50:00",
+        "return": -0.008000000000000035,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 54927,
+        "exit_i": 54939,
+        "entry_time": "2018-02-08 13:25:00",
+        "exit_time": "2018-02-08 14:25:00",
+        "return": -0.00800000000000008,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 56374,
+        "exit_i": 56377,
+        "entry_time": "2018-03-09 15:15:00",
+        "exit_time": "2018-03-12 09:15:00",
+        "return": 0.007000000000000026,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 56453,
+        "exit_i": 56463,
+        "entry_time": "2018-03-13 09:20:00",
+        "exit_time": "2018-03-13 10:10:00",
+        "return": -0.007999999999999965,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 58892,
+        "exit_i": 58916,
+        "entry_time": "2018-04-30 12:35:00",
+        "exit_time": "2018-04-30 14:35:00",
+        "return": -0.0019167569369217716,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 59679,
+        "exit_i": 59681,
+        "entry_time": "2018-05-16 09:25:00",
+        "exit_time": "2018-05-16 09:35:00",
+        "return": -0.008000000000000014,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 60953,
+        "exit_i": 60967,
+        "entry_time": "2018-06-08 09:20:00",
+        "exit_time": "2018-06-08 10:30:00",
+        "return": -0.007999999999999976,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 64253,
+        "exit_i": 64277,
+        "entry_time": "2018-08-09 09:20:00",
+        "exit_time": "2018-08-09 11:20:00",
+        "return": 0.0026599666207098053,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 64482,
+        "exit_i": 64500,
+        "entry_time": "2018-08-14 09:40:00",
+        "exit_time": "2018-08-14 11:10:00",
+        "return": 0.007000000000000031,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 65749,
+        "exit_i": 65752,
+        "entry_time": "2018-09-07 15:15:00",
+        "exit_time": "2018-09-10 09:15:00",
+        "return": 0.007000000000000071,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 66714,
+        "exit_i": 66717,
+        "entry_time": "2018-09-28 14:25:00",
+        "exit_time": "2018-09-28 14:40:00",
+        "return": -0.008000000000000071,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 72958,
+        "exit_i": 72964,
+        "entry_time": "2019-01-31 15:00:00",
+        "exit_time": "2019-02-01 09:15:00",
+        "return": 0.007000000000000066,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 75740,
+        "exit_i": 75741,
+        "entry_time": "2019-03-28 09:20:00",
+        "exit_time": "2019-03-28 09:25:00",
+        "return": 0.0069999999999999845,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 76246,
+        "exit_i": 76270,
+        "entry_time": "2019-04-05 14:00:00",
+        "exit_time": "2019-04-08 09:45:00",
+        "return": -0.005039071235940215,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 77016,
+        "exit_i": 77040,
+        "entry_time": "2019-04-24 09:25:00",
+        "exit_time": "2019-04-24 11:25:00",
+        "return": 0.00029015011309887866,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 83050,
+        "exit_i": 83074,
+        "entry_time": "2019-08-21 12:15:00",
+        "exit_time": "2019-08-21 14:15:00",
+        "return": -0.0031251564455569746,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 83093,
+        "exit_i": 83116,
+        "entry_time": "2019-08-22 09:35:00",
+        "exit_time": "2019-08-22 11:30:00",
+        "return": -0.007999999999999986,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 84533,
+        "exit_i": 84538,
+        "entry_time": "2019-09-20 10:50:00",
+        "exit_time": "2019-09-20 11:15:00",
+        "return": -0.007999999999999983,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 85263,
+        "exit_i": 85263,
+        "entry_time": "2019-10-07 09:20:00",
+        "exit_time": "2019-10-07 09:20:00",
+        "return": -0.007999999999999945,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 87134,
+        "exit_i": 87146,
+        "entry_time": "2019-11-14 14:15:00",
+        "exit_time": "2019-11-14 15:15:00",
+        "return": -0.008000000000000031,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 89744,
+        "exit_i": 89768,
+        "entry_time": "2020-01-03 13:00:00",
+        "exit_time": "2020-01-03 15:00:00",
+        "return": -0.0007187332259796946,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 91272,
+        "exit_i": 91274,
+        "entry_time": "2020-01-31 15:20:00",
+        "exit_time": "2020-02-01 09:15:00",
+        "return": -0.008000000000000054,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 91350,
+        "exit_i": 91350,
+        "entry_time": "2020-02-03 09:20:00",
+        "exit_time": "2020-02-03 09:20:00",
+        "return": -0.008000000000000031,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 91932,
+        "exit_i": 91956,
+        "entry_time": "2020-02-12 14:05:00",
+        "exit_time": "2020-02-13 09:50:00",
+        "return": 0.0005181986822746752,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 95646,
+        "exit_i": 95654,
+        "entry_time": "2020-04-30 12:50:00",
+        "exit_time": "2020-04-30 13:30:00",
+        "return": -0.008000000000000073,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 96505,
+        "exit_i": 96506,
+        "entry_time": "2020-05-19 09:25:00",
+        "exit_time": "2020-05-19 09:30:00",
+        "return": -0.008000000000000042,
+        "reason": "sl"
+      }
+    ],
+    "L_trend_dd_recovery": [
+      {
+        "entry_i": 302,
+        "exit_i": 318,
+        "entry_time": "2015-02-06 09:25:00",
+        "exit_time": "2015-02-06 10:45:00",
+        "return": -0.007999999999999948,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5023,
+        "exit_i": 5026,
+        "entry_time": "2015-06-01 09:20:00",
+        "exit_time": "2015-06-01 09:35:00",
+        "return": -0.008000000000000042,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5988,
+        "exit_i": 5991,
+        "entry_time": "2015-06-17 14:45:00",
+        "exit_time": "2015-06-17 15:00:00",
+        "return": -0.00799999999999999,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7723,
+        "exit_i": 7723,
+        "entry_time": "2015-07-21 09:20:00",
+        "exit_time": "2015-07-21 09:20:00",
+        "return": -0.007999999999999972,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7725,
+        "exit_i": 7727,
+        "entry_time": "2015-07-21 09:30:00",
+        "exit_time": "2015-07-21 09:40:00",
+        "return": 0.00699999999999996,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 9898,
+        "exit_i": 9898,
+        "entry_time": "2015-08-31 09:20:00",
+        "exit_time": "2015-08-31 09:20:00",
+        "return": -0.007999999999999945,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 11398,
+        "exit_i": 11398,
+        "entry_time": "2015-09-30 09:20:00",
+        "exit_time": "2015-09-30 09:20:00",
+        "return": -0.008000000000000052,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 14337,
+        "exit_i": 14338,
+        "entry_time": "2015-12-01 09:20:00",
+        "exit_time": "2015-12-01 09:25:00",
+        "return": -0.007999999999999919,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 16586,
+        "exit_i": 16586,
+        "entry_time": "2016-01-14 09:30:00",
+        "exit_time": "2016-01-14 09:30:00",
+        "return": 0.00699999999999996,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 16659,
+        "exit_i": 16663,
+        "entry_time": "2016-01-15 09:20:00",
+        "exit_time": "2016-01-15 09:40:00",
+        "return": -0.008000000000000038,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 19961,
+        "exit_i": 19961,
+        "entry_time": "2016-03-21 09:30:00",
+        "exit_time": "2016-03-21 09:30:00",
+        "return": -0.007999999999999941,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 23334,
+        "exit_i": 23351,
+        "entry_time": "2016-05-30 09:20:00",
+        "exit_time": "2016-05-30 10:45:00",
+        "return": 0.006999999999999988,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 28211,
+        "exit_i": 28214,
+        "entry_time": "2016-08-31 09:30:00",
+        "exit_time": "2016-08-31 09:45:00",
+        "return": -0.008000000000000044,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 46007,
+        "exit_i": 46011,
+        "entry_time": "2017-08-17 14:50:00",
+        "exit_time": "2017-08-17 15:10:00",
+        "return": -0.007999999999999981,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 51506,
+        "exit_i": 51510,
+        "entry_time": "2017-12-05 09:35:00",
+        "exit_time": "2017-12-05 09:55:00",
+        "return": 0.007000000000000064,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 54133,
+        "exit_i": 54136,
+        "entry_time": "2018-01-24 09:45:00",
+        "exit_time": "2018-01-24 10:00:00",
+        "return": 0.007000000000000104,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 54578,
+        "exit_i": 54581,
+        "entry_time": "2018-02-02 09:20:00",
+        "exit_time": "2018-02-02 09:35:00",
+        "return": -0.008000000000000052,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 63440,
+        "exit_i": 63446,
+        "entry_time": "2018-07-25 10:20:00",
+        "exit_time": "2018-07-25 10:50:00",
+        "return": 0.007000000000000014,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 66397,
+        "exit_i": 66401,
+        "entry_time": "2018-09-24 13:00:00",
+        "exit_time": "2018-09-24 13:20:00",
+        "return": -0.008,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 68158,
+        "exit_i": 68159,
+        "entry_time": "2018-10-30 09:45:00",
+        "exit_time": "2018-10-30 09:50:00",
+        "return": 0.006999999999999927,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 84541,
+        "exit_i": 84541,
+        "entry_time": "2019-09-20 11:30:00",
+        "exit_time": "2019-09-20 11:30:00",
+        "return": -0.007999999999999936,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 84546,
+        "exit_i": 84548,
+        "entry_time": "2019-09-20 11:55:00",
+        "exit_time": "2019-09-20 12:05:00",
+        "return": -0.007999999999999983,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 90011,
+        "exit_i": 90035,
+        "entry_time": "2020-01-09 10:15:00",
+        "exit_time": "2020-01-09 12:15:00",
+        "return": 0.0027875155022735725,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 91350,
+        "exit_i": 91350,
+        "entry_time": "2020-02-03 09:20:00",
+        "exit_time": "2020-02-03 09:20:00",
+        "return": -0.008000000000000031,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 93410,
+        "exit_i": 93410,
+        "entry_time": "2020-03-13 13:10:00",
+        "exit_time": "2020-03-13 13:10:00",
+        "return": -0.008000000000000035,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 93723,
+        "exit_i": 93723,
+        "entry_time": "2020-03-19 14:15:00",
+        "exit_time": "2020-03-19 14:15:00",
+        "return": -0.008000000000000049,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 93739,
+        "exit_i": 93739,
+        "entry_time": "2020-03-20 09:20:00",
+        "exit_time": "2020-03-20 09:20:00",
+        "return": 0.0070000000000000435,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 93792,
+        "exit_i": 93792,
+        "entry_time": "2020-03-20 13:45:00",
+        "exit_time": "2020-03-20 13:45:00",
+        "return": -0.007999999999999934,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 93882,
+        "exit_i": 93882,
+        "entry_time": "2020-03-24 09:40:00",
+        "exit_time": "2020-03-24 09:40:00",
+        "return": -0.007999999999999926,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 93949,
+        "exit_i": 93949,
+        "entry_time": "2020-03-24 15:15:00",
+        "exit_time": "2020-03-24 15:15:00",
+        "return": 0.007000000000000052,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 93950,
+        "exit_i": 93951,
+        "entry_time": "2020-03-24 15:20:00",
+        "exit_time": "2020-03-24 15:25:00",
+        "return": -0.008000000000000082,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 93998,
+        "exit_i": 94002,
+        "entry_time": "2020-03-25 13:05:00",
+        "exit_time": "2020-03-25 13:25:00",
+        "return": -0.007999999999999995,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 94028,
+        "exit_i": 94029,
+        "entry_time": "2020-03-26 09:20:00",
+        "exit_time": "2020-03-26 09:25:00",
+        "return": 0.006999999999999997,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 94554,
+        "exit_i": 94555,
+        "entry_time": "2020-04-08 09:25:00",
+        "exit_time": "2020-04-08 09:30:00",
+        "return": 0.007000000000000083,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 95535,
+        "exit_i": 95542,
+        "entry_time": "2020-04-29 09:50:00",
+        "exit_time": "2020-04-29 10:25:00",
+        "return": 0.007000000000000045,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 95603,
+        "exit_i": 95603,
+        "entry_time": "2020-04-30 09:15:00",
+        "exit_time": "2020-04-30 09:15:00",
+        "return": 0.007,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 95604,
+        "exit_i": 95606,
+        "entry_time": "2020-04-30 09:20:00",
+        "exit_time": "2020-04-30 09:30:00",
+        "return": 0.007000000000000004,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 96505,
+        "exit_i": 96506,
+        "entry_time": "2020-05-19 09:25:00",
+        "exit_time": "2020-05-19 09:30:00",
+        "return": -0.008000000000000042,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 96729,
+        "exit_i": 96732,
+        "entry_time": "2020-05-22 09:20:00",
+        "exit_time": "2020-05-22 09:35:00",
+        "return": -0.007999999999999997,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 97161,
+        "exit_i": 97172,
+        "entry_time": "2020-06-01 14:05:00",
+        "exit_time": "2020-06-01 15:00:00",
+        "return": -0.008000000000000052,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 99587,
+        "exit_i": 99589,
+        "entry_time": "2020-07-16 10:00:00",
+        "exit_time": "2020-07-16 10:10:00",
+        "return": 0.0069999999999999655,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 99676,
+        "exit_i": 99677,
+        "entry_time": "2020-07-17 11:10:00",
+        "exit_time": "2020-07-17 11:15:00",
+        "return": -0.008000000000000045,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 99729,
+        "exit_i": 99736,
+        "entry_time": "2020-07-20 09:20:00",
+        "exit_time": "2020-07-20 09:55:00",
+        "return": -0.00800000000000001,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 103254,
+        "exit_i": 103255,
+        "entry_time": "2020-09-23 09:20:00",
+        "exit_time": "2020-09-23 09:25:00",
+        "return": 0.006999999999999927,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 105435,
+        "exit_i": 105437,
+        "entry_time": "2020-11-04 09:50:00",
+        "exit_time": "2020-11-04 10:00:00",
+        "return": -0.008000000000000038,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 105664,
+        "exit_i": 105667,
+        "entry_time": "2020-11-09 10:10:00",
+        "exit_time": "2020-11-09 10:25:00",
+        "return": -0.007999999999999948,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 109090,
+        "exit_i": 109091,
+        "entry_time": "2021-01-14 13:25:00",
+        "exit_time": "2021-01-14 13:30:00",
+        "return": -0.008000000000000014,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 109993,
+        "exit_i": 110006,
+        "entry_time": "2021-02-02 13:40:00",
+        "exit_time": "2021-02-02 14:45:00",
+        "return": -0.008000000000000005,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 113365,
+        "exit_i": 113366,
+        "entry_time": "2021-04-12 09:40:00",
+        "exit_time": "2021-04-12 09:45:00",
+        "return": -0.008000000000000026,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 113736,
+        "exit_i": 113747,
+        "entry_time": "2021-04-20 09:20:00",
+        "exit_time": "2021-04-20 10:15:00",
+        "return": -0.008000000000000042,
+        "reason": "sl"
+      }
+    ],
+    "L_strict_long_run": [
+      {
+        "entry_i": 156,
+        "exit_i": 167,
+        "entry_time": "2015-02-04 09:45:00",
+        "exit_time": "2015-02-04 10:40:00",
+        "return": -0.007999999999999906,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 228,
+        "exit_i": 246,
+        "entry_time": "2015-02-05 09:30:00",
+        "exit_time": "2015-02-05 11:00:00",
+        "return": 0.007000000000000085,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 273,
+        "exit_i": 283,
+        "entry_time": "2015-02-05 13:15:00",
+        "exit_time": "2015-02-05 14:05:00",
+        "return": 0.006999999999999998,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 307,
+        "exit_i": 318,
+        "entry_time": "2015-02-06 09:50:00",
+        "exit_time": "2015-02-06 10:45:00",
+        "return": -0.007999999999999964,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 345,
+        "exit_i": 369,
+        "entry_time": "2015-02-06 13:00:00",
+        "exit_time": "2015-02-06 15:00:00",
+        "return": -0.007999999999999919,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 386,
+        "exit_i": 399,
+        "entry_time": "2015-02-09 10:10:00",
+        "exit_time": "2015-02-09 11:15:00",
+        "return": -0.008000000000000052,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 415,
+        "exit_i": 421,
+        "entry_time": "2015-02-09 12:35:00",
+        "exit_time": "2015-02-09 13:05:00",
+        "return": -0.008000000000000066,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 497,
+        "exit_i": 514,
+        "entry_time": "2015-02-10 13:10:00",
+        "exit_time": "2015-02-10 14:35:00",
+        "return": 0.0070000000000001025,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 571,
+        "exit_i": 584,
+        "entry_time": "2015-02-11 13:05:00",
+        "exit_time": "2015-02-11 14:10:00",
+        "return": -0.007999999999999945,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 685,
+        "exit_i": 700,
+        "entry_time": "2015-02-13 10:05:00",
+        "exit_time": "2015-02-13 11:20:00",
+        "return": -0.008000000000000099,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 887,
+        "exit_i": 906,
+        "entry_time": "2015-02-18 14:25:00",
+        "exit_time": "2015-02-19 09:45:00",
+        "return": 0.006999999999999998,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 1209,
+        "exit_i": 1215,
+        "entry_time": "2015-02-25 10:00:00",
+        "exit_time": "2015-02-25 10:30:00",
+        "return": 0.0070000000000001025,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 1915,
+        "exit_i": 1922,
+        "entry_time": "2015-03-10 12:35:00",
+        "exit_time": "2015-03-10 13:10:00",
+        "return": -0.008000000000000035,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2057,
+        "exit_i": 2081,
+        "entry_time": "2015-03-12 11:55:00",
+        "exit_time": "2015-03-12 13:55:00",
+        "return": 0.0017778481585378706,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2171,
+        "exit_i": 2190,
+        "entry_time": "2015-03-13 15:15:00",
+        "exit_time": "2015-03-16 10:55:00",
+        "return": 0.007000000000000059,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 2335,
+        "exit_i": 2342,
+        "entry_time": "2015-03-18 10:30:00",
+        "exit_time": "2015-03-18 11:05:00",
+        "return": -0.008000000000000085,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2479,
+        "exit_i": 2503,
+        "entry_time": "2015-03-20 10:00:00",
+        "exit_time": "2015-03-20 12:00:00",
+        "return": -0.0033021309115466597,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2550,
+        "exit_i": 2553,
+        "entry_time": "2015-03-23 09:40:00",
+        "exit_time": "2015-03-23 09:55:00",
+        "return": -0.007999999999999924,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2684,
+        "exit_i": 2684,
+        "entry_time": "2015-03-24 14:35:00",
+        "exit_time": "2015-03-24 14:35:00",
+        "return": -0.008000000000000018,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2856,
+        "exit_i": 2870,
+        "entry_time": "2015-03-27 10:10:00",
+        "exit_time": "2015-03-27 11:20:00",
+        "return": 0.00700000000000008,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 2935,
+        "exit_i": 2959,
+        "entry_time": "2015-03-30 10:30:00",
+        "exit_time": "2015-03-30 12:30:00",
+        "return": -0.003415800415800449,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3219,
+        "exit_i": 3234,
+        "entry_time": "2015-04-06 15:25:00",
+        "exit_time": "2015-04-07 10:25:00",
+        "return": -0.008000000000000042,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3301,
+        "exit_i": 3325,
+        "entry_time": "2015-04-08 09:45:00",
+        "exit_time": "2015-04-08 11:45:00",
+        "return": 0.004340796476417692,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3368,
+        "exit_i": 3377,
+        "entry_time": "2015-04-08 15:20:00",
+        "exit_time": "2015-04-09 09:50:00",
+        "return": -0.007999999999999915,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3444,
+        "exit_i": 3468,
+        "entry_time": "2015-04-09 15:25:00",
+        "exit_time": "2015-04-10 11:10:00",
+        "return": 0.005960508725656749,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3561,
+        "exit_i": 3577,
+        "entry_time": "2015-04-13 12:40:00",
+        "exit_time": "2015-04-13 14:00:00",
+        "return": -0.007999999999999964,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3748,
+        "exit_i": 3753,
+        "entry_time": "2015-04-17 09:30:00",
+        "exit_time": "2015-04-17 09:55:00",
+        "return": -0.007999999999999993,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3956,
+        "exit_i": 3975,
+        "entry_time": "2015-04-21 14:20:00",
+        "exit_time": "2015-04-22 09:40:00",
+        "return": -0.008000000000000035,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4044,
+        "exit_i": 4049,
+        "entry_time": "2015-04-22 15:25:00",
+        "exit_time": "2015-04-23 09:35:00",
+        "return": -0.008000000000000052,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4249,
+        "exit_i": 4272,
+        "entry_time": "2015-05-15 13:35:00",
+        "exit_time": "2015-05-18 09:15:00",
+        "return": 0.007000000000000016,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 4303,
+        "exit_i": 4327,
+        "entry_time": "2015-05-18 11:50:00",
+        "exit_time": "2015-05-18 13:50:00",
+        "return": -0.0031822452616231474,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4329,
+        "exit_i": 4347,
+        "entry_time": "2015-05-18 14:00:00",
+        "exit_time": "2015-05-19 09:15:00",
+        "return": 0.007000000000000049,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 4383,
+        "exit_i": 4407,
+        "entry_time": "2015-05-19 12:15:00",
+        "exit_time": "2015-05-19 14:15:00",
+        "return": -0.005574869275867556,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4427,
+        "exit_i": 4451,
+        "entry_time": "2015-05-20 09:40:00",
+        "exit_time": "2015-05-20 11:40:00",
+        "return": 0.0018035448200140938,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4878,
+        "exit_i": 4902,
+        "entry_time": "2015-05-28 09:45:00",
+        "exit_time": "2015-05-28 11:45:00",
+        "return": 0.004412943362688891,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4933,
+        "exit_i": 4941,
+        "entry_time": "2015-05-28 14:20:00",
+        "exit_time": "2015-05-28 15:00:00",
+        "return": 0.007000000000000005,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 4952,
+        "exit_i": 4974,
+        "entry_time": "2015-05-29 09:40:00",
+        "exit_time": "2015-05-29 11:30:00",
+        "return": 0.006999999999999998,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 5089,
+        "exit_i": 5091,
+        "entry_time": "2015-06-01 14:50:00",
+        "exit_time": "2015-06-01 15:00:00",
+        "return": -0.007999999999999952,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5251,
+        "exit_i": 5275,
+        "entry_time": "2015-06-04 09:35:00",
+        "exit_time": "2015-06-04 11:35:00",
+        "return": 0.0018151265438744865,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5372,
+        "exit_i": 5388,
+        "entry_time": "2015-06-05 13:25:00",
+        "exit_time": "2015-06-05 14:45:00",
+        "return": -0.008000000000000056,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5555,
+        "exit_i": 5569,
+        "entry_time": "2015-06-10 09:55:00",
+        "exit_time": "2015-06-10 11:05:00",
+        "return": -0.007999999999999959,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5601,
+        "exit_i": 5610,
+        "entry_time": "2015-06-10 13:45:00",
+        "exit_time": "2015-06-10 14:30:00",
+        "return": 0.00699999999999999,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 5709,
+        "exit_i": 5733,
+        "entry_time": "2015-06-12 10:15:00",
+        "exit_time": "2015-06-12 12:15:00",
+        "return": -0.0033960396039603735,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5911,
+        "exit_i": 5922,
+        "entry_time": "2015-06-16 14:35:00",
+        "exit_time": "2015-06-17 09:15:00",
+        "return": 0.007000000000000012,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 6007,
+        "exit_i": 6014,
+        "entry_time": "2015-06-18 10:05:00",
+        "exit_time": "2015-06-18 10:40:00",
+        "return": -0.008000000000000037,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 6458,
+        "exit_i": 6481,
+        "entry_time": "2015-06-26 10:10:00",
+        "exit_time": "2015-06-26 12:05:00",
+        "return": -0.00799999999999999,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 6682,
+        "exit_i": 6683,
+        "entry_time": "2015-07-01 10:05:00",
+        "exit_time": "2015-07-01 10:10:00",
+        "return": -0.008000000000000033,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 6708,
+        "exit_i": 6732,
+        "entry_time": "2015-07-01 12:15:00",
+        "exit_time": "2015-07-01 14:15:00",
+        "return": -0.003741705923624345,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6848,
+        "exit_i": 6864,
+        "entry_time": "2015-07-03 11:25:00",
+        "exit_time": "2015-07-03 12:45:00",
+        "return": -0.008000000000000037,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 6977,
+        "exit_i": 7001,
+        "entry_time": "2015-07-07 09:40:00",
+        "exit_time": "2015-07-07 11:40:00",
+        "return": -0.0005217355976273111,
+        "reason": "timeout"
+      }
+    ],
+    "S_trend_macd_rsi_mfi": [
+      {
+        "entry_i": 821,
+        "exit_i": 845,
+        "entry_time": "2015-02-16 15:10:00",
+        "exit_time": "2015-02-18 10:55:00",
+        "return": -0.0022803861342694724,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 1002,
+        "exit_i": 1026,
+        "entry_time": "2015-02-20 11:30:00",
+        "exit_time": "2015-02-20 13:30:00",
+        "return": 0.0013478260869565217,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 1315,
+        "exit_i": 1328,
+        "entry_time": "2015-02-26 12:35:00",
+        "exit_time": "2015-02-26 13:40:00",
+        "return": 0.006999999999999979,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 1362,
+        "exit_i": 1386,
+        "entry_time": "2015-02-27 10:15:00",
+        "exit_time": "2015-02-27 12:15:00",
+        "return": -0.007999999999999844,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1433,
+        "exit_i": 1454,
+        "entry_time": "2015-02-28 09:55:00",
+        "exit_time": "2015-02-28 11:40:00",
+        "return": -0.007999999999999816,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1693,
+        "exit_i": 1709,
+        "entry_time": "2015-03-04 12:50:00",
+        "exit_time": "2015-03-04 14:10:00",
+        "return": 0.006999999999999998,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 1731,
+        "exit_i": 1731,
+        "entry_time": "2015-03-05 09:45:00",
+        "exit_time": "2015-03-05 09:45:00",
+        "return": -0.007999999999999848,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1848,
+        "exit_i": 1872,
+        "entry_time": "2015-03-09 13:15:00",
+        "exit_time": "2015-03-09 15:15:00",
+        "return": -0.004497306673970693,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 1892,
+        "exit_i": 1914,
+        "entry_time": "2015-03-10 10:40:00",
+        "exit_time": "2015-03-10 12:30:00",
+        "return": -0.00799999999999982,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2404,
+        "exit_i": 2428,
+        "entry_time": "2015-03-19 10:00:00",
+        "exit_time": "2015-03-19 12:00:00",
+        "return": -0.005280808878991383,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2587,
+        "exit_i": 2611,
+        "entry_time": "2015-03-23 12:45:00",
+        "exit_time": "2015-03-23 14:45:00",
+        "return": 0.002547825466481168,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2621,
+        "exit_i": 2645,
+        "entry_time": "2015-03-24 09:20:00",
+        "exit_time": "2015-03-24 11:20:00",
+        "return": -0.007999999999999835,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2723,
+        "exit_i": 2747,
+        "entry_time": "2015-03-25 11:35:00",
+        "exit_time": "2015-03-25 13:35:00",
+        "return": -0.003453062703878217,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2841,
+        "exit_i": 2843,
+        "entry_time": "2015-03-26 15:10:00",
+        "exit_time": "2015-03-26 15:20:00",
+        "return": -0.007999999999999955,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3030,
+        "exit_i": 3054,
+        "entry_time": "2015-03-31 12:10:00",
+        "exit_time": "2015-03-31 14:10:00",
+        "return": -0.0022231255645890698,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3133,
+        "exit_i": 3140,
+        "entry_time": "2015-04-01 14:30:00",
+        "exit_time": "2015-04-01 15:05:00",
+        "return": -0.007999999999999976,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3196,
+        "exit_i": 3211,
+        "entry_time": "2015-04-06 13:30:00",
+        "exit_time": "2015-04-06 14:45:00",
+        "return": -0.007999999999999872,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3895,
+        "exit_i": 3909,
+        "entry_time": "2015-04-21 09:15:00",
+        "exit_time": "2015-04-21 10:25:00",
+        "return": 0.006999999999999988,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 4018,
+        "exit_i": 4034,
+        "entry_time": "2015-04-22 13:15:00",
+        "exit_time": "2015-04-22 14:35:00",
+        "return": -0.007999999999999917,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4097,
+        "exit_i": 4099,
+        "entry_time": "2015-04-23 13:35:00",
+        "exit_time": "2015-04-23 13:45:00",
+        "return": -0.007999999999999865,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4111,
+        "exit_i": 4120,
+        "entry_time": "2015-04-23 14:45:00",
+        "exit_time": "2015-04-24 09:15:00",
+        "return": -0.007999999999999872,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4556,
+        "exit_i": 4570,
+        "entry_time": "2015-05-21 14:10:00",
+        "exit_time": "2015-05-21 15:20:00",
+        "return": -0.007999999999999848,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4630,
+        "exit_i": 4641,
+        "entry_time": "2015-05-22 14:05:00",
+        "exit_time": "2015-05-22 15:00:00",
+        "return": -0.00799999999999992,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4707,
+        "exit_i": 4731,
+        "entry_time": "2015-05-25 14:15:00",
+        "exit_time": "2015-05-26 10:00:00",
+        "return": -0.006483906726315354,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5113,
+        "exit_i": 5125,
+        "entry_time": "2015-06-02 10:35:00",
+        "exit_time": "2015-06-02 11:35:00",
+        "return": 0.006999999999999953,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 5141,
+        "exit_i": 5165,
+        "entry_time": "2015-06-02 12:55:00",
+        "exit_time": "2015-06-02 14:55:00",
+        "return": -0.0014500745156483404,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5324,
+        "exit_i": 5348,
+        "entry_time": "2015-06-05 09:25:00",
+        "exit_time": "2015-06-05 11:25:00",
+        "return": -0.0016138064873855492,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5440,
+        "exit_i": 5464,
+        "entry_time": "2015-06-08 12:50:00",
+        "exit_time": "2015-06-08 14:50:00",
+        "return": -0.00592561718499515,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5473,
+        "exit_i": 5497,
+        "entry_time": "2015-06-09 09:20:00",
+        "exit_time": "2015-06-09 11:20:00",
+        "return": -0.0006936806850771568,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5992,
+        "exit_i": 5997,
+        "entry_time": "2015-06-17 15:05:00",
+        "exit_time": "2015-06-18 09:15:00",
+        "return": -0.007999999999999908,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 6389,
+        "exit_i": 6413,
+        "entry_time": "2015-06-25 10:40:00",
+        "exit_time": "2015-06-25 12:40:00",
+        "return": -0.005819170358437329,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6654,
+        "exit_i": 6676,
+        "entry_time": "2015-06-30 14:00:00",
+        "exit_time": "2015-07-01 09:35:00",
+        "return": -0.00799999999999991,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 6782,
+        "exit_i": 6806,
+        "entry_time": "2015-07-02 12:10:00",
+        "exit_time": "2015-07-02 14:10:00",
+        "return": -0.0012234066178103578,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6811,
+        "exit_i": 6835,
+        "entry_time": "2015-07-02 14:35:00",
+        "exit_time": "2015-07-03 10:20:00",
+        "return": -0.004926469693589903,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6916,
+        "exit_i": 6940,
+        "entry_time": "2015-07-06 10:50:00",
+        "exit_time": "2015-07-06 12:50:00",
+        "return": -0.0036122448979592067,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6952,
+        "exit_i": 6960,
+        "entry_time": "2015-07-06 13:50:00",
+        "exit_time": "2015-07-06 14:30:00",
+        "return": -0.007999999999999865,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7308,
+        "exit_i": 7310,
+        "entry_time": "2015-07-13 12:15:00",
+        "exit_time": "2015-07-13 12:25:00",
+        "return": -0.00799999999999993,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 8062,
+        "exit_i": 8086,
+        "entry_time": "2015-07-27 12:35:00",
+        "exit_time": "2015-07-27 14:35:00",
+        "return": -0.00012056474085091109,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 8109,
+        "exit_i": 8110,
+        "entry_time": "2015-07-28 10:15:00",
+        "exit_time": "2015-07-28 10:20:00",
+        "return": -0.007999999999999995,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 8310,
+        "exit_i": 8314,
+        "entry_time": "2015-07-30 14:30:00",
+        "exit_time": "2015-07-30 14:50:00",
+        "return": -0.007999999999999943,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 8317,
+        "exit_i": 8318,
+        "entry_time": "2015-07-30 15:05:00",
+        "exit_time": "2015-07-30 15:10:00",
+        "return": -0.007999999999999872,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 8542,
+        "exit_i": 8547,
+        "entry_time": "2015-08-04 15:05:00",
+        "exit_time": "2015-08-05 09:15:00",
+        "return": -0.007999999999999789,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 8682,
+        "exit_i": 8685,
+        "entry_time": "2015-08-06 14:15:00",
+        "exit_time": "2015-08-06 14:30:00",
+        "return": -0.007999999999999969,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9437,
+        "exit_i": 9446,
+        "entry_time": "2015-08-20 14:40:00",
+        "exit_time": "2015-08-20 15:25:00",
+        "return": -0.007999999999999912,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9448,
+        "exit_i": 9449,
+        "entry_time": "2015-08-21 09:20:00",
+        "exit_time": "2015-08-21 09:25:00",
+        "return": -0.007999999999999945,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9612,
+        "exit_i": 9614,
+        "entry_time": "2015-08-25 10:30:00",
+        "exit_time": "2015-08-25 10:40:00",
+        "return": 0.006999999999999972,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 9950,
+        "exit_i": 9969,
+        "entry_time": "2015-08-31 13:40:00",
+        "exit_time": "2015-08-31 15:15:00",
+        "return": -0.007999999999999953,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 10235,
+        "exit_i": 10259,
+        "entry_time": "2015-09-04 12:25:00",
+        "exit_time": "2015-09-04 14:25:00",
+        "return": 0.0008104089219330007,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 10319,
+        "exit_i": 10342,
+        "entry_time": "2015-09-07 13:10:00",
+        "exit_time": "2015-09-07 15:05:00",
+        "return": 0.0070000000000000765,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 11311,
+        "exit_i": 11323,
+        "entry_time": "2015-09-28 14:35:00",
+        "exit_time": "2015-09-29 09:20:00",
+        "return": -0.007999999999999806,
+        "reason": "sl"
+      }
+    ],
+    "S_trend_macd_aroon": [
+      {
+        "entry_i": 751,
+        "exit_i": 753,
+        "entry_time": "2015-02-16 09:20:00",
+        "exit_time": "2015-02-16 09:30:00",
+        "return": -0.007999999999999794,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1002,
+        "exit_i": 1026,
+        "entry_time": "2015-02-20 11:30:00",
+        "exit_time": "2015-02-20 13:30:00",
+        "return": 0.0013478260869565217,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 1276,
+        "exit_i": 1299,
+        "entry_time": "2015-02-26 09:20:00",
+        "exit_time": "2015-02-26 11:15:00",
+        "return": -0.00799999999999989,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1346,
+        "exit_i": 1346,
+        "entry_time": "2015-02-26 15:10:00",
+        "exit_time": "2015-02-26 15:10:00",
+        "return": -0.007999999999999794,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1362,
+        "exit_i": 1386,
+        "entry_time": "2015-02-27 10:15:00",
+        "exit_time": "2015-02-27 12:15:00",
+        "return": -0.007999999999999844,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1693,
+        "exit_i": 1709,
+        "entry_time": "2015-03-04 12:50:00",
+        "exit_time": "2015-03-04 14:10:00",
+        "return": 0.006999999999999998,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 1801,
+        "exit_i": 1801,
+        "entry_time": "2015-03-09 09:20:00",
+        "exit_time": "2015-03-09 09:20:00",
+        "return": -0.0079999999999998,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1848,
+        "exit_i": 1872,
+        "entry_time": "2015-03-09 13:15:00",
+        "exit_time": "2015-03-09 15:15:00",
+        "return": -0.004497306673970693,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2021,
+        "exit_i": 2042,
+        "entry_time": "2015-03-11 15:10:00",
+        "exit_time": "2015-03-12 10:40:00",
+        "return": -0.00799999999999979,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2587,
+        "exit_i": 2611,
+        "entry_time": "2015-03-23 12:45:00",
+        "exit_time": "2015-03-23 14:45:00",
+        "return": 0.002547825466481168,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2621,
+        "exit_i": 2645,
+        "entry_time": "2015-03-24 09:20:00",
+        "exit_time": "2015-03-24 11:20:00",
+        "return": -0.007999999999999835,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2723,
+        "exit_i": 2747,
+        "entry_time": "2015-03-25 11:35:00",
+        "exit_time": "2015-03-25 13:35:00",
+        "return": -0.003453062703878217,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2841,
+        "exit_i": 2843,
+        "entry_time": "2015-03-26 15:10:00",
+        "exit_time": "2015-03-26 15:20:00",
+        "return": -0.007999999999999955,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3030,
+        "exit_i": 3054,
+        "entry_time": "2015-03-31 12:10:00",
+        "exit_time": "2015-03-31 14:10:00",
+        "return": -0.0022231255645890698,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3071,
+        "exit_i": 3082,
+        "entry_time": "2015-04-01 09:20:00",
+        "exit_time": "2015-04-01 10:15:00",
+        "return": 0.006999999999999917,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 3178,
+        "exit_i": 3202,
+        "entry_time": "2015-04-06 12:00:00",
+        "exit_time": "2015-04-06 14:00:00",
+        "return": -0.005383459896901435,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3256,
+        "exit_i": 3280,
+        "entry_time": "2015-04-07 12:15:00",
+        "exit_time": "2015-04-07 14:15:00",
+        "return": 0.0031427113296836947,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3625,
+        "exit_i": 3631,
+        "entry_time": "2015-04-15 11:45:00",
+        "exit_time": "2015-04-15 12:15:00",
+        "return": -0.007999999999999879,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4556,
+        "exit_i": 4570,
+        "entry_time": "2015-05-21 14:10:00",
+        "exit_time": "2015-05-21 15:20:00",
+        "return": -0.007999999999999848,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4630,
+        "exit_i": 4641,
+        "entry_time": "2015-05-22 14:05:00",
+        "exit_time": "2015-05-22 15:00:00",
+        "return": -0.00799999999999992,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4707,
+        "exit_i": 4731,
+        "entry_time": "2015-05-25 14:15:00",
+        "exit_time": "2015-05-26 10:00:00",
+        "return": -0.006483906726315354,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5113,
+        "exit_i": 5125,
+        "entry_time": "2015-06-02 10:35:00",
+        "exit_time": "2015-06-02 11:35:00",
+        "return": 0.006999999999999953,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 5141,
+        "exit_i": 5165,
+        "entry_time": "2015-06-02 12:55:00",
+        "exit_time": "2015-06-02 14:55:00",
+        "return": -0.0014500745156483404,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5440,
+        "exit_i": 5464,
+        "entry_time": "2015-06-08 12:50:00",
+        "exit_time": "2015-06-08 14:50:00",
+        "return": -0.00592561718499515,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5692,
+        "exit_i": 5697,
+        "entry_time": "2015-06-11 15:05:00",
+        "exit_time": "2015-06-12 09:15:00",
+        "return": -0.007999999999999943,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5755,
+        "exit_i": 5768,
+        "entry_time": "2015-06-12 14:05:00",
+        "exit_time": "2015-06-12 15:10:00",
+        "return": -0.007999999999999886,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5775,
+        "exit_i": 5775,
+        "entry_time": "2015-06-15 09:30:00",
+        "exit_time": "2015-06-15 09:30:00",
+        "return": -0.007999999999999854,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 6389,
+        "exit_i": 6413,
+        "entry_time": "2015-06-25 10:40:00",
+        "exit_time": "2015-06-25 12:40:00",
+        "return": -0.005819170358437329,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6542,
+        "exit_i": 6566,
+        "entry_time": "2015-06-29 10:55:00",
+        "exit_time": "2015-06-29 12:55:00",
+        "return": -0.003404669890536772,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6576,
+        "exit_i": 6580,
+        "entry_time": "2015-06-29 13:45:00",
+        "exit_time": "2015-06-29 14:05:00",
+        "return": -0.007999999999999924,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 6782,
+        "exit_i": 6806,
+        "entry_time": "2015-07-02 12:10:00",
+        "exit_time": "2015-07-02 14:10:00",
+        "return": -0.0012234066178103578,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6811,
+        "exit_i": 6835,
+        "entry_time": "2015-07-02 14:35:00",
+        "exit_time": "2015-07-03 10:20:00",
+        "return": -0.004926469693589903,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6885,
+        "exit_i": 6909,
+        "entry_time": "2015-07-03 14:30:00",
+        "exit_time": "2015-07-06 10:15:00",
+        "return": 0.0030759493670886075,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6916,
+        "exit_i": 6940,
+        "entry_time": "2015-07-06 10:50:00",
+        "exit_time": "2015-07-06 12:50:00",
+        "return": -0.0036122448979592067,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 7069,
+        "exit_i": 7074,
+        "entry_time": "2015-07-08 11:05:00",
+        "exit_time": "2015-07-08 11:30:00",
+        "return": 0.007000000000000061,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 7086,
+        "exit_i": 7090,
+        "entry_time": "2015-07-08 12:30:00",
+        "exit_time": "2015-07-08 12:50:00",
+        "return": -0.00799999999999991,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7185,
+        "exit_i": 7196,
+        "entry_time": "2015-07-09 14:30:00",
+        "exit_time": "2015-07-09 15:25:00",
+        "return": -0.007999999999999912,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7270,
+        "exit_i": 7272,
+        "entry_time": "2015-07-10 15:20:00",
+        "exit_time": "2015-07-13 09:15:00",
+        "return": -0.007999999999999837,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7308,
+        "exit_i": 7310,
+        "entry_time": "2015-07-13 12:15:00",
+        "exit_time": "2015-07-13 12:25:00",
+        "return": -0.00799999999999993,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7942,
+        "exit_i": 7942,
+        "entry_time": "2015-07-23 15:05:00",
+        "exit_time": "2015-07-23 15:05:00",
+        "return": 0.0069999999999999325,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 8109,
+        "exit_i": 8110,
+        "entry_time": "2015-07-28 10:15:00",
+        "exit_time": "2015-07-28 10:20:00",
+        "return": -0.007999999999999995,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 8310,
+        "exit_i": 8314,
+        "entry_time": "2015-07-30 14:30:00",
+        "exit_time": "2015-07-30 14:50:00",
+        "return": -0.007999999999999943,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 8317,
+        "exit_i": 8318,
+        "entry_time": "2015-07-30 15:05:00",
+        "exit_time": "2015-07-30 15:10:00",
+        "return": -0.007999999999999872,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 8507,
+        "exit_i": 8531,
+        "entry_time": "2015-08-04 12:10:00",
+        "exit_time": "2015-08-04 14:10:00",
+        "return": -0.007064272211720184,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 8682,
+        "exit_i": 8685,
+        "entry_time": "2015-08-06 14:15:00",
+        "exit_time": "2015-08-06 14:30:00",
+        "return": -0.007999999999999969,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9164,
+        "exit_i": 9179,
+        "entry_time": "2015-08-17 10:40:00",
+        "exit_time": "2015-08-17 11:55:00",
+        "return": -0.00799999999999993,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9448,
+        "exit_i": 9449,
+        "entry_time": "2015-08-21 09:20:00",
+        "exit_time": "2015-08-21 09:25:00",
+        "return": -0.007999999999999945,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9720,
+        "exit_i": 9729,
+        "entry_time": "2015-08-26 13:15:00",
+        "exit_time": "2015-08-26 14:00:00",
+        "return": 0.006999999999999943,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 9931,
+        "exit_i": 9939,
+        "entry_time": "2015-08-31 12:05:00",
+        "exit_time": "2015-08-31 12:45:00",
+        "return": -0.007999999999999874,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9950,
+        "exit_i": 9969,
+        "entry_time": "2015-08-31 13:40:00",
+        "exit_time": "2015-08-31 15:15:00",
+        "return": -0.007999999999999953,
+        "reason": "sl"
+      }
+    ],
+    "S_trend_pullback_willr": [
+      {
+        "entry_i": 106,
+        "exit_i": 115,
+        "entry_time": "2015-02-03 11:50:00",
+        "exit_time": "2015-02-03 12:35:00",
+        "return": -0.007999999999999903,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 748,
+        "exit_i": 750,
+        "entry_time": "2015-02-13 15:20:00",
+        "exit_time": "2015-02-16 09:15:00",
+        "return": 0.006999999999999913,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 871,
+        "exit_i": 882,
+        "entry_time": "2015-02-18 13:05:00",
+        "exit_time": "2015-02-18 14:00:00",
+        "return": -0.007999999999999844,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1298,
+        "exit_i": 1299,
+        "entry_time": "2015-02-26 11:10:00",
+        "exit_time": "2015-02-26 11:15:00",
+        "return": -0.007999999999999848,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1344,
+        "exit_i": 1345,
+        "entry_time": "2015-02-26 15:00:00",
+        "exit_time": "2015-02-26 15:05:00",
+        "return": 0.0070000000000000106,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 1696,
+        "exit_i": 1704,
+        "entry_time": "2015-03-04 13:05:00",
+        "exit_time": "2015-03-04 13:45:00",
+        "return": 0.007000000000000066,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 1900,
+        "exit_i": 1914,
+        "entry_time": "2015-03-10 11:20:00",
+        "exit_time": "2015-03-10 12:30:00",
+        "return": -0.007999999999999959,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2046,
+        "exit_i": 2047,
+        "entry_time": "2015-03-12 11:00:00",
+        "exit_time": "2015-03-12 11:05:00",
+        "return": -0.007999999999999969,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3045,
+        "exit_i": 3069,
+        "entry_time": "2015-03-31 13:25:00",
+        "exit_time": "2015-03-31 15:25:00",
+        "return": -0.0039579755987347,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3098,
+        "exit_i": 3122,
+        "entry_time": "2015-04-01 11:35:00",
+        "exit_time": "2015-04-01 13:35:00",
+        "return": 0.0006856848002358838,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3633,
+        "exit_i": 3646,
+        "entry_time": "2015-04-15 12:25:00",
+        "exit_time": "2015-04-15 13:30:00",
+        "return": -0.007999999999999858,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4014,
+        "exit_i": 4025,
+        "entry_time": "2015-04-22 12:55:00",
+        "exit_time": "2015-04-22 13:50:00",
+        "return": 0.006999999999999939,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 4081,
+        "exit_i": 4105,
+        "entry_time": "2015-04-23 12:15:00",
+        "exit_time": "2015-04-23 14:15:00",
+        "return": -0.00462144836818193,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4111,
+        "exit_i": 4120,
+        "entry_time": "2015-04-23 14:45:00",
+        "exit_time": "2015-04-24 09:15:00",
+        "return": -0.007999999999999872,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4159,
+        "exit_i": 4183,
+        "entry_time": "2015-05-14 12:20:00",
+        "exit_time": "2015-05-14 14:20:00",
+        "return": -0.006323639385126761,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4777,
+        "exit_i": 4797,
+        "entry_time": "2015-05-26 13:50:00",
+        "exit_time": "2015-05-27 09:15:00",
+        "return": 0.007000000000000026,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 4834,
+        "exit_i": 4858,
+        "entry_time": "2015-05-27 12:20:00",
+        "exit_time": "2015-05-27 14:20:00",
+        "return": -0.003510266563252643,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5311,
+        "exit_i": 5335,
+        "entry_time": "2015-06-04 14:35:00",
+        "exit_time": "2015-06-05 10:20:00",
+        "return": 0.0034345491867992873,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5543,
+        "exit_i": 5547,
+        "entry_time": "2015-06-09 15:10:00",
+        "exit_time": "2015-06-10 09:15:00",
+        "return": -0.007999999999999839,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5771,
+        "exit_i": 5771,
+        "entry_time": "2015-06-12 15:25:00",
+        "exit_time": "2015-06-12 15:25:00",
+        "return": -0.007999999999999851,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 6538,
+        "exit_i": 6562,
+        "entry_time": "2015-06-29 10:35:00",
+        "exit_time": "2015-06-29 12:35:00",
+        "return": 0.0003249370277077627,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6572,
+        "exit_i": 6580,
+        "entry_time": "2015-06-29 13:25:00",
+        "exit_time": "2015-06-29 14:05:00",
+        "return": -0.007999999999999872,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 6832,
+        "exit_i": 6856,
+        "entry_time": "2015-07-03 10:05:00",
+        "exit_time": "2015-07-03 12:05:00",
+        "return": -0.0056300882091122675,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6932,
+        "exit_i": 6956,
+        "entry_time": "2015-07-06 12:10:00",
+        "exit_time": "2015-07-06 14:10:00",
+        "return": -0.0050040899795501395,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 7269,
+        "exit_i": 7272,
+        "entry_time": "2015-07-10 15:15:00",
+        "exit_time": "2015-07-13 09:15:00",
+        "return": -0.007999999999999886,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 7941,
+        "exit_i": 7942,
+        "entry_time": "2015-07-23 15:00:00",
+        "exit_time": "2015-07-23 15:05:00",
+        "return": 0.007000000000000066,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 8542,
+        "exit_i": 8547,
+        "entry_time": "2015-08-04 15:05:00",
+        "exit_time": "2015-08-05 09:15:00",
+        "return": -0.007999999999999789,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 8673,
+        "exit_i": 8691,
+        "entry_time": "2015-08-06 13:30:00",
+        "exit_time": "2015-08-06 15:00:00",
+        "return": -0.007999999999999981,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9448,
+        "exit_i": 9449,
+        "entry_time": "2015-08-21 09:20:00",
+        "exit_time": "2015-08-21 09:25:00",
+        "return": -0.007999999999999945,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 9550,
+        "exit_i": 9561,
+        "entry_time": "2015-08-24 11:35:00",
+        "exit_time": "2015-08-24 12:30:00",
+        "return": -0.00799999999999988,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 10225,
+        "exit_i": 10240,
+        "entry_time": "2015-09-04 11:35:00",
+        "exit_time": "2015-09-04 12:50:00",
+        "return": 0.00699999999999992,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 10260,
+        "exit_i": 10272,
+        "entry_time": "2015-09-04 14:30:00",
+        "exit_time": "2015-09-07 09:15:00",
+        "return": -0.007999999999999811,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 10971,
+        "exit_i": 10987,
+        "entry_time": "2015-09-21 11:15:00",
+        "exit_time": "2015-09-21 12:35:00",
+        "return": -0.007999999999999844,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 11100,
+        "exit_i": 11124,
+        "entry_time": "2015-09-23 09:30:00",
+        "exit_time": "2015-09-23 11:30:00",
+        "return": -0.00016989634970698527,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 11305,
+        "exit_i": 11322,
+        "entry_time": "2015-09-28 14:05:00",
+        "exit_time": "2015-09-29 09:15:00",
+        "return": 0.00699999999999991,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 12878,
+        "exit_i": 12891,
+        "entry_time": "2015-10-29 13:55:00",
+        "exit_time": "2015-10-29 15:00:00",
+        "return": -0.007999999999999948,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 12968,
+        "exit_i": 12977,
+        "entry_time": "2015-10-30 15:10:00",
+        "exit_time": "2015-11-02 09:40:00",
+        "return": 0.007000000000000004,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 13499,
+        "exit_i": 13511,
+        "entry_time": "2015-11-11 17:50:00",
+        "exit_time": "2015-11-13 09:15:00",
+        "return": 0.00699999999999991,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 13551,
+        "exit_i": 13569,
+        "entry_time": "2015-11-13 12:35:00",
+        "exit_time": "2015-11-13 14:05:00",
+        "return": -0.007999999999999913,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 14076,
+        "exit_i": 14084,
+        "entry_time": "2015-11-24 12:35:00",
+        "exit_time": "2015-11-24 13:15:00",
+        "return": -0.007999999999999938,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 14597,
+        "exit_i": 14612,
+        "entry_time": "2015-12-04 12:15:00",
+        "exit_time": "2015-12-04 13:30:00",
+        "return": -0.00799999999999999,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 15809,
+        "exit_i": 15812,
+        "entry_time": "2015-12-29 13:30:00",
+        "exit_time": "2015-12-29 13:45:00",
+        "return": -0.007999999999999839,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 15894,
+        "exit_i": 15902,
+        "entry_time": "2015-12-30 14:20:00",
+        "exit_time": "2015-12-30 15:00:00",
+        "return": 0.007000000000000042,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 16169,
+        "exit_i": 16193,
+        "entry_time": "2016-01-06 12:15:00",
+        "exit_time": "2016-01-06 14:15:00",
+        "return": -0.0030375072670329535,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 16789,
+        "exit_i": 16798,
+        "entry_time": "2016-01-18 13:55:00",
+        "exit_time": "2016-01-18 14:40:00",
+        "return": 0.007000000000000094,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 16884,
+        "exit_i": 16886,
+        "entry_time": "2016-01-20 09:20:00",
+        "exit_time": "2016-01-20 09:30:00",
+        "return": -0.00799999999999996,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 17265,
+        "exit_i": 17289,
+        "entry_time": "2016-01-28 09:50:00",
+        "exit_time": "2016-01-28 11:50:00",
+        "return": -0.0013285829902529198,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 17310,
+        "exit_i": 17333,
+        "entry_time": "2016-01-28 13:35:00",
+        "exit_time": "2016-01-29 09:15:00",
+        "return": -0.007999999999999799,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 17715,
+        "exit_i": 17739,
+        "entry_time": "2016-02-05 09:50:00",
+        "exit_time": "2016-02-05 11:50:00",
+        "return": 0.0006906616103473117,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 17803,
+        "exit_i": 17819,
+        "entry_time": "2016-02-08 10:55:00",
+        "exit_time": "2016-02-08 12:15:00",
+        "return": -0.007999999999999858,
+        "reason": "sl"
+      }
+    ],
+    "S_trend_pullback_cci": [
+      {
+        "entry_i": 1430,
+        "exit_i": 1454,
+        "entry_time": "2015-02-28 09:40:00",
+        "exit_time": "2015-02-28 11:40:00",
+        "return": -0.005502114462926545,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3819,
+        "exit_i": 3823,
+        "entry_time": "2015-04-17 15:25:00",
+        "exit_time": "2015-04-20 09:30:00",
+        "return": 0.006999999999999993,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 3870,
+        "exit_i": 3882,
+        "entry_time": "2015-04-20 13:25:00",
+        "exit_time": "2015-04-20 14:25:00",
+        "return": -0.00799999999999998,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4014,
+        "exit_i": 4025,
+        "entry_time": "2015-04-22 12:55:00",
+        "exit_time": "2015-04-22 13:50:00",
+        "return": 0.006999999999999939,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 4185,
+        "exit_i": 4194,
+        "entry_time": "2015-05-14 14:30:00",
+        "exit_time": "2015-05-14 15:15:00",
+        "return": -0.007999999999999844,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4849,
+        "exit_i": 4871,
+        "entry_time": "2015-05-27 13:35:00",
+        "exit_time": "2015-05-27 15:25:00",
+        "return": -0.00799999999999995,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 6650,
+        "exit_i": 6674,
+        "entry_time": "2015-06-30 13:40:00",
+        "exit_time": "2015-07-01 09:25:00",
+        "return": -0.004619662705241657,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6832,
+        "exit_i": 6856,
+        "entry_time": "2015-07-03 10:05:00",
+        "exit_time": "2015-07-03 12:05:00",
+        "return": -0.0056300882091122675,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 6898,
+        "exit_i": 6916,
+        "entry_time": "2015-07-06 09:20:00",
+        "exit_time": "2015-07-06 10:50:00",
+        "return": 0.006999999999999995,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 16182,
+        "exit_i": 16206,
+        "entry_time": "2016-01-06 13:20:00",
+        "exit_time": "2016-01-06 15:20:00",
+        "return": -0.005379480261555434,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 25438,
+        "exit_i": 25449,
+        "entry_time": "2016-07-08 09:40:00",
+        "exit_time": "2016-07-08 10:35:00",
+        "return": -0.007999999999999854,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 27500,
+        "exit_i": 27524,
+        "entry_time": "2016-08-17 12:45:00",
+        "exit_time": "2016-08-17 14:45:00",
+        "return": 0.004355059243754039,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 27950,
+        "exit_i": 27974,
+        "entry_time": "2016-08-25 12:45:00",
+        "exit_time": "2016-08-25 14:45:00",
+        "return": 0.0032687537029604044,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 31270,
+        "exit_i": 31294,
+        "entry_time": "2016-11-02 13:25:00",
+        "exit_time": "2016-11-02 15:25:00",
+        "return": -0.0007612699704894216,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 33291,
+        "exit_i": 33305,
+        "entry_time": "2016-12-12 13:05:00",
+        "exit_time": "2016-12-12 14:15:00",
+        "return": -0.00799999999999991,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 34746,
+        "exit_i": 34770,
+        "entry_time": "2017-01-09 09:20:00",
+        "exit_time": "2017-01-09 11:20:00",
+        "return": 0.000908258767869952,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 38111,
+        "exit_i": 38120,
+        "entry_time": "2017-03-15 14:45:00",
+        "exit_time": "2017-03-16 09:15:00",
+        "return": -0.007999999999999886,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 38345,
+        "exit_i": 38345,
+        "entry_time": "2017-03-21 09:15:00",
+        "exit_time": "2017-03-21 09:15:00",
+        "return": -0.00799999999999982,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 38957,
+        "exit_i": 38981,
+        "entry_time": "2017-03-31 10:15:00",
+        "exit_time": "2017-03-31 12:15:00",
+        "return": 0.005143735963284757,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 39096,
+        "exit_i": 39120,
+        "entry_time": "2017-04-05 09:20:00",
+        "exit_time": "2017-04-05 11:20:00",
+        "return": -0.002700149925037527,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 41098,
+        "exit_i": 41120,
+        "entry_time": "2017-05-15 13:40:00",
+        "exit_time": "2017-05-16 09:15:00",
+        "return": -0.007999999999999927,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 42471,
+        "exit_i": 42482,
+        "entry_time": "2017-06-09 09:20:00",
+        "exit_time": "2017-06-09 10:15:00",
+        "return": -0.00799999999999991,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 46842,
+        "exit_i": 46866,
+        "entry_time": "2017-09-05 09:25:00",
+        "exit_time": "2017-09-05 11:25:00",
+        "return": -0.001955787602754883,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 48783,
+        "exit_i": 48805,
+        "entry_time": "2017-10-11 14:55:00",
+        "exit_time": "2017-10-12 10:30:00",
+        "return": 0.007000000000000038,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 54278,
+        "exit_i": 54282,
+        "entry_time": "2018-01-29 09:20:00",
+        "exit_time": "2018-01-29 09:40:00",
+        "return": -0.007999999999999837,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 54772,
+        "exit_i": 54783,
+        "entry_time": "2018-02-06 13:00:00",
+        "exit_time": "2018-02-06 13:55:00",
+        "return": -0.007999999999999938,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 54998,
+        "exit_i": 55022,
+        "entry_time": "2018-02-09 13:05:00",
+        "exit_time": "2018-02-09 15:05:00",
+        "return": 0.0005893754486719308,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 55098,
+        "exit_i": 55102,
+        "entry_time": "2018-02-12 15:10:00",
+        "exit_time": "2018-02-14 09:15:00",
+        "return": -0.00799999999999987,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 57723,
+        "exit_i": 57746,
+        "entry_time": "2018-04-06 15:10:00",
+        "exit_time": "2018-04-09 10:50:00",
+        "return": 0.006999999999999929,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 57797,
+        "exit_i": 57806,
+        "entry_time": "2018-04-09 15:05:00",
+        "exit_time": "2018-04-10 09:35:00",
+        "return": -0.007999999999999856,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 60352,
+        "exit_i": 60352,
+        "entry_time": "2018-05-29 09:15:00",
+        "exit_time": "2018-05-29 09:15:00",
+        "return": -0.007999999999999851,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 60416,
+        "exit_i": 60421,
+        "entry_time": "2018-05-29 14:35:00",
+        "exit_time": "2018-05-29 15:00:00",
+        "return": -0.007999999999999799,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 61324,
+        "exit_i": 61328,
+        "entry_time": "2018-06-14 15:15:00",
+        "exit_time": "2018-06-15 09:20:00",
+        "return": -0.007999999999999828,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 61557,
+        "exit_i": 61581,
+        "entry_time": "2018-06-20 09:40:00",
+        "exit_time": "2018-06-20 11:40:00",
+        "return": -0.0030804311107537493,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 62677,
+        "exit_i": 62677,
+        "entry_time": "2018-07-11 09:15:00",
+        "exit_time": "2018-07-11 09:15:00",
+        "return": 0.007000000000000024,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 63029,
+        "exit_i": 63035,
+        "entry_time": "2018-07-17 13:35:00",
+        "exit_time": "2018-07-17 14:05:00",
+        "return": -0.00799999999999993,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 64778,
+        "exit_i": 64789,
+        "entry_time": "2018-08-21 09:20:00",
+        "exit_time": "2018-08-21 10:15:00",
+        "return": -0.007999999999999965,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 65266,
+        "exit_i": 65290,
+        "entry_time": "2018-08-30 12:30:00",
+        "exit_time": "2018-08-30 14:30:00",
+        "return": 0.0021416802783893255,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 68111,
+        "exit_i": 68120,
+        "entry_time": "2018-10-29 12:05:00",
+        "exit_time": "2018-10-29 12:50:00",
+        "return": -0.007999999999999955,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 69130,
+        "exit_i": 69140,
+        "entry_time": "2018-11-19 14:45:00",
+        "exit_time": "2018-11-20 09:20:00",
+        "return": -0.007999999999999903,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 70190,
+        "exit_i": 70200,
+        "entry_time": "2018-12-11 09:20:00",
+        "exit_time": "2018-12-11 10:10:00",
+        "return": -0.007999999999999943,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 71167,
+        "exit_i": 71191,
+        "entry_time": "2018-12-31 09:30:00",
+        "exit_time": "2018-12-31 11:30:00",
+        "return": -0.005131546894031808,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 72665,
+        "exit_i": 72666,
+        "entry_time": "2019-01-28 09:20:00",
+        "exit_time": "2019-01-28 09:25:00",
+        "return": -0.007999999999999848,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 74393,
+        "exit_i": 74417,
+        "entry_time": "2019-02-28 09:35:00",
+        "exit_time": "2019-02-28 11:35:00",
+        "return": -0.0036109150149333854,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 74594,
+        "exit_i": 74618,
+        "entry_time": "2019-03-05 13:50:00",
+        "exit_time": "2019-03-06 09:35:00",
+        "return": -0.000957516339869281,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 74745,
+        "exit_i": 74764,
+        "entry_time": "2019-03-07 13:55:00",
+        "exit_time": "2019-03-08 09:15:00",
+        "return": 0.006999999999999964,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 75059,
+        "exit_i": 75064,
+        "entry_time": "2019-03-13 15:05:00",
+        "exit_time": "2019-03-14 09:15:00",
+        "return": -0.00799999999999982,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 75138,
+        "exit_i": 75139,
+        "entry_time": "2019-03-14 15:25:00",
+        "exit_time": "2019-03-15 09:15:00",
+        "return": -0.007999999999999927,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 76401,
+        "exit_i": 76425,
+        "entry_time": "2019-04-09 14:25:00",
+        "exit_time": "2019-04-10 10:10:00",
+        "return": -0.0016244841815679987,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 76715,
+        "exit_i": 76739,
+        "entry_time": "2019-04-16 09:20:00",
+        "exit_time": "2019-04-16 11:20:00",
+        "return": -0.003900776053215046,
+        "reason": "timeout"
+      }
+    ],
+    "S_strict_short_run": [
+      {
+        "entry_i": 73,
+        "exit_i": 83,
+        "entry_time": "2015-02-02 15:20:00",
+        "exit_time": "2015-02-03 09:55:00",
+        "return": 0.007000000000000073,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 729,
+        "exit_i": 750,
+        "entry_time": "2015-02-13 13:45:00",
+        "exit_time": "2015-02-16 09:15:00",
+        "return": 0.007000000000000019,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 752,
+        "exit_i": 753,
+        "entry_time": "2015-02-16 09:25:00",
+        "exit_time": "2015-02-16 09:30:00",
+        "return": -0.007999999999999861,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 830,
+        "exit_i": 848,
+        "entry_time": "2015-02-18 09:40:00",
+        "exit_time": "2015-02-18 11:10:00",
+        "return": -0.007999999999999872,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 988,
+        "exit_i": 1002,
+        "entry_time": "2015-02-20 10:20:00",
+        "exit_time": "2015-02-20 11:30:00",
+        "return": 0.007000000000000028,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 1049,
+        "exit_i": 1050,
+        "entry_time": "2015-02-20 15:25:00",
+        "exit_time": "2015-02-23 09:15:00",
+        "return": -0.007999999999999924,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1161,
+        "exit_i": 1168,
+        "entry_time": "2015-02-24 12:15:00",
+        "exit_time": "2015-02-24 12:50:00",
+        "return": -0.00799999999999996,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1192,
+        "exit_i": 1197,
+        "entry_time": "2015-02-24 14:50:00",
+        "exit_time": "2015-02-24 15:15:00",
+        "return": -0.007999999999999912,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1281,
+        "exit_i": 1299,
+        "entry_time": "2015-02-26 09:45:00",
+        "exit_time": "2015-02-26 11:15:00",
+        "return": -0.00799999999999992,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1349,
+        "exit_i": 1350,
+        "entry_time": "2015-02-26 15:25:00",
+        "exit_time": "2015-02-27 09:15:00",
+        "return": -0.007999999999999821,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1692,
+        "exit_i": 1704,
+        "entry_time": "2015-03-04 12:45:00",
+        "exit_time": "2015-03-04 13:45:00",
+        "return": 0.00699999999999999,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 1735,
+        "exit_i": 1759,
+        "entry_time": "2015-03-05 10:05:00",
+        "exit_time": "2015-03-05 12:05:00",
+        "return": -0.0005988276629177534,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 1787,
+        "exit_i": 1798,
+        "entry_time": "2015-03-05 14:25:00",
+        "exit_time": "2015-03-05 15:20:00",
+        "return": -0.007999999999999802,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 1805,
+        "exit_i": 1829,
+        "entry_time": "2015-03-09 09:40:00",
+        "exit_time": "2015-03-09 11:40:00",
+        "return": 0.0006553146827837967,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2005,
+        "exit_i": 2021,
+        "entry_time": "2015-03-11 13:50:00",
+        "exit_time": "2015-03-11 15:10:00",
+        "return": 0.0070000000000000106,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 2035,
+        "exit_i": 2042,
+        "entry_time": "2015-03-12 10:05:00",
+        "exit_time": "2015-03-12 10:40:00",
+        "return": -0.00799999999999992,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2283,
+        "exit_i": 2307,
+        "entry_time": "2015-03-17 12:25:00",
+        "exit_time": "2015-03-17 14:25:00",
+        "return": 0.0025448236388352693,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2575,
+        "exit_i": 2599,
+        "entry_time": "2015-03-23 11:45:00",
+        "exit_time": "2015-03-23 13:45:00",
+        "return": -0.0009550102249489159,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2622,
+        "exit_i": 2645,
+        "entry_time": "2015-03-24 09:25:00",
+        "exit_time": "2015-03-24 11:20:00",
+        "return": -0.007999999999999851,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2693,
+        "exit_i": 2695,
+        "entry_time": "2015-03-24 15:20:00",
+        "exit_time": "2015-03-25 09:15:00",
+        "return": -0.007999999999999861,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 2736,
+        "exit_i": 2760,
+        "entry_time": "2015-03-25 12:40:00",
+        "exit_time": "2015-03-25 14:40:00",
+        "return": -0.006895774443719608,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 2777,
+        "exit_i": 2794,
+        "entry_time": "2015-03-26 09:50:00",
+        "exit_time": "2015-03-26 11:15:00",
+        "return": 0.006999999999999912,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 2842,
+        "exit_i": 2843,
+        "entry_time": "2015-03-26 15:15:00",
+        "exit_time": "2015-03-26 15:20:00",
+        "return": -0.007999999999999962,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3028,
+        "exit_i": 3052,
+        "entry_time": "2015-03-31 12:00:00",
+        "exit_time": "2015-03-31 14:00:00",
+        "return": 0.0007453857927433886,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3076,
+        "exit_i": 3100,
+        "entry_time": "2015-04-01 09:45:00",
+        "exit_time": "2015-04-01 11:45:00",
+        "return": -0.0002401103955841765,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3101,
+        "exit_i": 3125,
+        "entry_time": "2015-04-01 11:50:00",
+        "exit_time": "2015-04-01 13:50:00",
+        "return": -0.0011549815498154983,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3168,
+        "exit_i": 3192,
+        "entry_time": "2015-04-06 11:10:00",
+        "exit_time": "2015-04-06 13:10:00",
+        "return": -0.0030369528666185945,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3244,
+        "exit_i": 3268,
+        "entry_time": "2015-04-07 11:15:00",
+        "exit_time": "2015-04-07 13:15:00",
+        "return": 0.0014022714240793065,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3606,
+        "exit_i": 3630,
+        "entry_time": "2015-04-15 10:10:00",
+        "exit_time": "2015-04-15 12:10:00",
+        "return": 0.00153003176436614,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3689,
+        "exit_i": 3713,
+        "entry_time": "2015-04-16 10:50:00",
+        "exit_time": "2015-04-16 12:50:00",
+        "return": 0.001724264705882445,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3761,
+        "exit_i": 3767,
+        "entry_time": "2015-04-17 10:35:00",
+        "exit_time": "2015-04-17 11:05:00",
+        "return": -0.007999999999999818,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 3825,
+        "exit_i": 3849,
+        "entry_time": "2015-04-20 09:40:00",
+        "exit_time": "2015-04-20 11:40:00",
+        "return": -0.0014972292664599076,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 3983,
+        "exit_i": 4007,
+        "entry_time": "2015-04-22 10:20:00",
+        "exit_time": "2015-04-22 12:20:00",
+        "return": -0.0012093715836695973,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4023,
+        "exit_i": 4033,
+        "entry_time": "2015-04-22 13:40:00",
+        "exit_time": "2015-04-22 14:30:00",
+        "return": -0.00799999999999995,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4075,
+        "exit_i": 4099,
+        "entry_time": "2015-04-23 11:45:00",
+        "exit_time": "2015-04-23 13:45:00",
+        "return": -0.005644103648862992,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4141,
+        "exit_i": 4165,
+        "entry_time": "2015-05-14 10:50:00",
+        "exit_time": "2015-05-14 12:50:00",
+        "return": -0.004143855416675356,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4557,
+        "exit_i": 4570,
+        "entry_time": "2015-05-21 14:15:00",
+        "exit_time": "2015-05-21 15:20:00",
+        "return": -0.007999999999999898,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 4662,
+        "exit_i": 4686,
+        "entry_time": "2015-05-25 10:30:00",
+        "exit_time": "2015-05-25 12:30:00",
+        "return": -0.0054606299212598425,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4697,
+        "exit_i": 4721,
+        "entry_time": "2015-05-25 13:25:00",
+        "exit_time": "2015-05-25 15:25:00",
+        "return": -0.003,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 4858,
+        "exit_i": 4871,
+        "entry_time": "2015-05-27 14:20:00",
+        "exit_time": "2015-05-27 15:25:00",
+        "return": -0.007999999999999865,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5008,
+        "exit_i": 5011,
+        "entry_time": "2015-05-29 14:20:00",
+        "exit_time": "2015-05-29 14:35:00",
+        "return": -0.007999999999999863,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5107,
+        "exit_i": 5124,
+        "entry_time": "2015-06-02 10:05:00",
+        "exit_time": "2015-06-02 11:30:00",
+        "return": 0.007000000000000042,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 5195,
+        "exit_i": 5207,
+        "entry_time": "2015-06-03 11:10:00",
+        "exit_time": "2015-06-03 12:10:00",
+        "return": -0.00799999999999993,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5301,
+        "exit_i": 5310,
+        "entry_time": "2015-06-04 13:45:00",
+        "exit_time": "2015-06-04 14:30:00",
+        "return": -0.007999999999999893,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5398,
+        "exit_i": 5402,
+        "entry_time": "2015-06-08 09:20:00",
+        "exit_time": "2015-06-08 09:40:00",
+        "return": 0.007000000000000007,
+        "reason": "tp"
+      },
+      {
+        "entry_i": 5442,
+        "exit_i": 5466,
+        "entry_time": "2015-06-08 13:00:00",
+        "exit_time": "2015-06-08 15:00:00",
+        "return": -0.0046025641025641256,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5530,
+        "exit_i": 5547,
+        "entry_time": "2015-06-09 14:05:00",
+        "exit_time": "2015-06-10 09:15:00",
+        "return": -0.0079999999999999,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5574,
+        "exit_i": 5593,
+        "entry_time": "2015-06-10 11:30:00",
+        "exit_time": "2015-06-10 13:05:00",
+        "return": -0.00799999999999988,
+        "reason": "sl"
+      },
+      {
+        "entry_i": 5654,
+        "exit_i": 5678,
+        "entry_time": "2015-06-11 11:55:00",
+        "exit_time": "2015-06-11 13:55:00",
+        "return": -0.003359590067323265,
+        "reason": "timeout"
+      },
+      {
+        "entry_i": 5742,
+        "exit_i": 5755,
+        "entry_time": "2015-06-12 13:00:00",
+        "exit_time": "2015-06-12 14:05:00",
+        "return": 0.007000000000000028,
+        "reason": "tp"
+      }
+    ]
+  }
+}

@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trade Vision — Complete Flow Map (Process + Intersections)</title>
+  <style>
+    :root {
+      --bg: #06070b;
+      --card: #10141f;
+      --line: #2a3348;
+      --text: #eef2ff;
+      --muted: #8b95ad;
+      --a: #4d9fff;
+      --b: #7dffa8;
+      --c: #ffd56a;
+      --d: #ff8fab;
+      --e: #c77dff;
+      --f: #ff9f43;
+      --panel: #0e1118;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(900px 400px at 10% -10%, #152038 0%, transparent 50%),
+        radial-gradient(800px 400px at 90% 110%, #1a1230 0%, transparent 45%),
+        var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      min-height: 100vh;
+    }
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(10px);
+      background: rgba(6,7,11,.92);
+      border-bottom: 1px solid var(--line);
+      padding: 12px 18px 10px;
+    }
+    .topbar h1 { font-size: 16px; font-weight: 700; }
+    .topbar p { font-size: 12px; color: var(--muted); margin-top: 4px; max-width: 960px; line-height: 1.4; }
+    .tabs {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
+    }
+    .tabs button {
+      background: #121826; border: 1px solid #2a3348; color: #c5cee3;
+      border-radius: 999px; padding: 7px 14px; font-size: 12px; cursor: pointer;
+    }
+    .tabs button.active {
+      background: #1d3b66; border-color: #4d9fff; color: #fff; font-weight: 600;
+    }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ========== PROCESS VIEW ========== */
+    .process-wrap { padding: 18px 16px 48px; }
+    .strip {
+      max-width: 1180px; margin: 0 auto 16px;
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .chip {
+      font-size: 11px; padding: 5px 10px; border-radius: 999px;
+      border: 1px solid #334; color: #c5cee3; background: #0c101a;
+    }
+    .chip b { color: #fff; }
+    .memory {
+      max-width: 1180px; margin: 0 auto 18px;
+      padding: 12px 14px; border-radius: 12px;
+      border: 1px solid #2a3a28; background: #0c1610;
+      font-size: 12.5px; color: #b7d4c0; line-height: 1.45;
+    }
+    .memory b { color: #9dffc0; }
+    .flow {
+      max-width: 1180px; margin: 0 auto; position: relative; padding-left: 28px;
+    }
+    .flow::before {
+      content: ""; position: absolute; left: 11px; top: 8px; bottom: 8px; width: 3px; border-radius: 3px;
+      background: linear-gradient(180deg, var(--a), var(--b), var(--c), var(--d), var(--e), var(--f));
+    }
+    .step { position: relative; margin: 0 0 16px; padding-left: 18px; }
+    .step::before {
+      content: attr(data-n); position: absolute; left: -28px; top: 18px;
+      width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+      font-size: 11px; font-weight: 800; color: #061018;
+      background: var(--dot, var(--a));
+      box-shadow: 0 0 0 4px #06070b, 0 0 18px color-mix(in srgb, var(--dot, var(--a)) 50%, transparent);
+      z-index: 1;
+    }
+    .card {
+      background: linear-gradient(180deg, #141a28 0%, var(--card) 100%);
+      border: 1px solid #243049; border-radius: 16px; padding: 14px 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .card .top {
+      display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline;
+      justify-content: space-between; margin-bottom: 8px;
+    }
+    .card h2 { font-size: 15px; font-weight: 700; }
+    .card .tag {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--dot, var(--a));
+      border: 1px solid color-mix(in srgb, var(--dot, var(--a)) 45%, #243049);
+      padding: 3px 8px; border-radius: 999px;
+    }
+    .card .what { font-size: 13px; color: #c9d2e8; line-height: 1.45; margin-bottom: 10px; }
+    .branch-title {
+      font-size: 11px; color: var(--muted); margin: 2px 0 8px;
+      text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .subs { display: flex; flex-wrap: wrap; gap: 8px; }
+    .sub {
+      flex: 1 1 180px; min-width: 160px; background: #0b0f18;
+      border: 1px solid #1e273a; border-radius: 12px; padding: 10px 11px; position: relative;
+    }
+    .sub .k { font-size: 10px; color: var(--muted); margin-bottom: 3px; }
+    .sub .v { font-size: 12.5px; font-weight: 600; color: #eef2ff; line-height: 1.3; }
+    .sub .f { margin-top: 5px; font-size: 10.5px; color: #7f8aa3; line-height: 1.3; }
+    .arrow-down { text-align: center; color: #5a657f; font-size: 18px; margin: -4px 0 8px; padding-left: 18px; }
+    .endbox {
+      max-width: 1180px; margin: 12px auto 0; border-radius: 16px; padding: 16px 18px;
+      border: 1px solid #2f4a35; background: linear-gradient(135deg, #102418, #0c1410);
+    }
+    .endbox h3 { font-size: 14px; color: #9dffc0; margin-bottom: 6px; }
+    .endbox p { font-size: 12.5px; color: #b7c4b8; line-height: 1.45; }
+    footer.note {
+      max-width: 1180px; margin: 18px auto 0; font-size: 11px; color: #667089; line-height: 1.4;
+    }
+    code { color: #9ec5ff; }
+
+    /* ========== NETWORK VIEW ========== */
+    .net-main {
+      display: grid; grid-template-columns: 1fr 320px; min-height: calc(100vh - 120px);
+    }
+    @media (max-width: 1000px) { .net-main { grid-template-columns: 1fr; } }
+    #canvas-wrap {
+      position: relative; overflow: hidden; min-height: 720px;
+      border-right: 1px solid var(--line);
+    }
+    canvas { width: 100%; height: 100%; display: block; cursor: grab; }
+    canvas.dragging { cursor: grabbing; }
+    aside.net-aside {
+      background: var(--panel); padding: 14px; overflow: auto;
+    }
+    aside h2 {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted); margin-bottom: 10px;
+    }
+    #detail {
+      border: 1px solid #243049; border-radius: 12px; padding: 12px;
+      background: #0b0f18; min-height: 160px; margin-bottom: 14px;
+    }
+    #detail .title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    #detail .role {
+      display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 999px;
+      margin-bottom: 8px; border: 1px solid #334;
+    }
+    #detail p, #detail li { font-size: 12px; color: #c5cde0; line-height: 1.45; }
+    #detail ul { margin: 8px 0 0 16px; }
+    .edge-list { font-size: 11px; color: #9aa6c0; margin-top: 10px; }
+    .edge-list div { padding: 5px 0; border-bottom: 1px solid #1a2233; }
+    .legend { display: grid; gap: 6px; font-size: 11px; color: var(--muted); }
+    .legend span {
+      display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+      margin-right: 6px; vertical-align: middle;
+    }
+    .net-tools {
+      display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 14px;
+      border-bottom: 1px solid var(--line); background: #0a0d14;
+    }
+    .net-tools button, .net-tools label {
+      background: #151b28; border: 1px solid #2a3348; color: #d7deee;
+      border-radius: 999px; padding: 6px 12px; font-size: 11px; cursor: pointer;
+    }
+    .net-tools button.active { background: #1d3b66; border-color: #4d9fff; color: #fff; }
+    .net-tools label { cursor: default; display: flex; gap: 6px; align-items: center; }
+    .matrix { display: none; padding: 16px; overflow: auto; min-height: 720px; }
+    .matrix.show { display: block; }
+    #canvas-wrap.hide { display: none; }
+    table { border-collapse: collapse; font-size: 11px; min-width: 900px; }
+    th, td { border: 1px solid #243049; padding: 6px 8px; text-align: center; color: #b8c2d9; }
+    th { background: #121826; color: #e8ecf4; position: sticky; top: 0; }
+    td.y { background: #12301f; color: #7dffa8; }
+    td.w { background: #2a2410; color: #ffd56a; }
+    td.n { background: #120f14; color: #444; }
+    td.rowh { text-align: left; background: #121826; color: #e8ecf4; font-weight: 600; }
+  
+    /* Guide tab (merged node explainer) */
+    .guide-wrap { max-width: 960px; margin: 0 auto; padding: 16px 16px 48px; }
+    .guide-h1 { font-size: 20px; margin: 8px 0 12px; }
+    .guide-h2 { font-size: 16px; margin: 28px 0 12px; color: #9ec5ff; border-bottom: 1px solid #243049; padding-bottom: 6px; }
+    .guide-kind { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #ffd56a; margin: 22px 0 10px; }
+    .guide-node { font-size: 15px; margin: 0 0 10px; color: #eef2ff; }
+    .guide-meta { font-size: 12px; color: #8b95ad; margin: 4px 0; }
+    .guide-p { font-size: 13.5px; color: #c9d2e8; line-height: 1.5; margin: 8px 0; }
+    .guide-flow { font-size: 13px; color: #d0d8ec; line-height: 1.5; margin: 6px 0; padding-left: 8px; border-left: 2px solid #2a9d8f; }
+    .guide-hr { border: 0; border-top: 1px solid #1e273a; margin: 16px 0; }
+    .guide-pre { background: #0b0f18; border: 1px solid #243049; border-radius: 10px; padding: 12px; overflow-x: auto; font-size: 12px; color: #b8c2d9; margin: 10px 0; }
+    article.node-card {
+      background: linear-gradient(180deg, #141a28, #10141f);
+      border: 1px solid #243049; border-radius: 14px;
+      padding: 14px 16px; margin: 0 0 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.3);
+    }
+    table.node-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 4px 0 0; }
+    table.node-table th, table.node-table td {
+      border: 1px solid #243049; padding: 8px 10px; text-align: left; vertical-align: top;
+    }
+    table.node-table th { background: #121826; color: #9ec5ff; width: 28%; }
+    table.node-table td.field { color: #7dffa8; font-weight: 600; white-space: nowrap; width: 28%; }
+    table.node-table td { color: #d5dced; line-height: 1.45; }
+    table.node-table code { color: #9ec5ff; font-size: 11.5px; }
+    .guide-toc { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 20px; }
+    .guide-toc a {
+      font-size: 11px; color: #c5cee3; text-decoration: none;
+      border: 1px solid #2a3348; border-radius: 999px; padding: 4px 10px; background: #0c101a;
+    }
+    .guide-toc a:hover { border-color: #4d9fff; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>Trade Vision - Complete Flow Map (all-in-one)</h1>
+    <p>
+      <b>One HTML = max project flow detail:</b>
+      Tab 1 process · Tab 2 network · Tab 3 blocks · Tab 4 fit · Tab 5 code-truth + audit + work log (merged MDs).
+      Paper guidance · v1.94 · live blocked · MOCK.
+    </p>
+    <div class="tabs">
+      <button type="button" class="active" data-view="process">1 · Process Start → End</button>
+      <button type="button" data-view="network">2 · Engine intersections</button>
+      <button type="button" data-view="guide">3 · All block details</button>
+      <button type="button" data-view="both">4 · How it fits + index</button>
+      <button type="button" data-view="ref">5 · Code truth + audit</button>
+    </div>
+  </div>
+
+  <!-- ===================== VIEW 1 PROCESS ===================== -->
+  <section class="view active" id="view-process">
+    <div class="process-wrap">
+      <div class="strip">
+        <span class="chip"><b>Pattern</b> stock → research → ORB → … → end</span>
+        <span class="chip"><b>Product</b> paper guidance path</span>
+        <span class="chip">Live <b>blocked</b></span>
+      </div>
+      <div class="memory">
+        <b>One-line process (code-verified):</b>
+        Stock name → load closed candles → safety+snapshot → research engines (chart…OI) →
+        arbiter#1 → ORB setup → arbiter#2 / ENTER_PAPER? → show guidance →
+        (optional) human record paper → observe outcome → <b>END</b>
+        · Details: <b>Tab 5</b> code-truth (merged)
+      </div>
+      <div class="memory" style="border-color:#5a4020;background:#16120a;color:#e0d0a8">
+        <b>Code-verified corrections (audit applied):</b>
+        Kronos / Gemini / lag-vote modules are <b>NOT called</b> inside POST /run
+        (scores hard-coded 0). Indicators = <b>SNAPSHOT_INDICATOR_RUNTIME</b> (used_for_final_vote=false).
+        Memory = <b>PERSISTED_INDICATOR_MEMORY</b> (min 30). D1 = 9 PG-D1 checks; D2 = SHA-256 of closed bars JSON.
+        Ticket &lt; ~900s. Approve body = ticket fields + phrase (not full guidance). Offline ORB = separate APIs.
+        Lab Analyze often forces <b>RELIANCE 1m preview</b> regardless of room symbol. Engine fail = degraded receipt, continue.
+      </div>
+
+      <div class="flow">
+        <div class="step" data-n="0" style="--dot:var(--a)">
+          <div class="card">
+            <div class="top"><h2>START — open Trade Vision</h2><span class="tag">begin</span></div>
+            <p class="what">Browser boots web app. Operator opens Jarvis for a paper decision.</p>
+            <div class="subs">
+              <div class="sub"><div class="k">UI boot</div><div class="v">main.tsx → App.tsx</div><div class="f">Workspace: Jarvis</div></div>
+              <div class="sub"><div class="k">Mode</div><div class="v">MOCK · practice</div><div class="f">SYSTEM_MODE</div></div>
+              <div class="sub"><div class="k">Safety on</div><div class="v">live_trading_blocked</div><div class="f">allows_live_orders=false</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-down">↓</div>
+
+        <div class="step" data-n="1" style="--dot:var(--a)">
+          <div class="card">
+            <div class="top"><h2>STOCK NAME — symbol + timeframe</h2><span class="tag">input</span></div>
+            <p class="what">Operator sets identity on ORB card. <b>Lab gap:</b> Analyze still calls local <b>RELIANCE 1m preview</b> even if room symbol differs (current App.tsx).</p>
+            <div class="subs">
+              <div class="sub"><div class="k">Symbol (UI)</div><div class="v">room symbol e.g. RELIANCE</div><div class="f">rawChartSymbol in Jarvis room</div></div>
+              <div class="sub"><div class="k">Lab hardcode</div><div class="v">behaviorImportLocalReliancePreview</div><div class="f">Analyze path today — not multi-symbol import</div></div>
+              <div class="sub"><div class="k">Timeframe</div><div class="v">1m / 5m / 15m</div><div class="f">ORB panel toggle</div></div>
+              <div class="sub"><div class="k">Direction</div><div class="v">long / short</div><div class="f">ORB panel toggle</div></div>
+              <div class="sub"><div class="k">Replay reserve</div><div class="v">+3 / +6 / +12 bars</div><div class="f">forward bars reserved for observe</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-down">↓</div>
+
+        <div class="step" data-n="2" style="--dot:var(--a)">
+          <div class="card">
+            <div class="top"><h2>LOAD DATA — closed candles</h2><span class="tag">data in</span></div>
+            <p class="what">Click <b>Analyze</b>. Load candles, build higher TFs, decision time on closed bars only.</p>
+            <div class="branch-title">Sub-process</div>
+            <div class="subs">
+              <div class="sub"><div class="k">2a Import</div><div class="v">local RELIANCE 1m preview</div><div class="f">behaviorImportLocalReliancePreview</div></div>
+              <div class="sub"><div class="k">2b Resample</div><div class="v">5m / 15m / 1H</div><div class="f">buildOrbGuidancePayload</div></div>
+              <div class="sub"><div class="k">2c Decision time</div><div class="v">decision_time_ns</div><div class="f">closed bar only</div></div>
+              <div class="sub"><div class="k">2d Send</div><div class="v">POST /paper-guidance/run</div><div class="f">client.paperGuidanceRun</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-down">↓</div>
+
+        <div class="step" data-n="3" style="--dot:var(--f)">
+          <div class="card">
+            <div class="top"><h2>SAFETY + SNAPSHOT</h2><span class="tag">P0 · D1/D2</span></div>
+            <p class="what">Refuse bad data / future bars / unsafe mode. Then freeze immutable closed-candle snapshot. If D1 fails → blocked guidance, pipeline stops.</p>
+            <div class="branch-title">Order: quality → PIT → D1 (9 checks) → D2 freeze</div>
+            <div class="subs">
+              <div class="sub"><div class="k">3a Quality</div><div class="v">scan_data_quality</div><div class="f">threshold default ≥ 0.85 · can block</div></div>
+              <div class="sub"><div class="k">3b PIT</div><div class="v">point_in_time_guard</div><div class="f">no future / incomplete bars</div></div>
+              <div class="sub"><div class="k">3c D1 (PG-D1-001…009)</div><div class="v">build_d1_safety_gate</div><div class="f">mode≠LIVE · kill armed · symbol/TF match · bar bounds · finite OHLCV · quality · PIT · no broker creds</div></div>
+              <div class="sub"><div class="k">3d Kill switch</div><div class="v">storage.load/save_kill_switch</div><div class="f">default state=armed · in-memory + persisted</div></div>
+              <div class="sub"><div class="k">3e D2 snapshot</div><div class="v">freeze_d2_closed_candle_snapshot</div><div class="f">closed bars only · snapshot_hash = SHA-256(canonical JSON of bars payload) 64 hex</div></div>
+              <div class="sub"><div class="k">3f Stages later</div><div class="v">D3A_SETUP · D3B_MEMORY · D4_STRUCTURE · D6_ARBITER</div><div class="f">D5_KRONOS skipped · D7/D8 markers in engines_skipped text</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-down">↓</div>
+
+        <div class="step" data-n="4" style="--dot:var(--e)">
+          <div class="card">
+            <div class="top"><h2>RESEARCH STARTS — evidence engines (order)</h2><span class="tag">P1 · D3A/D3B/D4</span></div>
+            <p class="what">Analysis as votes only — not final answer yet. Sequential <code>_run_engine</code>: on failure → <b>degraded receipt, spine continues</b> (no hard abort mid-P1).</p>
+            <div class="branch-title">Exact engine_id order in paper_guidance_spine P1</div>
+            <div class="subs">
+              <div class="sub"><div class="k">4a D3A</div><div class="v">CHART_REASONING</div><div class="f">chart_reasoning_volatility.py</div></div>
+              <div class="sub"><div class="k">4b D3A</div><div class="v">CANDLE_CONDITION</div><div class="f">condition_classifier.py</div></div>
+              <div class="sub"><div class="k">4c D3A</div><div class="v">LEVEL_CONTEXT</div><div class="f">context_engines.analyze_level_context</div></div>
+              <div class="sub"><div class="k">4d D3A</div><div class="v">SNAPSHOT_INDICATOR_RUNTIME</div><div class="f">real_indicator_adapter · used_for_final_vote=false</div></div>
+              <div class="sub"><div class="k">4e D3B</div><div class="v">MTF_CONFIRMATION</div><div class="f">per-HTF D2 + analyze_htf_confirmation · HTF in same POST body</div></div>
+              <div class="sub"><div class="k">4f D3B</div><div class="v">PERSISTED_INDICATOR_MEMORY</div><div class="f">history store · min 30 · caller historical_match_count ignored</div></div>
+              <div class="sub"><div class="k">4g D4</div><div class="v">MARKET_STRUCTURE_LIQUIDITY</div><div class="f">market_structure_liquidity.py</div></div>
+              <div class="sub"><div class="k">4h D4</div><div class="v">EXECUTION_EVENT_OI_RISK</div><div class="f">execution_event_oi_risk.py</div></div>
+              <div class="sub"><div class="k">NOT run here</div><div class="v">Kronos · Gemini · lag_voting · market_regime_feedback module</div><div class="f">scores hard-coded 0 / RS=0.5 · regime from chart helper only</div></div>
+              <div class="sub"><div class="k">Fail mode</div><div class="v">degraded receipt</div><div class="f">_run_engine try/except · continue spine</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-down">↓</div>
+
+        <div class="step" data-n="5" style="--dot:var(--c)">
+          <div class="card">
+            <div class="top"><h2>ARBITER #1 — first judge</h2><span class="tag">D6</span></div>
+            <p class="what">Merge evidence scores. Without ORB entry plan, paper candidacy stays conservative (often WATCH).</p>
+            <div class="subs">
+              <div class="sub"><div class="k">5a</div><div class="v">final_confluence_arbiter #1</div><div class="f">entry_plan_authority_present=false</div></div>
+              <div class="sub"><div class="k">5b hardcodes</div><div class="v">indicator_signal_score=0 · external_ai=0 · RS=0.5</div><div class="f">regime score from chart helper only</div></div>
+              <div class="sub"><div class="k">5c map</div><div class="v">PAPER-CANDIDATE → WATCH</div><div class="f">_paper_band_from_arbiter in P1</div></div>
+              <div class="sub"><div class="k">5d</div><div class="v">next_action=DO_NOTHING at P1</div><div class="f">until ORB wrap upgrades</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-down">↓</div>
+
+        <div class="step" data-n="6" style="--dot:var(--c)">
+          <div class="card">
+            <div class="top"><h2>ORB PROCESS — propose setup</h2><span class="tag">not boss</span></div>
+            <p class="what">On /run: load <b>active</b> playbook → build setup on same snapshot. Offline discovery/proof is a <b>prerequisite pipeline</b>, not the Analyze button.</p>
+            <div class="subs">
+              <div class="sub"><div class="k">6a On /run</div><div class="v">list_orb_playbooks(active_only)</div><div class="f">store: data/orb_playbooks.json</div></div>
+              <div class="sub"><div class="k">6b Build</div><div class="v">orb/core build_orb_candidate</div><div class="f">series + decision_time_ns + source_snapshot_hash + playbook.config</div></div>
+              <div class="sub"><div class="k">6c Entry plan</div><div class="v">entry · stop · target · side</div><div class="f">valid only if range locked + prices &gt; 0</div></div>
+              <div class="sub"><div class="k">6d Offline APIs</div><div class="v">/api/v1/orb/discover · prove · playbooks/promote · playbooks · build</div><div class="f">proofs: data/orb_proofs.json · not Analyze click</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-down">↓</div>
+
+        <div class="step" data-n="7" style="--dot:var(--b)">
+          <div class="card">
+            <div class="top"><h2>ARBITER #2 — product band</h2><span class="tag">final_band</span></div>
+            <p class="what">Re-judge with entry_plan_authority. Map to product language.</p>
+            <div class="subs">
+              <div class="sub"><div class="k">7a</div><div class="v">arbiter pass #2</div><div class="f">entry authority flag</div></div>
+              <div class="sub"><div class="k">7b</div><div class="v">PAPER-CANDIDATE → ENTER_PAPER</div><div class="f">or WAIT/WATCH/AVOID</div></div>
+              <div class="sub"><div class="k">7c</div><div class="v">blockers list</div><div class="f">playbook · MTF · evidence · liq C</div></div>
+              <div class="sub"><div class="k">7d</div><div class="v">save OrbGuidanceTicket</div><div class="f">for human approve</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-down">↓</div>
+
+        <div class="step" data-n="8" style="--dot:var(--b)">
+          <div class="card">
+            <div class="top"><h2>GUIDANCE OUT — PaperTradeGuidance</h2><span class="tag">API → UI</span></div>
+            <p class="what">One object back. Card shows band, plan, blockers.</p>
+            <div class="subs">
+              <div class="sub"><div class="k">8a</div><div class="v">PaperTradeGuidance</div><div class="f">final_band · receipts</div></div>
+              <div class="sub"><div class="k">8b</div><div class="v">DO_NOTHING or OFFER_PAPER_TICKET</div><div class="f">can_record_paper</div></div>
+              <div class="sub"><div class="k">8c</div><div class="v">ORB Paper Guidance card</div><div class="f">App.tsx</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-down">↓</div>
+
+        <div class="step" data-n="9" style="--dot:var(--d)">
+          <div class="card">
+            <div class="top"><h2>BRANCH — stop or human approve</h2><span class="tag">human gate</span></div>
+            <p class="what">Approve is <b>browser confirm + fixed phrase</b> (not 2FA). POST body is <b>not</b> the full guidance object.</p>
+            <div class="subs">
+              <div class="sub"><div class="k">Path A stop</div><div class="v">WAIT/WATCH/AVOID / !can_record</div><div class="f">ends at guidance only</div></div>
+              <div class="sub"><div class="k">Path B continue</div><div class="v">ENTER_PAPER + entry_plan</div><div class="f">can_record_paper=true · Record enabled</div></div>
+              <div class="sub"><div class="k">POST body</div><div class="v">SimulatedPaperRecordApprovalRequest</div><div class="f">guidance_id · source_snapshot_hash · approved_by · approval_text · quantity · note</div></div>
+              <div class="sub"><div class="k">Phrase</div><div class="v">Literal RECORD_SIMULATED_PAPER_TRADE</div><div class="f">window.confirm in UI · no broker</div></div>
+              <div class="sub"><div class="k">Fresh ticket</div><div class="v">require_fresh · max age ~900s</div><div class="f">expired → ValueError / HTTP 409 · re-run guidance</div></div>
+              <div class="sub"><div class="k">Gates</div><div class="v">hash match · ENTER_PAPER · playbook/proof fields</div><div class="f">simulated_paper_ledger.py</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-down">↓</div>
+
+        <div class="step" data-n="10" style="--dot:var(--b)">
+          <div class="card">
+            <div class="top"><h2>PAPER RECORD — TV local ledger</h2><span class="tag">v1.93</span></div>
+            <p class="what">Local simulated paper only. Not sim_trading.db · not broker. Concurrent writers: process-local atomic_json locks — no distributed multi-operator lock.</p>
+            <div class="subs">
+              <div class="sub"><div class="k">10a</div><div class="v">POST /api/v1/paper-guidance/record-simulated</div><div class="f">simulated_paper_ledger.record_simulated_paper_trade</div></div>
+              <div class="sub"><div class="k">10b Store</div><div class="v">atomic_json_store</div><div class="f">paper_store_path · paper_record_id · simulation_only=true</div></div>
+              <div class="sub"><div class="k">10c Refresh</div><div class="v">GET /paper-records</div><div class="f">list on UI ledger strip</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-down">↓</div>
+
+        <div class="step" data-n="11" style="--dot:var(--b)">
+          <div class="card">
+            <div class="top"><h2>OBSERVE — lifecycle + reliability</h2><span class="tag">v1.94</span></div>
+            <p class="what">Uses <b>later closed bars</b> with timestamp_ns ≥ decision_time_ns (from +3/+6/+12 reserve). Local sim only.</p>
+            <div class="subs">
+              <div class="sub"><div class="k">11a Series</div><div class="v">buildOrbLifecycleSeries</div><div class="f">bars after decision · closed only</div></div>
+              <div class="sub"><div class="k">11b API</div><div class="v">POST /paper-records/observe</div><div class="f">orb_paper_lifecycle · phrase EVALUATE_SIMULATED_PAPER_OUTCOME</div></div>
+              <div class="sub"><div class="k">11c Outcome</div><div class="v">net R · MFE/MAE · costs</div><div class="f">point_in_time_safe path</div></div>
+              <div class="sub"><div class="k">11d Feedback</div><div class="v">GET orb-reliability + storage-monitor</div><div class="f">completed-only samples · integrity</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-down">↓</div>
+
+        <div class="step" data-n="12" style="--dot:var(--b)">
+          <div class="card">
+            <div class="top"><h2>END — cycle complete</h2><span class="tag">finish</span></div>
+            <p class="what">Change stock/TF and restart at step 1. Live never enabled by this path.</p>
+            <div class="subs">
+              <div class="sub"><div class="k">Boss</div><div class="v">Arbiter final_band</div><div class="f">ORB proposed only</div></div>
+              <div class="sub"><div class="k">Book</div><div class="v">TV local ledger</div><div class="f">not Stock App auto</div></div>
+              <div class="sub"><div class="k">Live</div><div class="v">still blocked</div><div class="f">always</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="endbox">
+        <h3>Side systems (not steps 4–11 as boss)</h3>
+        <p>Kronos · Twin · TrendForge intake · market_regime_feedback · indicator_lag_voting · 9C panels · Gemini/Grok · other Jarvis “Final Action” cards · OpenAlgo dry-run · ops release/red-team · Stock App ML — parallel lanes (Tab 2). Do not replace paper arbiter boss.</p>
+      </div>
+      <footer class="note">Process source: App.tsx · client.ts · main.py paper-guidance · paper_guidance_spine · orb_guidance · arbiter · ledger · lifecycle</footer>
+    </div>
+  </section>
+
+  <!-- ===================== VIEW 2 NETWORK ===================== -->
+  <section class="view" id="view-network">
+    <div class="net-tools">
+      <button type="button" class="active" id="btn-net">Network</button>
+      <button type="button" id="btn-matrix">Matrix</button>
+      <label><input type="checkbox" id="only-strong" /> strong product links only</label>
+      <label><input type="checkbox" id="highlight-data" checked /> highlight candle IN → result OUT</label>
+      <button type="button" id="btn-reset">Reset view</button>
+      <span style="font-size:11px;color:#8b95ad;align-self:center">Click bubble · drag pan · scroll zoom · follow cyan arrows for candle path</span>
+    </div>
+    <div class="net-main">
+      <div id="canvas-wrap"><canvas id="c" width="1400" height="900"></canvas></div>
+      <div class="matrix" id="matrix-view"><table id="mtx"></table></div>
+      <aside class="net-aside">
+        <h2>Selected</h2>
+        <div id="detail">
+          <div class="title">Click any node</div>
+          <p>Start with <b>Candle source</b> (IN) or <b>UI screen OUT</b> to see full data path.</p>
+        </div>
+        <h2>Candle → End path</h2>
+        <div class="legend" style="margin-bottom:12px;line-height:1.45;color:#b8c2d9">
+          <b style="color:#5eead4">IN</b> local/file candles → UI payload → POST /run → D2 snapshot → engines → arbiter<br/>
+          <b style="color:#7dffa8">OUT</b> PaperTradeGuidance JSON → UI card · optional paper record · observe outcome
+        </div>
+        <h2>Legend</h2>
+        <div class="legend">
+          <div><span style="background:#5eead4"></span> Data pipe (candle IN / result OUT)</div>
+          <div><span style="background:#4d9fff"></span> Hub / assembly</div>
+          <div><span style="background:#7dffa8"></span> Product paper path</div>
+          <div><span style="background:#ffd56a"></span> Research engine</div>
+          <div><span style="background:#ff8fab"></span> External AI</div>
+          <div><span style="background:#c77dff"></span> Evidence / analysis</div>
+          <div><span style="background:#ff9f43"></span> Boundary / other product</div>
+          <div><span style="background:#ff6b6b"></span> Safety</div>
+          <div style="margin-top:8px">Solid = strong · Dashed = display/research weak</div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  
+    <!-- ===================== VIEW 3 NODE GUIDE (full merge from FLOW_MAP_NODE_EXPLAINER.md) ===================== -->
+  <section class="view" id="view-guide">
+<div class="guide-wrap">
+<div class="strip"><span class="chip"><b>24 nodes</b> every field</span><span class="chip"><b>All-in-one HTML</b></span><span class="chip">Scroll or use jump links</span></div>
+<nav class="guide-toc">
+<a href="#g-summary">Summary</a>
+<a href="#g-data">Data pipe</a>
+<a href="#g-evidence">Evidence</a>
+<a href="#g-paper">Paper</a>
+<a href="#g-research">Research</a>
+<a href="#g-hub">Hubs</a>
+<a href="#g-ai">AI</a>
+<a href="#g-boundary">Boundary</a>
+<a href="#g-safety">Safety</a>
+<a href="#g-flows">Data flows</a>
+<a href="#g-walk">Walkthrough</a>
+<a href="#g-glossary">Glossary</a>
+<a href="#g-checklist">Checklist</a>
+</nav>
+<h1 class="guide-h1">Flow Map Node Explainer — Trade Vision Complete Flow Map (v1.94)</h1>
+<p class="guide-meta"><strong>Canonical source:</strong> this HTML file only (Tab 3). Optional offline MD copy may exist; HTML wins.</p>
+<p class="guide-meta"><strong>Audience:</strong> New developers, product managers, AI assistants</p>
+<p class="guide-meta"><strong>Goal:</strong> Understand each block in under ~60 seconds · <strong>Date:</strong> 2026-07-25</p>
+<h2 class="guide-h2" id="g-summary">1. Executive summary</h2>
+<p class="guide-p"><strong>Trade Vision</strong> is a <strong>paper trading guidance</strong> product: it helps an operator look at market candles, run a fixed analysis pipeline, and (optionally) record a <strong>simulated</strong> trade — <strong>not</strong> a real broker order.</p>
+<p class="guide-p">Money is never live: <code>SYSTEM_MODE</code> is MOCK and <strong>live trading is blocked</strong>.</p>
+<p class="guide-p">The main path is: <strong>open app → pick stock settings → Analyze → freeze safe candles → run evidence engines → judge (Arbiter) → Opening Range (ORB) setup → judge again → show guidance → optional human Record → optional Observe result.</strong></p>
+<p class="guide-p">Other blocks (Jarvis panels, Kronos, Twin, Gemini/Grok, TrendForge, OpenAlgo, Stock App, regime/lag APIs) are <strong>side systems</strong>: they can research or display, but they <strong>do not</strong> own the paper final decision band.</p>
+<h2 class="guide-h2" id="g-nodes">2. Node entries (all 24, by kind)</h2>
+<h3 class="guide-kind" id="g-data">Kind: data (candle IN → result OUT)</h3>
+<article class="node-card" id="node-candle_src"><h3 class="guide-node">① CANDLE SOURCE  |  local 1m bars (<code>candle_src</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>The place where raw price bars first enter the paper Analyze path — a download of one-minute candles for the lab stock.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>data</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Give the app real OHLCV numbers (open, high, low, close, volume) so nothing is inventing prices.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>1. On Analyze, UI requests lab candles. 2. Backend returns an array of 1-minute bars. 3. Bars stay in memory for this request (not the paper ticket store).</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>User click <strong>Analyze</strong> on the ORB Paper Guidance card.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td><strong>UI BUILD</strong> turns bars into a multi-timeframe payload. Operator does not edit raw bars by hand.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>GET /api/v1/behavior/data/local/reliance-1m/preview</code> · <code>client.behaviorImportLocalReliancePreview</code> · <code>App.tsx</code> <code>runOrbGuidance</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Need a reliable offline/lab feed of closed bars without depending on a live exchange feed for paper guidance tests.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>Like downloading today’s weather readings before deciding whether to take an umbrella.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Lab path often forces <strong>RELIANCE</strong> 1m even if the room symbol is different. Not a live broker feed.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-ui_build"><h3 class="guide-node">② UI BUILD  |  App.tsx payload (<code>ui_build</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>Frontend code that reshapes 1-minute bars into the exact package the backend expects.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>data</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Build higher timeframes and a decision time so analysis only uses <strong>finished</strong> candles.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>1. Takes 1m bars. 2. Resamples NSE session into 5m / 15m / 1H. 3. Trims to closed candles. 4. Sets <code>decision_time_ns</code>. 5. Builds <code>PaperGuidanceRequest</code> (symbol, timeframe, series, higher_timeframe_series, direction, <code>include_orb_playbook</code>).</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>Immediately after candle import, still inside Analyze.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td><strong>HTTP IN</strong> posts this package. Called from App.tsx helpers (<code>buildOrbGuidancePayload</code>).</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>App.tsx</code> <code>buildOrbGuidancePayload</code>, <code>resampleNseSeries</code> · models <code>PaperGuidanceRequest</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Backend needs multi-timeframe closed bars and a single decision clock; UI owns the lab assembly.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>Like chopping vegetables and packing a lunchbox before you send it to the kitchen.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Higher-timeframe bars travel <strong>in the same POST body</strong> — not a separate versioned HTF database.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-http_in"><h3 class="guide-node">③ HTTP IN  |  POST /paper-guidance/run (<code>http_in</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>The API door where the browser sends the candle package to Python.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>data</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>One official entry for “run paper guidance now.”</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>1. Accepts JSON body. 2. Calls <code>run_paper_guidance_with_orb</code> with <code>SYSTEM_MODE</code> and <code>KILL_SWITCH</code>. 3. Returns an envelope with guidance.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>On Analyze after payload build.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Frontend <code>client.paperGuidanceRun</code>. Operators never call it by hand in normal use.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>POST /api/v1/paper-guidance/run</code> · <code>main.py</code> <code>paper_guidance_run</code> · <code>client.ts</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Single product route so UI and tests share one spine instead of many ad-hoc analyzer endpoints.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>The front desk window where you hand in your form.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>HTTP only on this path (no WebSocket). Live trading flags stay blocked in mode/kill/safety.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-snapshot"><h3 class="guide-node">④ D2 SNAPSHOT  |  SHA-256 hash (<code>snapshot</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>A frozen copy of “only fully closed candles” plus a fingerprint so every later step uses the same picture of the market.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>data</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Stop future-looking leakage and make results reproducible for this decision time.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>1. After quality + PIT + D1 safety. 2. Keeps bars whose open+duration ≤ decision time. 3. Builds canonical JSON of symbol/TF/decision_time/bars. 4. <code>snapshot_hash = SHA-256(hex)</code> of that JSON.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>Early inside every successful <code>/paper-guidance/run</code> (after gates pass).</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Evidence pack, ORB core, tickets, paper records all bind to this hash.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>paper_guidance_spine.freeze_d2_closed_candle_snapshot</code> · <code>hashlib.sha256</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Without a freeze, engines could disagree about which bars “count.”</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>Taking a Polaroid of the board mid-game and only analyzing that photo.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>If D1 fails, no snapshot — pipeline returns blocked guidance.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-guidance_out"><h3 class="guide-node">⑤ GUIDANCE OUT  |  PaperTradeGuidance (<code>guidance_out</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>The finished “what should I do for paper?” answer object from the backend.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>data</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>One structured result: band, blockers, optional entry plan, engine receipts.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>Packages <code>final_band</code> (WAIT/WATCH/ENTER_PAPER/…), reasons, <code>next_action</code> (DO_NOTHING or OFFER_PAPER_TICKET), saves an <strong>OrbGuidanceTicket</strong> for later approve.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>End of every <code>/run</code> that completes packaging.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>UI screen out; optional paper store on Record.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>models.PaperTradeGuidance</code> · ticket file <code>data/orb_guidance_tickets.json</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Product needs one typed object, not many competing analyzer outputs.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>The final exam grade report: pass/watch/enter + why.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Includes safety literals like <code>live_trading_blocked=true</code>, <code>trade_allowed=false</code>. Not a broker order.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-ui_out"><h3 class="guide-node">⑥ UI SCREEN OUT  |  ORB Paper card (<code>ui_out</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>The on-screen panel where the operator sees the guidance.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>data</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Make the band, plan, and blockers human-readable.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>Shows <code>final_band</code>, entry/stop/target, blockers, ledger strip, reliability after observe.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>After Analyze (and after Record/Evaluate updates).</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Human operator. Fed by guidance_out / paper_store / outcome_out.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>App.tsx</code> ORB Paper Guidance panel · <code>setOrbGuidance</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Primary product surface for paper decisions (vs research soup).</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>The scoreboard the coach stares at.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Other Jarvis cards may still show different “Final Action” text — UX competition, not a second paper boss.</td></tr>
+</tbody></table></article>
+<h3 class="guide-kind" id="g-evidence">Kind: evidence / judge</h3>
+<article class="node-card" id="node-evidence"><h3 class="guide-node">Evidence pack  |  ON paper /run (<code>evidence</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>The ordered set of analysis engines that vote <strong>inside</strong> paper <code>/run</code> only.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>evidence</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Turn the frozen snapshot into scores, receipts, and blockers without deciding the final product band alone.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>Runs in order: chart reasoning → candle condition → level context → snapshot indicators → multi-timeframe confirm → persisted memory (min 30 samples) → structure/liquidity → execution/event/OI risk. Each step writes a receipt; failures become <strong>degraded</strong>, spine continues.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>During <code>/paper-guidance/run</code> after snapshot freeze.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Feeds Arbiter scores/receipts. Not Gemini/Kronos.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>paper_guidance_spine.py</code> · chart/condition/context/structure/OI modules · <code>real_indicator_adapter</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Structured evidence stack instead of one opaque black-box score.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>A panel of specialist doctors each filing a short report for the head surgeon.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Indicators here are <code>SNAPSHOT_INDICATOR_RUNTIME</code> with <strong>used_for_final_vote=false</strong>. Lag-voting and full <code>market_regime_feedback</code> modules are <strong>not</strong> in this pack.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-ninec"><h3 class="guide-node">9C / indicator panels (<code>ninec</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>A separate research/UI family for nine-candle DNA and indicator registry tools.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>evidence</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Deep indicator/history panels for research — not the paper spine boss.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>Own APIs build 9C hybrids, reliability, caches, etc., usually for Behavior/Jarvis panels.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>On demand when those panels load or actions fire — <strong>not</strong> as Step 4 of paper Analyze.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Jarvis / Behavior UI; weak link to paper path.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>nine_candle_*</code> · <code>indicator_registry</code> · reliability/cache routes</td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Rich chart-memory research without blocking the one-touch paper spine.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>A full lab downstairs; the clinic upstairs only uses a small blood test.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Different from SNAPSHOT_INDICATOR_RUNTIME on <code>/run</code>.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-arbiter"><h3 class="guide-node">Final ARBITER  |  band boss (<code>arbiter</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>The judge that merges evidence and decides the product band: WAIT / WATCH / ENTER_PAPER / AVOID / SKIP.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>paper</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>One boss so engines cannot each print a different “final.”</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>Pass #1 without entry plan authority (paper candidacy often → WATCH). Pass #2 after ORB may allow ENTER_PAPER if plan valid. Hardcodes on <code>/run</code>: indicator signal score 0, external AI score 0, RS 0.5.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>Inside <code>/run</code> after evidence (and again after ORB if playbook path).</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Called from spine and <code>orb_guidance</code>. Output becomes guidance.final_band.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>behavior/final_confluence_arbiter.py</code> · stage D6</td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Product spine needs a single reduce-only confluence judge.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>A courtroom judge hearing many witnesses then ruling.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>ORB only proposes; AI/Kronos do not set ENTER_PAPER on this path.</td></tr>
+</tbody></table></article>
+<h3 class="guide-kind" id="g-paper">Kind: paper store / outcome</h3>
+<article class="node-card" id="node-paper_store"><h3 class="guide-node">⑦ PAPER STORE  |  local ledger JSON (<code>paper_store</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>File-backed store of human-approved <strong>simulated</strong> paper records.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>paper / store</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Remember “I approved this ticket” without a broker.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>On Record: load fresh ticket, check hash/ENTER_PAPER/plan, write atomic JSON record (entry/stop/target, playbook ids).</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>User Record click + confirm + phrase.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Observe step; UI ledger list.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>POST /api/v1/paper-guidance/record-simulated</code> · <code>simulated_paper_ledger.py</code> · <code>atomic_json_store.py</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Local paper book for TV without wiring Stock App sim or live brokers.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>A practice logbook, not a bank ledger.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Body is ticket fields + <code>RECORD_SIMULATED_PAPER_TRADE</code> — not full guidance. Ticket must be &amp;lt; ~900s fresh. <strong>No</strong> write to <code>sim_trading.db</code>.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-outcome_out"><h3 class="guide-node">⑧ OUTCOME OUT  |  lifecycle + reliability (<code>outcome_out</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>After a paper record, evaluates what happened on later closed bars (local simulation).</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>paper</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Turn “I recorded a setup” into measured outcome (R, MFE/MAE, costs) and reliability stats.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>Takes observation series (bars after decision), runs lifecycle, stores outcome, refreshes reliability and storage integrity.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>User Evaluate Replay Result after Record.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>UI card outcome strip; reliability APIs.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>POST .../paper-records/observe</code> · <code>orb_paper_lifecycle.py</code> · <code>orb_paper_feedback.py</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Feedback loop for paper quality without live trading.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>Reviewing the game film after practice.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Still not a broker fill. Uses reserved +3/+6/+12 forward window from UI.</td></tr>
+</tbody></table></article>
+<h3 class="guide-kind" id="g-research">Kind: research / setup</h3>
+<article class="node-card" id="node-orb"><h3 class="guide-node">ORB  |  core  |  playbook (<code>orb</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>Opening Range Breakout engine: builds a structured long/short setup from the day’s opening range.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>research (setup proposer on product path)</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Automate classic ORB/ORR-style entry, stop, and target suggestions.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>Loads active playbook from <code>data/orb_playbooks.json</code>, builds candidate on snapshot series, returns entry/stop/target if range locked and valid.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>During <code>/run</code> when <code>include_orb_playbook</code> and safety/snapshot ok.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td><code>orb_guidance</code>; output to Arbiter #2 and ticket.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>orb/core.py</code> <code>build_orb_candidate</code> · <code>list_orb_playbooks</code> · <code>orb_guidance.py</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Structured day-trade setups with risk parameters instead of free-form “BUY.”</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>A fishing guide: “Cast here, stop there, target that buoy.”</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Only <strong>proposes</strong>. Cannot execute live. Needs a promoted playbook or stays NO_PLAYBOOK.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-orb_offline"><h3 class="guide-node">ORB offline  |  discover/prove (<code>orb_offline</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>Offline lab that searches and proves ORB parameter combos, then promotes playbooks.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>research</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Create the playbooks that online Analyze can load.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>Discover jobs → proof/OOS → promote → write <code>data/orb_playbooks.json</code> / proofs JSON.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>Operator/API offline — <strong>not</strong> the Analyze button.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Feeds <code>list_orb_playbooks</code> later on <code>/run</code>.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>/api/v1/orb/discover</code>, <code>/prove</code>, <code>/playbooks/promote</code>, <code>/playbooks</code>, <code>/build</code> · <code>discovery.py</code> · <code>proof.py</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Heavy grid search must not run inside one-touch UX.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>Recipe R&amp;D kitchen vs the restaurant line.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Prerequisite pipeline. Missing playbooks → guidance blockers.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-kronos"><h3 class="guide-node">KRONOS (<code>kronos</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>Research forecast service/proxy for price-path research.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>research</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Optional forecast prior for research panels — not paper boss.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>Own routes build status/forecasts; may show in Jarvis summary.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>Kronos API calls / panel loads — <strong>not</strong> paper evidence order.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Jarvis display; twin research context.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>kronos_proxy.py</code> · kronos routes</td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Isolate heavy forecast research from decision authority.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>A weather model on a side screen — the flight still needs clearance.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>On paper <code>/run</code>, Kronos is <strong>skipped</strong> (cannot boost ENTER).</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-twin"><h3 class="guide-node">TWIN (<code>twin</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>Twin-engine comparison / dual research path.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>research</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Compare research views; not the paper final band.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td><code>twin_arbiter</code> / <code>full_twin_analysis</code> reports for twin routes and panels.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>Twin APIs / UI panels.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Jarvis twin dashboards; research pair with Kronos.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>twin_arbiter.py</code> · <code>full_twin_analysis.py</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Dual-view research without collapsing into one auto-trade.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>Two scouts comparing maps, neither launching the rocket.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Parallel lane — not Step 4 of paper Analyze.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-trendforge"><h3 class="guide-node">TrendForge  |  intake bridge (<code>trendforge</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>Secure intake of signed external research packets (TrendForge).</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>research / boundary-ish</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Import review-only evidence with cryptographic checks.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>POST pull-latest → HMAC-SHA256 validate (<code>TRADEVISION_TRENDFORGE_SHARED_SECRET</code>) → enforce safety envelope (researchOnly, live blocked) → save to SQLite <code>trendforge_intakes</code>.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>Explicit pull/list APIs — not paper <code>/run</code>.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Ops/UI triggers; may surface via Jarvis as research.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>POST /api/v1/integrations/trendforge/pull-latest</code> · <code>GET .../intakes</code> · <code>trendforge_bridge.py</code> · <code>storage.py</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Bring external research in without trusting unsigned packets or allowing execution claims.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>A locked drop-box that only accepts signed sealed envelopes labeled “for reading only.”</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Cannot set ENTER_PAPER. Rejects packets that claim live/order authority.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-regime_fb"><h3 class="guide-node">Regime feedback  |  PARALLEL route (<code>regime_fb</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>Market regime / breadth-style research report API.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>research</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Study market context on demand.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td><code>build_market_regime_feedback_report</code> on behavior routes.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>When those APIs/panels are called.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Research UI; <strong>not</strong> paper spine.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>market_regime_feedback.py</code> · main behavior regime routes</td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Regime analysis without baking heavy module into one-touch paper run.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>A climate report available at the library, not forced into every grocery trip.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>On <code>/run</code>, regime-like score uses <strong>chart helper</strong>, not this module.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-lag_vote"><h3 class="guide-node">Lag voting  |  PARALLEL route (<code>lag_vote</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>Indicator lag-aware voting research tool.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>research</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Study confirmation lag so late indicators don’t fake-promote.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td><code>build_indicator_lag_voting_report</code> (+ intelligence summary) on main routes; related to reliability helpers.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>On-demand APIs/panels.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Indicator research UI; not paper spine.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>indicator_lag_voting.py</code> · main routes</td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Lag is a real risk; researched separately from product packaging.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>Checking if the referee’s whistle is delayed — offline study, not mid-goal auto-score.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>On paper <code>/run</code>, <code>indicator_signal_score</code> is <strong>hardcoded 0.0</strong>.</td></tr>
+</tbody></table></article>
+<h3 class="guide-kind" id="g-hub">Kind: hub / shell</h3>
+<article class="node-card" id="node-jarvis"><h3 class="guide-node">JARVIS room  |  UI hub (<code>jarvis</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>The big Decision Room workspace that assembles many panels (AI, OpenAlgo, memory, master/fusion finals).</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>hub</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>One place for research + ops displays around a trade idea.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>Builds room state, loads many jarvis_* reports, shows blockers and side widgets.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>When user opens Jarvis / refreshes room data.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Human operators; weak consumers of Kronos/AI/OpenAlgo/TrendForge/9C.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>jarvis_decision_room.py</code> · many <code>jarvis_*</code> · App.tsx trade tab</td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Operator cockpit for evidence density — separate from pure paper spine packaging.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>A mission control room full of screens.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Competing “Final Action” cards here are <strong>not</strong> the paper <code>final_band</code> boss.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-ui"><h3 class="guide-node">Web shell  |  App.tsx (<code>ui</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>The React app shell: workspaces, buttons, HTTP client.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>hub / ui</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Host the product UI and call APIs.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>Routes workspaces; hosts ORB card state; fires Analyze/Record/Evaluate; can hit other research routes.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>Browser session from boot.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Human operator.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>App.tsx</code> · <code>client.ts</code> · <code>main.tsx</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Single frontend for Trade Vision.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>The car dashboard and steering wheel.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Paper path uses React local state in Jarvis room; HTTP only for paper (no WS on that path).</td></tr>
+</tbody></table></article>
+<h3 class="guide-kind" id="g-ai">Kind: ai</h3>
+<article class="node-card" id="node-ai"><h3 class="guide-node">Gemini + Grok  |  AI review (<code>ai</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>External language-model review rooms (Gemini, Grok).</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>ai</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Narrative/second-opinion research display.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>Provider status/reviews; vault stores AI keys only (not broker keys).</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>AI panel/review actions.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Jarvis comparison/review UI.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>gemini_provider.py</code> · <code>grok_provider.py</code> · <code>grok_gateway_provider.py</code> · <code>ai_credentials_vault.py</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Optional external narrative without giving AI trade authority.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>Commentators on TV — they don’t blow the whistle.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>On paper <code>/run</code>, <code>external_ai_score=0.0</code>. Cannot set ENTER_PAPER.</td></tr>
+</tbody></table></article>
+<h3 class="guide-kind" id="g-boundary">Kind: boundary</h3>
+<article class="node-card" id="node-openalgo"><h3 class="guide-node">OpenAlgo  |  boundary (<code>openalgo</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>Edge toward an external execution ecosystem (preview/dry-run only here).</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>boundary</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Package/preview handoffs without enabling live routing.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>Transport enqueue/status, adapter harness, handoff gate packages; routing disabled.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>OpenAlgo/Jarvis execution-lab panels — <strong>not</strong> auto after Record.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Ops/research UI; safety keeps live off.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>openalgo_transport.py</code> · handoff gate · adapter harness</td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Future executor boundary without collapsing safety.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>A sealed loading dock with “dry run only” painted on the door.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Not auto after TV paper record. Live delivery blocked.</td></tr>
+</tbody></table></article>
+<article class="node-card" id="node-stock"><h3 class="guide-node">Stock App  |  ML + sim DB (<code>stock</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>Separate product in the monorepo: charts, ML opinions, multi-account sim book.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>boundary / external</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Stock research &amp; manual sim trading outside TV paper spine.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td><code>server.py</code> APIs including <code>/api/sim/*</code> → <code>sim_trading.db</code>.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>When Stock App is used.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Operators of Stock App; TV may only embed chart URL.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td>Root <code>server.py</code> · <code>/api/sim/*</code> · <code>sim_trading.db</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Pre-existing stock platform; kept separate from TV paper for safety and product clarity.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>A different store in the same mall — shared parking, separate cash register.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>TV paper path does <strong>not</strong> auto-write sim_trading.db. Optional chart embed is read-only UX.</td></tr>
+</tbody></table></article>
+<h3 class="guide-kind" id="g-safety">Kind: safety</h3>
+<article class="node-card" id="node-safety"><h3 class="guide-node">SAFETY &amp; AUDIT  |  live block + release (<code>safety</code>)</h3>
+<table class="node-table"><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody>
+<tr><td class="field"><strong>What is it?</strong></td><td>Live-trade prevention plus operational readiness/release audit tools.</td></tr>
+<tr><td class="field"><strong>Kind</strong></td><td>safety / gov</td></tr>
+<tr><td class="field"><strong>Purpose</strong></td><td>Ensure MOCK practice mode cannot place live orders; provide release/red-team reports.</td></tr>
+<tr><td class="field"><strong>What it actually does</strong></td><td>SYSTEM_MODE MOCK, allows_live_orders=false; D1 nine checks; kill switch loaded/saved via storage; parallel modules for operational safety, release control, final release audit, red-team gate.</td></tr>
+<tr><td class="field"><strong>When does it run?</strong></td><td>Always for mode; D1 every <code>/run</code>; ops modules on readiness/audit routes.</td></tr>
+<tr><td class="field"><strong>Who uses it?</strong></td><td>Paper spine (D1); Jarvis/ops panels for audits.</td></tr>
+<tr><td class="field"><strong>Key files / APIs</strong></td><td><code>state.py</code> · <code>storage</code> kill_switch · <code>operational_safety.py</code> · <code>release_control.py</code> · <code>final_release_audit.py</code> · <code>red_team_final_gate.py</code> · <code>docs/SAFETY_INVARIANTS.md</code></td></tr>
+<tr><td class="field"><strong>Why was it created?</strong></td><td>Capital safety and release discipline for a trading research stack.</td></tr>
+<tr><td class="field"><strong>Simple analogy</strong></td><td>Seatbelts + airbags + a vehicle inspection checklist.</td></tr>
+<tr><td class="field"><strong>Important note</strong></td><td>Red-team gate is <strong>audit/readiness</strong>, not a mid-candle trade trigger. Live remains blocked.</td></tr>
+</tbody></table></article>
+<h2 class="guide-h2" id="g-flows">3. How the blocks talk to each other</h2>
+<p class="guide-flow"><strong>Candle source → UI build → HTTP IN</strong> — Lab 1m bars become a multi-TF <code>PaperGuidanceRequest</code> and POST to <code>/paper-guidance/run</code>.</p>
+<p class="guide-flow"><strong>HTTP IN → Snapshot</strong> — P0 quality/PIT/D1 then freeze closed bars + SHA-256 hash.</p>
+<p class="guide-flow"><strong>Snapshot → Evidence pack</strong> — Same frozen bars feed the eight sequential spine engines (receipts, degraded-on-error).</p>
+<p class="guide-flow"><strong>Snapshot → ORB core</strong> — Same hash/series used to build opening-range setup if an active playbook exists.</p>
+<p class="guide-flow"><strong>ORB offline → ORB core</strong> — Discover/prove/promote write playbooks JSON that <code>/run</code> later lists.</p>
+<p class="guide-flow"><strong>Evidence + ORB → Arbiter → Guidance out</strong> — Judge merges scores/authority into <code>final_band</code> + <code>PaperTradeGuidance</code>.</p>
+<p class="guide-flow"><strong>Guidance out → UI screen out</strong> — Card shows band/plan/blockers to the human.</p>
+<p class="guide-flow"><strong>Guidance out → Paper store (optional)</strong> — Human Record with ticket id + phrase + hash → local simulated ledger.</p>
+<p class="guide-flow"><strong>Paper store → Outcome out → UI</strong> — Observe later bars → outcome/reliability redrawn on card.</p>
+<p class="guide-flow"><strong>Side systems → Jarvis → UI</strong> — Kronos/AI/Twin/TrendForge/OpenAlgo/9C display only; safety blocks live and OpenAlgo routing.</p>
+<p class="guide-flow">---</p>
+<p class="guide-flow">## 4. Step-by-step walkthrough (user story)</p>
+<p class="guide-flow">You open Trade Vision in the browser. The shell (<code>ui</code>) loads; you switch to <strong>Jarvis</strong>. Mode is practice: live trading is off (<code>safety</code>).</p>
+<p class="guide-flow">You set timeframe and direction on the <strong>ORB Paper Guidance</strong> card. Today, Analyze still pulls <strong>lab RELIANCE 1-minute candles</strong> (<code>candle_src</code>) even if the room symbol differs. The UI <strong>builds</strong> higher timeframes and a decision clock (<code>ui_build</code>), then <strong>POSTs</strong> everything to the backend (<code>http_in</code>).</p>
+<p class="guide-flow">The server checks quality and point-in-time safety, runs nine <strong>D1</strong> safety checks, and freezes a <strong>D2 snapshot</strong> with a SHA-256 fingerprint (<code>snapshot</code>). If anything fails, you only get a blocked/wait-style guidance.</p>
+<p class="guide-flow">If it passes, the <strong>evidence pack</strong> runs its fixed engine list — chart, candle condition, levels, snapshot indicators, multi-timeframe, memory, liquidity, OI/risk — each filing a report. Kronos and AI do <strong>not</strong> get a vote score here.</p>
+<p class="guide-flow">The <strong>arbiter</strong> judges once without an entry plan (often stays WATCH). Then <strong>ORB</strong> loads an active playbook (from earlier offline discover/prove work) and proposes entry/stop/target. The <strong>arbiter</strong> judges again; only then might you see <strong>ENTER_PAPER</strong>.</p>
+<p class="guide-flow">You see the result on the <strong>ORB Paper card</strong> (<code>ui_out</code> / <code>guidance_out</code>). If not eligible, you stop. If eligible, you confirm Record: the server checks ticket freshness (~15 minutes) and stores a <strong>simulated paper</strong> row (<code>paper_store</code>) — still no broker, no Stock App auto-fill.</p>
+<p class="guide-flow">Later you Evaluate: later closed bars measure the paper outcome (<code>outcome_out</code>), and reliability/storage health refresh on the card.</p>
+<p class="guide-flow">Meanwhile, <strong>Jarvis</strong> may show Kronos, Gemini/Grok, Twin, TrendForge intakes, OpenAlgo previews, or 9C panels — useful side screens, not the paper band boss. When you are done, the cycle ends; live trading never turned on.</p>
+<p class="guide-flow">---</p>
+<p class="guide-flow">## 5. Glossary</p>
+<p class="guide-flow">| Term | Plain English |</p>
+<p class="guide-flow">|------|----------------|</p>
+<p class="guide-flow">| <strong>OHLCV</strong> | Open, High, Low, Close, Volume — standard candle fields. |</p>
+<p class="guide-flow">| <strong>Candle / bar</strong> | One time slice of price (e.g. 1 minute). |</p>
+<p class="guide-flow">| <strong>Closed candle</strong> | A bar whose time window has finished; safe to use for decisions. |</p>
+<p class="guide-flow">| <strong>PIT (point-in-time)</strong> | Rule: only use info that would have been known at decision time (no peeking at the future). |</p>
+<p class="guide-flow">| <strong>HTF</strong> | Higher timeframe (e.g. 15m when primary is 5m). |</p>
+<p class="guide-flow">| <strong>Snapshot</strong> | Frozen set of closed bars for one decision. |</p>
+<p class="guide-flow">| <strong>snapshot_hash</strong> | SHA-256 fingerprint of that freeze so all engines share one identity. |</p>
+<p class="guide-flow">| <strong>D1 / D2 / D3A / D3B / D4 / D6</strong> | Named stages on the paper spine (safety, snapshot, setup, memory, structure, arbiter). |</p>
+<p class="guide-flow">| <strong>D5 Kronos</strong> | Stage reserved for Kronos; <strong>skipped</strong> on current paper packaging. |</p>
+<p class="guide-flow">| <strong>Evidence engine</strong> | Analyzer that votes/reports but is not the final product boss. |</p>
+<p class="guide-flow">| <strong>Arbiter</strong> | Judge that merges evidence into WAIT/WATCH/ENTER_PAPER/… |</p>
+<p class="guide-flow">| <strong>final_band</strong> | Product decision label on paper guidance. |</p>
+<p class="guide-flow">| <strong>PAPER-CANDIDATE</strong> | Arbiter’s internal “could be paper” word; product maps it to <strong>ENTER_PAPER</strong> when eligible. |</p>
+<p class="guide-flow">| <strong>ENTER_PAPER</strong> | Product band meaning “eligible for human-approved simulated paper,” not live trade. |</p>
+<p class="guide-flow">| <strong>ORB</strong> | Opening Range Breakout (and related ORR/hybrid) — first-range pattern trading. |</p>
+<p class="guide-flow">| <strong>Playbook</strong> | Saved, proved ORB configuration stored in JSON and loaded when active. |</p>
+<p class="guide-flow">| <strong>Paper / simulated paper</strong> | Practice record of a trade idea — <strong>not</strong> a broker order. |</p>
+<p class="guide-flow">| <strong>Ticket (OrbGuidanceTicket)</strong> | Server-saved guidance identity required for Record; expires ~900s. |</p>
+<p class="guide-flow">| <strong>can_record_paper</strong> | True only if ENTER_PAPER and a valid entry plan exist. |</p>
+<p class="guide-flow">| <strong>Observe / lifecycle</strong> | After record, measure outcome on later closed bars. |</p>
+<p class="guide-flow">| <strong>MFE / MAE</strong> | Max favorable / adverse excursion — how far price went for/against you. |</p>
+<p class="guide-flow">| <strong>Reliability</strong> | Stats from completed paper outcomes (needs enough samples). |</p>
+<p class="guide-flow">| <strong>Jarvis</strong> | Decision Room UI workspace with many panels. |</p>
+<p class="guide-flow">| <strong>Kronos</strong> | Research forecast system (display/research; not paper boss). |</p>
+<p class="guide-flow">| <strong>Twin</strong> | Dual research comparison path. |</p>
+<p class="guide-flow">| <strong>TrendForge</strong> | External signed research packet intake. |</p>
+<p class="guide-flow">| <strong>HMAC-SHA256</strong> | Shared-secret signature check so packets can’t be forged. |</p>
+<p class="guide-flow">| <strong>OpenAlgo</strong> | External execution-boundary stack; dry-run/preview here. |</p>
+<p class="guide-flow">| <strong>Stock App</strong> | Separate monorepo product with ML + multi-account sim DB. |</p>
+<p class="guide-flow">| <strong>sim_trading.db</strong> | Stock App sim ledger — <strong>not</strong> auto-written by TV paper path. |</p>
+<p class="guide-flow">| <strong>SYSTEM_MODE MOCK</strong> | Practice mode; live orders disallowed. |</p>
+<p class="guide-flow">| <strong>Kill switch</strong> | Persistable system arming state that can block order paths when triggered. |</p>
+<p class="guide-flow">| <strong>9C</strong> | Nine-candle DNA / hybrid research family. |</p>
+<p class="guide-flow">| <strong>Lag voting</strong> | Research that prevents late indicators from over-promoting. |</p>
+<p class="guide-flow">| <strong>Regime feedback</strong> | Research on market regime/context. |</p>
+<p class="guide-flow">| <strong>Degraded receipt</strong> | Engine failed but left a warning and spine continued. |</p>
+<p class="guide-flow">| <strong>Live trading blocked</strong> | Product and safety flags prevent real broker orders on this path. |</p>
+<p class="guide-flow">---</p>
+<p class="guide-flow">## 6. Node checklist (none skipped)</p>
+<p class="guide-flow">| # | id | Label |</p>
+<p class="guide-flow">|---|-----|--------|</p>
+<p class="guide-flow">| 1 | candle_src | ① CANDLE SOURCE |</p>
+<p class="guide-flow">| 2 | ui_build | ② UI BUILD |</p>
+<p class="guide-flow">| 3 | http_in | ③ HTTP IN |</p>
+<p class="guide-flow">| 4 | snapshot | ④ D2 SNAPSHOT |</p>
+<p class="guide-flow">| 5 | evidence | Evidence pack ON paper /run |</p>
+<p class="guide-flow">| 6 | orb | ORB core·playbook |</p>
+<p class="guide-flow">| 7 | orb_offline | ORB offline discover/prove |</p>
+<p class="guide-flow">| 8 | arbiter | Final ARBITER |</p>
+<p class="guide-flow">| 9 | guidance_out | ⑤ GUIDANCE OUT |</p>
+<p class="guide-flow">| 10 | ui_out | ⑥ UI SCREEN OUT |</p>
+<p class="guide-flow">| 11 | paper_store | ⑦ PAPER STORE |</p>
+<p class="guide-flow">| 12 | outcome_out | ⑧ OUTCOME OUT |</p>
+<p class="guide-flow">| 13 | jarvis | JARVIS room |</p>
+<p class="guide-flow">| 14 | kronos | KRONOS |</p>
+<p class="guide-flow">| 15 | twin | TWIN |</p>
+<p class="guide-flow">| 16 | trendforge | TrendForge intake |</p>
+<p class="guide-flow">| 17 | ai | Gemini+Grok |</p>
+<p class="guide-flow">| 18 | openalgo | OpenAlgo boundary |</p>
+<p class="guide-flow">| 19 | stock | Stock App |</p>
+<p class="guide-flow">| 20 | safety | SAFETY &amp; AUDIT |</p>
+<p class="guide-flow">| 21 | ninec | 9C / indicator panels |</p>
+<p class="guide-flow">| 22 | regime_fb | Regime feedback |</p>
+<p class="guide-flow">| 23 | lag_vote | Lag voting |</p>
+<p class="guide-flow">| 24 | ui | Web shell App.tsx |</p>
+<p class="guide-flow"><strong>Total: 24 / 24 nodes documented.</strong></p>
+<p class="guide-flow">---</p>
+<p class="guide-flow">*End of explainer. Work log + code path live in <b>Tab 5</b> of this same file.*</p>
+<h2 class="guide-h2" id="g-walk">4. Step-by-step walkthrough</h2>
+<p class="guide-p">You open Trade Vision in the browser. The shell (<code>ui</code>) loads; you switch to <strong>Jarvis</strong>. Mode is practice: live trading is off (<code>safety</code>).</p>
+<p class="guide-p">You set timeframe and direction on the <strong>ORB Paper Guidance</strong> card. Today, Analyze still pulls <strong>lab RELIANCE 1-minute candles</strong> (<code>candle_src</code>) even if the room symbol differs. The UI <strong>builds</strong> higher timeframes and a decision clock (<code>ui_build</code>), then <strong>POSTs</strong> everything to the backend (<code>http_in</code>).</p>
+<p class="guide-p">The server checks quality and point-in-time safety, runs nine <strong>D1</strong> safety checks, and freezes a <strong>D2 snapshot</strong> with a SHA-256 fingerprint (<code>snapshot</code>). If anything fails, you only get a blocked/wait-style guidance.</p>
+<p class="guide-p">If it passes, the <strong>evidence pack</strong> runs its fixed engine list — chart, candle condition, levels, snapshot indicators, multi-timeframe, memory, liquidity, OI/risk — each filing a report. Kronos and AI do <strong>not</strong> get a vote score here.</p>
+<p class="guide-p">The <strong>arbiter</strong> judges once without an entry plan (often stays WATCH). Then <strong>ORB</strong> loads an active playbook (from earlier offline discover/prove work) and proposes entry/stop/target. The <strong>arbiter</strong> judges again; only then might you see <strong>ENTER_PAPER</strong>.</p>
+<p class="guide-p">You see the result on the <strong>ORB Paper card</strong> (<code>ui_out</code> / <code>guidance_out</code>). If not eligible, you stop. If eligible, you confirm Record: the server checks ticket freshness (~15 minutes) and stores a <strong>simulated paper</strong> row (<code>paper_store</code>) — still no broker, no Stock App auto-fill.</p>
+<p class="guide-p">Later you Evaluate: later closed bars measure the paper outcome (<code>outcome_out</code>), and reliability/storage health refresh on the card.</p>
+<p class="guide-p">Meanwhile, <strong>Jarvis</strong> may show Kronos, Gemini/Grok, Twin, TrendForge intakes, OpenAlgo previews, or 9C panels — useful side screens, not the paper band boss. When you are done, the cycle ends; live trading never turned on.</p>
+<h2 class="guide-h2" id="g-glossary">5. Glossary</h2>
+<table class="node-table glossary"><thead><tr><th>Term</th><th>Plain English</th></tr></thead><tbody>
+<tr><td><strong>OHLCV</strong></td><td>Open, High, Low, Close, Volume — standard candle fields.</td></tr>
+<tr><td><strong>Candle / bar</strong></td><td>One time slice of price (e.g. 1 minute).</td></tr>
+<tr><td><strong>Closed candle</strong></td><td>A bar whose time window has finished; safe to use for decisions.</td></tr>
+<tr><td><strong>PIT (point-in-time)</strong></td><td>Rule: only use info that would have been known at decision time (no peeking at the future).</td></tr>
+<tr><td><strong>HTF</strong></td><td>Higher timeframe (e.g. 15m when primary is 5m).</td></tr>
+<tr><td><strong>Snapshot</strong></td><td>Frozen set of closed bars for one decision.</td></tr>
+<tr><td><strong>snapshot_hash</strong></td><td>SHA-256 fingerprint of that freeze so all engines share one identity.</td></tr>
+<tr><td><strong>D1 / D2 / D3A / D3B / D4 / D6</strong></td><td>Named stages on the paper spine (safety, snapshot, setup, memory, structure, arbiter).</td></tr>
+<tr><td><strong>D5 Kronos</strong></td><td>Stage reserved for Kronos; <strong>skipped</strong> on current paper packaging.</td></tr>
+<tr><td><strong>Evidence engine</strong></td><td>Analyzer that votes/reports but is not the final product boss.</td></tr>
+<tr><td><strong>Arbiter</strong></td><td>Judge that merges evidence into WAIT/WATCH/ENTER_PAPER/…</td></tr>
+<tr><td><strong>final_band</strong></td><td>Product decision label on paper guidance.</td></tr>
+<tr><td><strong>PAPER-CANDIDATE</strong></td><td>Arbiter’s internal “could be paper” word; product maps it to <strong>ENTER_PAPER</strong> when eligible.</td></tr>
+<tr><td><strong>ENTER_PAPER</strong></td><td>Product band meaning “eligible for human-approved simulated paper,” not live trade.</td></tr>
+<tr><td><strong>ORB</strong></td><td>Opening Range Breakout (and related ORR/hybrid) — first-range pattern trading.</td></tr>
+<tr><td><strong>Playbook</strong></td><td>Saved, proved ORB configuration stored in JSON and loaded when active.</td></tr>
+<tr><td><strong>Paper / simulated paper</strong></td><td>Practice record of a trade idea — <strong>not</strong> a broker order.</td></tr>
+<tr><td><strong>Ticket (OrbGuidanceTicket)</strong></td><td>Server-saved guidance identity required for Record; expires ~900s.</td></tr>
+<tr><td><strong>can_record_paper</strong></td><td>True only if ENTER_PAPER and a valid entry plan exist.</td></tr>
+<tr><td><strong>Observe / lifecycle</strong></td><td>After record, measure outcome on later closed bars.</td></tr>
+<tr><td><strong>MFE / MAE</strong></td><td>Max favorable / adverse excursion — how far price went for/against you.</td></tr>
+<tr><td><strong>Reliability</strong></td><td>Stats from completed paper outcomes (needs enough samples).</td></tr>
+<tr><td><strong>Jarvis</strong></td><td>Decision Room UI workspace with many panels.</td></tr>
+<tr><td><strong>Kronos</strong></td><td>Research forecast system (display/research; not paper boss).</td></tr>
+<tr><td><strong>Twin</strong></td><td>Dual research comparison path.</td></tr>
+<tr><td><strong>TrendForge</strong></td><td>External signed research packet intake.</td></tr>
+<tr><td><strong>HMAC-SHA256</strong></td><td>Shared-secret signature check so packets can’t be forged.</td></tr>
+<tr><td><strong>OpenAlgo</strong></td><td>External execution-boundary stack; dry-run/preview here.</td></tr>
+<tr><td><strong>Stock App</strong></td><td>Separate monorepo product with ML + multi-account sim DB.</td></tr>
+<tr><td><strong>sim_trading.db</strong></td><td>Stock App sim ledger — <strong>not</strong> auto-written by TV paper path.</td></tr>
+<tr><td><strong>SYSTEM_MODE MOCK</strong></td><td>Practice mode; live orders disallowed.</td></tr>
+<tr><td><strong>Kill switch</strong></td><td>Persistable system arming state that can block order paths when triggered.</td></tr>
+<tr><td><strong>9C</strong></td><td>Nine-candle DNA / hybrid research family.</td></tr>
+<tr><td><strong>Lag voting</strong></td><td>Research that prevents late indicators from over-promoting.</td></tr>
+<tr><td><strong>Regime feedback</strong></td><td>Research on market regime/context.</td></tr>
+<tr><td><strong>Degraded receipt</strong></td><td>Engine failed but left a warning and spine continued.</td></tr>
+<tr><td><strong>Live trading blocked</strong></td><td>Product and safety flags prevent real broker orders on this path.</td></tr>
+</tbody></table>
+<h2 class="guide-h2" id="g-checklist">6. Node checklist (none skipped)</h2>
+<table class="node-table checklist"><thead><tr><th>#</th><th>id</th><th>Label</th></tr></thead><tbody>
+<tr><td>1</td><td><code>candle_src</code></td><td>① CANDLE SOURCE</td></tr>
+<tr><td>2</td><td><code>ui_build</code></td><td>② UI BUILD</td></tr>
+<tr><td>3</td><td><code>http_in</code></td><td>③ HTTP IN</td></tr>
+<tr><td>4</td><td><code>snapshot</code></td><td>④ D2 SNAPSHOT</td></tr>
+<tr><td>5</td><td><code>evidence</code></td><td>Evidence pack ON paper /run</td></tr>
+<tr><td>6</td><td><code>orb</code></td><td>ORB core·playbook</td></tr>
+<tr><td>7</td><td><code>orb_offline</code></td><td>ORB offline discover/prove</td></tr>
+<tr><td>8</td><td><code>arbiter</code></td><td>Final ARBITER</td></tr>
+<tr><td>9</td><td><code>guidance_out</code></td><td>⑤ GUIDANCE OUT</td></tr>
+<tr><td>10</td><td><code>ui_out</code></td><td>⑥ UI SCREEN OUT</td></tr>
+<tr><td>11</td><td><code>paper_store</code></td><td>⑦ PAPER STORE</td></tr>
+<tr><td>12</td><td><code>outcome_out</code></td><td>⑧ OUTCOME OUT</td></tr>
+<tr><td>13</td><td><code>jarvis</code></td><td>JARVIS room</td></tr>
+<tr><td>14</td><td><code>kronos</code></td><td>KRONOS</td></tr>
+<tr><td>15</td><td><code>twin</code></td><td>TWIN</td></tr>
+<tr><td>16</td><td><code>trendforge</code></td><td>TrendForge intake</td></tr>
+<tr><td>17</td><td><code>ai</code></td><td>Gemini+Grok</td></tr>
+<tr><td>18</td><td><code>openalgo</code></td><td>OpenAlgo boundary</td></tr>
+<tr><td>19</td><td><code>stock</code></td><td>Stock App</td></tr>
+<tr><td>20</td><td><code>safety</code></td><td>SAFETY &amp; AUDIT</td></tr>
+<tr><td>21</td><td><code>ninec</code></td><td>9C / indicator panels</td></tr>
+<tr><td>22</td><td><code>regime_fb</code></td><td>Regime feedback</td></tr>
+<tr><td>23</td><td><code>lag_vote</code></td><td>Lag voting</td></tr>
+<tr><td>24</td><td><code>ui</code></td><td>Web shell App.tsx</td></tr>
+</tbody></table>
+<p class="guide-p"><strong>Total: 24 / 24 nodes documented.</strong></p>
+<div class="memory" style="margin-top:20px"><b>All block details live in this HTML (Tab 3).</b> Code path + map audit + work log live in <b>Tab 5</b> (merged; former MD files removed). Optional remaining: <code>REMAINING_PY_INVENTORY.md</code> · <code>ENGINE_BLOCK_ACTION_INVENTORY.md</code> · <code>PROJECT_BRAIN.html</code></div>
+</div>
+  </section>
+
+  <section class="view" id="view-both">
+    <div class="process-wrap">
+      <div class="card" style="max-width:1180px;margin:0 auto 16px">
+        <div class="top"><h2>How the two views fit your requirement</h2><span class="tag" style="--dot:var(--a);color:var(--a);border-color:#4d9fff55">merged</span></div>
+        <p class="what">
+          <b>Tab 1 Process</b> = time order (what happens first → last) for one paper run.<br/>
+          <b>Tab 2 Intersections</b> = system map (who can talk to whom) including side engines.<br/>
+          <b>Tab 3 All block details</b> = full plain-English explainer for all 24 nodes — no separate MD required.<br/>
+          <b>Tab 5 Code truth + audit</b> = merged VERIFIED path + architect audit + work log (former .md files removed).
+        </p>
+      </div>
+      <div class="subs" style="max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px">
+        <div class="sub" style="flex:1 1 280px;max-width:none">
+          <div class="k">You asked for process pattern</div>
+          <div class="v">stock → research → ORB → xy → end</div>
+          <div class="f">Covered in full in Tab 1 (steps 0–12), not half.</div>
+        </div>
+        <div class="sub" style="flex:1 1 280px;max-width:none">
+          <div class="k">You asked for connections between blocks</div>
+          <div class="v">Kronos · Twin · Jarvis · AI · Paper · OpenAlgo · Stock App</div>
+          <div class="f">Covered in Tab 2 as a network + matrix (not only one line).</div>
+        </div>
+        <div class="sub" style="flex:1 1 280px;max-width:none">
+          <div class="k">Authority rule (both views)</div>
+          <div class="v">Arbiter owns final_band on paper path</div>
+          <div class="f">ORB proposes · AI/Kronos display · live blocked · TV ledger ≠ Stock App sim auto</div>
+        </div>
+      </div>
+
+      <div class="endbox" style="margin-top:18px">
+        <h3>Where each engine sits in the process</h3>
+        <p>
+          <b>On the spine (Tab 1 steps 3–11):</b> data quality · PIT · chart · conditions · levels · snapshot indicators · MTF · memory · liquidity · OI risk · arbiter · ORB · paper ledger · observe<br/><br/>
+          <b>Parallel research (Tab 2 nodes, NOT /run):</b> TrendForge intake (HMAC pull + SQLite) · market_regime_feedback routes · indicator_lag_voting routes · Kronos · Twin · 9C panels<br/><br/>
+          <b>Safety &amp; audit (Tab 2):</b> state live-block + operational_safety · release_control · final_release_audit · red_team_final_gate (ops/readiness routes)<br/><br/>
+          <b>Intersect Jarvis UI:</b> Kronos · Twin · Gemini/Grok · OpenAlgo preview · TrendForge intakes · other Final Action cards<br/><br/>
+          <b>Separate product:</b> Stock App server.py ML + sim_trading.db (no auto write from TV paper record)
+        </p>
+      </div>
+
+      <div class="memory" style="margin-top:16px">
+        <b>This graph (all-in-one):</b> <code>docs/TV_COMPLETE_FLOW_MAP.html</code> (Tabs 1–5)<br/>
+        <b>10-min cards:</b> <code>docs/PROJECT_BRAIN.html</code><br/>
+        <b>Module lanes (still separate):</b> <code>docs/REMAINING_PY_INVENTORY.md</code> ·
+        <b>Engine inventory:</b> <code>docs/ENGINE_BLOCK_ACTION_INVENTORY.md</code><br/>
+        <b>Doc router:</b> <code>docs/FILE_DOCUMENT_INDEX.md</code> § Flow map pack
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===================== VIEW 5 CODE TRUTH + AUDIT + WORK LOG (merged from MDs) ===================== -->
+  <section class="view" id="view-ref">
+    <div class="guide-wrap">
+      <div class="strip">
+        <span class="chip"><b>Merged</b> 4 former MD files</span>
+        <span class="chip">Code-true path</span>
+        <span class="chip">Audit 86/100</span>
+        <span class="chip">Work log</span>
+      </div>
+      <nav class="guide-toc">
+        <a href="#r-verdict">Verdict</a>
+        <a href="#r-chain">Call chain</a>
+        <a href="#r-yesno">YES / NO modules</a>
+        <a href="#r-config">Config</a>
+        <a href="#r-process">Corrected process</a>
+        <a href="#r-audit">Map audit</a>
+        <a href="#r-work">Work log</a>
+      </nav>
+
+      <h1 class="guide-h1">Code truth + map audit + work log</h1>
+      <p class="guide-meta">Merged from former <code>VERIFIED_PAPER_FLOW_FROM_CODE.md</code>, <code>implementation_plan.md</code>, <code>FLOW_MAP_WORK_LOG.md</code>, <code>FLOW_MAP_NODE_EXPLAINER.md</code> (explainer already in Tab 3). Date 2026-07-25 · tip v1.94.</p>
+
+      <h2 class="guide-h2" id="r-verdict">1. Verdict (code vs earlier maps)</h2>
+      <table class="node-table">
+        <thead><tr><th>Area</th><th>Earlier map</th><th>Code truth</th></tr></thead>
+        <tbody>
+          <tr><td>Main order stock→…→end</td><td>Mostly right</td><td>Confirmed</td></tr>
+          <tr><td>Engine IDs on /run</td><td>Partial / soft</td><td>Exact IDs in Tab 1 + chain below</td></tr>
+          <tr><td>Kronos on /run</td><td>Implied side</td><td><strong>Not called</strong> — intentionally skipped</td></tr>
+          <tr><td>market_regime_feedback.py</td><td>Often assumed</td><td><strong>Not imported</strong> by spine</td></tr>
+          <tr><td>indicator_lag_voting.py</td><td>Often assumed</td><td><strong>Not imported</strong> — score hardcoded 0.0</td></tr>
+          <tr><td>Gemini/Grok on /run</td><td>Side display</td><td><strong>Not called</strong> — external_ai_score=0.0</td></tr>
+          <tr><td>Ticket approve</td><td>Human phrase</td><td>+ require_fresh <strong>900s</strong> expiry</td></tr>
+          <tr><td>Offline ORB discovery</td><td>Looked like Analyze step</td><td><strong>Separate APIs</strong> — only list + build on run</td></tr>
+        </tbody>
+      </table>
+      <p class="guide-p"><strong>Bottom line:</strong> Process shape was right. Internals and “who is really called” needed the detail below.</p>
+
+      <h2 class="guide-h2" id="r-chain">2. Exact call chain · POST /paper-guidance/run</h2>
+      <pre class="guide-pre" style="background:#0a0e18;border:1px solid #2a3348;border-radius:10px;padding:12px;overflow:auto;font-size:11.5px;line-height:1.4;color:#c5cee3;white-space:pre-wrap">main.paper_guidance_run(payload)
+  └─ run_paper_guidance_with_orb(request, mode=SYSTEM_MODE, kill_switch=KILL_SWITCH)
+       │
+       ├─ run_paper_guidance_p1(...)
+       │    ├─ run_paper_guidance_p0(...)
+       │    │    ├─ scan_data_quality(series)
+       │    │    ├─ run_point_in_time_guard(...)
+       │    │    ├─ build_d1_safety_gate(...)   # 9 PG-D1 checks
+       │    │    └─ if fail → blocked guidance STOP
+       │    │       if pass → freeze_d2_closed_candle_snapshot → snapshot_hash SHA-256
+       │    │
+       │    ├─ CHART_REASONING
+       │    ├─ CANDLE_CONDITION
+       │    ├─ LEVEL_CONTEXT
+       │    ├─ SNAPSHOT_INDICATOR_RUNTIME  (used_for_final_vote=False)
+       │    ├─ MTF_CONFIRMATION
+       │    ├─ PERSISTED_INDICATOR_MEMORY  (min 30 complete rows)
+       │    ├─ MARKET_STRUCTURE_LIQUIDITY
+       │    ├─ EXECUTION_EVENT_OI_RISK
+       │    ├─ Kronos: WARNING only — NOT run
+       │    └─ Arbiter #1 (entry_plan_authority=False)
+       │         indicator_signal_score=0.0 HARDCODED
+       │         external_ai_score=0.0 HARDCODED
+       │         relative_strength_score=0.5 HARDCODED
+       │         market_regime_score from chart helper (NOT market_regime_feedback module)
+       │         PAPER-CANDIDATE → WATCH; next_action=DO_NOTHING at P1
+       │
+       ├─ EARLY RETURN if not include_orb_playbook OR safety failed OR no snapshot
+       ├─ list_orb_playbooks(active_only=True)
+       ├─ build_orb_candidate(...) if playbook
+       ├─ Arbiter #2 (entry_plan_authority if valid)
+       │     PAPER-CANDIDATE → ENTER_PAPER when eligible
+       ├─ can_record_paper = ENTER_PAPER AND entry_plan
+       ├─ next_action = OFFER_PAPER_TICKET if can_record_paper else DO_NOTHING
+       ├─ _save_guidance_ticket → data/orb_guidance_tickets.json (~900s fresh)
+       └─ return PaperTradeGuidance
+
+RECORD  POST /record-simulated
+  load ticket require_fresh=True · hash match · ENTER_PAPER ·
+  approval_text = RECORD_SIMULATED_PAPER_TRADE · atomic paper ledger write
+
+OBSERVE POST /paper-records/observe
+  load paper · validate bars after decision_time · write outcome · reliability helpers</pre>
+
+      <h2 class="guide-h2" id="r-yesno">3. Modules YES on /run vs NO</h2>
+      <div class="subs" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+        <div class="card" style="flex:1 1 320px;max-width:none">
+          <div class="top"><h2>YES — on paper /run path</h2></div>
+          <p class="what" style="font-size:12px">
+            main.py · state.py · paper_guidance_spine · paper_guidance_config · data_quality · point_in_time_guard ·
+            chart_reasoning_volatility · condition_classifier · context_engines · real_indicator_adapter · storage (history) ·
+            market_structure_liquidity · execution_event_oi_risk · final_confluence_arbiter · orb_guidance · orb/core ·
+            orb/proof (list playbooks) · atomic_json_store
+          </p>
+        </div>
+        <div class="card" style="flex:1 1 320px;max-width:none">
+          <div class="top"><h2>NO — not executed inside /run</h2></div>
+          <p class="what" style="font-size:12px">
+            kronos_proxy · market_regime_feedback · indicator_lag_voting · gemini/grok providers · nine_candle_* ·
+            twin_arbiter / full_twin · jarvis_decision_room (UI room, not /run) · openalgo_* · Stock App server.py ·
+            orb/discovery (offline jobs only)
+          </p>
+        </div>
+      </div>
+
+      <h2 class="guide-h2" id="r-config">4. Config defaults (code)</h2>
+      <table class="node-table">
+        <thead><tr><th>Setting</th><th>Default</th></tr></thead>
+        <tbody>
+          <tr><td>minimum_data_quality_score</td><td>0.85</td></tr>
+          <tr><td>minimum_evidence_count</td><td>30</td></tr>
+          <tr><td>low_evidence_confidence_cap</td><td>0.55</td></tr>
+          <tr><td>p0_confidence_cap</td><td>0.60</td></tr>
+          <tr><td>maximum_input_bars</td><td>5000</td></tr>
+          <tr><td>maximum_ticket_age_seconds</td><td><strong>900</strong> (15 min)</td></tr>
+          <tr><td>feedback_minimum_samples</td><td>30</td></tr>
+          <tr><td>Ticket store</td><td>data/orb_guidance_tickets.json</td></tr>
+          <tr><td>Playbooks / proofs</td><td>data/orb_playbooks.json · data/orb_proofs.json</td></tr>
+        </tbody>
+      </table>
+
+      <h2 class="guide-h2" id="r-process">5. Corrected process (use this)</h2>
+      <pre class="guide-pre" style="background:#0a0e18;border:1px solid #2a3348;border-radius:10px;padding:12px;overflow:auto;font-size:11.5px;line-height:1.4;color:#c5cee3;white-space:pre-wrap">0  START UI Jarvis (MOCK · live blocked)
+1  STOCK name + TF + direction (+ replay reserve)
+2  LOAD closed candles (lab often RELIANCE 1m → resample HTF)
+3  POST /paper-guidance/run
+4  P0: quality → PIT → D1 safety (9 checks) → D2 snapshot_hash
+5  P1 evidence fixed order (8 engines above)
+6  Arbiter #1 (no entry authority; indicator/AI scores 0)
+7  IF include_orb_playbook and safety ok:
+     list active playbook → build_orb_candidate
+     Arbiter #2 → maybe ENTER_PAPER → save ticket 900s
+   ELSE return P1-only guidance
+8  UI shows PaperTradeGuidance
+9  IF can_record_paper: human Record → local paper ledger
+10 IF recorded: Observe later bars → outcome → reliability
+11 END (live still blocked · no sim_trading.db auto-write)</pre>
+
+      <h2 class="guide-h2" id="r-audit">6. Map audit summary (former implementation_plan.md)</h2>
+      <table class="node-table">
+        <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>Overall correctness score</td><td><strong>86/100</strong></td></tr>
+          <tr><td>Critical issues</td><td>1 (D3–D5 naming confusion, not missing gates)</td></tr>
+          <tr><td>Warnings</td><td>12</td></tr>
+          <tr><td>HTML status</td><td>Audit §7 corrections <strong>applied</strong> to this file</td></tr>
+          <tr><td>Core paper path Steps 0–12</td><td>Matches Python</td></tr>
+          <tr><td>Hardcodes / not-on-/run research</td><td>Documented</td></tr>
+        </tbody>
+      </table>
+      <p class="guide-p"><strong>Score rationale:</strong> +40 process order · +20 hardcodes · +15 candle path · +10 TrendForge/safety/regime/lag · −5 D-stage UI names · −5 schema/hash/playbook depth · −5 approve payload/race · −4 offline ORB routes · −5 DevOps out of product map.</p>
+      <p class="guide-p"><strong>Key audit fixes applied:</strong> D1 nine checks · SHA-256 hash fields · playbook JSON paths · SimulatedPaperRecordApprovalRequest body · ticket 900s · lab RELIANCE note · offline ORB routes · hardcodes on arbiter · ledger ≠ Stock App sim.</p>
+      <p class="guide-p"><strong>D1 nine checks (PG-D1-001…009):</strong> mode not LIVE · kill armed · symbol match · TF match · bar bounds · finite OHLCV · quality ≥ 0.85 · PIT pass · no broker credentials.</p>
+      <p class="guide-p"><strong>Stage labels in code:</strong> D2 snapshot · D3A setup · D3B memory · D4 structure · D5 Kronos skipped · D6 arbiter · degraded receipts continue spine.</p>
+
+      <h2 class="guide-h2" id="r-work">7. Work log (former FLOW_MAP_WORK_LOG.md)</h2>
+      <h3 class="guide-kind">Best file for each need</h3>
+      <table class="node-table">
+        <thead><tr><th>Need</th><th>Best file</th></tr></thead>
+        <tbody>
+          <tr><td>Visual + all details</td><td><strong>This HTML</strong> Tabs 1–5</td></tr>
+          <tr><td>10-min plain cards</td><td>docs/PROJECT_BRAIN.html</td></tr>
+          <tr><td>Exact paper code path</td><td><strong>This HTML Tab 5</strong> (merged)</td></tr>
+          <tr><td>Other .py by lane</td><td>docs/REMAINING_PY_INVENTORY.md</td></tr>
+          <tr><td>Engine/block counts</td><td>docs/ENGINE_BLOCK_ACTION_INVENTORY.md</td></tr>
+          <tr><td>Map audit</td><td><strong>This HTML Tab 5</strong> (merged)</td></tr>
+          <tr><td>Product requirement law</td><td>docs/plans/FINAL_REQUIRED_FLOW.md</td></tr>
+          <tr><td>Doc navigation</td><td>docs/FILE_DOCUMENT_INDEX.md</td></tr>
+          <tr><td>Node explainer</td><td><strong>This HTML Tab 3</strong></td></tr>
+        </tbody>
+      </table>
+      <h3 class="guide-kind">Created then deleted (superseded)</h3>
+      <table class="node-table">
+        <thead><tr><th>File</th><th>Why removed</th></tr></thead>
+        <tbody>
+          <tr><td>CANONICAL_FLOW_AND_MODULE_MAP.md</td><td>Prose rejected — want visual</td></tr>
+          <tr><td>TV_FLOW_MINDMAP.html</td><td>Incomplete / wrong style</td></tr>
+          <tr><td>TV_ENGINE_INTERSECTION_MAP.html</td><td>Merged into this complete map</td></tr>
+          <tr><td>TV_PROCESS_FLOW.html</td><td>Merged into this complete map</td></tr>
+          <tr><td>MAKE_REALITY_MATCH_FINAL_FLOW_PLAN.md</td><td>User asked delete</td></tr>
+          <tr><td>FLOW_MAP_NODE_EXPLAINER.md</td><td>Merged Tab 3 → deleted</td></tr>
+          <tr><td>VERIFIED_PAPER_FLOW_FROM_CODE.md</td><td>Merged Tab 5 → deleted</td></tr>
+          <tr><td>implementation_plan.md</td><td>Merged Tab 5 → deleted</td></tr>
+          <tr><td>FLOW_MAP_WORK_LOG.md</td><td>Merged Tab 5 → deleted</td></tr>
+        </tbody>
+      </table>
+      <h3 class="guide-kind">How the graph was made</h3>
+      <p class="guide-flow">1. Read FINAL_REQUIRED_FLOW + tip v1.94</p>
+      <p class="guide-flow">2. Multi-brain audit → BUILD_AUDIT.md</p>
+      <p class="guide-flow">3. Frontend line-check App.tsx / client.ts</p>
+      <p class="guide-flow">4. Engine inventory → ENGINE_BLOCK_ACTION_INVENTORY.md</p>
+      <p class="guide-flow">5. Graph iterations: prose → mindmap → intersection → process → <strong>complete merge</strong> + TrendForge/safety/regime/lag</p>
+      <p class="guide-flow">6. Architect audit applied to HTML; code verify path; remaining py inventory kept separate</p>
+      <p class="guide-flow">7. Node explainer + verified path + audit + work log <strong>all merged into this HTML</strong>; four MDs removed</p>
+      <p class="guide-p"><strong>Core code read for path:</strong> main.py · paper_guidance_spine.py · orb_guidance.py · paper_guidance_config.py · simulated_paper_ledger.py · orb_paper_lifecycle.py · final_confluence_arbiter · atomic_json_store · orb/* · models.py · state.py · storage.py · trendforge_bridge.py · App.tsx · client.ts</p>
+
+      <div class="memory" style="margin-top:20px">
+        <b>MD merge complete.</b> These four files are no longer needed:
+        FLOW_MAP_WORK_LOG.md · FLOW_MAP_NODE_EXPLAINER.md · VERIFIED_PAPER_FLOW_FROM_CODE.md · implementation_plan.md.
+        Still useful separate: REMAINING_PY_INVENTORY · ENGINE_BLOCK_ACTION_INVENTORY · PROJECT_BRAIN.html · FILE_DOCUMENT_INDEX · BUILD_AUDIT · FINAL_REQUIRED_FLOW.
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // ----- tabs -----
+    document.querySelectorAll(".tabs button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tabs button").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("view-" + btn.dataset.view).classList.add("active");
+        if (btn.dataset.view === "network") resize();
+      });
+    });
+
+    // ----- network data (includes candle IN + result OUT path) -----
+    // how: transport notes live in blurb/files
+    const nodes = [
+      // ===== CANDLE DATA IN =====
+      { id: "candle_src", label: "① CANDLE SOURCE\nlocal 1m bars", kind: "data", x: 90, y: 450,
+        blurb: "WHERE candles start (lab path today): GET /api/v1/behavior/data/local/reliance-1m/preview. Returns OHLCV in response (request-scoped for Analyze; not the paper ticket store). App.tsx runOrbGuidance always uses this RELIANCE lab import today even if room symbol differs.",
+        files: "main local reliance route · client.behaviorImportLocalReliancePreview · App.tsx runOrbGuidance" },
+      { id: "ui_build", label: "② UI BUILD\nApp.tsx payload", kind: "data", x: 250, y: 450,
+        blurb: "HOW candles are prepared: buildOrbGuidancePayload resamples NSE session → 5m/15m/1H, closed bars only, decision_time_ns, packs PaperGuidanceRequest { symbol, timeframe, series, higher_timeframe_series, direction, include_orb_playbook=true }. HTF series travel in the same POST body (not a separate versioned HTF store).",
+        files: "App.tsx buildOrbGuidancePayload · resampleNseSeries · models.PaperGuidanceRequest" },
+      { id: "http_in", label: "③ HTTP IN\nPOST /paper-guidance/run", kind: "data", x: 410, y: 450,
+        blurb: "HOW data is sent: browser HTTP JSON → FastAPI. main.paper_guidance_run → run_paper_guidance_with_orb(mode=SYSTEM_MODE, kill_switch=KILL_SWITCH). No WebSocket on this path.",
+        files: "client.ts paperGuidanceRun · main.py paper_guidance_run" },
+      { id: "snapshot", label: "④ D2 SNAPSHOT\nSHA-256 hash", kind: "data", x: 560, y: 450,
+        blurb: "WHERE candles freeze: after quality+PIT+D1 (PG-D1-001…009). freeze_d2_closed_candle_snapshot keeps bars with timestamp+duration ≤ decision_time. snapshot_hash = SHA-256 hex of canonical JSON {snapshot_version, symbol, timeframe, decision_time_ns, timezone_offset_minutes, source_schema_version, closed_ohlcv_bars} (sort_keys, compact separators). All later engines bind this hash.",
+        files: "paper_guidance_spine.freeze_d2_closed_candle_snapshot · hashlib.sha256" },
+
+      // engines / hubs
+      { id: "evidence", label: "Evidence pack\nON paper /run", kind: "evidence", x: 560, y: 280,
+        blurb: "ONLY engines inside paper spine P1 on POST /run (sequential _run_engine: fail → degraded receipt, continue). Stages D3A/D3B/D4. Parallel market_regime_feedback + indicator_lag_voting are NOT in this list.",
+        files: "CHART · CONDITION · LEVEL · SNAPSHOT_INDICATOR · MTF · MEMORY · STRUCTURE · OI_RISK · paper_guidance_spine.py" },
+      { id: "orb", label: "ORB\ncore·playbook", kind: "research", x: 560, y: 620,
+        blurb: "On /run: list_orb_playbooks(active) from data/orb_playbooks.json → build_orb_candidate(series from D2, decision_time_ns, source_snapshot_hash, playbook.config). Offline prerequisite: data/orb_proofs.json + routes /api/v1/orb/discover|prove|playbooks/promote|playbooks|build. Proposes setup only.",
+        files: "orb/core · orb/proof · orb/discovery · orb_guidance · data/orb_playbooks.json · data/orb_proofs.json" },
+      { id: "orb_offline", label: "ORB offline\ndiscover/prove", kind: "research", x: 400, y: 700,
+        blurb: "Prerequisite pipeline (NOT Analyze): POST /api/v1/orb/discover, GET job, POST /prove, POST /playbooks/promote, GET /playbooks, POST /build. Writes proofs/playbooks JSON used later by list_orb_playbooks on /run.",
+        files: "main.py /api/v1/orb/* · discovery.py · proof.py" },
+      { id: "arbiter", label: "Final ARBITER\n(band boss)", kind: "paper", x: 720, y: 450,
+        blurb: "behavior/final_confluence_arbiter.py (not under orb/). Pass#1 no entry authority; pass#2 with entry_plan_authority. Hardcodes on /run: indicator_signal_score=0, external_ai_score=0, relative_strength_score=0.5. Maps PAPER-CANDIDATE → ENTER_PAPER on pass#2.",
+        files: "final_confluence_arbiter.py · orb_guidance band map" },
+
+      // ===== END DATA OUT =====
+      { id: "guidance_out", label: "⑤ GUIDANCE OUT\nPaperTradeGuidance", kind: "data", x: 880, y: 450,
+        blurb: "END of /run: PaperTradeGuidance JSON (final_band, blockers, entry_plan, engines_run, receipts, next_action, snapshot_hash, safety literals live_trading_blocked=true). Ticket saved data/orb_guidance_tickets.json with ~900s freshness metadata.",
+        files: "models.PaperTradeGuidance · envelope() · data/orb_guidance_tickets.json" },
+      { id: "ui_out", label: "⑥ UI SCREEN OUT\nORB Paper card", kind: "data", x: 1040, y: 450,
+        blurb: "WHERE operator sees result: setOrbGuidance(response.data) — final_band badge, entry/stop/target, blockers, can_record_paper. Competing Jarvis finalAction panels may still show other finals (UX gap).",
+        files: "App.tsx ORB Paper Guidance panel" },
+      { id: "paper_store", label: "⑦ PAPER STORE\nlocal ledger JSON", kind: "paper", x: 1040, y: 580,
+        blurb: "Optional END after human: POST /record-simulated body SimulatedPaperRecordApprovalRequest {guidance_id, source_snapshot_hash, approved_by, approval_text=RECORD_SIMULATED_PAPER_TRADE, quantity, note} — NOT full guidance. require_fresh ticket. atomic_json paper ledger. NOT sim_trading.db.",
+        files: "simulated_paper_ledger · models.SimulatedPaperRecordApprovalRequest · paper_store_path" },
+      { id: "outcome_out", label: "⑧ OUTCOME OUT\nlifecycle + reliability", kind: "paper", x: 1040, y: 700,
+        blurb: "Optional later END: UI buildOrbLifecycleSeries (bars with timestamp_ns ≥ decision_time_ns) → POST observe → SimulatedPaperLifecycleOutcome (net R, MFE/MAE, costs) + reliability + storage-monitor back on card.",
+        files: "orb_paper_lifecycle · orb_paper_feedback · App.tsx evaluateOrbPaperLifecycle" },
+
+      // side systems
+      { id: "jarvis", label: "JARVIS room\nUI hub", kind: "hub", x: 880, y: 200,
+        blurb: "Parallel UI assembly (jarvis_decision_room + panels). Own candle/series loads for widgets. Does NOT replace final_confluence_arbiter on paper path. Competing Final Action cards live here.",
+        files: "jarvis_decision_room · jarvis_* · App.tsx trade tab panels" },
+      { id: "kronos", label: "KRONOS", kind: "research", x: 720, y: 140,
+        blurb: "Research forecast routes via kronos_proxy. May display in Jarvis. On paper /run: intentionally skipped (engines_skipped D5_KRONOS); cannot boost ENTER.",
+        files: "kronos_proxy + /api kronos routes" },
+      { id: "twin", label: "TWIN", kind: "research", x: 560, y: 120,
+        blurb: "twin_arbiter + full_twin_analysis — parallel research lane/panels.",
+        files: "twin_arbiter · full_twin_analysis" },
+      { id: "trendforge", label: "TrendForge\nintake bridge", kind: "research", x: 1200, y: 220,
+        blurb: "PARALLEL: POST /api/v1/integrations/trendforge/pull-latest → pull_and_validate_latest. Secret env TRADEVISION_TRENDFORGE_SHARED_SECRET. HMAC-SHA256 + payloadSha256 + safety envelope (researchOnly, liveTradingBlocked). SQLite table trendforge_intakes via storage.save_trendforge_intake. GET .../intakes. NOT in paper-guidance/run; cannot set ENTER_PAPER.",
+        files: "trendforge_bridge.py · storage.py trendforge_intakes · main integrations routes" },
+      { id: "ai", label: "Gemini+Grok\nAI review", kind: "ai", x: 1040, y: 160,
+        blurb: "External review lanes only. On paper arbiter request external_ai_score=0.0 always.",
+        files: "gemini_provider · grok_provider · grok_gateway_provider · ai_credentials_vault" },
+      { id: "openalgo", label: "OpenAlgo\nboundary", kind: "boundary", x: 1200, y: 360,
+        blurb: "Dry-run / transport enqueue + handoff gate packages. Preview only. NOT auto-chained after TV record-simulated. order_routing off · live blocked.",
+        files: "openalgo_transport · handoff_gate · adapter_harness · paper_execution_loop" },
+      { id: "stock", label: "Stock App\nML+sim DB", kind: "boundary", x: 1200, y: 560,
+        blurb: "Separate monorepo product (server.py). Manual /api/sim/* + sim_trading.db. TV paper path does NOT write it. Optional READ-only UX: chart embed URL to Stock App port from App.tsx.",
+        files: "server.py · /api/sim/* · sim_trading.db · App chart iframe URL" },
+      { id: "safety", label: "SAFETY & AUDIT\nlive block + release", kind: "safety", x: 720, y: 700,
+        blurb: "Live path: SYSTEM_MODE MOCK immutable allows_live_orders=false · allows_broker_credentials=false · D1 PG-D1-001…009 · KILL_SWITCH from storage.load/save_kill_switch (default armed). PARALLEL ops (not /run steps): operational_safety, release_control, final_release_audit, red_team_final_gate (TV-PROD-RED-001 report), release_readiness_evidence, runtime_readiness, safety_hardening, deployment_recovery.",
+        files: "state.py · storage kill_switch · operational_safety · release_control · final_release_audit · red_team_final_gate · SAFETY_INVARIANTS.md" },
+      { id: "ninec", label: "9C / indicator\npanels", kind: "evidence", x: 250, y: 200,
+        blurb: "Parallel nine-candle + indicator registry/reliability/cache routes. Separate from spine SNAPSHOT_INDICATOR_RUNTIME.",
+        files: "nine_candle_* · indicator_registry · reliability · cache" },
+      { id: "regime_fb", label: "Regime feedback\nPARALLEL route", kind: "research", x: 400, y: 200,
+        blurb: "PARALLEL: build_market_regime_feedback_report on main behavior routes. NOT imported by paper_guidance_spine. On /run, regime score uses chart helper only.",
+        files: "market_regime_feedback.py · main regime routes" },
+      { id: "lag_vote", label: "Lag voting\nPARALLEL route", kind: "research", x: 120, y: 280,
+        blurb: "PARALLEL: build_indicator_lag_voting_report on main routes; related reliability helpers. NOT in paper spine. On /run indicator_signal_score=0.0.",
+        files: "indicator_lag_voting.py · main routes" },
+      { id: "ui", label: "Web shell\nApp.tsx", kind: "hub", x: 250, y: 620,
+        blurb: "React shell: local useState in JarvisDecisionRoom for ORB (no global Redux on paper path). Analyze/Record/Evaluate buttons. Jarvis multi-panel soup. HTTP only for paper path.",
+        files: "App.tsx · client.ts · main.tsx" },
+    ];
+
+    const edges = [
+      // ===== CANDLE IN PATH (highlight) =====
+      { from: "candle_src", to: "ui_build", label: "GET preview JSON bars", strength: "strong", dataPath: true },
+      { from: "ui_build", to: "http_in", label: "POST body series+HTF", strength: "strong", dataPath: true },
+      { from: "http_in", to: "snapshot", label: "P0 gates → D2 freeze", strength: "strong", dataPath: true },
+      { from: "snapshot", to: "evidence", label: "closed bars to engines", strength: "strong", dataPath: true },
+      { from: "snapshot", to: "orb", label: "same snapshot_hash", strength: "strong", dataPath: true },
+      { from: "evidence", to: "arbiter", label: "scores/receipts", strength: "strong", dataPath: true },
+      { from: "orb", to: "arbiter", label: "entry authority flag", strength: "strong", dataPath: true },
+      { from: "arbiter", to: "guidance_out", label: "final_band + package", strength: "strong", dataPath: true },
+      { from: "guidance_out", to: "ui_out", label: "HTTP envelope JSON → state", strength: "strong", dataPath: true },
+      { from: "guidance_out", to: "paper_store", label: "if human approve record", strength: "strong", dataPath: true },
+      { from: "paper_store", to: "outcome_out", label: "observe later bars", strength: "strong", dataPath: true },
+      { from: "outcome_out", to: "ui_out", label: "show outcome/reliability", strength: "strong", dataPath: true },
+      { from: "ui", to: "candle_src", label: "Analyze click starts load", strength: "strong", dataPath: true },
+      { from: "ui", to: "ui_build", label: "buildOrbGuidancePayload", strength: "strong", dataPath: true },
+      { from: "ui_out", to: "ui", label: "render on ORB card", strength: "strong", dataPath: true },
+      { from: "safety", to: "snapshot", label: "D1 mode/kill before freeze", strength: "strong", dataPath: true },
+      { from: "safety", to: "guidance_out", label: "caps / fail-closed", strength: "strong", dataPath: true },
+
+      // intersections (side)
+      { from: "snapshot", to: "jarvis", label: "room may use series too", strength: "weak" },
+      { from: "ninec", to: "jarvis", label: "memory panels", strength: "weak" },
+      { from: "evidence", to: "jarvis", label: "widget data (other routes)", strength: "weak" },
+      { from: "jarvis", to: "ui", label: "renders room panels", strength: "strong" },
+      { from: "kronos", to: "jarvis", label: "summary display only", strength: "weak" },
+      { from: "ai", to: "jarvis", label: "review display only", strength: "weak" },
+      { from: "openalgo", to: "jarvis", label: "handoff widgets", strength: "weak" },
+      { from: "twin", to: "jarvis", label: "twin panels", strength: "weak" },
+      { from: "guidance_out", to: "jarvis", label: "paper widgets (side)", strength: "weak" },
+      { from: "kronos", to: "arbiter", label: "NOT boost on /run", strength: "weak" },
+      { from: "kronos", to: "twin", label: "research pair", strength: "weak" },
+      { from: "twin", to: "kronos", label: "research pair", strength: "weak" },
+      { from: "ai", to: "guidance_out", label: "cannot set ENTER_PAPER", strength: "weak" },
+      { from: "jarvis", to: "ai", label: "evidence packet", strength: "weak" },
+      { from: "jarvis", to: "openalgo", label: "dry-run preview", strength: "weak" },
+      { from: "paper_store", to: "openalgo", label: "NOT auto after record", strength: "weak" },
+      { from: "openalgo", to: "safety", label: "routing off", strength: "strong" },
+      { from: "safety", to: "openalgo", label: "live blocked", strength: "strong" },
+      { from: "stock", to: "ui", label: "optional chart embed URL", strength: "weak" },
+      { from: "paper_store", to: "stock", label: "no sim_trading write", strength: "weak" },
+      { from: "candle_src", to: "ninec", label: "other APIs may load bars", strength: "weak" },
+      { from: "ui", to: "paper_store", label: "Record button HTTP", strength: "strong", dataPath: true },
+      { from: "ui", to: "outcome_out", label: "Evaluate button HTTP", strength: "strong", dataPath: true },
+
+      // ===== TrendForge intake (parallel, not paper spine) =====
+      { from: "ui", to: "trendforge", label: "POST pull-latest trigger", strength: "strong" },
+      { from: "trendforge", to: "jarvis", label: "intakes as research evidence", strength: "weak" },
+      { from: "trendforge", to: "safety", label: "HMAC reject / no live auth", strength: "strong" },
+      { from: "trendforge", to: "arbiter", label: "NOT on paper /run", strength: "weak" },
+      { from: "trendforge", to: "guidance_out", label: "cannot set ENTER_PAPER", strength: "weak" },
+
+      // ===== Parallel research: regime + lag vote =====
+      { from: "ui", to: "regime_fb", label: "behavior regime routes", strength: "strong" },
+      { from: "ui", to: "lag_vote", label: "lag-voting routes", strength: "strong" },
+      { from: "candle_src", to: "regime_fb", label: "may use series payload", strength: "weak" },
+      { from: "candle_src", to: "lag_vote", label: "may use series payload", strength: "weak" },
+      { from: "regime_fb", to: "jarvis", label: "panel/display path", strength: "weak" },
+      { from: "lag_vote", to: "jarvis", label: "panel/display path", strength: "weak" },
+      { from: "lag_vote", to: "ninec", label: "reliability / indicator family", strength: "weak" },
+      { from: "regime_fb", to: "evidence", label: "NOT called on paper /run", strength: "weak" },
+      { from: "lag_vote", to: "evidence", label: "NOT called on paper /run", strength: "weak" },
+      { from: "regime_fb", to: "arbiter", label: "score NOT from this module on /run", strength: "weak" },
+      { from: "lag_vote", to: "arbiter", label: "indicator_signal_score=0 on /run", strength: "weak" },
+
+      // ===== Safety & audit expanded =====
+      { from: "safety", to: "jarvis", label: "release/red-team panels", strength: "weak" },
+      { from: "ui", to: "safety", label: "readiness/audit routes", strength: "weak" },
+      { from: "safety", to: "openalgo", label: "ops + live block", strength: "strong" },
+
+      // ===== Offline ORB prerequisite feed =====
+      { from: "ui", to: "orb_offline", label: "discover/prove/promote APIs", strength: "strong" },
+      { from: "orb_offline", to: "orb", label: "writes playbooks JSON → list on /run", strength: "strong" },
+      { from: "orb_offline", to: "safety", label: "research-only offline", strength: "weak" },
+    ];
+
+    const colors = {
+      hub: "#4d9fff", paper: "#7dffa8", research: "#ffd56a", ai: "#ff8fab",
+      evidence: "#c77dff", boundary: "#ff9f43", safety: "#ff6b6b", data: "#5eead4",
+    };
+
+    const canvas = document.getElementById("c");
+    const ctx = canvas.getContext("2d");
+    const detail = document.getElementById("detail");
+    let strongOnly = false, highlightData = true, selected = null, scale = 0.92, ox = 20, oy = 10, drag = null, hover = null;
+
+    function resize() {
+      const wrap = document.getElementById("canvas-wrap");
+      if (!wrap || wrap.classList.contains("hide")) return;
+      const dpr = window.devicePixelRatio || 1;
+      const w = wrap.clientWidth || 1000;
+      const h = Math.max(720, wrap.clientHeight || 900);
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      canvas.style.width = w + "px"; canvas.style.height = h + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      draw();
+    }
+    function nodeById(id) { return nodes.find((n) => n.id === id); }
+    function visibleEdges() {
+      return edges.filter((e) => {
+        if (strongOnly && e.strength !== "strong") return false;
+        return true;
+      });
+    }
+
+    function draw() {
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+      ctx.save();
+      ctx.strokeStyle = "rgba(255,255,255,0.03)"; ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+      for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+      ctx.restore();
+      // banner
+      ctx.fillStyle = "rgba(94,234,212,0.08)";
+      ctx.fillRect(12, 8, Math.min(w - 24, 720), 36);
+      ctx.fillStyle = "#5eead4";
+      ctx.font = "12px Segoe UI";
+      ctx.textAlign = "left";
+      ctx.fillText("CANDLE IN → process → RESULT OUT  (cyan nodes ①–⑧) · other bubbles = intersections", 20, 30);
+
+      ctx.save(); ctx.translate(ox, oy); ctx.scale(scale, scale);
+      for (const e of visibleEdges()) {
+        const a = nodeById(e.from), b = nodeById(e.to);
+        if (a && b) {
+          const hi = selected && (selected.id === a.id || selected.id === b.id);
+          const dim = highlightData && !e.dataPath && !hi;
+          drawEdge(a, b, e, hi, dim);
+        }
+      }
+      for (const n of nodes) {
+        const dim = highlightData && n.kind !== "data" && n.kind !== "paper" && !(selected && selected.id === n.id);
+        drawNode(n, selected && selected.id === n.id, hover && hover.id === n.id, dim);
+      }
+      ctx.restore();
+    }
+
+    /** Point on quadratic Bezier P0→P1(ctrl)→P2 at t in [0,1] */
+    function qPoint(p0x, p0y, p1x, p1y, p2x, p2y, t) {
+      const u = 1 - t;
+      return {
+        x: u * u * p0x + 2 * u * t * p1x + t * t * p2x,
+        y: u * u * p0y + 2 * u * t * p1y + t * t * p2y,
+      };
+    }
+
+    /**
+     * Draw edge from → to with darker visible stroke and arrow tip
+     * pointing TOWARD target (from node "a" to node "b").
+     */
+    function drawEdge(a, b, e, hi, dim) {
+      const R = 46; // node radius — stop line outside circle
+      const dx0 = b.x - a.x, dy0 = b.y - a.y;
+      const len0 = Math.hypot(dx0, dy0) || 1;
+      // start/end on circle edges (straight direction), then curve
+      let x1 = a.x + (dx0 / len0) * R;
+      let y1 = a.y + (dy0 / len0) * R;
+      let x2 = b.x - (dx0 / len0) * R;
+      let y2 = b.y - (dy0 / len0) * R;
+      const dx = x2 - x1, dy = y2 - y1;
+      const len = Math.hypot(dx, dy) || 1;
+      // bend perpendicular so parallel links separate slightly
+      const bend = (e.dataPath ? 36 : 48) * (e.strength === "weak" ? 0.7 : 0.55);
+      // stable bend sign from node ids so each edge consistent
+      const sign = ((e.from + e.to).split("").reduce((s, c) => s + c.charCodeAt(0), 0) % 2) ? 1 : -1;
+      const cpx = (x1 + x2) / 2 + (-dy / len) * bend * sign;
+      const cpy = (y1 + y2) / 2 + (dx / len) * bend * sign;
+
+      // --- stroke colors: darker / more opaque ---
+      let stroke, width;
+      if (hi) {
+        stroke = "#1a8cff"; // dark bright blue
+        width = 3.2;
+      } else if (e.dataPath && highlightData) {
+        stroke = "#0d9488"; // dark teal (candle path)
+        width = 3.0;
+      } else if (dim) {
+        stroke = "rgba(40,48,64,0.55)"; // still visible dark grey
+        width = 1.6;
+      } else if (e.strength === "strong") {
+        stroke = "#1e40af"; // dark blue
+        width = 2.6;
+      } else {
+        stroke = "#334155"; // dark slate
+        width = 2.0;
+      }
+
+      // draw curve stopping short of tip so arrow sits cleanly
+      const tipT = 0.97;
+      const nearT = 0.88;
+      const tip = qPoint(x1, y1, cpx, cpy, x2, y2, tipT);
+      const near = qPoint(x1, y1, cpx, cpy, x2, y2, nearT);
+      // direction of travel: near → tip (always toward target)
+      let ang = Math.atan2(tip.y - near.y, tip.x - near.x);
+      // if nearly zero length, fall back to node-to-node
+      if (!Number.isFinite(ang) || (Math.hypot(tip.x - near.x, tip.y - near.y) < 0.5)) {
+        ang = Math.atan2(y2 - y1, x2 - x1);
+      }
+
+      // stroke exact Bezier samples from t=0 → tipT (same curve as qPoint)
+      ctx.beginPath();
+      for (let i = 0; i <= 48; i++) {
+        const t = (i / 48) * tipT;
+        const p = qPoint(x1, y1, cpx, cpy, x2, y2, t);
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = width;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.setLineDash(e.strength === "weak" && !e.dataPath ? [7, 5] : []);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // --- arrow head: tip points TOWARD target (along ang) ---
+      const size = hi || e.dataPath ? 12 : 10;
+      const tipX = tip.x;
+      const tipY = tip.y;
+      // base center sits behind tip (opposite of direction)
+      const bx = tipX - Math.cos(ang) * size;
+      const by = tipY - Math.sin(ang) * size;
+      const wing = size * 0.55;
+      const leftX = bx + Math.cos(ang + Math.PI / 2) * wing;
+      const leftY = by + Math.sin(ang + Math.PI / 2) * wing;
+      const rightX = bx + Math.cos(ang - Math.PI / 2) * wing;
+      const rightY = by + Math.sin(ang - Math.PI / 2) * wing;
+
+      ctx.beginPath();
+      ctx.moveTo(tipX, tipY);
+      ctx.lineTo(leftX, leftY);
+      ctx.lineTo(rightX, rightY);
+      ctx.closePath();
+      let fill = stroke;
+      if (hi) fill = "#1a8cff";
+      else if (e.dataPath && highlightData) fill = "#0f766e";
+      else if (dim) fill = "rgba(40,48,64,0.7)";
+      else if (e.strength === "strong") fill = "#1e3a8a";
+      else fill = "#1e293b";
+      ctx.fillStyle = fill;
+      if (!dim || hi || e.dataPath) ctx.fill();
+      // dark outline so arrow stays visible on dark bg
+      ctx.strokeStyle = "rgba(0,0,0,0.45)";
+      ctx.lineWidth = 1;
+      if (!dim || hi || e.dataPath) ctx.stroke();
+
+      // label
+      if ((hi || e.dataPath || scale > 0.85) && !dim) {
+        const mid = qPoint(x1, y1, cpx, cpy, x2, y2, 0.5);
+        ctx.font = "bold 10px Segoe UI";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        // dark halo for readability
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "rgba(6,7,11,0.85)";
+        ctx.strokeText(e.label, mid.x, mid.y - 4);
+        ctx.fillStyle = e.dataPath ? "#99f6e4" : (hi ? "#dbeafe" : "#cbd5e1");
+        ctx.fillText(e.label, mid.x, mid.y - 4);
+      }
+    }
+
+    function drawNode(n, isSel, isHover, dim) {
+      const r = isSel || isHover ? 48 : 42;
+      const col = colors[n.kind] || "#888";
+      ctx.globalAlpha = dim ? 0.35 : 1;
+      const g = ctx.createRadialGradient(n.x, n.y, 8, n.x, n.y, r + 18);
+      g.addColorStop(0, col + "55"); g.addColorStop(1, "transparent");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(n.x, n.y, r + 18, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = "#0c101a"; ctx.fill();
+      ctx.lineWidth = isSel ? 3.5 : (n.kind === "data" ? 2.5 : 2);
+      ctx.strokeStyle = col; ctx.stroke();
+      ctx.fillStyle = "#f2f5ff"; ctx.font = "bold 11px Segoe UI";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      const lines = n.label.split("\n");
+      const start = n.y - (lines.length - 1) * 7;
+      lines.forEach((line, i) => ctx.fillText(line, n.x, start + i * 14));
+      ctx.globalAlpha = 1;
+    }
+
+    function worldFromEvent(ev) {
+      const rect = canvas.getBoundingClientRect();
+      return { x: (ev.clientX - rect.left - ox) / scale, y: (ev.clientY - rect.top - oy) / scale };
+    }
+    function hit(x, y) {
+      for (let i = nodes.length - 1; i >= 0; i--) {
+        if (Math.hypot(nodes[i].x - x, nodes[i].y - y) <= 46) return nodes[i];
+      }
+      return null;
+    }
+    function showDetail(n) {
+      selected = n;
+      if (!n) {
+        detail.innerHTML = `<div class="title">Click any node</div><p>See intersections.</p>`;
+        draw(); return;
+      }
+      const ins = edges.filter((e) => e.to === n.id);
+      const outs = edges.filter((e) => e.from === n.id);
+      detail.innerHTML = `
+        <div class="title">${n.label.replace("\n", " · ")}</div>
+        <div class="role" style="border-color:${colors[n.kind]};color:${colors[n.kind]}">${n.kind}</div>
+        <p>${n.blurb}</p>
+        <p style="margin-top:8px;color:#8b93a7"><b>Files:</b> ${n.files}</p>
+        <div class="edge-list">
+          <b style="color:#cfd8ff">IN (${ins.length})</b>
+          ${ins.map((e) => `<div>← <b>${e.from}</b> — ${e.label} <i>(${e.strength})</i></div>`).join("") || "<div>none</div>"}
+          <b style="color:#cfd8ff">OUT (${outs.length})</b>
+          ${outs.map((e) => `<div>→ <b>${e.to}</b> — ${e.label} <i>(${e.strength})</i></div>`).join("") || "<div>none</div>"}
+        </div>`;
+      draw();
+    }
+
+    canvas.addEventListener("mousemove", (ev) => {
+      if (drag && drag.mode === "pan") {
+        ox = ev.clientX - drag.sx + drag.ox0; oy = ev.clientY - drag.sy + drag.oy0; draw(); return;
+      }
+      const p = worldFromEvent(ev); const n = hit(p.x, p.y);
+      if (n !== hover) { hover = n; canvas.style.cursor = n ? "pointer" : "grab"; draw(); }
+    });
+    canvas.addEventListener("mousedown", (ev) => {
+      const p = worldFromEvent(ev); const n = hit(p.x, p.y);
+      if (n) showDetail(n);
+      else { drag = { mode: "pan", sx: ev.clientX, sy: ev.clientY, ox0: ox, oy0: oy }; canvas.classList.add("dragging"); }
+    });
+    window.addEventListener("mouseup", () => { drag = null; canvas.classList.remove("dragging"); });
+    canvas.addEventListener("wheel", (ev) => {
+      ev.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
+      const before = 1 / scale;
+      scale = Math.min(2.2, Math.max(0.45, scale * (ev.deltaY > 0 ? 0.9 : 1.1)));
+      ox = mx - (mx - ox) * (scale * before);
+      oy = my - (my - oy) * (scale * before);
+      draw();
+    }, { passive: false });
+
+    document.getElementById("only-strong").addEventListener("change", (e) => { strongOnly = e.target.checked; draw(); });
+    document.getElementById("highlight-data").addEventListener("change", (e) => { highlightData = e.target.checked; draw(); });
+    document.getElementById("btn-reset").addEventListener("click", () => {
+      scale = 0.92; ox = 20; oy = 10; showDetail(nodeById("candle_src"));
+    });
+
+    function buildMatrix() {
+      const ids = nodes.map((n) => n.id);
+      const labels = Object.fromEntries(nodes.map((n) => [n.id, n.label.replace("\n", " ")]));
+      let html = "<tr><th></th>" + ids.map((id) => `<th>${labels[id]}</th>`).join("") + "</tr>";
+      for (const a of ids) {
+        html += `<tr><td class="rowh">${labels[a]}</td>`;
+        for (const b of ids) {
+          if (a === b) { html += `<td class="n">·</td>`; continue; }
+          const es = edges.filter((e) => e.from === a && e.to === b);
+          if (!es.length) html += `<td class="n">—</td>`;
+          else if (es.some((e) => e.strength === "strong")) html += `<td class="y" title="${es.map((e) => e.label).join(" / ")}">●</td>`;
+          else html += `<td class="w" title="${es.map((e) => e.label).join(" / ")}">○</td>`;
+        }
+        html += "</tr>";
+      }
+      document.getElementById("mtx").innerHTML = html;
+    }
+    document.getElementById("btn-net").addEventListener("click", () => {
+      document.getElementById("btn-net").classList.add("active");
+      document.getElementById("btn-matrix").classList.remove("active");
+      document.getElementById("canvas-wrap").classList.remove("hide");
+      document.getElementById("matrix-view").classList.remove("show");
+      resize();
+    });
+    document.getElementById("btn-matrix").addEventListener("click", () => {
+      document.getElementById("btn-matrix").classList.add("active");
+      document.getElementById("btn-net").classList.remove("active");
+      document.getElementById("canvas-wrap").classList.add("hide");
+      document.getElementById("matrix-view").classList.add("show");
+      buildMatrix();
+    });
+
+    window.addEventListener("resize", resize);
+    resize();
+    showDetail(nodeById("candle_src"));
+  </script>
+</body>
+</html>
