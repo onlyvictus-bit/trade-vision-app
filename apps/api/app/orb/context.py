@@ -133,8 +133,7 @@ def daily_from_intraday(frame: pd.DataFrame) -> pd.DataFrame:
     return daily.dropna(subset=["open", "high", "low", "close"])
 
 
-def classify_history(
-    symbol: str,
+def classify_history(    symbol: str,
     daily: pd.DataFrame,
     opens: dict[str, float],
     *,
@@ -164,3 +163,81 @@ def classify_history(
             )
         )
     return records
+
+
+# --- Day-type prediction: combinations of behaviors -> TREND / RANGE --------
+
+# Ex-post outcome thresholds. RESEARCH PRIORS (documented, calibratable) -
+# they label completed sessions for validation only, never as live inputs.
+TREND_MIN_RANGE_ATR = 1.0
+RANGE_MAX_RANGE_ATR = 0.7
+TREND_CLOSE_LOCATION = 0.67  # close in outer third = directional expansion
+
+
+def predict_day_type(scenario: dict) -> dict:
+    """Opening combination -> day-type prediction (memo CPR-02 + gap layer).
+
+    Condition engine over behavior combinations - one code path for all 500
+    stocks, no per-stock tuning. Precedence (memo ladder order):
+    suspect > LARGE gap > Z3-inside > CPR class > default UNCLASSIFIED.
+    Returns {prediction, direction, reasons} with memo rule IDs cited.
+    """
+    reasons: list[str] = []
+    if scenario.get("context_suspect"):
+        return {
+            "prediction": "UNCLASSIFIED",
+            "direction": "either",
+            "reasons": [f"CTX-suspect ({scenario.get('suspect_reason')}) - never predict on bad context"],
+        }
+    gap_state = str(scenario.get("gap_state", "FLAT"))
+    if gap_state in ("LARGE_GAP_UP", "LARGE_GAP_DOWN"):
+        direction = "up" if gap_state.endswith("UP") else "down"
+        return {
+            "prediction": "TREND_DAY",
+            "direction": direction,
+            "reasons": ["GAP-02 trend branch prior: large gap holds into trend day more often than not"],
+        }
+    if str(scenario.get("zone_at_open")) == "Z3":
+        return {
+            "prediction": "RANGE_DAY",
+            "direction": "either",
+            "reasons": ["CPR-02: inside-CPR (Z3) breakouts OFF - mean-reversion regime"],
+        }
+    cpr_class = str(scenario.get("cpr_class", "NORMAL"))
+    if cpr_class == "NARROW":
+        direction = "up" if gap_state == "GAP_UP" else ("down" if gap_state == "GAP_DOWN" else "either")
+        return {
+            "prediction": "TREND_DAY",
+            "direction": direction,
+            "reasons": ["CPR-02: NARROW CPR - yesterday closed near mid-range, trend day likely"],
+        }
+    if cpr_class == "WIDE":
+        return {
+            "prediction": "RANGE_DAY",
+            "direction": "either",
+            "reasons": ["CPR-02: WIDE CPR - mean reversion likely, targets capped"],
+        }
+    return {
+        "prediction": "UNCLASSIFIED",
+        "direction": "either",
+        "reasons": ["FLAT/NORMAL with no edge stated - no prediction is itself a decision"],
+    }
+
+
+def label_day_outcome(*, day_high: float, day_low: float, day_close: float, atr14: float) -> str:
+    """Ex-post RESEARCH-ONLY label from a COMPLETED session. Never a live input.
+
+    TREND_DAY: range >= 1.0x ATR with close in the outer third (directional
+    expansion). RANGE_DAY: range < 0.7x ATR (contraction). Else MIXED.
+    """
+    if atr14 <= 0 or day_high < day_low:
+        return "MIXED"
+    range_atr = (day_high - day_low) / atr14
+    if range_atr >= TREND_MIN_RANGE_ATR:
+        location = (day_close - day_low) / (day_high - day_low) if day_high > day_low else 0.5
+        if location >= TREND_CLOSE_LOCATION or location <= (1.0 - TREND_CLOSE_LOCATION):
+            return "TREND_DAY"
+        return "MIXED"
+    if range_atr < RANGE_MAX_RANGE_ATR:
+        return "RANGE_DAY"
+    return "MIXED"

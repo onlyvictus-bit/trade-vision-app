@@ -1,0 +1,35 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "account_id": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:@/-]+$",
+      "title": "Account Id",
+      "type": "string"
+    },
+    "maximum_notional": {
+      "exclusiveMinimum": 0,
+      "title": "Maximum Notional",
+      "type": "number"
+    },
+    "maximum_quantity": {
+      "exclusiveMinimum": 0,
+      "title": "Maximum Quantity",
+      "type": "integer"
+    },
+    "risk_budget": {
+      "exclusiveMinimum": 0,
+      "title": "Risk Budget",
+      "type": "number"
+    }
+  },
+  "required": [
+    "account_id",
+    "risk_budget",
+    "maximum_notional",
+    "maximum_quantity"
+  ],
+  "title": "AccountLimits",
+  "type": "object"
+}

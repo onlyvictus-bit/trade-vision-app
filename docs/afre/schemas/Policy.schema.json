@@ -1,0 +1,340 @@
+{
+  "$defs": {
+    "Costs": {
+      "additionalProperties": false,
+      "properties": {
+        "fee_bps_per_side": {
+          "default": 1.0,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Fee Bps Per Side",
+          "type": "number"
+        },
+        "impact_bps": {
+          "default": 0.5,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Impact Bps",
+          "type": "number"
+        },
+        "slippage_bps": {
+          "default": 1.0,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Slippage Bps",
+          "type": "number"
+        },
+        "spread_bps": {
+          "default": 1.0,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Spread Bps",
+          "type": "number"
+        },
+        "version": {
+          "default": "costs-assumed-1",
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:@/-]+$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "title": "Costs",
+      "type": "object"
+    },
+    "Template": {
+      "enum": [
+        "FIRST_BREAK",
+        "ACCEPTANCE",
+        "RETEST_HOLD",
+        "GAP_FADE",
+        "RECLAIM",
+        "PD_LEVEL_BREAK"
+      ],
+      "title": "Template",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The complete deterministic selector, not just one leaf strategy.\n\nBounds/thresholds below are registered research choices, NOT proved market\nconstants. Changing any value changes policy_hash and invalidates proof.",
+  "properties": {
+    "accepted_closes": {
+      "default": 2,
+      "maximum": 5,
+      "minimum": 2,
+      "title": "Accepted Closes",
+      "type": "integer"
+    },
+    "allow_continuation_after_gap_fill": {
+      "default": false,
+      "title": "Allow Continuation After Gap Fill",
+      "type": "boolean"
+    },
+    "buffer_ticks": {
+      "default": 1,
+      "maximum": 20,
+      "minimum": 0,
+      "title": "Buffer Ticks",
+      "type": "integer"
+    },
+    "challenge_passes": {
+      "const": 1,
+      "default": 1,
+      "title": "Challenge Passes",
+      "type": "integer"
+    },
+    "chop_extra_closes": {
+      "default": 1,
+      "maximum": 2,
+      "minimum": 0,
+      "title": "Chop Extra Closes",
+      "type": "integer"
+    },
+    "costs": {
+      "$ref": "#/$defs/Costs"
+    },
+    "engine_version": {
+      "const": "AFRE-3.0.0rc1",
+      "default": "AFRE-3.0.0rc1",
+      "title": "Engine Version",
+      "type": "string"
+    },
+    "entry_envelope_ticks": {
+      "default": 4,
+      "maximum": 100,
+      "minimum": 1,
+      "title": "Entry Envelope Ticks",
+      "type": "integer"
+    },
+    "execution_minutes": {
+      "default": 5,
+      "enum": [
+        1,
+        3,
+        5
+      ],
+      "title": "Execution Minutes",
+      "type": "integer"
+    },
+    "feature_minutes": {
+      "default": 5,
+      "enum": [
+        3,
+        5
+      ],
+      "title": "Feature Minutes",
+      "type": "integer"
+    },
+    "flat_minute": {
+      "default": 910,
+      "enum": [
+        909,
+        910
+      ],
+      "title": "Flat Minute",
+      "type": "integer"
+    },
+    "forecast_model_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Forecast Model Hash"
+    },
+    "gap_flat_pct": {
+      "const": 0.1,
+      "default": 0.1,
+      "title": "Gap Flat Pct",
+      "type": "number"
+    },
+    "host_d1_source_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Host D1 Source Hash"
+    },
+    "last_entry_minute": {
+      "const": 615,
+      "default": 615,
+      "title": "Last Entry Minute",
+      "type": "integer"
+    },
+    "max_branches": {
+      "const": 8,
+      "default": 8,
+      "title": "Max Branches",
+      "type": "integer"
+    },
+    "max_candidates": {
+      "const": 6,
+      "default": 6,
+      "title": "Max Candidates",
+      "type": "integer"
+    },
+    "max_extension_or": {
+      "default": 1.0,
+      "exclusiveMinimum": 0,
+      "maximum": 5,
+      "title": "Max Extension Or",
+      "type": "number"
+    },
+    "max_feature_lag_seconds": {
+      "default": 30,
+      "maximum": 300,
+      "minimum": 0,
+      "title": "Max Feature Lag Seconds",
+      "type": "integer"
+    },
+    "maximum_cost_r": {
+      "default": 0.2,
+      "exclusiveMinimum": 0,
+      "maximum": 1,
+      "title": "Maximum Cost R",
+      "type": "number"
+    },
+    "minimum_risk_budget": {
+      "default": 1.0,
+      "exclusiveMinimum": 0,
+      "title": "Minimum Risk Budget",
+      "type": "number"
+    },
+    "minimum_stop_ticks": {
+      "default": 2,
+      "maximum": 100,
+      "minimum": 1,
+      "title": "Minimum Stop Ticks",
+      "type": "integer"
+    },
+    "minimum_volume_ratio": {
+      "default": 1.0,
+      "exclusiveMinimum": 0,
+      "maximum": 10,
+      "title": "Minimum Volume Ratio",
+      "type": "number"
+    },
+    "open_minute": {
+      "const": 555,
+      "default": 555,
+      "title": "Open Minute",
+      "type": "integer"
+    },
+    "policy_id": {
+      "default": "gap-adaptive-v3",
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:@/-]+$",
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "proposal_ttl_seconds": {
+      "default": 300,
+      "maximum": 900,
+      "minimum": 1,
+      "title": "Proposal Ttl Seconds",
+      "type": "integer"
+    },
+    "range_minutes": {
+      "default": 15,
+      "maximum": 30,
+      "minimum": 3,
+      "title": "Range Minutes",
+      "type": "integer"
+    },
+    "replay_approval_delay_seconds": {
+      "default": 1,
+      "maximum": 120,
+      "minimum": 1,
+      "title": "Replay Approval Delay Seconds",
+      "type": "integer"
+    },
+    "require_session_vwap": {
+      "default": true,
+      "title": "Require Session Vwap",
+      "type": "boolean"
+    },
+    "require_volume_confirmation": {
+      "default": false,
+      "title": "Require Volume Confirmation",
+      "type": "boolean"
+    },
+    "required_capabilities": {
+      "default": [],
+      "items": {
+        "maxLength": 160,
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9_.:@/-]+$",
+        "type": "string"
+      },
+      "title": "Required Capabilities",
+      "type": "array"
+    },
+    "retest_tolerance_or": {
+      "default": 0.1,
+      "maximum": 0.5,
+      "minimum": 0,
+      "title": "Retest Tolerance Or",
+      "type": "number"
+    },
+    "reward_risk": {
+      "default": 2,
+      "enum": [
+        1,
+        2
+      ],
+      "title": "Reward Risk",
+      "type": "integer"
+    },
+    "stop_buffer_ticks": {
+      "default": 1,
+      "maximum": 20,
+      "minimum": 1,
+      "title": "Stop Buffer Ticks",
+      "type": "integer"
+    },
+    "strict_one_approval_attempt": {
+      "const": true,
+      "default": true,
+      "title": "Strict One Approval Attempt",
+      "type": "boolean"
+    },
+    "templates": {
+      "default": [
+        "RECLAIM",
+        "RETEST_HOLD",
+        "ACCEPTANCE",
+        "GAP_FADE"
+      ],
+      "items": {
+        "$ref": "#/$defs/Template"
+      },
+      "title": "Templates",
+      "type": "array"
+    },
+    "value_model_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Value Model Hash"
+    }
+  },
+  "title": "Policy",
+  "type": "object"
+}

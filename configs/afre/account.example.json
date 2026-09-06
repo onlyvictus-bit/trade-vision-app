@@ -1,0 +1,6 @@
+{
+  "account_id": "paper-research-example",
+  "risk_budget": 1000.0,
+  "maximum_notional": 100000.0,
+  "maximum_quantity": 1000
+}

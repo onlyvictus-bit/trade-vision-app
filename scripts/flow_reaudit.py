@@ -11,12 +11,16 @@ from app.orb.hstry_csv import load_hstry_series
 from app.state import KILL_SWITCH, SYSTEM_MODE
 
 # --- Block 1: GIVE IT MARKET DATA (real HSTRY 5m bars, bounded per D1-005) ---
-series = load_hstry_series("RELIANCE", "5m", max_bars=5000)
+import sys
+
+SYMBOL = (sys.argv[1] if len(sys.argv) > 1 else "RELIANCE").strip().upper()
+
+series = load_hstry_series(SYMBOL, "5m", max_bars=5000)
 print(f"BLOCK 1 data: {series.symbol} {series.timeframe} bars={len(series.bars)} "
       f"first_ts={series.bars[0].timestamp_ns}")
 
 request = PaperGuidanceRequest(
-    symbol="RELIANCE",
+    symbol=SYMBOL,
     timeframe="5m",
     series=series,
     direction="long",

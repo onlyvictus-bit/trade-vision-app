@@ -1,0 +1,55 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "available_ns": {
+      "minimum": 0,
+      "title": "Available Ns",
+      "type": "integer"
+    },
+    "blocks_new_entry": {
+      "default": false,
+      "title": "Blocks New Entry",
+      "type": "boolean"
+    },
+    "evidence_hash": {
+      "minLength": 16,
+      "title": "Evidence Hash",
+      "type": "string"
+    },
+    "expires_ns": {
+      "exclusiveMinimum": 0,
+      "title": "Expires Ns",
+      "type": "integer"
+    },
+    "name": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:@/-]+$",
+      "title": "Name",
+      "type": "string"
+    },
+    "reason": {
+      "default": "",
+      "maxLength": 300,
+      "title": "Reason",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "VALID",
+        "BLOCKED"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "available_ns",
+    "expires_ns",
+    "status",
+    "evidence_hash"
+  ],
+  "title": "Capability",
+  "type": "object"
+}

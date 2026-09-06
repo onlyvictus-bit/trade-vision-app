@@ -1,0 +1,876 @@
+{
+  "$defs": {
+    "Branch": {
+      "additionalProperties": false,
+      "properties": {
+        "branch_id": {
+          "title": "Branch Id",
+          "type": "string"
+        },
+        "contradicts": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Contradicts",
+          "type": "array"
+        },
+        "expires_ns": {
+          "title": "Expires Ns",
+          "type": "integer"
+        },
+        "next_required": {
+          "title": "Next Required",
+          "type": "string"
+        },
+        "refute_on": {
+          "title": "Refute On",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "POSSIBLE",
+            "WATCHING",
+            "ARMED",
+            "CONFIRMED",
+            "REFUTED",
+            "EXPIRED",
+            "UNOBSERVABLE",
+            "UNSUPPORTED"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "supports": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Supports",
+          "type": "array"
+        }
+      },
+      "required": [
+        "branch_id",
+        "state",
+        "next_required",
+        "refute_on",
+        "expires_ns"
+      ],
+      "title": "Branch",
+      "type": "object"
+    },
+    "Candidate": {
+      "additionalProperties": false,
+      "properties": {
+        "action_value_status": {
+          "default": "UNESTIMATED",
+          "title": "Action Value Status",
+          "type": "string"
+        },
+        "challenge": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Challenge",
+          "type": "array"
+        },
+        "expected_net_budget_units": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Net Budget Units"
+        },
+        "expiry_ns": {
+          "title": "Expiry Ns",
+          "type": "integer"
+        },
+        "lower_bound": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Bound"
+        },
+        "next_trigger": {
+          "title": "Next Trigger",
+          "type": "string"
+        },
+        "plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TradePlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        },
+        "refutation": {
+          "title": "Refutation",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "FEASIBLE",
+            "REJECTED",
+            "WAITING"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "template": {
+          "$ref": "#/$defs/Template"
+        }
+      },
+      "required": [
+        "template",
+        "status",
+        "reasons",
+        "next_trigger",
+        "refutation",
+        "expiry_ns"
+      ],
+      "title": "Candidate",
+      "type": "object"
+    },
+    "Costs": {
+      "additionalProperties": false,
+      "properties": {
+        "fee_bps_per_side": {
+          "default": 1.0,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Fee Bps Per Side",
+          "type": "number"
+        },
+        "impact_bps": {
+          "default": 0.5,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Impact Bps",
+          "type": "number"
+        },
+        "slippage_bps": {
+          "default": 1.0,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Slippage Bps",
+          "type": "number"
+        },
+        "spread_bps": {
+          "default": 1.0,
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Spread Bps",
+          "type": "number"
+        },
+        "version": {
+          "default": "costs-assumed-1",
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:@/-]+$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "title": "Costs",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "facts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Facts",
+          "type": "array"
+        },
+        "family": {
+          "title": "Family",
+          "type": "string"
+        },
+        "known_at_ns": {
+          "title": "Known At Ns",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "event_id",
+        "known_at_ns",
+        "family",
+        "facts"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "Forecast": {
+      "additionalProperties": false,
+      "properties": {
+        "action_policy_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Action Policy Id"
+        },
+        "effective_end_ns": {
+          "title": "Effective End Ns",
+          "type": "integer"
+        },
+        "episode_id": {
+          "title": "Episode Id",
+          "type": "string"
+        },
+        "event": {
+          "title": "Event",
+          "type": "string"
+        },
+        "evidence_event_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Event Ids",
+          "type": "array"
+        },
+        "forecast_id": {
+          "title": "Forecast Id",
+          "type": "string"
+        },
+        "forecast_status": {
+          "default": "UNESTIMATED",
+          "enum": [
+            "UNESTIMATED",
+            "ESTIMATED",
+            "UNOBSERVABLE"
+          ],
+          "title": "Forecast Status",
+          "type": "string"
+        },
+        "horizon_bars": {
+          "title": "Horizon Bars",
+          "type": "integer"
+        },
+        "horizon_kind": {
+          "default": "FEATURE_BARS",
+          "enum": [
+            "FEATURE_BARS",
+            "WALL_CLOCK"
+          ],
+          "title": "Horizon Kind",
+          "type": "string"
+        },
+        "horizon_minutes": {
+          "title": "Horizon Minutes",
+          "type": "integer"
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interval"
+        },
+        "issued_ns": {
+          "title": "Issued Ns",
+          "type": "integer"
+        },
+        "label_version": {
+          "default": "afre-structural-labels-1",
+          "title": "Label Version",
+          "type": "string"
+        },
+        "live_trading_blocked": {
+          "const": true,
+          "default": true,
+          "title": "Live Trading Blocked",
+          "type": "boolean"
+        },
+        "model_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Hash"
+        },
+        "order_routing_enabled": {
+          "const": false,
+          "default": false,
+          "title": "Order Routing Enabled",
+          "type": "boolean"
+        },
+        "plan_proposal_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Plan Proposal Id"
+        },
+        "policy_hash": {
+          "title": "Policy Hash",
+          "type": "string"
+        },
+        "prediction_kind": {
+          "const": "PREDICTION",
+          "default": "PREDICTION",
+          "title": "Prediction Kind",
+          "type": "string"
+        },
+        "probability": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Probability"
+        },
+        "reason": {
+          "default": "NO_VALIDATED_MODEL_FOR_THIS_EVENT_POLICY_HORIZON",
+          "title": "Reason",
+          "type": "string"
+        },
+        "requested_end_ns": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested End Ns"
+        },
+        "research_only": {
+          "const": true,
+          "default": true,
+          "title": "Research Only",
+          "type": "boolean"
+        },
+        "session_date": {
+          "title": "Session Date",
+          "type": "string"
+        },
+        "snapshot_hash": {
+          "title": "Snapshot Hash",
+          "type": "string"
+        },
+        "support_unique_dates": {
+          "default": 0,
+          "title": "Support Unique Dates",
+          "type": "integer"
+        },
+        "symbol": {
+          "title": "Symbol",
+          "type": "string"
+        },
+        "trade_allowed": {
+          "const": false,
+          "default": false,
+          "title": "Trade Allowed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "forecast_id",
+        "snapshot_hash",
+        "policy_hash",
+        "symbol",
+        "session_date",
+        "event",
+        "issued_ns",
+        "horizon_bars",
+        "horizon_minutes",
+        "effective_end_ns",
+        "episode_id"
+      ],
+      "title": "Forecast",
+      "type": "object"
+    },
+    "Side": {
+      "enum": [
+        "LONG",
+        "SHORT"
+      ],
+      "title": "Side",
+      "type": "string"
+    },
+    "Template": {
+      "enum": [
+        "FIRST_BREAK",
+        "ACCEPTANCE",
+        "RETEST_HOLD",
+        "GAP_FADE",
+        "RECLAIM",
+        "PD_LEVEL_BREAK"
+      ],
+      "title": "Template",
+      "type": "string"
+    },
+    "TradePlan": {
+      "additionalProperties": false,
+      "properties": {
+        "cost_model": {
+          "$ref": "#/$defs/Costs"
+        },
+        "created_ns": {
+          "title": "Created Ns",
+          "type": "integer"
+        },
+        "execution_minutes": {
+          "enum": [
+            1,
+            3,
+            5
+          ],
+          "title": "Execution Minutes",
+          "type": "integer"
+        },
+        "expires_ns": {
+          "title": "Expires Ns",
+          "type": "integer"
+        },
+        "flat_ns": {
+          "title": "Flat Ns",
+          "type": "integer"
+        },
+        "invalidate_on": {
+          "enum": [
+            "CLOSE_BACK_INSIDE",
+            "GAP_DIRECTION_RECLAIM"
+          ],
+          "title": "Invalidate On",
+          "type": "string"
+        },
+        "invalidation_level": {
+          "exclusiveMinimum": 0,
+          "title": "Invalidation Level",
+          "type": "number"
+        },
+        "last_entry_ns": {
+          "title": "Last Entry Ns",
+          "type": "integer"
+        },
+        "live_trading_blocked": {
+          "const": true,
+          "default": true,
+          "title": "Live Trading Blocked",
+          "type": "boolean"
+        },
+        "maximum_entry": {
+          "exclusiveMinimum": 0,
+          "title": "Maximum Entry",
+          "type": "number"
+        },
+        "maximum_notional": {
+          "exclusiveMinimum": 0,
+          "title": "Maximum Notional",
+          "type": "number"
+        },
+        "maximum_quantity": {
+          "exclusiveMinimum": 0,
+          "title": "Maximum Quantity",
+          "type": "integer"
+        },
+        "minimum_entry": {
+          "exclusiveMinimum": 0,
+          "title": "Minimum Entry",
+          "type": "number"
+        },
+        "order_routing_enabled": {
+          "const": false,
+          "default": false,
+          "title": "Order Routing Enabled",
+          "type": "boolean"
+        },
+        "pdc": {
+          "exclusiveMinimum": 0,
+          "title": "Pdc",
+          "type": "number"
+        },
+        "policy_hash": {
+          "title": "Policy Hash",
+          "type": "string"
+        },
+        "price_basis": {
+          "title": "Price Basis",
+          "type": "string"
+        },
+        "proposal_id": {
+          "title": "Proposal Id",
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "reference_entry": {
+          "exclusiveMinimum": 0,
+          "title": "Reference Entry",
+          "type": "number"
+        },
+        "reference_target": {
+          "exclusiveMinimum": 0,
+          "title": "Reference Target",
+          "type": "number"
+        },
+        "requires_gap_unfilled": {
+          "title": "Requires Gap Unfilled",
+          "type": "boolean"
+        },
+        "research_only": {
+          "const": true,
+          "default": true,
+          "title": "Research Only",
+          "type": "boolean"
+        },
+        "reward_risk": {
+          "enum": [
+            1,
+            2
+          ],
+          "title": "Reward Risk",
+          "type": "integer"
+        },
+        "risk_budget": {
+          "exclusiveMinimum": 0,
+          "title": "Risk Budget",
+          "type": "number"
+        },
+        "session_date": {
+          "title": "Session Date",
+          "type": "string"
+        },
+        "side": {
+          "$ref": "#/$defs/Side"
+        },
+        "snapshot_hash": {
+          "title": "Snapshot Hash",
+          "type": "string"
+        },
+        "stop": {
+          "exclusiveMinimum": 0,
+          "title": "Stop",
+          "type": "number"
+        },
+        "symbol": {
+          "title": "Symbol",
+          "type": "string"
+        },
+        "template": {
+          "$ref": "#/$defs/Template"
+        },
+        "tick_size": {
+          "exclusiveMinimum": 0,
+          "title": "Tick Size",
+          "type": "number"
+        },
+        "trade_allowed": {
+          "const": false,
+          "default": false,
+          "title": "Trade Allowed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "proposal_id",
+        "policy_hash",
+        "snapshot_hash",
+        "symbol",
+        "session_date",
+        "template",
+        "side",
+        "created_ns",
+        "expires_ns",
+        "last_entry_ns",
+        "flat_ns",
+        "execution_minutes",
+        "tick_size",
+        "price_basis",
+        "reference_entry",
+        "minimum_entry",
+        "maximum_entry",
+        "stop",
+        "reward_risk",
+        "reference_target",
+        "maximum_quantity",
+        "risk_budget",
+        "maximum_notional",
+        "cost_model",
+        "pdc",
+        "requires_gap_unfilled",
+        "invalidation_level",
+        "invalidate_on",
+        "reason_codes"
+      ],
+      "title": "TradePlan",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "as_of_ns": {
+      "title": "As Of Ns",
+      "type": "integer"
+    },
+    "branches": {
+      "items": {
+        "$ref": "#/$defs/Branch"
+      },
+      "title": "Branches",
+      "type": "array"
+    },
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/Candidate"
+      },
+      "title": "Candidates",
+      "type": "array"
+    },
+    "decision_id": {
+      "title": "Decision Id",
+      "type": "string"
+    },
+    "engine_version": {
+      "default": "AFRE-3.0.0rc1",
+      "title": "Engine Version",
+      "type": "string"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/Evidence"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "features": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Features",
+      "type": "object"
+    },
+    "forecasts": {
+      "items": {
+        "$ref": "#/$defs/Forecast"
+      },
+      "title": "Forecasts",
+      "type": "array"
+    },
+    "gap_ever_touched_pdc": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Gap Ever Touched Pdc"
+    },
+    "internal_action": {
+      "title": "Internal Action",
+      "type": "string"
+    },
+    "live_trading_blocked": {
+      "const": true,
+      "default": true,
+      "title": "Live Trading Blocked",
+      "type": "boolean"
+    },
+    "next_triggers": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Next Triggers",
+      "type": "array"
+    },
+    "observed_failure_episodes": {
+      "title": "Observed Failure Episodes",
+      "type": "integer"
+    },
+    "order_routing_enabled": {
+      "const": false,
+      "default": false,
+      "title": "Order Routing Enabled",
+      "type": "boolean"
+    },
+    "policy_hash": {
+      "title": "Policy Hash",
+      "type": "string"
+    },
+    "proof_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Proof Hash"
+    },
+    "public_ticket": {
+      "enum": [
+        "WAIT",
+        "WATCH",
+        "PAPER-CANDIDATE"
+      ],
+      "title": "Public Ticket",
+      "type": "string"
+    },
+    "reason_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "research_only": {
+      "const": true,
+      "default": true,
+      "title": "Research Only",
+      "type": "boolean"
+    },
+    "scenario_status": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Scenario Status",
+      "type": "object"
+    },
+    "selected_plan": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TradePlan"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "session_date": {
+      "title": "Session Date",
+      "type": "string"
+    },
+    "snapshot_hash": {
+      "title": "Snapshot Hash",
+      "type": "string"
+    },
+    "symbol": {
+      "title": "Symbol",
+      "type": "string"
+    },
+    "trade_allowed": {
+      "const": false,
+      "default": false,
+      "title": "Trade Allowed",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "decision_id",
+    "policy_hash",
+    "snapshot_hash",
+    "session_date",
+    "symbol",
+    "as_of_ns",
+    "public_ticket",
+    "internal_action",
+    "reason_codes",
+    "evidence",
+    "branches",
+    "forecasts",
+    "candidates",
+    "selected_plan",
+    "gap_ever_touched_pdc",
+    "observed_failure_episodes",
+    "features",
+    "scenario_status",
+    "next_triggers"
+  ],
+  "title": "Decision",
+  "type": "object"
+}

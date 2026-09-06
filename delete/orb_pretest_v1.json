@@ -1,0 +1,59 @@
+{
+ "generated_at": "2026-09-05T12:05:00.853235",
+ "symbols": [
+  "RELIANCE",
+  "BEL",
+  "TCS",
+  "INFY",
+  "HDFCBANK"
+ ],
+ "start": "2025-01-01",
+ "min_cell_n": 30,
+ "total_trades": 11043,
+ "results": {
+  "H1_narrow_vs_wide": {
+   "n1": 5661,
+   "n2": 115,
+   "p": 0.45538476587570886,
+   "r": 0.04059967896285033,
+   "med1": -0.0751876,
+   "med2": -0.14100676,
+   "desc": "breakout NARROW-day R vs WIDE-day R",
+   "verdict": "NO_GO",
+   "holm_threshold": 0.016666666666666666
+  },
+  "H2_aligned_vs_counter": {
+   "n1": 6510,
+   "n2": 4533,
+   "p": 0.5224395430657356,
+   "r": 0.007143687374681629,
+   "med1": -1.0322191950000001,
+   "med2": -0.70581535,
+   "desc": "gap-aligned R vs counter-gap R",
+   "verdict": "NO_GO",
+   "holm_threshold": 0.05
+  },
+  "H3_cpr_split": {
+   "n1": 5661,
+   "n2": 115,
+   "p": 0.45538476587570886,
+   "r": 0.04059967896285033,
+   "med1": -0.0751876,
+   "med2": -0.14100676,
+   "desc": "CPR-class separation (same as H1 by construction)",
+   "verdict": "NO_SEPARATION",
+   "holm_threshold": 0.025
+  },
+  "H3_tercile_split": {
+   "n1": 1800,
+   "n2": 2054,
+   "p": 0.32904661964015103,
+   "r": 0.018196473006599545,
+   "med1": -0.10619752,
+   "med2": -0.10375566,
+   "desc": "close-tercile high vs low separation",
+   "verdict": "NO_SEPARATION",
+   "holm_threshold": 0.0125
+  }
+ }
+}

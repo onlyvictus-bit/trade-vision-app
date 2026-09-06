@@ -4,7 +4,7 @@
 > 1) **Question → which file?** (former `CONTEXT_INDEX.md`)  
 > 2) **Which code/doc owns what?** (former `FILE_OWNERSHIP_MAP.md`)  
 > 3) **Full library catalog** of docs/folders, read order, plans, audit  
-> **Last updated: 2026-09-03 (ORB v2 planning: 3rd Kimi submission (consolidated Tasks 1–4) archived byte-exact (ORB_V201C_NSE_REVIEW_KIMI_PART3.md) + verified answer §8 (0 contradictions / 10 new rules / 6 triple-confirmations / 5 register updates incl. 2 majority priors); memorandum v2.4 (§7A.8 + §7A.9), plan §10 addendum; still PROPOSED awaiting approval)
+> **Last updated: 2026-09-04 (v1.99.3-4 BEL prove/promote, v2.00-repair engine rebuild, v2.01 opening scenarios; graph 93/211)
 > **Monorepo root:** `D:\Projects\trading-platforms\stock-app`  
 > **Trade Vision root:** `...\stock-app\trade-vision-app`  
 > **Do not treat this as code source of truth** — code truth is implementation; this is the **map to all maps**.  
@@ -87,6 +87,7 @@ Also linked from: `TRADE_VISION_README.md` (short) · `ARCHITECTURE.md` MASTER G
 | ORB research (best TF / candle count / combo)? | `docs/plans/ORB_RESEARCH_ENGINE_PLAN.md` (§5.7) |
 ORB_TIMING_RESEARCH_V197 (docs/plans/)  - per-stock ORB clock-window timing research build spec (v1.97, gates ORB-T197-001..010)
 ORB_CONTEXT_NATIVE_PLAN_V2 (docs/plans/)  - v2.00 ORB upgrade plan: gap bias-lock + CPR wide/narrow + PDH/PDL family + execution realism (PROPOSED, milestones M1-M6, awaiting approval)  [+ v2.01-track amendment 2026-09-04: renumbered off shipped versions, M0, staged adoption, S5 fix, BEL default]
+ORB_GAP_TRADING_EXTERNAL_REVIEW_BRIEF (docs/plans/)  - self-contained brief + copy-paste prompt for outside-AI gap-morning review
 ORB_STRATEGY_MEMORANDUM (docs/plans/)  - rule-level ORB v2 trade spec: entry/stop/target per gap×CPR×price-zone combo + worked examples (1A/1B/2/3/4)
 ORB_V2_JUDGE_FINDINGS (docs/plans/)  - adversarial verification of the v2 plan: 2 errors + 5 gaps found and integrated; incl. live-path prev-day flow problem
 ORB_V201_PRECODE_REVIEW_KIMI (docs/plans/)  - VERBATIM archive of the FIRST submission (2026-09-01 pre-code review: B1-B8/S-A/S-B/S1-S10/P1-P3/V1-V4; retro-archived in the 09-03 audit; byte-exact)
@@ -528,6 +529,7 @@ Read plans in this **meaning order** (not file date):
 4g ORB_V201B_NSE_REVIEW_KIMI_PART2.md             ← verbatim archive: submission 3 (continuation + trace)
 4h ORB_V201C_NSE_REVIEW_KIMI_PART3.md             ← verbatim archive: submission 4 (consolidated deliverable)
 4i ORB_V201_VERIFIED_ANSWER.md                    ← verified answers: all four submissions, §1–§9
+4j ORB_V2_BUILD_PLAN.md                          ← approved v2 build plan (staged 4→2→1, M1–M6 + verification protocol)
 5  FINAL_REQUIRED_FLOW.md Appendix B (Think Engine)            ← question-driven engine order + Flow R/D
 6  TRADE_VISION_MAX_CHART_REASONING_...           ← evidence engines (mostly shipped)
 7  TRADE_VISION_FULL_INDICATOR_MEMORY_PLAN.md     ← memory mega-architecture (partial)

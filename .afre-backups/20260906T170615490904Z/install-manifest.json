@@ -1,0 +1,282 @@
+{
+  "apps\\api\\app\\orb\\adaptive\\__init__.py": {
+    "old_sha256": null,
+    "installed_sha256": "9602d84b7ed70e6235375871edff3f3f65246b36e7cbdf698ba461e21e27e277"
+  },
+  "apps\\api\\app\\orb\\adaptive\\adapters.py": {
+    "old_sha256": null,
+    "installed_sha256": "1e207c0abaeedfb2d1e40ac85ceeb7fd2264282d85d902998aff28d3b161134c"
+  },
+  "apps\\api\\app\\orb\\adaptive\\api.py": {
+    "old_sha256": null,
+    "installed_sha256": "829588d462e96f97ac3bb2b7fc27f5a8fcf814b52503bbf6fae90a80b7233829"
+  },
+  "apps\\api\\app\\orb\\adaptive\\cli.py": {
+    "old_sha256": null,
+    "installed_sha256": "0a2a5b5f3945a3cf6dfe4fa3b01d0a3d5dd06753d03ef691e41fe47af59d0051"
+  },
+  "apps\\api\\app\\orb\\adaptive\\contracts.py": {
+    "old_sha256": null,
+    "installed_sha256": "a0237c58daad0b0e21f3e42bdbfa86c6e3f3e22b7f3dedbb0d43a020dce7ccaf"
+  },
+  "apps\\api\\app\\orb\\adaptive\\controller.py": {
+    "old_sha256": null,
+    "installed_sha256": "30cadcaeff31391dfcad631b339e10c3f906bf2fd410008d1ec17b49b0aa2490"
+  },
+  "apps\\api\\app\\orb\\adaptive\\datasets.py": {
+    "old_sha256": null,
+    "installed_sha256": "3d3f11b3720f7d89a8ee93c0bfea238fc336ad411ee6a77cefec848f5c0814fb"
+  },
+  "apps\\api\\app\\orb\\adaptive\\demo.py": {
+    "old_sha256": null,
+    "installed_sha256": "1dfbdf60680fa1dbe273fb064c596a738c0e9fc6c7eeaf605c0cecb1c763b810"
+  },
+  "apps\\api\\app\\orb\\adaptive\\execution.py": {
+    "old_sha256": null,
+    "installed_sha256": "9a8082cc4deb1695bbbb6aed2a83e3fbb7912eddd328bf698efe39b0209c97a0"
+  },
+  "apps\\api\\app\\orb\\adaptive\\explain.py": {
+    "old_sha256": null,
+    "installed_sha256": "aa26632a524482d676390b876d78d0a9abcd97031e8189a0d4f11a25173805c1"
+  },
+  "apps\\api\\app\\orb\\adaptive\\features.py": {
+    "old_sha256": null,
+    "installed_sha256": "9188f588528152586084a84550df4727733ab43d43230bd6843101f3c247e2b3"
+  },
+  "apps\\api\\app\\orb\\adaptive\\forecasting.py": {
+    "old_sha256": null,
+    "installed_sha256": "2adaedb441375fe75d7a71bc8516b1d7566e826200bd7502beae78acde4d6105"
+  },
+  "apps\\api\\app\\orb\\adaptive\\governance.py": {
+    "old_sha256": null,
+    "installed_sha256": "dc8606e6ffdef5f989c2d488f733b625f85ba9ab1dad5715116668055bec4932"
+  },
+  "apps\\api\\app\\orb\\adaptive\\integration.py": {
+    "old_sha256": null,
+    "installed_sha256": "515816cd98cdf93284740980c06ac712daa3eec0cb59194b71729da2d945150c"
+  },
+  "apps\\api\\app\\orb\\adaptive\\monitor.py": {
+    "old_sha256": null,
+    "installed_sha256": "545e5609cbda33c2103e0dfeedb50840146b68afc0241a2fa3f99c102009c874"
+  },
+  "apps\\api\\app\\orb\\adaptive\\registry.py": {
+    "old_sha256": null,
+    "installed_sha256": "9d72848f27eba861c5d770c69c185bf39952910721e806ea0976d0b8900a8736"
+  },
+  "apps\\api\\app\\orb\\adaptive\\research.py": {
+    "old_sha256": null,
+    "installed_sha256": "ab88be00c585c6b274fddf60318775bea9ee5e2f8eeda2d4861a45c995eb1236"
+  },
+  "apps\\api\\app\\orb\\adaptive\\runtime.py": {
+    "old_sha256": null,
+    "installed_sha256": "bf38d51809345b256a2058f4255f0d80737c79e8fdf8e01c92f9407161e5b4ba"
+  },
+  "apps\\api\\app\\orb\\adaptive\\service.py": {
+    "old_sha256": null,
+    "installed_sha256": "568d759a847b245db0ed4371d00dbda2a75fe030ed6c216ba6f8494180503213"
+  },
+  "apps\\api\\app\\orb\\adaptive\\source_scenarios.json": {
+    "old_sha256": null,
+    "installed_sha256": "8397a68cc58ca8dc425f49db37aaf087d9b3660c8b8a49365f1f165f8191915b"
+  },
+  "apps\\api\\app\\orb\\adaptive\\store.py": {
+    "old_sha256": null,
+    "installed_sha256": "9c919602cbef570fa1ddacda69d0f2eb0be6b6cd8ba0a64fb5d15019bc4c9b43"
+  },
+  "apps\\api\\app\\orb\\adaptive\\value.py": {
+    "old_sha256": null,
+    "installed_sha256": "6ae97b8894af5044055508720b2367396cd49f8654d34bac6a7d5149dcbdb5ee"
+  },
+  "apps\\api\\app\\orb\\adaptive\\wake.py": {
+    "old_sha256": null,
+    "installed_sha256": "b508f9355e3f703d818ab10eb862e0b6ea3e42ab400692f228c897ea8c7cbef8"
+  },
+  "apps\\api\\tests\\afre\\__init__.py": {
+    "old_sha256": null,
+    "installed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apps\\api\\tests\\afre\\conftest.py": {
+    "old_sha256": null,
+    "installed_sha256": "993590cfa2be57cab132617bff46c8300d3ce78496651da91dedf0be04011a86"
+  },
+  "apps\\api\\tests\\afre\\helpers.py": {
+    "old_sha256": null,
+    "installed_sha256": "4306971cea874f6ef4a3163573d8d30ba3590a662601875bdef874c18b40f202"
+  },
+  "apps\\api\\tests\\afre\\test_api_adapters.py": {
+    "old_sha256": null,
+    "installed_sha256": "4a0897179cf9d7b1400956fe3f2ac5c76e88f374f20f935b1220ceb6dad0cd57"
+  },
+  "apps\\api\\tests\\afre\\test_cli.py": {
+    "old_sha256": null,
+    "installed_sha256": "bd2bb0a1f44aada3d98c679092864c998b6a48a5879041c5866955be3c5b32af"
+  },
+  "apps\\api\\tests\\afre\\test_core.py": {
+    "old_sha256": null,
+    "installed_sha256": "29a6f560f0cd1fc1d1fdb6c2d7b6a25259816ba7fe4710689d163f6354ec4299"
+  },
+  "apps\\api\\tests\\afre\\test_execution.py": {
+    "old_sha256": null,
+    "installed_sha256": "5bdb75dcd34c6b5a8a8e6b4db8df70a9fef8b74694a913093a65fd36e03ca87c"
+  },
+  "apps\\api\\tests\\afre\\test_governance.py": {
+    "old_sha256": null,
+    "installed_sha256": "73f1fbd6e624cea9996e88c94ee5bf122993fc00b9a949e3eff6cdfc8f8624a9"
+  },
+  "apps\\api\\tests\\afre\\test_installer.py": {
+    "old_sha256": null,
+    "installed_sha256": "7db470ae1034f37d5dc2adaa2ea9427ee6d4a3e4f6d959e3cfd240691647c253"
+  },
+  "apps\\api\\tests\\afre\\test_properties_process.py": {
+    "old_sha256": null,
+    "installed_sha256": "88901e417beadb2cb6d0914d6964c41546d2ef1f86a0627e656c97f9dcb72904"
+  },
+  "apps\\api\\tests\\afre\\test_research_forecasts.py": {
+    "old_sha256": null,
+    "installed_sha256": "462ba5603bfdd3173a4c8aac09550149ef8e2e2b7d8919ddc72df8675ef19d4d"
+  },
+  "apps\\api\\tests\\afre\\test_runtime_store.py": {
+    "old_sha256": null,
+    "installed_sha256": "5d0748af40caeca7d0ec004efb81a0ca3f71eebe233d320fea3776d640ff2a66"
+  },
+  "configs\\afre\\account.example.json": {
+    "old_sha256": null,
+    "installed_sha256": "a2ac523c5b9295748bdce7c41058ed8b0ecb68e21e8e820922ad840b746ac4e0"
+  },
+  "configs\\afre\\policy.example.json": {
+    "old_sha256": null,
+    "installed_sha256": "c053f54ec3671b26720536f34d528cfc2dfc84bcd2698646b393bcbd23f12152"
+  },
+  "configs\\afre\\policy.native3m-exec1m.example.json": {
+    "old_sha256": null,
+    "installed_sha256": "d92280d6942b07e103d12e34c3192ffc045f418aa12778b23cc9a6e710999123"
+  },
+  "configs\\afre\\policy.native3m-flat1509.example.json": {
+    "old_sha256": null,
+    "installed_sha256": "33b96bad3aaf74577774ae7992dd042faa1b28aa588ee92d48b49209e1b367c1"
+  },
+  "configs\\afre\\README.md": {
+    "old_sha256": null,
+    "installed_sha256": "5408223a6c0f9bf6e1cf832a76c1da4cc8bc370977d26a531fbdeef874d42bd9"
+  },
+  "docs\\afre\\ARCHITECTURE.md": {
+    "old_sha256": null,
+    "installed_sha256": "171ae8826659050e36ed776c48c9a9e9450334106074232a3b8d6f11284d11dc"
+  },
+  "docs\\afre\\OPERATIONS.md": {
+    "old_sha256": null,
+    "installed_sha256": "88401e641ecb920c483be17be6bf1a43fdc718aeebaba9ed13bc43af912da6fe"
+  },
+  "docs\\afre\\POLICY_AND_PROOF.md": {
+    "old_sha256": null,
+    "installed_sha256": "71834345f433a2873006a928c5c1e06088c85584b021e35899f9f565e74da556"
+  },
+  "docs\\afre\\README.md": {
+    "old_sha256": null,
+    "installed_sha256": "5a86f32153dc242b87acd5decbb67b13952a409334239b2657041002fa4a7f38"
+  },
+  "docs\\afre\\SCENARIO_COVERAGE.json": {
+    "old_sha256": null,
+    "installed_sha256": "19e8793485004b1b34d078f6baea394a893cef06081790e887342d1e770a23a1"
+  },
+  "docs\\afre\\SCENARIO_COVERAGE.md": {
+    "old_sha256": null,
+    "installed_sha256": "c4be4bdf82e8fed572e90abb6bf9fc11349abc0267e44c2cfb21c84700485c81"
+  },
+  "docs\\afre\\schemas\\AccountLimits.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "448e00e71e4d8d3a66b87de3408f32263afb29fecbbbc0cf3fa8e57bcb9aec9a"
+  },
+  "docs\\afre\\schemas\\ApproveBody.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "112afdde6316954b49e2cb6c2afcdaadd4d73e982de371f0c1f5bc4d64483896"
+  },
+  "docs\\afre\\schemas\\Bar.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "368f3710d91053f6ba252bc7597070f48d30d3f40b7a9022f1b3c7a22226f146"
+  },
+  "docs\\afre\\schemas\\Capability.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "fd40ee157ab6e429293de0944cbfb8c03d530602c72aff89bf11bba6c52ef6d3"
+  },
+  "docs\\afre\\schemas\\Decision.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "5161772e9850059524f136e39423a64c53834a54093a5beb06b09e7e428a01e7"
+  },
+  "docs\\afre\\schemas\\EventBatch.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "6775c3b14f1e08cf7934c45be87d2738d0d69d4e337743145e14b165e9186034"
+  },
+  "docs\\afre\\schemas\\Forecast.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "0cd555c433add1a433011bc56f1e2eabf434bfadf588871a17e9a3f7497f152d"
+  },
+  "docs\\afre\\schemas\\MarketSnapshot.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "967b622d3539018a3d2445e6c6bfa1eb4efb2d7fc273a389eb787193bd2dd2dd"
+  },
+  "docs\\afre\\schemas\\Policy.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "b72be38bb0dccb69bbd234b7b2d826563838b13bd56cf35c494ddc9692c972bb"
+  },
+  "docs\\afre\\schemas\\Position.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "2c061c7397fbf7a48425c55b4d3c922d6ca1d41ea869dae3dd466067540f5402"
+  },
+  "docs\\afre\\schemas\\PriorContext.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "7308124458ce2d6447544e9416ba2e41f15e7feaefcdfafea7ebbf03760929c0"
+  },
+  "docs\\afre\\schemas\\ProofThresholds.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "13ce5c094461f7035b12301ac34c4ddab028058836393e53aa7f6746d658f551"
+  },
+  "docs\\afre\\schemas\\ResearchDay.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "4d0df8d298740d00e960c3833f37dbf1819d169433c780878e9d102d71bfb621"
+  },
+  "docs\\afre\\schemas\\standalone-openapi.json": {
+    "old_sha256": null,
+    "installed_sha256": "62c266ec304c63b2571ee0345f9720751274aa77881024973de0990af62be1d8"
+  },
+  "docs\\afre\\schemas\\StartBody.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "da6763606bd6fe0e94b70fd04a108ee4158cfe98c03f6b43c00d26cc9ee877fe"
+  },
+  "docs\\afre\\schemas\\TimerBody.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "9d109afb94b3d687d49f63138d62c152166fa602423d41fcfd784da032cd4aa7"
+  },
+  "docs\\afre\\schemas\\TradePlan.schema.json": {
+    "old_sha256": null,
+    "installed_sha256": "839f896fdc0a11a8c02eece0a047eebe3de46a802ee56e51f57fbf9f3922937b"
+  },
+  "docs\\afre\\VALIDATION_AND_LIMITS.md": {
+    "old_sha256": null,
+    "installed_sha256": "ccd894bbad18934e07115fcfaa4d1cdf4e93788d5101c63e213b1c38c92572ff"
+  },
+  "scripts\\verify_afre_host.py": {
+    "old_sha256": null,
+    "installed_sha256": "d425edc15d9b6cdfc0a1a386a6fa4d23e89f0158a618242bfa3f5a78e7533d97"
+  },
+  "apps\\api\\app\\main.py": {
+    "old_sha256": "97e43f6eb9b4708522fbbbb0367a08744ec4febe9dee16c002de7d912413923c",
+    "installed_sha256": "6c2d80c8393cb16b40ac6881aef81b47c34bcce4af80e170aa39fde7d2349ec6"
+  },
+  "apps\\api\\app\\orb\\core.py": {
+    "old_sha256": "b879ae51ad2a9091087522a1ce12ffed79bd958364e4148c98f38d9662467d70",
+    "installed_sha256": "5cc915088f59124763bfca591007e2447d73387f623062475f1603efd69e9443"
+  },
+  "apps\\api\\app\\orb\\discovery.py": {
+    "old_sha256": "b525f652687cf76efbdc2bc757e4052704e460fc190fe01a320b263068635e0b",
+    "installed_sha256": "86cc26318bca632c20801765bb1d0437e44eb570e277cd737d71c3aac55d79d6"
+  },
+  "apps\\api\\app\\orb\\proof.py": {
+    "old_sha256": "7a06085fe7d340c8b9656fbb40770327edacfc58d8f01ca5b52fae0dcc295a68",
+    "installed_sha256": "ea8df3c9c53d8c66c9e4b32871d2ddea251f804c5be81768899308402ecf7f4a"
+  },
+  "apps\\api\\app\\behavior\\orb_guidance.py": {
+    "old_sha256": "f4097470144fe5bdff5919f0f14100fddb5542fe305682192dde132f772c8e53",
+    "installed_sha256": "12a8e85ca8cda86ea9ab565d5b51e75ed8fe98c86ce83f9ca8aae3cb2c322b7c"
+  }
+}

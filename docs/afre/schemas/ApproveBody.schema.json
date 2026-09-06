@@ -1,0 +1,42 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "approval_phrase": {
+      "title": "Approval Phrase",
+      "type": "string"
+    },
+    "event_id": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:@/-]+$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "proposal_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Proposal Hash",
+      "type": "string"
+    },
+    "proposal_id": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:@/-]+$",
+      "title": "Proposal Id",
+      "type": "string"
+    },
+    "quantity": {
+      "exclusiveMinimum": 0,
+      "title": "Quantity",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "event_id",
+    "proposal_id",
+    "proposal_hash",
+    "quantity",
+    "approval_phrase"
+  ],
+  "title": "ApproveBody",
+  "type": "object"
+}

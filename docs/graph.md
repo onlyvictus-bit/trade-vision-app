@@ -2,17 +2,17 @@
 
 > **Purpose:** Actual (not aspirational) structural map of modules, data flows, and authority boundaries.  
 > **Machine-readable twin:** `docs/graph/project_graph.json` (served by `GET /api/knowledge/graph`)  
-> **Last verified against code:** 2026-08-25  
-> **Latest completed version:** v1.99 (Complete Safe Indicator Coverage)  
+> **Last verified against code:** 2026-09-04  
+> **Latest completed version:** v2.01 (ORB Opening Scenarios)  
 > **Source of truth for ??what shipped??:** `docs/IMPLEMENTATION_STATUS.md`  
 > **Merged 2026-07-24:** former `docs/README_GRAPH.md` (how-to + update rule) into **A0 below** ?? **do not recreate** that file.  
-> **Graph JSON refresh 2026-08-25:** v1.96 catalog, v1.97 ORB timing research, v1.98 real 9C candles, v1.99 coverage nodes/edges added (87 nodes / 203 edges, zero dangling).  
+> **Graph JSON refresh 2026-09-04:** v1.99.3-4 BEL prove/promote, v2.00-repair, v2.01 opening-scenario nodes/edges (93 nodes / 211 edges, zero dangling).  
 > **Product spine requirement (not this file):** `docs/plans/FINAL_REQUIRED_FLOW.md`  
 > **Living contracts / operator map:** `ARCHITECTURE.md`
 
 ---
 
-## 0a. Recent additions (v1.96 - v1.99, 2026-08-25)
+## 0a. Recent additions (v1.96 - v2.01, 2026-08-25 - 2026-09-04)
 
 ```text
 v1.96  Indicator Intelligence Catalog
@@ -47,6 +47,18 @@ v1.99.1-2  Flow re-audit on real data (scripts/flow_reaudit.py +
        (SNAPSHOT_INDICATOR_WINDOW_BARS; full history blew latency guard)
        Result: real RELIANCE 5000 bars -> D1 9/9 -> 8/9 receipts completed
        -> WATCH; persisted-memory receipt honest until 30 paper outcomes
+
+v1.99.3-4  BEL proven + promoted (scripts/prove_bel.py, GATES.md 7/7 met,
+       proof ab7b3163: holdout PF 1.271, walk-forward 4/4; scripts/promote_bel.py:
+       playbook a1c78a28 active BEL 5m, matched by v1.92 guidance on real bars)
+
+v2.00-repair  Engine damage rebuild (03-09 wipe of grok_provider +
+       decision-quality-gate): reconstructed from twin/contracts/tests;
+       test_reconstruction_v200.py with 16 dedicated gates; 740/740 green
+
+v2.01  ORB opening scenarios (orb/context.py gap/CPR/zone classifier +
+       OrbOpeningScenario model; 6 gates incl. real-data partition invariant
+       over 1611 sessions; median width_atr 0.147 finding supports CPR-04/H3)
 ```
 
 ---

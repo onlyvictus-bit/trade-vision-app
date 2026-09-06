@@ -355,3 +355,12 @@ def _hash(value) -> str:
             allow_nan=False,
         ).encode("utf-8")
     ).hexdigest()
+
+# BEGIN AFRE_V3_OPT_IN_ADDITION
+def run_adaptive_orb_proof(days, controllers, *, holdout_start, thresholds=None):
+    """Training-only selection; does not reuse or relabel legacy BEL proof."""
+    from .adaptive.research import prove_policies
+    from .adaptive.governance import code_fingerprint
+    return prove_policies(days, controllers, holdout_start=holdout_start,
+                          code_hash=code_fingerprint(), thresholds=thresholds)
+# END AFRE_V3_OPT_IN_ADDITION

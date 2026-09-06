@@ -1,13 +1,13 @@
 {
-  "schema_version": "tradevision.project_graph.v1.99.2-flowreaudit",
-  "generated_at": "2026-08-26T09:30:00+05:30",
+  "schema_version": "tradevision.project_graph.v2.01-sync",
+  "generated_at": "2026-09-04T20:00:00+05:30",
   "root": "Trade Vision",
   "summary": {
-    "nodes": 88,
-    "edges": 205,
-    "source": "v1.99.2_flowreaudit_graph_refresh",
-    "previous_schema_version": "tradevision.project_graph.v1.99-coverage",
-    "previous_source": "v1.99_coverage_graph_refresh"
+    "nodes": 93,
+    "edges": 211,
+    "source": "v2.01_sync_graph_refresh",
+    "previous_schema_version": "tradevision.project_graph.v1.99.2-flowreaudit",
+    "previous_source": "v1.99.2_flowreaudit_graph_refresh"
   },
   "nodes": [
     {
@@ -449,6 +449,31 @@
       "id": "flow-reaudit-v199",
       "label": "Flow re-audit on real data + session-aware quality + compute window (v1.99.1-2)",
       "type": "domain"
+    },
+    {
+      "id": "bel-walkforward-proof",
+      "label": "BEL proof ab7b3163: holdout PF 1.27, WF 4/4, ELIGIBLE",
+      "type": "evidence"
+    },
+    {
+      "id": "bel-playbook",
+      "label": "BEL playbook a1c78a28 active (09:15-09:20, RR 3.0)",
+      "type": "domain"
+    },
+    {
+      "id": "engine-repair-v200",
+      "label": "Rebuilt grok_provider + decision-quality-gate (03-09 wipe)",
+      "type": "domain"
+    },
+    {
+      "id": "orb-opening-scenarios-v201",
+      "label": "orb/context.py gap/CPR/zone classifier + OrbOpeningScenario",
+      "type": "module"
+    },
+    {
+      "id": "reconstruction-gates",
+      "label": "test_reconstruction_v200.py (16 dedicated gates)",
+      "type": "test"
     }
   ],
   "edges": [
@@ -1476,6 +1501,36 @@
       "from": "flow-reaudit-v199",
       "to": "test-id-index",
       "label": "recorded_in"
+    },
+    {
+      "from": "bel-walkforward-proof",
+      "to": "orb-proof-v191",
+      "label": "proven_by_v191_layer"
+    },
+    {
+      "from": "bel-playbook",
+      "to": "bel-walkforward-proof",
+      "label": "promoted_from_eligible_proof"
+    },
+    {
+      "from": "orb-guidance-v192",
+      "to": "bel-playbook",
+      "label": "matches_in_guidance"
+    },
+    {
+      "from": "engine-repair-v200",
+      "to": "jarvis-decision-room",
+      "label": "restores_api_and_tests"
+    },
+    {
+      "from": "orb-opening-scenarios-v201",
+      "to": "orb-core-v189",
+      "label": "future_context_input"
+    },
+    {
+      "from": "reconstruction-gates",
+      "to": "engine-repair-v200",
+      "label": "verify_rebuild"
     }
   ]
 }

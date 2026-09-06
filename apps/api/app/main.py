@@ -7084,3 +7084,8 @@ async def get_knowledge_graph():
     if not KNOWLEDGE_GRAPH_PATH.exists():
         raise api_error(503, "graph_unavailable", f"Knowledge graph not found at {KNOWLEDGE_GRAPH_PATH}", retryable=True)
     return envelope(json.loads(KNOWLEDGE_GRAPH_PATH.read_text(encoding="utf-8")))
+
+# BEGIN AFRE_V3_OPT_IN_ADDITION
+from .orb.adaptive.integration import mount as _mount_adaptive_orb
+_mount_adaptive_orb(app)
+# END AFRE_V3_OPT_IN_ADDITION

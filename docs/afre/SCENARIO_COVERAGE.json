@@ -1,0 +1,629 @@
+{
+  "calibrated_models_shipped": 0,
+  "cases": [
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "An apparent escape can fail too; no third-attempt privilege and no entry after an earlier fill.",
+      "id": "A01",
+      "implementation_status": "OBSERVED_PRICE_CLOCK_RULE_NOT_CAUSE_PREDICTOR",
+      "modules": [
+        "features.py",
+        "controller.py"
+      ],
+      "opportunity_branch": "If a later accepted escape obtains its own continuation trigger before cutoff, evaluate it independently.",
+      "protective_response": "Compare a registered wait-for-acceptance policy with skip; keep the trade token unused.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Chop day"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "No automatic 0.8R target or NR7 priority; compression may never expand profitably.",
+      "id": "A02",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "Study compression-to-expansion under OHLCV labels and existing targets, never call it a VIX trade.",
+      "protective_response": "Flag missing VIX; block VIX-dependent policies. A separately proven OHLCV-only recipe may still run.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "VIX coma"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "A quiet next bar does not prove shock ended; no claims of safety from a proxy.",
+      "id": "A03",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "A valid later stable acceptance/retest is only an independent OHLCV candidate.",
+      "protective_response": "Block the missing overlay; observe shocks, recheck pending proposal geometry and data integrity.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "VIX spike"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "A large gap can keep being accepted. Refute the fade on registered reclaim before entry.",
+      "id": "A04",
+      "implementation_status": "OBSERVED_PRICE_CLOCK_RULE_NOT_CAUSE_PREDICTOR",
+      "modules": [
+        "features.py",
+        "controller.py"
+      ],
+      "opportunity_branch": "Confirmed rejection may arm an unfilled-gap fade with a separately tested stop and remaining target room.",
+      "protective_response": "Compare no-chase, wait-retest and rejection-watch plans. Do not flip from gap size alone.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Gap exhaustion"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "The catalyst is unknown, the shock may repeat, and an open fixed-exit paper trade does not gain a new discretionary stop rule.",
+      "id": "A05",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "Only a later independently valid price setup; no claim that the shock itself is profit opportunity.",
+      "protective_response": "Represent unobservable event risk, stress adverse paths, cancel invalid unapproved plans, or halt corrupt data.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "News shock"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Failed breakout does not imply profitable reversal; reclaim or no room invalidates the alternative.",
+      "id": "B01",
+      "implementation_status": "OBSERVED_PRICE_CLOCK_RULE_NOT_CAUSE_PREDICTOR",
+      "modules": [
+        "features.py",
+        "controller.py"
+      ],
+      "opportunity_branch": "Independent rejection plus untouched PDC and target room may support a gap fade.",
+      "protective_response": "Do not keep the invalid original entry alive; arm alternative fade and reclaim branches before any approval.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "False breakout (trap)"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Never tighten or widen the stop ad hoc just to force a better displayed R multiple.",
+      "id": "B02",
+      "implementation_status": "OBSERVED_PRICE_CLOCK_RULE_NOT_CAUSE_PREDICTOR",
+      "modules": [
+        "features.py",
+        "controller.py"
+      ],
+      "opportunity_branch": "A later planned pullback can give a different feasible entry only if its complete policy is proven.",
+      "protective_response": "Reject uneconomic plans; compare separately registered timing/structural-stop recipes or skip.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "OR too wide"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Later confirmation can be expensive or false; no automatic 3R target or volume-hammer magic.",
+      "id": "B03",
+      "implementation_status": "OBSERVED_PRICE_CLOCK_RULE_NOT_CAUSE_PREDICTOR",
+      "modules": [
+        "features.py",
+        "controller.py"
+      ],
+      "opportunity_branch": "A genuine later accepted expansion can be eligible under the continuation policy.",
+      "protective_response": "Compare persistence or expansion confirmation against first break; enforce minimum valid geometry.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "OR too narrow"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "The next attractive candle does not repair a corrupt source; rebased OR is a separate experiment.",
+      "id": "B04",
+      "implementation_status": "OBSERVED_PRICE_CLOCK_RULE_NOT_CAUSE_PREDICTOR",
+      "modules": [
+        "features.py",
+        "controller.py"
+      ],
+      "opportunity_branch": "With valid data, later acceptance or rejection can form a normal permitted setup.",
+      "protective_response": "Separate valid unusual bar from invalid data. Quarantine inconsistency; no silent range rebasing.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "First-bar contamination"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "No retrospective entry at the earlier level, and no afternoon exception.",
+      "id": "B05",
+      "implementation_status": "OBSERVED_PRICE_CLOCK_RULE_NOT_CAUSE_PREDICTOR",
+      "modules": [
+        "features.py",
+        "controller.py"
+      ],
+      "opportunity_branch": "A new valid pre-cutoff observation may create a new unapproved plan; otherwise no opportunity.",
+      "protective_response": "Use the actual 10:15 entry cutoff and per-proposal expiry, not the source 11:30 limit.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Level staleness"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "No re-entry after an actual stop, even when the pattern later looks better.",
+      "id": "B06",
+      "implementation_status": "OBSERVED_PRICE_CLOCK_RULE_NOT_CAUSE_PREDICTOR",
+      "modules": [
+        "features.py",
+        "controller.py"
+      ],
+      "opportunity_branch": "Before the first entry only, a later independently confirmed reclaim/escape can be evaluated.",
+      "protective_response": "After any filled trade, enforce daily completion. Before entry, compare wait/skip rather than blind retries.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Double-stop whipsaw"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Event ambiguity or insufficient time/room can leave no opportunity; no automatic post-result safety.",
+      "id": "C01",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "Later post-event acceptance/rejection could select an existing family when its data and controller are proved.",
+      "protective_response": "Mark event awareness unavailable; a future dated gate is a separately tested policy, not an assumed 09:45 safe zone.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Result-day whipsaw"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Do not create after-10:15 entries as compensation for waiting through an event.",
+      "id": "C02",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "Only qualifying pre-cutoff evidence after uncertainty clears; often the entry window will be over.",
+      "protective_response": "Block event-dependent strategy or follow a separately validated OHLCV-only policy; known-window avoidance is configurable risk policy.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "RBI MPC ~10:00"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Two confirmations do not make every extreme event day safe.",
+      "id": "C03",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "No automatic conversion; only independent valid first-hour price setups within supported policy.",
+      "protective_response": "Future calendar rule can skip or require separately validated conditions. Preserve adverse-path stress.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Budget/election"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "The artificial component of a gap is not a free fade opportunity; corrected history can invalidate old proof.",
+      "id": "C04",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "An authentic residual gap after verified adjustment can be evaluated afresh under its exact policy.",
+      "protective_response": "Reconcile comparable prices; block known basis inconsistency; never add a universal dividend percentage blindly.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Ex-dividend misread"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "An OHLC print is not proof that the desired quantity could enter or exit.",
+      "id": "D01",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "No inherent trading opportunity; this is an execution/safety hazard.",
+      "protective_response": "Block policies requiring unavailable eligibility; stress exit non-observability and preserve unknown outcomes.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Circuit lock"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Do not invent current or historical restrictions from volatility or names.",
+      "id": "D02",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "No automatic inverse trade. Data/eligibility review is the useful action.",
+      "protective_response": "Keep status unknown rather than safe; validate applicability before any optional exclusion policy.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "ASM/GSM/T2T"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Higher volume does not prove tight spread; future fill-bar volume cannot select earlier size.",
+      "id": "D03",
+      "implementation_status": "MODELED_ECONOMIC_GUARD_DEPTH_UNAVAILABLE",
+      "modules": [
+        "execution.py"
+      ],
+      "opportunity_branch": "A later feasible entry can be considered before approval if valid and independently supported.",
+      "protective_response": "Apply proved economic/capacity constraints; delay/reduce only through registered policy or skip.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Illiquidity/slippage"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "A derivatives status cannot establish an advantageous cash-stock fade or squeeze.",
+      "id": "D04",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "No inherent directional opportunity from this label.",
+      "protective_response": "Mark overlay missing and verify applicability before any gate. No blanket cash prohibition inferred here.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "F&O ban"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Bad data is not a market signal; repeated model agreement cannot validate a bad source.",
+      "id": "E01",
+      "implementation_status": "OBSERVED_PRICE_CLOCK_RULE_NOT_CAUSE_PREDICTOR",
+      "modules": [
+        "features.py",
+        "controller.py"
+      ],
+      "opportunity_branch": "Only after verified recovery can new valid observations support normal policy.",
+      "protective_response": "Halt affected decisions, reconcile, replay with a new version if corrected; never fabricate a price.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Feed lag / bad ticks"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Do not add broker integration or assume a guaranteed flat price to simulate a perfect outcome.",
+      "id": "E02",
+      "implementation_status": "BROKER_EXCLUDED_CLOCK_ACCOUNTING_IMPLEMENTED",
+      "modules": [
+        "execution.py",
+        "wake.py"
+      ],
+      "opportunity_branch": "No market inversion; better accounting and a protected allowance are the benefit.",
+      "protective_response": "Model approval expiry, missed fills and flat deadlines under the research contract.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Order rejection / broker square-off"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "A profitable leaked backtest is not salvaged by a risk filter.",
+      "id": "E03",
+      "implementation_status": "CAUSAL_GUARD_IMPLEMENTED",
+      "modules": [
+        "features.py",
+        "contracts.py",
+        "adapters.py"
+      ],
+      "opportunity_branch": "No trading opportunity. A corrected research result is the useful output.",
+      "protective_response": "Invalidate affected results, fix availability, recompute correctly and require fresh proof.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "PIT violation (lookahead)"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Do not presume the historically documented bug still exists or is fixed without current test evidence.",
+      "id": "E04",
+      "implementation_status": "AFRE_PARITY_IMPLEMENTED_LEGACY_UNCHANGED",
+      "modules": [
+        "runtime.py",
+        "execution.py",
+        "research.py"
+      ],
+      "opportunity_branch": "No trade conversion. Correct economics can change which strategy is valid.",
+      "protective_response": "Block affected promotion until stop/fill/cost semantics match; audit old results.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Backtest/live mismatch (E3)"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "A pin can break; no forced cap-to-pain or automatic fade bias.",
+      "id": "F01",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "A valid unfilled-gap fade or accepted breakout can be studied independently, not called gamma/pain proof.",
+      "protective_response": "Keep mechanism unknown; observe near-level congestion only as OHLCV behavior under a separate label.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Expiry pinning"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Trailing or runner management would change the frozen exit policy and is not enabled.",
+      "id": "F02",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "Only a permitted fixed-exit continuation with its own proof.",
+      "protective_response": "Use price-path stress, extension and entry feasibility; no fabricated GEX.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Gamma squeeze"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Neither an OI wall nor a candle rejection guarantees a ceiling; reclaim refutes the fade.",
+      "id": "F03",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "A rejected price break can arm a valid gap fade only with independent trigger and remaining room.",
+      "protective_response": "Keep derivatives inference blocked; apply normal target-room/economic policy if supported.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "OI wall rejection"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Do not substitute next-month data or infer basis mechanically without actual records.",
+      "id": "F04",
+      "implementation_status": "EXTERNAL_MECHANISM_UNOBSERVABLE_NO_PROVIDER_CONNECTOR",
+      "modules": [
+        "registry.py",
+        "contracts.py"
+      ],
+      "opportunity_branch": "No direct trade conversion inside this core.",
+      "protective_response": "Validate data contract or disable basis-related policies.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Rollover distortion"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "A winning week does not erase decay evidence; windows overlap and need adequate support.",
+      "id": "G01",
+      "implementation_status": "MATURED_OUTCOME_REVIEW_CODE_NO_REAL_HISTORY",
+      "modules": [
+        "monitor.py"
+      ],
+      "opportunity_branch": "A separately proved alternative controller may be researched/promoted later, not fitted to the latest losses and deployed instantly.",
+      "protective_response": "Warn/suspend through frozen governance; keep champion model fixed until reviewed.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Edge decay"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "The controller itself must be tested; leaf strategy proofs do not prove adaptive switching.",
+      "id": "G02",
+      "implementation_status": "REGISTERED_TEMPORAL_SELECTION_GUARDS",
+      "modules": [
+        "research.py",
+        "store.py",
+        "governance.py"
+      ],
+      "opportunity_branch": "No market inverse. Stronger selection evidence is the opportunity.",
+      "protective_response": "Log every branch/model/threshold search; nested chronological evaluation; sealed final test; simplify unsupported models.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Overfit"
+    },
+    {
+      "advance_probability": "UNESTIMATED_UNLESS_AN_EXACT_VALIDATED_PROVIDER_EXISTS",
+      "alternative_failure_or_limit": "Synthetic continuations, repeated prompts and many rows from one day do not create independent market evidence.",
+      "id": "G03",
+      "implementation_status": "SUPPORT_AND_NULL_ESTIMATE_GUARDS",
+      "modules": [
+        "forecasting.py",
+        "value.py"
+      ],
+      "opportunity_branch": "Collect prospective observations and shadow alternatives until useful inference is possible.",
+      "protective_response": "Return UNSUPPORTED/UNESTIMATED, not confidence from an arbitrary universal sample count.",
+      "source_mechanism_status": "PRESERVED_UNVERIFIED_NOT_EXECUTED_PROSE",
+      "source_name": "Small sample"
+    },
+    {
+      "behavior_and_limit": "Registered reclaim/acceptance can refute fade; not a probability guarantee.",
+      "id": "X01",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "controller.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Expected fakeout becomes accepted continuation"
+    },
+    {
+      "behavior_and_limit": "Retest and actual-inside-close rules are distinct; still unvalidated on real paths.",
+      "id": "X02",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "features.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Healthy pullback mistaken for failed break"
+    },
+    {
+      "behavior_and_limit": "Independent geometry and losing-fade fixture; a detector is not a profit proof.",
+      "id": "X03",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "execution.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Correct failure diagnosis but losing fade"
+    },
+    {
+      "behavior_and_limit": "Sticky feature-prefix PDC touch and next-open PDC checks invalidate original fade.",
+      "id": "X04",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "runtime.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "PDC touches before approval or fill"
+    },
+    {
+      "behavior_and_limit": "Fresh proposal geometry/envelope, expiry and cost/risk gates.",
+      "id": "X05",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "execution.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Waiting destroys entry economics"
+    },
+    {
+      "behavior_and_limit": "Shared immutable event family; no multiplication of candle likelihoods.",
+      "id": "X06",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "controller.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Correlated tags counted as independent evidence"
+    },
+    {
+      "behavior_and_limit": "Issued-at and positive-lead-time label checks; matured-only scoring.",
+      "id": "X07",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "forecasting.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Detection reported as advance forecast"
+    },
+    {
+      "behavior_and_limit": "Event/horizon/rules identities; four action-dependent numerical estimators remain unavailable.",
+      "id": "X08",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "forecasting.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Forecast horizon substitution"
+    },
+    {
+      "behavior_and_limit": "Conservative ambiguity accounting; no inferred intrabar event chronology.",
+      "id": "X09",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "execution.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Both sides crossed within one bar"
+    },
+    {
+      "behavior_and_limit": "Explicit availability and nested source resolution; no 5m-to-3m conversion.",
+      "id": "X10",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "adapters.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Native 3m versus 5m disagreement"
+    },
+    {
+      "behavior_and_limit": "Unsupported cells/universe/code/time return null; no supported real model bundled.",
+      "id": "X11",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "forecasting.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Unsupported context extrapolation"
+    },
+    {
+      "behavior_and_limit": "Required capability blocks; disabled external mechanisms remain unobservable.",
+      "id": "X12",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "features.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Absent external input treated as neutral"
+    },
+    {
+      "behavior_and_limit": "Duplicate receipts and bounded pure evaluator; timer journals only due events.",
+      "id": "X13",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "runtime.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Endless self-agreement loop"
+    },
+    {
+      "behavior_and_limit": "Atomic account/day transaction tested across threads and local processes.",
+      "id": "X14",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "store.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Simultaneous approvals"
+    },
+    {
+      "behavior_and_limit": "Full-controller/code/model/budget/universe binding; no inherited BEL proof.",
+      "id": "X15",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "governance.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Unproved switching among proved leaves"
+    },
+    {
+      "behavior_and_limit": "Permanent filled token; further opportunities are shadow-only.",
+      "id": "X16",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "runtime.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "New opposite trade after a filled loss"
+    },
+    {
+      "behavior_and_limit": "Session-date treatment and synthetic gating; complete-policy evidence still required.",
+      "id": "X17",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "value.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Shadow alternatives inflate real sample size"
+    },
+    {
+      "behavior_and_limit": "NOT IMPLEMENTED; no market-wide breadth inference.",
+      "id": "X18",
+      "implementation_status": "EXPLICIT_LIMITATION",
+      "modules": [
+        "registry.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Local watchlist called market breadth"
+    },
+    {
+      "behavior_and_limit": "Conflicts quarantine and retain original receipts; no automated corrected-history migration.",
+      "id": "X19",
+      "implementation_status": "CONTROLLER_GUARD_OR_CONTRACT",
+      "modules": [
+        "runtime.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Corrected bars erase original forecasts"
+    },
+    {
+      "behavior_and_limit": "UNKNOWN branch remains; finite contracts cannot cover every future path.",
+      "id": "X20",
+      "implementation_status": "EXPLICIT_LIMITATION",
+      "modules": [
+        "controller.py"
+      ],
+      "predictive_probability": "NOT_CLAIMED",
+      "source_name": "Novel shock outside named taxonomy"
+    }
+  ],
+  "controller_cases": 20,
+  "coverage_is_not_exhaustive_prediction": true,
+  "source_cases": 30
+}

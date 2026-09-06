@@ -1,0 +1,45 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "minimum_development_dates": {
+      "default": 60,
+      "minimum": 10,
+      "title": "Minimum Development Dates",
+      "type": "integer"
+    },
+    "minimum_holdout_dates": {
+      "default": 20,
+      "minimum": 5,
+      "title": "Minimum Holdout Dates",
+      "type": "integer"
+    },
+    "minimum_holdout_fills": {
+      "default": 10,
+      "minimum": 3,
+      "title": "Minimum Holdout Fills",
+      "type": "integer"
+    },
+    "minimum_lower_mean_budget_units": {
+      "default": 0.0,
+      "minimum": 0,
+      "title": "Minimum Lower Mean Budget Units",
+      "type": "number"
+    },
+    "minimum_walk_forward_pass_rate": {
+      "default": 0.66,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Minimum Walk Forward Pass Rate",
+      "type": "number"
+    },
+    "walk_forward_folds": {
+      "default": 3,
+      "maximum": 6,
+      "minimum": 2,
+      "title": "Walk Forward Folds",
+      "type": "integer"
+    }
+  },
+  "title": "ProofThresholds",
+  "type": "object"
+}

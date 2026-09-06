@@ -1,0 +1,17 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "event_id": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:@/-]+$",
+      "title": "Event Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_id"
+  ],
+  "title": "TimerBody",
+  "type": "object"
+}

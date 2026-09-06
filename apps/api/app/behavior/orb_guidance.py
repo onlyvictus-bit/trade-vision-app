@@ -665,3 +665,13 @@ def _unique(values: list[str]) -> list[str]:
 
 def _clamp(value: float, low: float, high: float) -> float:
     return max(low, min(high, value))
+
+# BEGIN AFRE_V3_OPT_IN_ADDITION
+def run_adaptive_paper_guidance(service, session_date, event):
+    """Persist the same event reducer used by adaptive discovery/proof.
+
+    This versioned path has its own exact policy proof. It does not attach a
+    post-proof alpha veto or a second signed-score arbiter to the old path.
+    """
+    return service.ingest(session_date, event)
+# END AFRE_V3_OPT_IN_ADDITION

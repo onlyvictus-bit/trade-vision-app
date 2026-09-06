@@ -1,0 +1,26 @@
+{
+ "generated_at": "2026-09-05T13:02:28.405261",
+ "symbols": [
+  "RELIANCE",
+  "BEL",
+  "TCS",
+  "INFY",
+  "HDFCBANK"
+ ],
+ "confusion": {
+  "RANGE_DAY->MIXED": 196,
+  "RANGE_DAY->RANGE_DAY": 106,
+  "RANGE_DAY->TREND_DAY": 126,
+  "TREND_DAY->MIXED": 957,
+  "TREND_DAY->RANGE_DAY": 622,
+  "TREND_DAY->TREND_DAY": 678
+ },
+ "trend_precision": 0.3,
+ "range_precision": 0.248,
+ "directional_hit_rate": 0.152,
+ "coverage": {
+  "TREND_DAY": 2257,
+  "RANGE_DAY": 428
+ },
+ "total_sessions": 2685
+}

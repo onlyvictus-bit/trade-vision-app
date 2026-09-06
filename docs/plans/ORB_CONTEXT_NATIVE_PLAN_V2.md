@@ -7,6 +7,7 @@
 > - Rule-level trade spec (entry/stop/target, worked examples): `docs/plans/ORB_STRATEGY_MEMORANDUM.md` (v2.3)
 > - Adversarial verification (four passes): `docs/plans/ORB_V2_JUDGE_FINDINGS.md` · verified answers: `docs/plans/ORB_V201_VERIFIED_ANSWER.md` · verbatim archives: `docs/plans/ORB_V201_NSE_REVIEW_KIMI.md` + `docs/plans/ORB_V201B_NSE_REVIEW_KIMI_PART2.md`
 > - Prior ORB plans: `docs/plans/ORB_RESEARCH_ENGINE_PLAN.md` (v1.90 lab), `docs/plans/ORB_TIMING_RESEARCH_V197.md` (v1.97)
+> - Approved build execution: `docs/plans/ORB_V2_BUILD_PLAN.md` (council verdict, staged M1–M6, per-milestone verification)
 > **Version targets:** orb-core v2.01 (context + gap + CPR), v2.02 (PDH/PDL family + realism), v2.03 (regime + proof hardening)
 > **Hard boundary unchanged:** research-only. Every new output stays `research_only=true / trade_allowed=false / live_trading_blocked=true` (`models.py` Literal enforcement). No order routing is added by this plan.
 
@@ -301,3 +302,262 @@ No rule whose inputs lack a shipped source may gate, veto, or size a trade.
 Such rules stay `ALERT_ONLY` (or unbuilt) until their feed milestone ships and
 the ledger proves them — this is what keeps the engine from going permanently
 `context_unknown` on ~40 rules.
+
+## 12. Build-audit gap closures (2026-09-04 — seven items the plan missed)
+
+Found by cross-reading this plan against the as-built v1.96–v2.01 engine.
+Each item below is binding on its milestone.
+
+### G-1. V1 pre-test runs on existing timing data (M0)
+
+The H1/H2/H3 pre-test does not collect new data. It labels the existing
+v1.97 timing rows (`orb_timing_rows` table + `data/orb_research/` exports:
+window, family, RR, net R, consistency per stock) with gap type and CPR width
+from HSTRY daily bars, then runs the pre-registered Mann-Whitney + Holm
+comparison. No new backtests, no new tables.
+
+### G-2. Rollback criteria per merged milestone (all milestones)
+
+Go/no-go gates decide merges; these rules decide reverts. After any milestone
+ships, the next walk-forward decides its fate: if a merged layer cuts
+composite expectancy vs its pre-merge baseline, it is disabled via its config
+key (`gap_mode=off`, `cpr_filter_mode=off`, …), the playbooks that used it are
+re-proved without it, and the disable is recorded in the change log. A merged
+milestone with no rollback rule is incomplete work, not done work.
+
+### G-3. Calendar file schema (M1, EXP-07 prerequisite)
+
+The EXP-07 calendar file has this minimum schema (CSV, one row per session):
+
+```text
+date, session_type, expiry_flag, source, published_at
+```
+
+- `session_type`: FULL | MUHURAT | HALF | DRILL | CLOSED
+- `expiry_flag`: NONE | NSE_WEEKLY | NSE_MONTHLY | BSE_WEEKLY
+- `source`: NSE/BSE circular id or published calendar name
+- `published_at`: when this row entered the file (PIT availability stamp)
+- Update rule: rows are append-only; corrections add a new row with a later
+  `published_at`, never edit history. Any reader must take the latest row per
+  date. No `dayofweek` constants anywhere in engine code.
+
+### G-4. RVOL baseline store (M2)
+
+RVOL-01's 20-day same-time-bucket volume averages are computed once per
+symbol per day and stored (`orb_rvol_baselines`: symbol, date, bucket,
+mean_volume, days_used), never recomputed per backtest day or per combination.
+Baseline older than 20 sessions or built on fewer than 15 sessions is tagged
+`baseline_thin`; RVOL gates degrade to `DELAY_ENTRY` instead of firing on it.
+
+### G-5. Context latency budget (M1/M6)
+
+Per-day context computation (gap + CPR + zones + VWAP + ATR) must complete in
+under 100 ms per symbol-day on the reference machine; the discovery grid
+multiplies this by combos × days, so anything slower stalls the sweep. Budget
+breach blocks the milestone the same way a failed test does. (Measured
+reference points from this repo: indicator warn band 250 ms, block 800 ms;
+scipy rolling entropy 14.5 s — excluded from runtime paths for this reason.)
+
+### G-6. BEL live-testing protection during E3 migration (M4/P2)
+
+The E3 stop-semantics fix must not halt the one live proven strategy. Rule:
+prove the new semantics in parallel (shadow run over the same BEL request);
+switch the active playbook only on a passing shadow proof; until then BEL
+keeps trading the `pre_e3_fix` universe with its stamp intact. Quarantine is
+the fallback only if the shadow proof fails twice, and it requires an
+explicit approval naming the date it lifts.
+
+### G-7. v2.01 classifier is M1's starting point, not a duplicate
+
+`apps/api/app/orb/context.py` (gap_state with parity-tested repo thresholds,
+CPR-01 precedence partition, exclusive Z1–Z5, Wilder ATR14, CTX-02/03 guards;
+6 gates incl. a 1611-session real-data invariant) already implements M1's math
+core. M1 extends this module (session VWAP, `OrbBuildRequest.previous_day`
+wiring, per-day precompute) — it does not rebuild it, and the parity test
+against `behavior._gap_type` must keep passing on every touch.
+
+## 13. M0 execution record (2026-09-04 — inventory + V1 pre-test + BEL decision)
+
+### M0.1 Data inventory (every memo rule → source class)
+
+- **HSTRY-computable today** (daily OHLC + 5m/1m intraday, ~90 symbols × 11 yrs):
+  GAP-01..04, CPR-01..03, Z1–Z5, TRAP-01/02 (+TRAP-03 price/wick part),
+  ENTRY-01/02/04, EXIT-01..04/06/07, STOP-01 variants, SIZE-01 math, SIG-01,
+  VETO-01, REENTRY-01 accounting, RVOL-01 (via new `orb_rvol_baselines` store),
+  VWAP-01..03, UNIV-04/05 (+PDC-chop), CHASE-01, ORPDC-01, ORW-MID, EXP-05 tag,
+  AFT-01 ranges, EXH-01, CTX-02 guard part, CTX-03/04/05, ENTRY-03 (ledger medians).
+- **Needs-FILE** (small published CSVs, none in repo): holiday/expiry calendar
+  (EXP-01..04/07, EXP-05/06, EVENT-02/03/05/07), results calendar (EVENT-01),
+  corporate-action/dividend list (CTX-02 full, DERIV-02), ASM/GSM/T2T/ban lists
+  (UNIV-02), tick-spread source for UNIV-03 spread leg (turnover leg computable).
+- **Needs-FEED** (no source anywhere): India VIX intraday (VIX-01..03, ENTRY-01
+  scaling, NEWS-01 ΔVIX leg), GIFT Nifty (GIFTDIV-01, EVENT-04 gap leg),
+  Nifty futures VWAP/OR (IDX-01), sector indices (IDX-02), D-1 options
+  chain/OI walls/PCR/GEX/IV/expected-move (DERIV-01/03/04/05/06/07),
+  participant OI (DERIV-08), news-shock feed (NEWS-01 trigger),
+  TRAP-03 OI-wall leg, MKT-01 Nifty feed, EXEC-01/02 broker state (N/A research).
+
+### M0.2 V1 pre-test results (H1/H2/H3) — script `scripts/orb_pretest_v2.py`
+
+Data: 5 symbols (RELIANCE/BEL/TCS/INFY/HDFCBANK) × 5m from 2025-01-01;
+289 labeled sessions each; 11,043 discovery trades labeled by gap/CPR/tercile;
+Mann-Whitney + rank-biserial + Holm, min cell n=30. Full table:
+`delete/orb_pretest_v1.md` (+ `.json`).
+
+| H | Test | n1/n2 | p (Holm) | r | Verdict |
+|---|---|---|---|---|---|
+| H1 | breakout NARROW vs WIDE R | 5661/115 | 0.455 (≤0.0167) | +0.041 | **NO_GO** |
+| H2 | gap-aligned vs counter-gap R | 6510/4533 | 0.522 (≤0.0500) | +0.007 | **NO_GO** |
+| H3 | CPR split vs tercile split | — | 0.455 / 0.329 | +0.041/+0.018 | **NO_SEPARATION both** |
+
+Reading: with the default unfiltered grid, gap/CPR layers show no edge;
+WIDE regime is nearly absent (n=115 vs 5661 — consistent with the v2.01
+width_atr finding); base-grid medians are negative, so layer effects sit on a
+losing base. Per the reverse-outcome rule: **gap and CPR layers do NOT earn
+M2/M3 engine gates on this evidence.** The v2.01 classifier stands as labeling
+infrastructure regardless. Re-run per filtered subset before any revival.
+
+### M0.3 BEL P2 decision (recorded, no action yet)
+
+Default stands: **re-prove (not quarantine)** after the E3 stop-semantics fix
+— BEL's winner row is breakout-family (E3-immune), and live paper testing
+continues on the `pre_e3_fix` universe meanwhile. Trigger: the E3 migration
+itself, which is not built. One-word confirmation required at that time;
+until then BEL stays live and this decision needs no further action.
+
+## 14. Staged build plan (council-approved design, not started)
+
+> Council verdict: staged candidate 2 chosen over full M1–M6 (P ≈ 0.72,
+> CI 0.60–0.83, 3 independent families). Prior sections (§1–§13) are
+> untouched by this section; on any conflict between §14 and earlier
+> sections, the earlier section governs until explicitly amended.
+
+### Build order (gated, reversible, slice-scoped)
+
+- **V1-slice re-run first** (no engine code): LARGE-gap and NARROW+RVOL slices
+  on existing timing rows. M1 engine work starts only on a passing slice.
+- **M1: context foundation (v2.01).** Files: `orb/context.py` (extend),
+  `models.py` (+`OrbConfluenceContext`, `OrbBuildRequest.previous_day_*`,
+  `gap_mode`/`cpr_filter_mode`/`stop_mode` keys defaulting to current
+  behavior), `state.py` TV-V202 rows, `tests/test_orb_v201_context.py` (new).
+  Work: session-VWAP, previous_day explicit fields (PIT strictly-prior session;
+  dual-source mismatch = hard error CTX-04), per-day precompute helper (never
+  per-combo), leak-proof test, whitelist v0.15, live wiring with
+  `context_unknown` fail-open. Rollback: `context_enabled` flag (default off).
+- **M2: gap gates — ONLY if the V1-slice passes for LARGE-gap.**
+  `core.py::_gap_gates`, S5 slot accounting HERE (not M6), arbiter wiring
+  decision, tests per GAP-01..04/TRAP-01/02/VETO-01 rule ID.
+- **M3: CPR filter — ONLY if the V1-slice passes for NARROW.**
+  `cpr_filter_mode` (default off), NARROW-first partition, 1.5R cap on WIDE.
+- **M4: PDH/PDL family + E3 (dangerous — shadow first).**
+  `pdh_pdl_breakout` family, `_backtest_day` honors signal stop, BEL
+  shadow-run parallel proof, switch playbook only on pass, `metric_universe`
+  stamps, timing rows recomputed, S5/S6 accounting, stop-unification test.
+- **M5: exits + sizing.** `exit_plan` (full/split-1R-half/trail), stop-first
+  tie-break, capital-risk `size_hint`, slippage overrides, daily breaker in
+  approval flow (fail-open + loud tag), `stop_mode` + parity test.
+- **M6: regime + hardening.** OR-width-vs-ATR filter, REENTRY-01 state
+  machine, thresholds raised (overall ≥30, per-regime ≥10, promotion bar
+  60 OOS), staged grid (Stage 1 modes over best v1.97 configs; Stage 2 joint
+  over survivors), AFT-01 separate track with own folds.
+
+### Verification after EVERY milestone (binding)
+
+New tests green + full suite green + `flow_reaudit.py` clean + catalog regen
+if registry touched + docs: IMPLEMENTATION_STATUS, TEST_ID_INDEX,
+ARCHITECTURE F2, graph JSON (zero dangling), FILE_DOCUMENT_INDEX.
+
+## 15. Single-decision synthesis (how all calculations become ONE trade decision)
+
+> Purpose: every engine file below already exists or is planned; what was
+> missing was the fusion rule — how their outputs combine into exactly one
+> decision with no silent overrides and no double-counting. This section is
+> that rule. It changes no prior section; where it names a future wiring
+> (M1/M2), that wiring is built under those milestones.
+
+### 15.1 The single pipeline (order is binding)
+
+```text
+D1/D2 gate + snapshot (paper_guidance_spine.py)
+  → 1. Opening scenario: classify_opening() (orb/context.py, v2.01 live)
+       gap × CPR × zone from previous-day data only; suspect → UNCLASSIFIED
+  → 2. Playbook select: list_orb_playbooks(symbol, timeframe) → ONE active
+       playbook (first match wins today; its window+config drive the core).
+       No playbook → core runs defaults, ticket carries NO_PLAYBOOK.
+  → 3. Core signal (orb/core.py): OR build → gates → signal → trade plan.
+       With M1/M2 built: gap bias lock → CPR filter → zone gates → TRAP
+       overrides, memo ladder order (§4), S5 slot accounting.
+  → 4. Indicator confluence: 49 live indicators → lag-weighted votes
+       (vote × 1/(1+delay) × per-stock × per-regime × freshness;
+       indicator_lag_voting.py:16) → family-capped → indicator_signal_score.
+  → 5. Memory: reliability multipliers (already inside the vote formula),
+       9C similarity, paper-outcome history → low_evidence_flag until 30 outcomes.
+  → 6. Advisory brains (no vote that can promote): Kronos prior,
+       Gemini/Grok display-only → external_ai_score (capped, never overrides).
+  → 7. Arbiter (final_confluence_arbiter.py): reduce-only final band from all
+       scores + evidence_count gate + low_evidence cap. THE single decision.
+  → 8. Ticket: entry/stop/target from the playbook config + safety envelope →
+       human approves → ledger → outcomes feed back to step 5.
+```
+
+### 15.2 Pre-trade measure precedence (new rule — the missing piece)
+
+When context gates fire multiple measures at once, resolve strictly (mirrors
+EXIT-06's philosophy for exits; first match wins, rest logged not applied):
+
+```text
+SKIP_DAY > VETO_DIRECTION > DELAY_ENTRY > HALF_SIZE >
+TIGHTEN_TARGET > REDUCE_FREQUENCY > ALERT_ONLY
+```
+
+Rationale: a skip vetoes everything below it; a veto kills one direction but
+leaves the other; delay defers entry without changing size; size/target
+modifiers never override a skip/veto/delay. Every fired-but-overruled measure
+is logged with the winner (VETO-01 accounting).
+
+### 15.3 How timing research feeds the live decision
+
+The timing leaderboard is the candidate pool, not the decision. Path to live:
+timing row → walk-forward prove (`/orb/prove`) → promotion gate (server-stored
+passed proof only) → ONE active playbook per symbol+timeframe → its
+window+RR+volume config drives that symbol's core. BEL a1c78a28 is the
+reference implementation of this path. Unproven windows never reach the core.
+
+### 15.4 Vote math (existing, referenced — not rebuilt)
+
+- Indicators: lag-weighted, reliability-multiplied, family-capped
+  (`indicator_lag_voting.py:16-17`; master plan §10 redundancy families).
+- Correlated indicators share one capped family vote (Twin-Uncle rule).
+- **Wiring status (verified 2026-09-04): both arbiter call sites hardcode
+  `indicator_signal_score=0.0` and `external_ai_score=0.0`
+  (`behavior/orb_guidance.py` arbiter request, `behavior/paper_guidance_spine.py:223`).
+  Indicator votes are computed and displayed but do NOT reach the final band
+  today; the external-AI zero is correct-by-design (advisory only, never votes).
+  Wiring indicator votes into the arbiter is future work requiring its own
+  proof gate — a mis-weighted family must never be able to promote a band.
+- Arbiter inputs stay generic numerics (`FinalConfluenceArbiterRequest`:
+  regime/structure/volume/indicator/AI/trap/event scores); context reaches it
+  as mapped scores + flags until the M2 arbiter-wiring decision lands.
+- `predict_day_type` (v2.01) stays an **advisory day-type prior**, not a gate:
+  its validation reads precision ≈ base rate, so it informs display text only
+  until calibration earns it more.
+
+### 15.5 File-to-stage map (nothing left out)
+
+| Stage | Files |
+|---|---|
+| Data + gate + snapshot | `orb/hstry_csv.py`, `behavior/paper_guidance_spine.py`, `behavior/data_quality.py` |
+| Scenario classify | `orb/context.py` (v2.01) |
+| Playbook select/store | `orb/proof.py` (`list/promote/load`), timing rows + `data/orb_research/` |
+| Core signal | `orb/core.py`, `orb/discovery.py`, `models.py` (`OrbStrategyConfig`, `OrbBuildRequest`) |
+| Indicators | `behavior/real_indicator_adapter.py`, `behavior/indicator_lag_voting.py`, vendor registry |
+| Memory | `behavior/indicator_reliability_memory.py`, `behavior/nine_candle_hybrid.py`, `behavior/orb_paper_feedback.py`, `behavior/simulated_paper_ledger.py` |
+| Brains | `apps/kronos-service/`, `behavior/gemini_provider.py`, `behavior/grok_provider.py` |
+| Arbiter | `behavior/final_confluence_arbiter.py` |
+| Ticket + display | `behavior/orb_guidance.py`, `behavior/jarvis_decision_room.py`, `apps/web/src/App.tsx` |
+
+### 15.6 Standing exclusions (unchanged)
+
+6 future-leak indicators never promoted · proxies blocked from production ·
+`usable_for_probability` False everywhere · live trading blocked on every
+surface · no order routing from any path in this plan.

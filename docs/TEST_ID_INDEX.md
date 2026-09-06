@@ -74,6 +74,42 @@ v1.84 full backend regression (historical): 543 passed
 | `test_v171_bayes_001_low_sample_uses_prior_shrinkage` | low sample count shrinks posterior toward prior |
 | `test_v171_bayes_002_three_failed_signals_activate_cooldown` | repeated losses activate cooldown and WAIT cap |
 
+## Implemented v2.01 ORB Opening-Scenario Gates
+
+```text
+apps/api/app/orb/context.py (gap_state/CPR-01 precedence/Z1-Z5/ATR-Wilder/
+classify_opening/classify_history) + OrbOpeningScenario model + state.py
+feature row TV-V201. TV-V201-001..006: gap boundaries, CPR precedence,
+exclusive zones, parity vs repo _gap_type, CTX-02/03 guards, real-data
+partition invariant + coverage (RELIANCE/BEL/TCS, 1611 sessions).
+Finding: median width_atr 0.147 (supports memo CPR-04/H3 redundancy warning).
+Day-type predictor (predict_day_type + label_day_outcome, TV-V201-007/008):
+validated on 2685 sessions x5 symbols - TREND precision 0.30 (= base rate),
+RANGE precision 0.248 (< base 0.271). Verdict: opening combination alone,
+at memo thresholds, adds no edge. Threshold calibration or narrower slices
+(LARGE-only, NARROW+RVOL) required before any engine wiring.
+```
+
+## Implemented v2.00-repair Engine Damage Reconstruction
+
+```text
+CAUSE: behavior/grok_provider.py + behavior/jarvis_decision_quality_gate.py
+found 0 bytes (emptied 03-09 by another session) -> app.main unimportable ->
+entire API dead + 8 test files failing collection.
+REBUILD: grok_provider.py mirrored from twin gemini_provider.py (versions,
+envelopes, safety posture) with test-pinned fields (live_review v1.36,
+api_key_source, passgrok_boundary, no env-name leakage in report JSON,
+_call_grok_api 3-kwarg rotation-inside signature); quality gate rebuilt from
+consumer contracts + both v122 scenarios (QUAL-009 unexpected paper handoff,
+QUAL-011 unexpected auto-delivery, QUAL-012 daily authority - pollution-proof
+semantics since 500+ tests share one accumulating DB with no isolation).
+Full backend after repair: 740 passed 0 failed (2026-09-04).
+Dedicated reconstruction gates: apps/api/tests/test_reconstruction_v200.py
+(16 tests: grok provider shape/disabled/mock/DRY-run/decision-room/stub/
+leakage + quality-gate clean/blocked/per-flag/safety invariants).
+Flow tool now takes a symbol: python scripts/flow_reaudit.py TCS.
+```
+
 ## Implemented v1.99.4 BEL Playbook Promotion
 
 ```text

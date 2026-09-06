@@ -23,8 +23,8 @@ D:\trade vision\our-design\TRADE_VISION_MASTER_PRODUCTION_PLAN.md
 ## Current Project State
 
 ```text
-latest_completed_version = v1.99.2
-latest_functional_version = v1.99.2
+latest_completed_version = v2.01
+latest_functional_version = v2.01
 current_mode = research / mock / paper-review only
 live_trading = blocked
 order_routing = blocked inside Trade Vision

@@ -546,3 +546,9 @@ def _hash(value: dict) -> str:
         allow_nan=False,
     )
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+# BEGIN AFRE_V3_OPT_IN_ADDITION
+def build_adaptive_orb_decision(snapshot, *, controller):
+    """Versioned AFRE path. Legacy build_orb_candidate remains unchanged."""
+    return controller.evaluate(snapshot)
+# END AFRE_V3_OPT_IN_ADDITION

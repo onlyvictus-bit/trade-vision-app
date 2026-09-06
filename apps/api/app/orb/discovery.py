@@ -389,3 +389,10 @@ def _update_job(job_id: str, **updates) -> None:
         if current is None:
             return
         _JOBS[job_id] = current.model_copy(update=updates, deep=True)
+
+# BEGIN AFRE_V3_OPT_IN_ADDITION
+def run_adaptive_orb_discovery(days, *, controller):
+    """Use the same registered AFRE controller and simulator as paper guidance."""
+    from .adaptive.research import replay_day
+    return tuple(replay_day(day, controller) for day in days)
+# END AFRE_V3_OPT_IN_ADDITION

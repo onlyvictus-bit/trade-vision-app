@@ -1,0 +1,878 @@
+{
+  "components": {
+    "schemas": {
+      "ApproveBody": {
+        "additionalProperties": false,
+        "properties": {
+          "approval_phrase": {
+            "title": "Approval Phrase",
+            "type": "string"
+          },
+          "event_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:@/-]+$",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "proposal_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Proposal Hash",
+            "type": "string"
+          },
+          "proposal_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:@/-]+$",
+            "title": "Proposal Id",
+            "type": "string"
+          },
+          "quantity": {
+            "exclusiveMinimum": 0.0,
+            "title": "Quantity",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "event_id",
+          "proposal_id",
+          "proposal_hash",
+          "quantity",
+          "approval_phrase"
+        ],
+        "title": "ApproveBody",
+        "type": "object"
+      },
+      "Bar": {
+        "additionalProperties": false,
+        "properties": {
+          "available_ns": {
+            "minimum": 0.0,
+            "title": "Available Ns",
+            "type": "integer"
+          },
+          "close": {
+            "exclusiveMinimum": 0.0,
+            "title": "Close",
+            "type": "number"
+          },
+          "close_ns": {
+            "minimum": 0.0,
+            "title": "Close Ns",
+            "type": "integer"
+          },
+          "high": {
+            "exclusiveMinimum": 0.0,
+            "title": "High",
+            "type": "number"
+          },
+          "low": {
+            "exclusiveMinimum": 0.0,
+            "title": "Low",
+            "type": "number"
+          },
+          "minutes": {
+            "enum": [
+              1,
+              3,
+              5,
+              15,
+              30,
+              60
+            ],
+            "title": "Minutes",
+            "type": "integer"
+          },
+          "open": {
+            "exclusiveMinimum": 0.0,
+            "title": "Open",
+            "type": "number"
+          },
+          "open_ns": {
+            "minimum": 0.0,
+            "title": "Open Ns",
+            "type": "integer"
+          },
+          "price_basis": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:@/-]+$",
+            "title": "Price Basis",
+            "type": "string"
+          },
+          "revision": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "source_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:@/-]+$",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "symbol": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:@/-]+$",
+            "title": "Symbol",
+            "type": "string"
+          },
+          "volume": {
+            "minimum": 0.0,
+            "title": "Volume",
+            "type": "number"
+          }
+        },
+        "required": [
+          "symbol",
+          "minutes",
+          "open_ns",
+          "close_ns",
+          "available_ns",
+          "open",
+          "high",
+          "low",
+          "close",
+          "volume",
+          "source_id",
+          "price_basis"
+        ],
+        "title": "Bar",
+        "type": "object"
+      },
+      "Capability": {
+        "additionalProperties": false,
+        "properties": {
+          "available_ns": {
+            "minimum": 0.0,
+            "title": "Available Ns",
+            "type": "integer"
+          },
+          "blocks_new_entry": {
+            "default": false,
+            "title": "Blocks New Entry",
+            "type": "boolean"
+          },
+          "evidence_hash": {
+            "minLength": 16,
+            "title": "Evidence Hash",
+            "type": "string"
+          },
+          "expires_ns": {
+            "exclusiveMinimum": 0.0,
+            "title": "Expires Ns",
+            "type": "integer"
+          },
+          "name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:@/-]+$",
+            "title": "Name",
+            "type": "string"
+          },
+          "reason": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Reason",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "VALID",
+              "BLOCKED"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "available_ns",
+          "expires_ns",
+          "status",
+          "evidence_hash"
+        ],
+        "title": "Capability",
+        "type": "object"
+      },
+      "EventBatch": {
+        "additionalProperties": false,
+        "properties": {
+          "available_ns": {
+            "exclusiveMinimum": 0.0,
+            "title": "Available Ns",
+            "type": "integer"
+          },
+          "capabilities": {
+            "additionalProperties": {
+              "items": {
+                "$ref": "#/components/schemas/Capability"
+              },
+              "type": "array"
+            },
+            "title": "Capabilities",
+            "type": "object"
+          },
+          "event_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:@/-]+$",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "execution_bars": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Bar"
+            },
+            "maxItems": 500,
+            "title": "Execution Bars",
+            "type": "array"
+          },
+          "feature_bars": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Bar"
+            },
+            "maxItems": 100,
+            "title": "Feature Bars",
+            "type": "array"
+          },
+          "integrity_faults": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Integrity Faults",
+            "type": "array"
+          }
+        },
+        "required": [
+          "event_id",
+          "available_ns"
+        ],
+        "title": "EventBatch",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "PriorContext": {
+        "additionalProperties": false,
+        "properties": {
+          "atr14": {
+            "exclusiveMinimum": 0.0,
+            "title": "Atr14",
+            "type": "number"
+          },
+          "available_ns": {
+            "minimum": 0.0,
+            "title": "Available Ns",
+            "type": "integer"
+          },
+          "basis_verified": {
+            "const": true,
+            "title": "Basis Verified",
+            "type": "boolean"
+          },
+          "close": {
+            "exclusiveMinimum": 0.0,
+            "title": "Close",
+            "type": "number"
+          },
+          "context_revision": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Context Revision",
+            "type": "integer"
+          },
+          "high": {
+            "exclusiveMinimum": 0.0,
+            "title": "High",
+            "type": "number"
+          },
+          "low": {
+            "exclusiveMinimum": 0.0,
+            "title": "Low",
+            "type": "number"
+          },
+          "price_basis": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:@/-]+$",
+            "title": "Price Basis",
+            "type": "string"
+          },
+          "session_date": {
+            "title": "Session Date",
+            "type": "string"
+          },
+          "source_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:@/-]+$",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "symbol": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:@/-]+$",
+            "title": "Symbol",
+            "type": "string"
+          },
+          "tick_size": {
+            "exclusiveMinimum": 0.0,
+            "title": "Tick Size",
+            "type": "number"
+          },
+          "verified_prior_session": {
+            "const": true,
+            "title": "Verified Prior Session",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "symbol",
+          "session_date",
+          "available_ns",
+          "high",
+          "low",
+          "close",
+          "atr14",
+          "tick_size",
+          "price_basis",
+          "source_id",
+          "verified_prior_session",
+          "basis_verified"
+        ],
+        "title": "PriorContext",
+        "type": "object"
+      },
+      "StartBody": {
+        "additionalProperties": false,
+        "properties": {
+          "event_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:@/-]+$",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "priors": {
+            "items": {
+              "$ref": "#/components/schemas/PriorContext"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Priors",
+            "type": "array"
+          }
+        },
+        "required": [
+          "event_id",
+          "priors"
+        ],
+        "title": "StartBody",
+        "type": "object"
+      },
+      "TimerBody": {
+        "additionalProperties": false,
+        "properties": {
+          "event_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:@/-]+$",
+            "title": "Event Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id"
+        ],
+        "title": "TimerBody",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "Trade Vision AFRE local research",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/orb/adaptive/scenario-registry": {
+      "get": {
+        "operationId": "scenarios_api_v1_orb_adaptive_scenario_registry_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Authorization",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Scenarios",
+        "tags": [
+          "Adaptive ORB research"
+        ]
+      }
+    },
+    "/api/v1/orb/adaptive/sessions/{day}": {
+      "get": {
+        "operationId": "inspect_api_v1_orb_adaptive_sessions__day__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "day",
+            "required": true,
+            "schema": {
+              "title": "Day",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Authorization",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Inspect",
+        "tags": [
+          "Adaptive ORB research"
+        ]
+      },
+      "post": {
+        "operationId": "start_api_v1_orb_adaptive_sessions__day__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "day",
+            "required": true,
+            "schema": {
+              "title": "Day",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Authorization",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Start",
+        "tags": [
+          "Adaptive ORB research"
+        ]
+      }
+    },
+    "/api/v1/orb/adaptive/sessions/{day}/approve": {
+      "post": {
+        "operationId": "approve_api_v1_orb_adaptive_sessions__day__approve_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "day",
+            "required": true,
+            "schema": {
+              "title": "Day",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Authorization",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Approve",
+        "tags": [
+          "Adaptive ORB research"
+        ]
+      }
+    },
+    "/api/v1/orb/adaptive/sessions/{day}/audit": {
+      "get": {
+        "operationId": "audit_api_v1_orb_adaptive_sessions__day__audit_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "day",
+            "required": true,
+            "schema": {
+              "title": "Day",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Authorization",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Audit",
+        "tags": [
+          "Adaptive ORB research"
+        ]
+      }
+    },
+    "/api/v1/orb/adaptive/sessions/{day}/events": {
+      "post": {
+        "operationId": "event_api_v1_orb_adaptive_sessions__day__events_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "day",
+            "required": true,
+            "schema": {
+              "title": "Day",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Authorization",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventBatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Event",
+        "tags": [
+          "Adaptive ORB research"
+        ]
+      }
+    },
+    "/api/v1/orb/adaptive/sessions/{day}/timer": {
+      "post": {
+        "operationId": "timer_api_v1_orb_adaptive_sessions__day__timer_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "day",
+            "required": true,
+            "schema": {
+              "title": "Day",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Authorization",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TimerBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Timer",
+        "tags": [
+          "Adaptive ORB research"
+        ]
+      }
+    },
+    "/api/v1/orb/adaptive/status": {
+      "get": {
+        "operationId": "status_api_v1_orb_adaptive_status_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Authorization",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Status",
+        "tags": [
+          "Adaptive ORB research"
+        ]
+      }
+    }
+  }
+}

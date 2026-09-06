@@ -1,0 +1,220 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "action_policy_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Action Policy Id"
+    },
+    "effective_end_ns": {
+      "title": "Effective End Ns",
+      "type": "integer"
+    },
+    "episode_id": {
+      "title": "Episode Id",
+      "type": "string"
+    },
+    "event": {
+      "title": "Event",
+      "type": "string"
+    },
+    "evidence_event_ids": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Event Ids",
+      "type": "array"
+    },
+    "forecast_id": {
+      "title": "Forecast Id",
+      "type": "string"
+    },
+    "forecast_status": {
+      "default": "UNESTIMATED",
+      "enum": [
+        "UNESTIMATED",
+        "ESTIMATED",
+        "UNOBSERVABLE"
+      ],
+      "title": "Forecast Status",
+      "type": "string"
+    },
+    "horizon_bars": {
+      "title": "Horizon Bars",
+      "type": "integer"
+    },
+    "horizon_kind": {
+      "default": "FEATURE_BARS",
+      "enum": [
+        "FEATURE_BARS",
+        "WALL_CLOCK"
+      ],
+      "title": "Horizon Kind",
+      "type": "string"
+    },
+    "horizon_minutes": {
+      "title": "Horizon Minutes",
+      "type": "integer"
+    },
+    "interval": {
+      "anyOf": [
+        {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interval"
+    },
+    "issued_ns": {
+      "title": "Issued Ns",
+      "type": "integer"
+    },
+    "label_version": {
+      "default": "afre-structural-labels-1",
+      "title": "Label Version",
+      "type": "string"
+    },
+    "live_trading_blocked": {
+      "const": true,
+      "default": true,
+      "title": "Live Trading Blocked",
+      "type": "boolean"
+    },
+    "model_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Model Hash"
+    },
+    "order_routing_enabled": {
+      "const": false,
+      "default": false,
+      "title": "Order Routing Enabled",
+      "type": "boolean"
+    },
+    "plan_proposal_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Plan Proposal Id"
+    },
+    "policy_hash": {
+      "title": "Policy Hash",
+      "type": "string"
+    },
+    "prediction_kind": {
+      "const": "PREDICTION",
+      "default": "PREDICTION",
+      "title": "Prediction Kind",
+      "type": "string"
+    },
+    "probability": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Probability"
+    },
+    "reason": {
+      "default": "NO_VALIDATED_MODEL_FOR_THIS_EVENT_POLICY_HORIZON",
+      "title": "Reason",
+      "type": "string"
+    },
+    "requested_end_ns": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Requested End Ns"
+    },
+    "research_only": {
+      "const": true,
+      "default": true,
+      "title": "Research Only",
+      "type": "boolean"
+    },
+    "session_date": {
+      "title": "Session Date",
+      "type": "string"
+    },
+    "snapshot_hash": {
+      "title": "Snapshot Hash",
+      "type": "string"
+    },
+    "support_unique_dates": {
+      "default": 0,
+      "title": "Support Unique Dates",
+      "type": "integer"
+    },
+    "symbol": {
+      "title": "Symbol",
+      "type": "string"
+    },
+    "trade_allowed": {
+      "const": false,
+      "default": false,
+      "title": "Trade Allowed",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "forecast_id",
+    "snapshot_hash",
+    "policy_hash",
+    "symbol",
+    "session_date",
+    "event",
+    "issued_ns",
+    "horizon_bars",
+    "horizon_minutes",
+    "effective_end_ns",
+    "episode_id"
+  ],
+  "title": "Forecast",
+  "type": "object"
+}

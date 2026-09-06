@@ -2800,6 +2800,36 @@ PERSISTED_INDICATOR_MEMORY stays degraded until 30 completed paper outcomes
 exist (honest evidence threshold, resolves via usage).
 ```
 
+## v2.00-repair Engine Damage Reconstruction
+
+```text
+Found 0 bytes (emptied 03-09 by another session): behavior/grok_provider.py +
+behavior/jarvis_decision_quality_gate.py -> app.main unimportable -> entire
+API dead + 8 test files failing collection.
+Rebuilt: grok_provider.py mirrored from twin gemini_provider.py (versions,
+envelopes, safety posture; test-pinned: live_review v1.36, api_key_source,
+passgrok_boundary, no env-name leakage, 3-kwarg rotation-inside _call_grok_api);
+quality gate rebuilt from consumer contracts + both v122 scenarios (QUAL-009
+unexpected paper handoff, QUAL-011 unexpected auto-delivery, QUAL-012 daily
+authority - pollution-proof semantics: 500+ tests share one accumulating DB).
+Dedicated gates: apps/api/tests/test_reconstruction_v200.py (16 tests).
+Full backend after repair: 740 passed 0 failed (2026-09-04).
+```
+
+## v2.01 ORB Opening Scenarios (gap x CPR x zone classifier)
+
+```text
+apps/api/app/orb/context.py (NEW): gap_state (mirrors _gap_type exactly,
+parity-tested), cpr_levels, cpr_class (CPR-01 precedence partition),
+zone_at (exclusive Z1-Z5), atr_wilder, classify_opening (CTX-02/03 guards),
+daily_from_intraday, classify_history. Behavior layer may import orb/context;
+never the reverse. Model: OrbOpeningScenario. state.py feature row TV-V201.
+Gates: test_orb_opening_scenarios_v201.py (6 tests: boundaries, precedence,
+partition, parity, guards, real-data invariant over 1611 sessions).
+Finding: median width_atr 0.147 on RELIANCE/BEL/TCS - NARROW absorbs ~97% of
+days (supports memo CPR-04/H3 redundancy warning; thresholds stay priors).
+```
+
 ### F2. Version → key files (high-signal)
 
 Paths under `apps/api/app/behavior/` unless noted.
@@ -2823,6 +2853,9 @@ Paths under `apps/api/app/behavior/` unless noted.
 | v1.98 | `nine_candle_hybrid.py` real-candles-first (`_real_closed_candles`); `real_indicator_adapter.py` promoted set 13→22; count locks updated in `test_api.py` icache block |
 | v1.99 | `real_indicator_adapter.py` promoted set 22→49; `runtime_readiness.py` audit sets (`REAL_DATA_VERIFIED_EMPTY_SAMPLE`, `BLOCKED_INDICATORS`); `indicator_registry.py` status logic + PTA validation; vendored `research/signals/__init__.py` circular-import fix; spec `docs/plans/INDICATOR_COVERAGE_V199.md` |
 | v1.99.1-2 | `data_quality.py` session-closure classification; `paper_guidance_spine.py` `SNAPSHOT_INDICATOR_WINDOW_BARS=400`; tool `scripts/flow_reaudit.py`; runbook `docs/runbooks/flow-reaudit.md` |
+| v1.99.3-4 | `scripts/prove_bel.py` (GATES.md 7/7, verdict ELIGIBLE, proof ab7b3163); `scripts/promote_bel.py` (playbook a1c78a28 active BEL 5m) |
+| v2.00-repair | rebuilt `behavior/grok_provider.py` + `behavior/jarvis_decision_quality_gate.py`; gates `test_reconstruction_v200.py` (16 tests) |
+| v2.01 | `apps/api/app/orb/context.py` (gap/CPR/zone classifier) + `OrbOpeningScenario`; gates `test_orb_opening_scenarios_v201.py` (6 tests) |
 | OpenAlgo lane | `jarvis_openalgo_*`, `jarvis_paper_ready_safety_audit.py`, `openalgo_transport.py`, `apps/openalgo-adapter/` (**simulator**) |
 | Twin / Kronos | `shared_snapshot.py`, `twin_arbiter.py`, `full_twin_analysis.py`, `kronos_proxy.py`; service `apps/kronos-service/` |
 | Shells | `apps/api/app/main.py` routes · `apps/web/src/App.tsx` UI |

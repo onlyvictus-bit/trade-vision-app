@@ -1,0 +1,121 @@
+{
+  "$defs": {
+    "PriorContext": {
+      "additionalProperties": false,
+      "properties": {
+        "atr14": {
+          "exclusiveMinimum": 0,
+          "title": "Atr14",
+          "type": "number"
+        },
+        "available_ns": {
+          "minimum": 0,
+          "title": "Available Ns",
+          "type": "integer"
+        },
+        "basis_verified": {
+          "const": true,
+          "title": "Basis Verified",
+          "type": "boolean"
+        },
+        "close": {
+          "exclusiveMinimum": 0,
+          "title": "Close",
+          "type": "number"
+        },
+        "context_revision": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Context Revision",
+          "type": "integer"
+        },
+        "high": {
+          "exclusiveMinimum": 0,
+          "title": "High",
+          "type": "number"
+        },
+        "low": {
+          "exclusiveMinimum": 0,
+          "title": "Low",
+          "type": "number"
+        },
+        "price_basis": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:@/-]+$",
+          "title": "Price Basis",
+          "type": "string"
+        },
+        "session_date": {
+          "title": "Session Date",
+          "type": "string"
+        },
+        "source_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:@/-]+$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "symbol": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:@/-]+$",
+          "title": "Symbol",
+          "type": "string"
+        },
+        "tick_size": {
+          "exclusiveMinimum": 0,
+          "title": "Tick Size",
+          "type": "number"
+        },
+        "verified_prior_session": {
+          "const": true,
+          "title": "Verified Prior Session",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "symbol",
+        "session_date",
+        "available_ns",
+        "high",
+        "low",
+        "close",
+        "atr14",
+        "tick_size",
+        "price_basis",
+        "source_id",
+        "verified_prior_session",
+        "basis_verified"
+      ],
+      "title": "PriorContext",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "event_id": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9_.:@/-]+$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "priors": {
+      "items": {
+        "$ref": "#/$defs/PriorContext"
+      },
+      "maxItems": 100,
+      "minItems": 1,
+      "title": "Priors",
+      "type": "array"
+    }
+  },
+  "required": [
+    "event_id",
+    "priors"
+  ],
+  "title": "StartBody",
+  "type": "object"
+}

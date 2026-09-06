@@ -30,6 +30,41 @@ def _scenario(**kwargs):
     return C.classify_opening(**base)
 
 
+def _scenario_dict(**kwargs):
+    return {
+        "gap_state": "FLAT", "cpr_class": "NORMAL", "zone_at_open": "Z2",
+        "context_suspect": False, "suspect_reason": None, **kwargs,
+    }
+
+
+def test_tv_v201_007_predict_day_type_branches() -> None:
+    large = C.predict_day_type(_scenario_dict(gap_state="LARGE_GAP_UP"))
+    assert large["prediction"] == "TREND_DAY" and large["direction"] == "up"
+    assert any("GAP-02" in r for r in large["reasons"])
+    large_down = C.predict_day_type(_scenario_dict(gap_state="LARGE_GAP_DOWN"))
+    assert large_down["prediction"] == "TREND_DAY" and large_down["direction"] == "down"
+    inside = C.predict_day_type(_scenario_dict(zone_at_open="Z3"))
+    assert inside["prediction"] == "RANGE_DAY"
+    narrow = C.predict_day_type(_scenario_dict(gap_state="FLAT", cpr_class="NARROW"))
+    assert narrow["prediction"] == "TREND_DAY" and narrow["direction"] == "either"
+    narrow_long = C.predict_day_type(_scenario_dict(gap_state="GAP_UP", cpr_class="NARROW"))
+    assert narrow_long["direction"] == "up"
+    wide = C.predict_day_type(_scenario_dict(cpr_class="WIDE"))
+    assert wide["prediction"] == "RANGE_DAY"
+    plain = C.predict_day_type(_scenario_dict())
+    assert plain["prediction"] == "UNCLASSIFIED"
+    suspect = C.predict_day_type(_scenario_dict(context_suspect=True, suspect_reason="x"))
+    assert suspect["prediction"] == "UNCLASSIFIED"
+
+
+def test_tv_v201_008_label_day_outcome_boundaries() -> None:
+    assert C.label_day_outcome(day_high=110.0, day_low=100.0, day_close=108.0, atr14=10.0) == "TREND_DAY"
+    assert C.label_day_outcome(day_high=110.0, day_low=100.0, day_close=102.0, atr14=10.0) == "TREND_DAY"
+    assert C.label_day_outcome(day_high=110.0, day_low=100.0, day_close=105.0, atr14=10.0) == "MIXED"
+    assert C.label_day_outcome(day_high=105.0, day_low=100.0, day_close=103.0, atr14=10.0) == "RANGE_DAY"
+    assert C.label_day_outcome(day_high=110.0, day_low=100.0, day_close=105.0, atr14=0.0) == "MIXED"
+
+
 def test_tv_v201_001_gap_boundaries() -> None:
     assert _scenario(today_open=1002.5)["gap_state"] == "FLAT"          # +0.05%
     assert _scenario(today_open=1007.0)["gap_state"] == "GAP_UP"        # +0.50%

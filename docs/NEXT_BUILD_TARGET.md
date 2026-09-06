@@ -1,11 +1,11 @@
 # Next Build Target
 
-Last reviewed: 2026-09-03 (rev 2)
+Last reviewed: 2026-09-04
 
 ## Latest Completed Functional Build
 
 ```text
-v1.99.2 - Flow Re-Audit on Real Data + Session-Aware Quality + Compute Window
+v2.01 - ORB Opening Scenarios (every opening possibility classified)
 ```
 
 Primary delivered purpose:

@@ -10,9 +10,10 @@
 ## Latest completed tip (was CURRENT_VERSION_POINTER)
 
 ```text
-latest_completed_version = v1.99.4 (BEL playbook PROMOTED: a1c78a28, verified matched by v1.92 guidance on real bars)
-latest_completed_title = BEL 09:15-09:20 Proven + Promoted - daily guidance now matches the proven recipe
-latest_completed_status = implemented-and-verified (promotion via server-stored proof ab7b3163; playbook a1c78a28 active BEL 5m; orb_ticket matched in v1.92 guidance; last full regression 734/0)
+latest_completed_version = v2.01 (ORB opening scenarios: gap/CPR/zone classifier + model + 6 gates)
+latest_completed_title = Opening-Possibility Layer - every session classified (gap x CPR x zone) on real HSTRY data
+latest_completed_status = implemented-and-verified (6/6 new gates incl. real-data partition invariant over 1611 sessions; v2.00-repair suite 740/740 green)
+last_full_backend_regression = v2.00-repair, 2026-09-04, 740 passed (0 failed)
 last_full_backend_regression = v1.99.2, 2026-08-26, 734 passed (0 failed)
 latest_focused_backend_verification = prove operation 7/7 GATES met; promotion + guidance match verified on real BEL bars
 latest_ui_verification = no frontend change (v1.97 build passed)

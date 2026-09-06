@@ -1,0 +1,1052 @@
+[
+  {
+    "scenario_id": "A01",
+    "source_category": "**A. Regime**",
+    "source_name": "Chop day",
+    "source_mechanism_unverified": "Overlapping 5m bars, no displacement",
+    "source_detection_unverified": "2 failed breakouts same side <11:00",
+    "source_measure_unverified": "SKIP_DAY remainder",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 1,
+      "supplied_source_line": 38
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "OHLCV",
+    "anticipation_or_detection_contract": "Possible precursors, not a known future chop day: heavy completed-bar overlap, distinct failed acceptance cycles, little displacement.",
+    "protective_response": "Compare a registered wait-for-acceptance policy with skip; keep the trade token unused.",
+    "permitted_opportunity_branch": "If a later accepted escape obtains its own continuation trigger before cutoff, evaluate it independently.",
+    "alternative_failure_or_limit": "An apparent escape can fail too; no third-attempt privilege and no entry after an earlier fill.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "A02",
+    "source_category": "A",
+    "source_name": "VIX coma",
+    "source_mechanism_unverified": "No range expansion fuel",
+    "source_detection_unverified": "VIX <11",
+    "source_measure_unverified": "TIGHTEN_TARGET 0.8R / NR7-only",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 2,
+      "supplied_source_line": 39
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "VIX_UNAVAILABLE",
+    "anticipation_or_detection_contract": "Actual VIX state cannot be estimated from supplied stock bars. Realized opening compression is a different observable, not VIX.",
+    "protective_response": "Flag missing VIX; block VIX-dependent policies. A separately proven OHLCV-only recipe may still run.",
+    "permitted_opportunity_branch": "Study compression-to-expansion under OHLCV labels and existing targets, never call it a VIX trade.",
+    "alternative_failure_or_limit": "No automatic 0.8R target or NR7 priority; compression may never expand profitably.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "A03",
+    "source_category": "A",
+    "source_name": "VIX spike",
+    "source_mechanism_unverified": "Whipsaw both directions",
+    "source_detection_unverified": "VIX 20–25, or ΔVIX +8% intraday",
+    "source_measure_unverified": "SKIP_DAY small/mid; cancel pendings",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 3,
+      "supplied_source_line": 40
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "VIX_UNAVAILABLE",
+    "anticipation_or_detection_contract": "Actual level/change needs VIX snapshots. Two-sided stock-bar expansion is a lagging price symptom only.",
+    "protective_response": "Block the missing overlay; observe shocks, recheck pending proposal geometry and data integrity.",
+    "permitted_opportunity_branch": "A valid later stable acceptance/retest is only an independent OHLCV candidate.",
+    "alternative_failure_or_limit": "A quiet next bar does not prove shock ended; no claims of safety from a proxy.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "A04",
+    "source_category": "A",
+    "source_name": "Gap exhaustion",
+    "source_mechanism_unverified": "Gap >1.5×ATR fades into OR",
+    "source_detection_unverified": "Gap % vs ATR at 09:15",
+    "source_measure_unverified": "FLIP_BIAS",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 4,
+      "supplied_source_line": 41
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "OHLCV",
+    "anticipation_or_detection_contract": "Gap size is known after the opening reference; exhaustion remains a hypothesis until actual rejection/follow-through evidence.",
+    "protective_response": "Compare no-chase, wait-retest and rejection-watch plans. Do not flip from gap size alone.",
+    "permitted_opportunity_branch": "Confirmed rejection may arm an unfilled-gap fade with a separately tested stop and remaining target room.",
+    "alternative_failure_or_limit": "A large gap can keep being accepted. Refute the fade on registered reclaim before entry.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "A05",
+    "source_category": "A",
+    "source_name": "News shock",
+    "source_mechanism_unverified": "Headline mid-trade",
+    "source_detection_unverified": "ΔVIX +8% or 5m range >2× ATR",
+    "source_measure_unverified": "Cancel pendings, tighten stops",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 5,
+      "supplied_source_line": 42
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "NEWS_AND_VIX_UNAVAILABLE",
+    "anticipation_or_detection_contract": "Unscheduled unknown news cannot be reliably foreseen from no-news OHLCV. Scheduled hazards need a calendar; price shock can be detected after it appears.",
+    "protective_response": "Represent unobservable event risk, stress adverse paths, cancel invalid unapproved plans, or halt corrupt data.",
+    "permitted_opportunity_branch": "Only a later independently valid price setup; no claim that the shock itself is profit opportunity.",
+    "alternative_failure_or_limit": "The catalyst is unknown, the shock may repeat, and an open fixed-exit paper trade does not gain a new discretionary stop rule.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "B01",
+    "source_category": "**B. Signal**",
+    "source_name": "False breakout (trap)",
+    "source_mechanism_unverified": "Liquidity grab beyond ORH",
+    "source_detection_unverified": "Close back inside OR ≤10 min",
+    "source_measure_unverified": "Reverse via variant 11, or stand down",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 6,
+      "supplied_source_line": 43
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "OHLCV",
+    "anticipation_or_detection_contract": "Before failure: threatened acceptance is a forecast. Once a completed close returns inside, structural failure is observed.",
+    "protective_response": "Do not keep the invalid original entry alive; arm alternative fade and reclaim branches before any approval.",
+    "permitted_opportunity_branch": "Independent rejection plus untouched PDC and target room may support a gap fade.",
+    "alternative_failure_or_limit": "Failed breakout does not imply profitable reversal; reclaim or no room invalidates the alternative.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "B02",
+    "source_category": "B",
+    "source_name": "OR too wide",
+    "source_mechanism_unverified": "Risk/reward broken",
+    "source_detection_unverified": "ORW >1.0×ATR",
+    "source_measure_unverified": "SKIP_DAY",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 7,
+      "supplied_source_line": 44
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "OHLCV",
+    "anticipation_or_detection_contract": "OR width and resulting stop/cost/target geometry are knowable when the range locks.",
+    "protective_response": "Reject uneconomic plans; compare separately registered timing/structural-stop recipes or skip.",
+    "permitted_opportunity_branch": "A later planned pullback can give a different feasible entry only if its complete policy is proven.",
+    "alternative_failure_or_limit": "Never tighten or widen the stop ad hoc just to force a better displayed R multiple.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "B03",
+    "source_category": "B",
+    "source_name": "OR too narrow",
+    "source_mechanism_unverified": "Noise breakouts",
+    "source_detection_unverified": "ORW <0.25×ATR",
+    "source_measure_unverified": "Require volume hammer; 3R target",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 8,
+      "supplied_source_line": 45
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "OHLCV",
+    "anticipation_or_detection_contract": "Small OR, price-grid scale and cost/R are observable; later noisy failures are uncertain.",
+    "protective_response": "Compare persistence or expansion confirmation against first break; enforce minimum valid geometry.",
+    "permitted_opportunity_branch": "A genuine later accepted expansion can be eligible under the continuation policy.",
+    "alternative_failure_or_limit": "Later confirmation can be expensive or false; no automatic 3R target or volume-hammer magic.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "B04",
+    "source_category": "B",
+    "source_name": "First-bar contamination",
+    "source_mechanism_unverified": "Pre-open match print in 09:15–09:20 bar",
+    "source_detection_unverified": "Bar volume z >4 or range >2× median",
+    "source_measure_unverified": "Re-base OR to 09:20–09:35",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 9,
+      "supplied_source_line": 46
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "PROVENANCE_PARTIAL",
+    "anticipation_or_detection_contract": "Size/volume anomaly is observable; auction inclusion or a corrupt print is not established from size alone.",
+    "protective_response": "Separate valid unusual bar from invalid data. Quarantine inconsistency; no silent range rebasing.",
+    "permitted_opportunity_branch": "With valid data, later acceptance or rejection can form a normal permitted setup.",
+    "alternative_failure_or_limit": "The next attractive candle does not repair a corrupt source; rebased OR is a separate experiment.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "B05",
+    "source_category": "B",
+    "source_name": "Level staleness",
+    "source_mechanism_unverified": "OR levels used too late",
+    "source_detection_unverified": "Signal after 11:30",
+    "source_measure_unverified": "No entry (morning system)",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 10,
+      "supplied_source_line": 47
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "CLOCK_AVAILABLE",
+    "anticipation_or_detection_contract": "Elapsed time and expected approval/fill delay are known; stale levels or expired proposals are not resurrected.",
+    "protective_response": "Use the actual 10:15 entry cutoff and per-proposal expiry, not the source 11:30 limit.",
+    "permitted_opportunity_branch": "A new valid pre-cutoff observation may create a new unapproved plan; otherwise no opportunity.",
+    "alternative_failure_or_limit": "No retrospective entry at the earlier level, and no afternoon exception.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "B06",
+    "source_category": "B",
+    "source_name": "Double-stop whipsaw",
+    "source_mechanism_unverified": "ORM stop in chop",
+    "source_detection_unverified": "Stop-out then re-close ≤20 min",
+    "source_measure_unverified": "Max 1 re-entry (variant 13)",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 11,
+      "supplied_source_line": 48
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "LEDGER_AND_OHLCV",
+    "anticipation_or_detection_contract": "Two observed untraded failures can raise a research risk flag. A second filled stop-out cannot occur in a compliant one-entry day.",
+    "protective_response": "After any filled trade, enforce daily completion. Before entry, compare wait/skip rather than blind retries.",
+    "permitted_opportunity_branch": "Before the first entry only, a later independently confirmed reclaim/escape can be evaluated.",
+    "alternative_failure_or_limit": "No re-entry after an actual stop, even when the pattern later looks better.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "C01",
+    "source_category": "**C. Event**",
+    "source_name": "Result-day whipsaw",
+    "source_mechanism_unverified": "Spread blowout, both-side sweeps",
+    "source_detection_unverified": "Event calendar",
+    "source_measure_unverified": "DELAY_ENTRY 09:45, 30-min OR",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 12,
+      "supplied_source_line": 49
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "RESULT_CALENDAR_UNAVAILABLE",
+    "anticipation_or_detection_contract": "A known results date/release time could be an advance flag only with point-in-time records; candles alone cannot identify result risk.",
+    "protective_response": "Mark event awareness unavailable; a future dated gate is a separately tested policy, not an assumed 09:45 safe zone.",
+    "permitted_opportunity_branch": "Later post-event acceptance/rejection could select an existing family when its data and controller are proved.",
+    "alternative_failure_or_limit": "Event ambiguity or insufficient time/room can leave no opportunity; no automatic post-result safety.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "C02",
+    "source_category": "C",
+    "source_name": "RBI MPC ~10:00",
+    "source_mechanism_unverified": "Announcement inside entry window",
+    "source_detection_unverified": "Calendar",
+    "source_measure_unverified": "No entries 09:45–10:15",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 13,
+      "supplied_source_line": 50
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "MACRO_CALENDAR_UNAVAILABLE",
+    "anticipation_or_detection_contract": "Only a timestamped known event schedule supports an advance warning; not every announcement is at one hardcoded time.",
+    "protective_response": "Block event-dependent strategy or follow a separately validated OHLCV-only policy; known-window avoidance is configurable risk policy.",
+    "permitted_opportunity_branch": "Only qualifying pre-cutoff evidence after uncertainty clears; often the entry window will be over.",
+    "alternative_failure_or_limit": "Do not create after-10:15 entries as compensation for waiting through an event.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "C03",
+    "source_category": "C",
+    "source_name": "Budget/election",
+    "source_mechanism_unverified": "Multi-% swings, circuit risk",
+    "source_detection_unverified": "Calendar",
+    "source_measure_unverified": "SKIP_DAY or 2× confirms",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 14,
+      "supplied_source_line": 51
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "EVENT_CALENDAR_UNAVAILABLE",
+    "anticipation_or_detection_contract": "A verified calendar can flag a scheduled date; surprise outcomes and exact impact remain uncertain.",
+    "protective_response": "Future calendar rule can skip or require separately validated conditions. Preserve adverse-path stress.",
+    "permitted_opportunity_branch": "No automatic conversion; only independent valid first-hour price setups within supported policy.",
+    "alternative_failure_or_limit": "Two confirmations do not make every extreme event day safe.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "C04",
+    "source_category": "C",
+    "source_name": "Ex-dividend misread",
+    "source_mechanism_unverified": "Mechanical gap read as signal",
+    "source_detection_unverified": "Corp-actions feed D-1",
+    "source_measure_unverified": "Adjusted gap = raw + div%",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 15,
+      "supplied_source_line": 52
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "CORPORATE_ACTION_DATA_UNAVAILABLE",
+    "anticipation_or_detection_contract": "A mechanical gap requires verified action factors and compatible price bases, not a candle-based cause guess.",
+    "protective_response": "Reconcile comparable prices; block known basis inconsistency; never add a universal dividend percentage blindly.",
+    "permitted_opportunity_branch": "An authentic residual gap after verified adjustment can be evaluated afresh under its exact policy.",
+    "alternative_failure_or_limit": "The artificial component of a gap is not a free fade opportunity; corrected history can invalidate old proof.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "D01",
+    "source_category": "**D. Instrument**",
+    "source_name": "Circuit lock",
+    "source_mechanism_unverified": "Locked band → auction/delivery penalty on shorts",
+    "source_detection_unverified": "Band ≤10% for shorts",
+    "source_measure_unverified": "Structural exclusion",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 16,
+      "supplied_source_line": 53
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "HISTORICAL_BANDS_STATUS_AND_QUOTES_UNAVAILABLE",
+    "anticipation_or_detection_contract": "Band metadata/quote state would warn; flat candles alone cannot certify a tradable or locked market.",
+    "protective_response": "Block policies requiring unavailable eligibility; stress exit non-observability and preserve unknown outcomes.",
+    "permitted_opportunity_branch": "No inherent trading opportunity; this is an execution/safety hazard.",
+    "alternative_failure_or_limit": "An OHLC print is not proof that the desired quantity could enter or exit.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "D02",
+    "source_category": "D",
+    "source_name": "ASM/GSM/T2T",
+    "source_mechanism_unverified": "Margin/trade restrictions, manipulation risk",
+    "source_detection_unverified": "Exchange lists (weekly)",
+    "source_measure_unverified": "Structural exclusion",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 17,
+      "supplied_source_line": 54
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "HISTORICAL_SECURITY_STATUS_UNAVAILABLE",
+    "anticipation_or_detection_contract": "Requires point-in-time security/series/surveillance records with applicable rule version.",
+    "protective_response": "Keep status unknown rather than safe; validate applicability before any optional exclusion policy.",
+    "permitted_opportunity_branch": "No automatic inverse trade. Data/eligibility review is the useful action.",
+    "alternative_failure_or_limit": "Do not invent current or historical restrictions from volatility or names.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "D03",
+    "source_category": "D",
+    "source_name": "Illiquidity/slippage",
+    "source_mechanism_unverified": "Slippage >0.15% vs signal",
+    "source_detection_unverified": "60-day turnover <₹5cr, spread >0.1%",
+    "source_measure_unverified": "SKIP_DAY",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 18,
+      "supplied_source_line": 55
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "OHLCV_PROXY_ONLY_QUOTES_UNAVAILABLE",
+    "anticipation_or_detection_contract": "Known turnover/volume, price-grid risk and cost assumptions give proxies; actual spread/depth and fills are unobserved.",
+    "protective_response": "Apply proved economic/capacity constraints; delay/reduce only through registered policy or skip.",
+    "permitted_opportunity_branch": "A later feasible entry can be considered before approval if valid and independently supported.",
+    "alternative_failure_or_limit": "Higher volume does not prove tight spread; future fill-bar volume cannot select earlier size.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "D04",
+    "source_category": "D",
+    "source_name": "F&O ban",
+    "source_mechanism_unverified": "No hedge capacity, distorted flows",
+    "source_detection_unverified": "NSE ban list EOD",
+    "source_measure_unverified": "SKIP_DAY",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 19,
+      "supplied_source_line": 56
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "DATED_DERIVATIVES_BAN_LIST_UNAVAILABLE",
+    "anticipation_or_detection_contract": "A dated list is needed; regulatory applicability and voluntary cash-equity research policy are different.",
+    "protective_response": "Mark overlay missing and verify applicability before any gate. No blanket cash prohibition inferred here.",
+    "permitted_opportunity_branch": "No inherent directional opportunity from this label.",
+    "alternative_failure_or_limit": "A derivatives status cannot establish an advantageous cash-stock fade or squeeze.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "E01",
+    "source_category": "**E. Data/Exec**",
+    "source_name": "Feed lag / bad ticks",
+    "source_mechanism_unverified": "Phantom breakout",
+    "source_detection_unverified": "Cross-check 2 sources; tick vs 1m close",
+    "source_measure_unverified": "Halt on mismatch",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 20,
+      "supplied_source_line": 57
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "OHLCV_INTEGRITY_WITH_LIMITED_CROSS_SOURCE",
+    "anticipation_or_detection_contract": "Timestamps, stale delivery, impossible OHLC and duplicates are observable; two-source/tick reconciliation needs extra data.",
+    "protective_response": "Halt affected decisions, reconcile, replay with a new version if corrected; never fabricate a price.",
+    "permitted_opportunity_branch": "Only after verified recovery can new valid observations support normal policy.",
+    "alternative_failure_or_limit": "Bad data is not a market signal; repeated model agreement cannot validate a bad source.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "E02",
+    "source_category": "E",
+    "source_name": "Order rejection / broker square-off",
+    "source_mechanism_unverified": "MIS auto-square ~15:15–15:20",
+    "source_detection_unverified": "Broker clock",
+    "source_measure_unverified": "Hard flat 15:10",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 21,
+      "supplied_source_line": 58
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "BROKER_OUT_OF_SCOPE_CLOCK_AVAILABLE",
+    "anticipation_or_detection_contract": "Broker rejection/square-off is excluded in this research system; paper approval latency and scheduled time exits are observable.",
+    "protective_response": "Model approval expiry, missed fills and flat deadlines under the research contract.",
+    "permitted_opportunity_branch": "No market inversion; better accounting and a protected allowance are the benefit.",
+    "alternative_failure_or_limit": "Do not add broker integration or assume a guaranteed flat price to simulate a perfect outcome.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "E03",
+    "source_category": "E",
+    "source_name": "PIT violation (lookahead)",
+    "source_mechanism_unverified": "Using EOD data intraday",
+    "source_detection_unverified": "Audit: every input timestamped",
+    "source_measure_unverified": "Pipeline fix",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 22,
+      "supplied_source_line": 59
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "LINEAGE_AVAILABLE_AFTER_IMPLEMENTATION",
+    "anticipation_or_detection_contract": "Feature/label lineage and prefix tests can identify future inputs; this is a model/data defect, not a market forecast.",
+    "protective_response": "Invalidate affected results, fix availability, recompute correctly and require fresh proof.",
+    "permitted_opportunity_branch": "No trading opportunity. A corrected research result is the useful output.",
+    "alternative_failure_or_limit": "A profitable leaked backtest is not salvaged by a risk filter.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "E04",
+    "source_category": "E",
+    "source_name": "Backtest/live mismatch (E3)",
+    "source_mechanism_unverified": "Different stop/gap-fill logic",
+    "source_detection_unverified": "Reconciliation diff ≠ 0",
+    "source_measure_unverified": "Single shared rule engine",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 23,
+      "supplied_source_line": 60
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "SHARED_ENGINE_PARITY_UNVERIFIED",
+    "anticipation_or_detection_contract": "Compare the same frozen plan across signal, discovery, proof and paper paths on deterministic fixtures.",
+    "protective_response": "Block affected promotion until stop/fill/cost semantics match; audit old results.",
+    "permitted_opportunity_branch": "No trade conversion. Correct economics can change which strategy is valid.",
+    "alternative_failure_or_limit": "Do not presume the historically documented bug still exists or is fixed without current test evidence.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "F01",
+    "source_category": "**F. Derivatives**",
+    "source_name": "Expiry pinning",
+    "source_mechanism_unverified": "Dealer hedging glues spot to pain",
+    "source_detection_unverified": "Spot ≤0.5% of pain on expiry",
+    "source_measure_unverified": "TIGHTEN_TARGET / ORR bias",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 24,
+      "supplied_source_line": 61
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "OPTIONS_EXPIRY_MODEL_UNAVAILABLE",
+    "anticipation_or_detection_contract": "Actual pinning requires more than distance to a computed pain point; chain/calendar data absent.",
+    "protective_response": "Keep mechanism unknown; observe near-level congestion only as OHLCV behavior under a separate label.",
+    "permitted_opportunity_branch": "A valid unfilled-gap fade or accepted breakout can be studied independently, not called gamma/pain proof.",
+    "alternative_failure_or_limit": "A pin can break; no forced cap-to-pain or automatic fade bias.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "F02",
+    "source_category": "F",
+    "source_name": "Gamma squeeze",
+    "source_mechanism_unverified": "Dealer chase amplifies move",
+    "source_detection_unverified": "Negative GEX + breakout",
+    "source_measure_unverified": "Let runners run (trail)",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 25,
+      "supplied_source_line": 62
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "OPTIONS_POSITION_MODEL_UNAVAILABLE",
+    "anticipation_or_detection_contract": "Dealer-gamma inference is model-dependent and absent. Accelerating stock prices are observable but do not reveal who is hedging.",
+    "protective_response": "Use price-path stress, extension and entry feasibility; no fabricated GEX.",
+    "permitted_opportunity_branch": "Only a permitted fixed-exit continuation with its own proof.",
+    "alternative_failure_or_limit": "Trailing or runner management would change the frozen exit policy and is not enabled.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "F03",
+    "source_category": "F",
+    "source_name": "OI wall rejection",
+    "source_mechanism_unverified": "Call/put wall caps move",
+    "source_detection_unverified": "Target beyond wall",
+    "source_measure_unverified": "Cap target 1 tick below wall",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 26,
+      "supplied_source_line": 63
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "OPTIONS_OI_UNAVAILABLE",
+    "anticipation_or_detection_contract": "Actual option OI level is unavailable; a known price-level rejection is only a price observation.",
+    "protective_response": "Keep derivatives inference blocked; apply normal target-room/economic policy if supported.",
+    "permitted_opportunity_branch": "A rejected price break can arm a valid gap fade only with independent trigger and remaining room.",
+    "alternative_failure_or_limit": "Neither an OI wall nor a candle rejection guarantees a ceiling; reclaim refutes the fade.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "F04",
+    "source_category": "F",
+    "source_name": "Rollover distortion",
+    "source_mechanism_unverified": "Basis flips sign mechanically",
+    "source_detection_unverified": ">30% OI moved to next month",
+    "source_measure_unverified": "Use next-month basis",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 27,
+      "supplied_source_line": 64
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "CONTRACT_OI_FUTURES_UNAVAILABLE",
+    "anticipation_or_detection_contract": "Requires contract-level prices, OI and rollover metadata; no equivalent from cash OHLCV.",
+    "protective_response": "Validate data contract or disable basis-related policies.",
+    "permitted_opportunity_branch": "No direct trade conversion inside this core.",
+    "alternative_failure_or_limit": "Do not substitute next-month data or infer basis mechanically without actual records.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "G01",
+    "source_category": "**G. Statistical**",
+    "source_name": "Edge decay",
+    "source_mechanism_unverified": "Regime change kills setup",
+    "source_detection_unverified": "60-day rolling expectancy <0 ×2 months",
+    "source_measure_unverified": "ALERT_ONLY demotion",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 28,
+      "supplied_source_line": 65
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "OWN_LOG_AFTER_SUFFICIENT_OUTCOMES",
+    "anticipation_or_detection_contract": "Forecast drift may be flagged by support/calibration/performance monitoring; new-regime profitability is not known in advance.",
+    "protective_response": "Warn/suspend through frozen governance; keep champion model fixed until reviewed.",
+    "permitted_opportunity_branch": "A separately proved alternative controller may be researched/promoted later, not fitted to the latest losses and deployed instantly.",
+    "alternative_failure_or_limit": "A winning week does not erase decay evidence; windows overlap and need adequate support.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "G02",
+    "source_category": "G",
+    "source_name": "Overfit",
+    "source_mechanism_unverified": "9-strategy grid, multiple testing",
+    "source_detection_unverified": "Holm / deflated Sharpe fail",
+    "source_measure_unverified": "Demote variant",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 29,
+      "supplied_source_line": 66
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "TRIAL_REGISTRY_AND_PROOF_PIPELINE",
+    "anticipation_or_detection_contract": "Counts of variants, unstable performance and train-test gaps are diagnosable; no profitable strategy is guaranteed by a correction statistic.",
+    "protective_response": "Log every branch/model/threshold search; nested chronological evaluation; sealed final test; simplify unsupported models.",
+    "permitted_opportunity_branch": "No market inverse. Stronger selection evidence is the opportunity.",
+    "alternative_failure_or_limit": "The controller itself must be tested; leaf strategy proofs do not prove adaptive switching.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  },
+  {
+    "scenario_id": "G03",
+    "source_category": "G",
+    "source_name": "Small sample",
+    "source_mechanism_unverified": "n <60 OOS occurrences",
+    "source_detection_unverified": "Trade log",
+    "source_measure_unverified": "ALERT_ONLY until qualified",
+    "source_reference": {
+      "file": "Pasted text(2).txt",
+      "section": "TASK 2",
+      "row": 30,
+      "supplied_source_line": 67
+    },
+    "new_design_status": "PROPOSED_UNVERIFIED",
+    "data_capability": "OWN_SAMPLE_AND_SUPPORT_COUNTS",
+    "anticipation_or_detection_contract": "Unique dates, outcomes, subgroup exposure and interval width reveal limited evidence.",
+    "protective_response": "Return UNSUPPORTED/UNESTIMATED, not confidence from an arbitrary universal sample count.",
+    "permitted_opportunity_branch": "Collect prospective observations and shadow alternatives until useful inference is possible.",
+    "alternative_failure_or_limit": "Synthetic continuations, repeated prompts and many rows from one day do not create independent market evidence.",
+    "default_forecast_probability": null,
+    "forecast_status": "UNESTIMATED",
+    "requires_exact_controller_proof_for_paper": true,
+    "after_filled_entry": "DIAGNOSTIC_ONLY_NO_NEW_ENTRY_FIXED_EXIT_ACCOUNTING",
+    "evidence_required": [
+      "as_of_snapshot_hash",
+      "source_event_ids",
+      "clock_and_lineage",
+      "scenario_rule_version"
+    ],
+    "module_owners": [
+      "orb.core scenario reducer",
+      "existing discovery/proof",
+      "guidance trace"
+    ]
+  }
+]
