@@ -1,11 +1,10 @@
 """Structured non-price risk inputs for AFRE failure-scenario detection.
 
-This module is intentionally boring: it accepts already-verified factual flags
-from official calendars, exchange restrictions, feed monitors, broker-paper
-telemetry, and research validation. It never parses narrative text and never
-invents a missing state. Facts are converted into expiring Capability records
-so the existing MarketSnapshot causal guard remains the single integration
-boundary.
+This module accepts already-verified factual flags from official calendars,
+exchange restrictions, feed monitors, broker-paper telemetry, and research
+validation. It never parses narrative text and never invents a missing state.
+Facts are converted into expiring Capability records so the existing
+MarketSnapshot causal guard remains the single integration boundary.
 """
 from __future__ import annotations
 
@@ -83,7 +82,9 @@ def _cap(ctx: RiskContextSnapshot, name: str, *, blocked: bool = False, reason: 
 
 
 def capabilities(ctx: RiskContextSnapshot) -> tuple[Capability, ...]:
-    out: list[Capability] = []
+    out: list[Capability] = [
+        _cap(ctx, "RISK_CONTEXT", reason=f"verified structured risk context from {ctx.source_id}")
+    ]
     facts = (
         (ctx.scheduled_result, "RESULT_DAY", False, "verified scheduled result/event calendar"),
         (ctx.rbi_mpc_window, "RBI_MPC_WINDOW", True, "verified RBI MPC decision window"),
