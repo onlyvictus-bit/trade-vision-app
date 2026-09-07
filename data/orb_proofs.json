@@ -57,7 +57,7 @@
         "repeated_success_passed": true,
         "walk_forward_folds": [
           {
-            "end_date": "2024-07-22",
+            "end_date": "2024-05-30",
             "fold_id": "WF-01",
             "metrics": {
               "clock_window": [
@@ -65,30 +65,32 @@
                 "09:20"
               ],
               "combo_id": "ba1121c62248ed991403",
-              "composite_score": 0.62432008,
-              "gross_r": 11.50585314,
-              "loss_count": 71,
+              "composite_score": -3.0964517,
+              "gross_r": 6.17683225,
+              "loss_count": 55,
               "max_drawdown_r": 10.53999206,
               "minimum_trades_pass": true,
-              "net_r": 7.89397084,
+              "net_r": 3.37495505,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.12748416,
-              "profitable_period_rate": 0.42857143,
+              "profit_factor": 1.06858531,
+              "profitable_period_rate": 0.6,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 3.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 134,
-              "win_count": 63,
-              "win_rate": 0.4701492537313433
+              "trade_count": 100,
+              "win_count": 45,
+              "win_rate": 0.45
             },
-            "passed": true,
-            "reasons": [],
+            "passed": false,
+            "reasons": [
+              "Insufficient train history before this fold: no expanding selection possible (walk-forward cold start)."
+            ],
             "start_date": "2024-01-01"
           },
           {
-            "end_date": "2025-02-06",
+            "end_date": "2024-10-28",
             "fold_id": "WF-02",
             "metrics": {
               "clock_window": [
@@ -96,30 +98,30 @@
                 "09:20"
               ],
               "combo_id": "ba1121c62248ed991403",
-              "composite_score": 18.22216091,
-              "gross_r": 28.51590343,
-              "loss_count": 62,
-              "max_drawdown_r": 11.12077724,
+              "composite_score": 12.66756085,
+              "gross_r": 20.37810099,
+              "loss_count": 47,
+              "max_drawdown_r": 8.91550736,
               "minimum_trades_pass": true,
-              "net_r": 24.77758352,
+              "net_r": 17.66745713,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.44035463,
-              "profitable_period_rate": 0.625,
+              "profit_factor": 1.41561108,
+              "profitable_period_rate": 0.5,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 3.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 128,
-              "win_count": 66,
-              "win_rate": 0.515625
+              "trade_count": 95,
+              "win_count": 48,
+              "win_rate": 0.5052631578947369
             },
             "passed": true,
             "reasons": [],
-            "start_date": "2024-07-23"
+            "start_date": "2024-05-31"
           },
           {
-            "end_date": "2025-09-01",
+            "end_date": "2025-03-27",
             "fold_id": "WF-03",
             "metrics": {
               "clock_window": [
@@ -127,30 +129,30 @@
                 "09:20"
               ],
               "combo_id": "ba1121c62248ed991403",
-              "composite_score": 12.25595273,
-              "gross_r": 18.80665263,
-              "loss_count": 53,
-              "max_drawdown_r": 8.34748194,
+              "composite_score": 16.52281051,
+              "gross_r": 24.32265789,
+              "loss_count": 39,
+              "max_drawdown_r": 11.12077724,
               "minimum_trades_pass": true,
-              "net_r": 15.44161639,
+              "net_r": 21.81923977,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.41181828,
-              "profitable_period_rate": 0.75,
+              "profit_factor": 1.65768131,
+              "profitable_period_rate": 0.83333333,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 3.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 127,
-              "win_count": 74,
-              "win_rate": 0.5826771653543307
+              "trade_count": 99,
+              "win_count": 60,
+              "win_rate": 0.6060606060606061
             },
             "passed": true,
             "reasons": [],
-            "start_date": "2025-02-07"
+            "start_date": "2024-10-29"
           },
           {
-            "end_date": "2026-03-20",
+            "end_date": "2025-09-01",
             "fold_id": "WF-04",
             "metrics": {
               "clock_window": [
@@ -158,30 +160,30 @@
                 "09:20"
               ],
               "combo_id": "ba1121c62248ed991403",
-              "composite_score": 8.6923564,
-              "gross_r": 15.92713164,
-              "loss_count": 61,
-              "max_drawdown_r": 8.9415022,
+              "composite_score": 0.93173349,
+              "gross_r": 7.95081807,
+              "loss_count": 45,
+              "max_drawdown_r": 8.34748194,
               "minimum_trades_pass": true,
-              "net_r": 12.07716851,
+              "net_r": 5.2515188,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.27097581,
-              "profitable_period_rate": 0.85714286,
+              "profit_factor": 1.17055377,
+              "profitable_period_rate": 0.57142857,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 3.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 126,
-              "win_count": 65,
-              "win_rate": 0.5158730158730159
+              "trade_count": 95,
+              "win_count": 50,
+              "win_rate": 0.5263157894736842
             },
             "passed": true,
             "reasons": [],
-            "start_date": "2025-09-02"
+            "start_date": "2025-03-28"
           }
         ],
-        "walk_forward_pass_rate": 1.0
+        "walk_forward_pass_rate": 0.75
       },
       {
         "combo_id": "4bef1b8edb889fedbda3",
@@ -234,12 +236,14 @@
           "win_count": 298,
           "win_rate": 0.5786407766990291
         },
-        "promotion_eligible": true,
-        "reasons": [],
-        "repeated_success_passed": true,
+        "promotion_eligible": false,
+        "reasons": [
+          "Walk-forward pass rate 0.50 is below 0.60."
+        ],
+        "repeated_success_passed": false,
         "walk_forward_folds": [
           {
-            "end_date": "2024-07-22",
+            "end_date": "2024-05-30",
             "fold_id": "WF-01",
             "metrics": {
               "clock_window": [
@@ -247,30 +251,32 @@
                 "09:20"
               ],
               "combo_id": "4bef1b8edb889fedbda3",
-              "composite_score": 6.07744638,
-              "gross_r": 15.03594812,
-              "loss_count": 58,
+              "composite_score": 1.12981007,
+              "gross_r": 9.8943017,
+              "loss_count": 43,
               "max_drawdown_r": 10.13933966,
               "minimum_trades_pass": true,
-              "net_r": 11.42542563,
+              "net_r": 7.09308666,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.21993184,
-              "profitable_period_rate": 0.71428571,
+              "profit_factor": 1.17606307,
+              "profitable_period_rate": 0.6,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 1.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 134,
-              "win_count": 76,
-              "win_rate": 0.5671641791044776
+              "trade_count": 100,
+              "win_count": 57,
+              "win_rate": 0.57
             },
-            "passed": true,
-            "reasons": [],
+            "passed": false,
+            "reasons": [
+              "Insufficient train history before this fold: no expanding selection possible (walk-forward cold start)."
+            ],
             "start_date": "2024-01-01"
           },
           {
-            "end_date": "2025-02-06",
+            "end_date": "2024-10-28",
             "fold_id": "WF-02",
             "metrics": {
               "clock_window": [
@@ -278,30 +284,30 @@
                 "09:20"
               ],
               "combo_id": "4bef1b8edb889fedbda3",
-              "composite_score": 5.38233617,
-              "gross_r": 12.53907084,
-              "loss_count": 53,
-              "max_drawdown_r": 7.10258434,
+              "composite_score": 0.67728864,
+              "gross_r": 6.81368139,
+              "loss_count": 42,
+              "max_drawdown_r": 7.03341666,
               "minimum_trades_pass": true,
-              "net_r": 8.79997405,
+              "net_r": 4.10285948,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.18494646,
+              "profit_factor": 1.10784582,
               "profitable_period_rate": 0.5,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 1.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 128,
-              "win_count": 75,
-              "win_rate": 0.5859375
+              "trade_count": 95,
+              "win_count": 53,
+              "win_rate": 0.5578947368421052
             },
             "passed": true,
             "reasons": [],
-            "start_date": "2024-07-23"
+            "start_date": "2024-05-31"
           },
           {
-            "end_date": "2025-09-01",
+            "end_date": "2025-03-27",
             "fold_id": "WF-03",
             "metrics": {
               "clock_window": [
@@ -309,30 +315,32 @@
                 "09:20"
               ],
               "combo_id": "4bef1b8edb889fedbda3",
-              "composite_score": 14.21917941,
-              "gross_r": 21.31746578,
-              "loss_count": 51,
-              "max_drawdown_r": 8.34748194,
+              "composite_score": 20.75209587,
+              "gross_r": 24.19809191,
+              "loss_count": 33,
+              "max_drawdown_r": 6.88792349,
               "minimum_trades_pass": true,
-              "net_r": 17.95365308,
+              "net_r": 21.69527438,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.48800827,
-              "profitable_period_rate": 0.625,
+              "profit_factor": 1.77807831,
+              "profitable_period_rate": 0.83333333,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 1.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 127,
-              "win_count": 76,
-              "win_rate": 0.5984251968503937
+              "trade_count": 99,
+              "win_count": 66,
+              "win_rate": 0.6666666666666666
             },
-            "passed": true,
-            "reasons": [],
-            "start_date": "2025-02-07"
+            "passed": false,
+            "reasons": [
+              "Combo was not in this fold's expanding-train top_k: selection would not have picked it here."
+            ],
+            "start_date": "2024-10-29"
           },
           {
-            "end_date": "2026-03-20",
+            "end_date": "2025-09-01",
             "fold_id": "WF-04",
             "metrics": {
               "clock_window": [
@@ -340,30 +348,30 @@
                 "09:20"
               ],
               "combo_id": "4bef1b8edb889fedbda3",
-              "composite_score": 8.00376074,
-              "gross_r": 12.19821454,
-              "loss_count": 55,
-              "max_drawdown_r": 5.11753227,
+              "composite_score": 0.2588444,
+              "gross_r": 7.98640974,
+              "loss_count": 44,
+              "max_drawdown_r": 8.34748194,
               "minimum_trades_pass": true,
-              "net_r": 8.34922732,
+              "net_r": 5.28783224,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.20063711,
-              "profitable_period_rate": 0.71428571,
+              "profit_factor": 1.17563696,
+              "profitable_period_rate": 0.42857143,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 1.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 126,
-              "win_count": 71,
-              "win_rate": 0.5634920634920635
+              "trade_count": 95,
+              "win_count": 51,
+              "win_rate": 0.5368421052631579
             },
             "passed": true,
             "reasons": [],
-            "start_date": "2025-09-02"
+            "start_date": "2025-03-28"
           }
         ],
-        "walk_forward_pass_rate": 1.0
+        "walk_forward_pass_rate": 0.5
       },
       {
         "combo_id": "e8137778d2c886cabc95",
@@ -416,12 +424,14 @@
           "win_count": 269,
           "win_rate": 0.5223300970873787
         },
-        "promotion_eligible": true,
-        "reasons": [],
-        "repeated_success_passed": true,
+        "promotion_eligible": false,
+        "reasons": [
+          "Walk-forward pass rate 0.25 is below 0.60."
+        ],
+        "repeated_success_passed": false,
         "walk_forward_folds": [
           {
-            "end_date": "2024-07-22",
+            "end_date": "2024-05-30",
             "fold_id": "WF-01",
             "metrics": {
               "clock_window": [
@@ -429,30 +439,32 @@
                 "09:20"
               ],
               "combo_id": "e8137778d2c886cabc95",
-              "composite_score": 2.91247509,
-              "gross_r": 12.24353232,
-              "loss_count": 70,
+              "composite_score": -3.36703699,
+              "gross_r": 4.82562723,
+              "loss_count": 54,
               "max_drawdown_r": 10.4332189,
               "minimum_trades_pass": true,
-              "net_r": 8.63243382,
+              "net_r": 2.0241444,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.1418316,
-              "profitable_period_rate": 0.71428571,
+              "profit_factor": 1.04203751,
+              "profitable_period_rate": 0.8,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 2.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 134,
-              "win_count": 64,
-              "win_rate": 0.47761194029850745
+              "trade_count": 100,
+              "win_count": 46,
+              "win_rate": 0.46
             },
-            "passed": true,
-            "reasons": [],
+            "passed": false,
+            "reasons": [
+              "Insufficient train history before this fold: no expanding selection possible (walk-forward cold start)."
+            ],
             "start_date": "2024-01-01"
           },
           {
-            "end_date": "2025-02-06",
+            "end_date": "2024-10-28",
             "fold_id": "WF-02",
             "metrics": {
               "clock_window": [
@@ -460,30 +472,32 @@
                 "09:20"
               ],
               "combo_id": "e8137778d2c886cabc95",
-              "composite_score": 4.24069541,
-              "gross_r": 16.53606038,
-              "loss_count": 62,
-              "max_drawdown_r": 11.6591974,
+              "composite_score": 3.88550007,
+              "gross_r": 13.13296312,
+              "loss_count": 47,
+              "max_drawdown_r": 10.28143139,
               "minimum_trades_pass": true,
-              "net_r": 12.79745265,
+              "net_r": 10.4217687,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.22744016,
-              "profitable_period_rate": 0.375,
+              "profit_factor": 1.24516276,
+              "profitable_period_rate": 0.5,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 2.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 128,
-              "win_count": 66,
-              "win_rate": 0.515625
+              "trade_count": 95,
+              "win_count": 48,
+              "win_rate": 0.5052631578947369
             },
-            "passed": true,
-            "reasons": [],
-            "start_date": "2024-07-23"
+            "passed": false,
+            "reasons": [
+              "Combo was not in this fold's expanding-train top_k: selection would not have picked it here."
+            ],
+            "start_date": "2024-05-31"
           },
           {
-            "end_date": "2025-09-01",
+            "end_date": "2025-03-27",
             "fold_id": "WF-03",
             "metrics": {
               "clock_window": [
@@ -491,30 +505,32 @@
                 "09:20"
               ],
               "combo_id": "e8137778d2c886cabc95",
-              "composite_score": 9.53322916,
-              "gross_r": 16.1546493,
-              "loss_count": 53,
-              "max_drawdown_r": 8.34748194,
+              "composite_score": 12.58278995,
+              "gross_r": 21.30627665,
+              "loss_count": 39,
+              "max_drawdown_r": 11.12077724,
               "minimum_trades_pass": true,
-              "net_r": 12.78961991,
+              "net_r": 18.80345512,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.34109119,
-              "profitable_period_rate": 0.75,
+              "profit_factor": 1.56677873,
+              "profitable_period_rate": 0.66666667,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 2.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 127,
-              "win_count": 74,
-              "win_rate": 0.5826771653543307
+              "trade_count": 99,
+              "win_count": 60,
+              "win_rate": 0.6060606060606061
             },
-            "passed": true,
-            "reasons": [],
-            "start_date": "2025-02-07"
+            "passed": false,
+            "reasons": [
+              "Combo was not in this fold's expanding-train top_k: selection would not have picked it here."
+            ],
+            "start_date": "2024-10-29"
           },
           {
-            "end_date": "2026-03-20",
+            "end_date": "2025-09-01",
             "fold_id": "WF-04",
             "metrics": {
               "clock_window": [
@@ -522,30 +538,30 @@
                 "09:20"
               ],
               "combo_id": "e8137778d2c886cabc95",
-              "composite_score": 6.07214636,
-              "gross_r": 13.36429232,
-              "loss_count": 61,
-              "max_drawdown_r": 8.9415022,
+              "composite_score": -1.42373963,
+              "gross_r": 5.669375,
+              "loss_count": 45,
+              "max_drawdown_r": 8.34748194,
               "minimum_trades_pass": true,
-              "net_r": 9.51445808,
+              "net_r": 2.97013816,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.21347619,
-              "profitable_period_rate": 0.85714286,
+              "profit_factor": 1.09646129,
+              "profitable_period_rate": 0.57142857,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 2.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 126,
-              "win_count": 65,
-              "win_rate": 0.5158730158730159
+              "trade_count": 95,
+              "win_count": 50,
+              "win_rate": 0.5263157894736842
             },
             "passed": true,
             "reasons": [],
-            "start_date": "2025-09-02"
+            "start_date": "2025-03-28"
           }
         ],
-        "walk_forward_pass_rate": 1.0
+        "walk_forward_pass_rate": 0.25
       },
       {
         "combo_id": "e9419a76b29413beb302",
@@ -592,124 +608,132 @@
           "win_count": 240,
           "win_rate": 0.5274725274725275
         },
-        "promotion_eligible": true,
-        "reasons": [],
-        "repeated_success_passed": true,
+        "promotion_eligible": false,
+        "reasons": [
+          "Walk-forward pass rate 0.50 is below 0.60."
+        ],
+        "repeated_success_passed": false,
         "walk_forward_folds": [
           {
-            "end_date": "2024-07-22",
+            "end_date": "2024-05-30",
             "fold_id": "WF-01",
             "metrics": {
               "clock_window": null,
               "combo_id": "e9419a76b29413beb302",
-              "composite_score": -2.35457264,
-              "gross_r": 3.83785576,
-              "loss_count": 60,
+              "composite_score": -8.97312635,
+              "gross_r": -2.34486067,
+              "loss_count": 45,
               "max_drawdown_r": 7.53550311,
               "minimum_trades_pass": true,
-              "net_r": 1.29441078,
+              "net_r": -4.32089223,
               "no_future_leakage": true,
               "orb_bar_count": 3,
-              "profit_factor": 1.02937683,
+              "profit_factor": 0.88326899,
+              "profitable_period_rate": 0.4,
+              "range_mode": "bar_count",
+              "require_volume_confirmation": false,
+              "reward_risk_ratio": 2.0,
+              "strategy_family": "orb_breakout",
+              "trade_count": 87,
+              "win_count": 42,
+              "win_rate": 0.4827586206896552
+            },
+            "passed": false,
+            "reasons": [
+              "Insufficient train history before this fold: no expanding selection possible (walk-forward cold start).",
+              "Profit factor 0.883 < 1.000.",
+              "Net R -4.321 <= 0.000."
+            ],
+            "start_date": "2024-01-01"
+          },
+          {
+            "end_date": "2024-10-28",
+            "fold_id": "WF-02",
+            "metrics": {
+              "clock_window": null,
+              "combo_id": "e9419a76b29413beb302",
+              "composite_score": 15.96682851,
+              "gross_r": 17.54756943,
+              "loss_count": 39,
+              "max_drawdown_r": 4.42268157,
+              "minimum_trades_pass": true,
+              "net_r": 15.45997984,
+              "no_future_leakage": true,
+              "orb_bar_count": 3,
+              "profit_factor": 1.59619691,
+              "profitable_period_rate": 0.66666667,
+              "range_mode": "bar_count",
+              "require_volume_confirmation": false,
+              "reward_risk_ratio": 2.0,
+              "strategy_family": "orb_breakout",
+              "trade_count": 85,
+              "win_count": 46,
+              "win_rate": 0.5411764705882353
+            },
+            "passed": false,
+            "reasons": [
+              "Combo was not in this fold's expanding-train top_k: selection would not have picked it here."
+            ],
+            "start_date": "2024-05-31"
+          },
+          {
+            "end_date": "2025-03-27",
+            "fold_id": "WF-03",
+            "metrics": {
+              "clock_window": null,
+              "combo_id": "e9419a76b29413beb302",
+              "composite_score": 0.25604253,
+              "gross_r": 9.92318078,
+              "loss_count": 45,
+              "max_drawdown_r": 12.29126481,
+              "minimum_trades_pass": true,
+              "net_r": 7.95321052,
+              "no_future_leakage": true,
+              "orb_bar_count": 3,
+              "profit_factor": 1.26076348,
+              "profitable_period_rate": 0.66666667,
+              "range_mode": "bar_count",
+              "require_volume_confirmation": false,
+              "reward_risk_ratio": 2.0,
+              "strategy_family": "orb_breakout",
+              "trade_count": 94,
+              "win_count": 49,
+              "win_rate": 0.5212765957446809
+            },
+            "passed": true,
+            "reasons": [],
+            "start_date": "2024-10-29"
+          },
+          {
+            "end_date": "2025-09-01",
+            "fold_id": "WF-04",
+            "metrics": {
+              "clock_window": null,
+              "combo_id": "e9419a76b29413beb302",
+              "composite_score": 3.92271009,
+              "gross_r": 7.17358012,
+              "loss_count": 35,
+              "max_drawdown_r": 5.34226491,
+              "minimum_trades_pass": true,
+              "net_r": 5.15113972,
+              "no_future_leakage": true,
+              "orb_bar_count": 3,
+              "profit_factor": 1.25669242,
               "profitable_period_rate": 0.57142857,
               "range_mode": "bar_count",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 2.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 117,
-              "win_count": 57,
-              "win_rate": 0.48717948717948717
+              "trade_count": 82,
+              "win_count": 47,
+              "win_rate": 0.573170731707317
             },
             "passed": true,
             "reasons": [],
-            "start_date": "2024-01-01"
-          },
-          {
-            "end_date": "2025-02-06",
-            "fold_id": "WF-02",
-            "metrics": {
-              "clock_window": null,
-              "combo_id": "e9419a76b29413beb302",
-              "composite_score": 2.98572537,
-              "gross_r": 14.48174329,
-              "loss_count": 59,
-              "max_drawdown_r": 12.29126481,
-              "minimum_trades_pass": true,
-              "net_r": 11.51626419,
-              "no_future_leakage": true,
-              "orb_bar_count": 3,
-              "profit_factor": 1.26072599,
-              "profitable_period_rate": 0.5,
-              "range_mode": "bar_count",
-              "require_volume_confirmation": false,
-              "reward_risk_ratio": 2.0,
-              "strategy_family": "orb_breakout",
-              "trade_count": 119,
-              "win_count": 60,
-              "win_rate": 0.5042016806722689
-            },
-            "passed": true,
-            "reasons": [],
-            "start_date": "2024-07-23"
-          },
-          {
-            "end_date": "2025-09-01",
-            "fold_id": "WF-03",
-            "metrics": {
-              "clock_window": null,
-              "combo_id": "e9419a76b29413beb302",
-              "composite_score": 10.43767827,
-              "gross_r": 13.97987061,
-              "loss_count": 45,
-              "max_drawdown_r": 6.19730172,
-              "minimum_trades_pass": true,
-              "net_r": 11.43276288,
-              "no_future_leakage": true,
-              "orb_bar_count": 3,
-              "profit_factor": 1.45221711,
-              "profitable_period_rate": 0.75,
-              "range_mode": "bar_count",
-              "require_volume_confirmation": false,
-              "reward_risk_ratio": 2.0,
-              "strategy_family": "orb_breakout",
-              "trade_count": 112,
-              "win_count": 67,
-              "win_rate": 0.5982142857142857
-            },
-            "passed": true,
-            "reasons": [],
-            "start_date": "2025-02-07"
-          },
-          {
-            "end_date": "2026-03-20",
-            "fold_id": "WF-04",
-            "metrics": {
-              "clock_window": null,
-              "combo_id": "e9419a76b29413beb302",
-              "composite_score": 8.05055139,
-              "gross_r": 12.54899766,
-              "loss_count": 51,
-              "max_drawdown_r": 6.55989679,
-              "minimum_trades_pass": true,
-              "net_r": 9.72686619,
-              "no_future_leakage": true,
-              "orb_bar_count": 3,
-              "profit_factor": 1.31215342,
-              "profitable_period_rate": 0.71428571,
-              "range_mode": "bar_count",
-              "require_volume_confirmation": false,
-              "reward_risk_ratio": 2.0,
-              "strategy_family": "orb_breakout",
-              "trade_count": 107,
-              "win_count": 56,
-              "win_rate": 0.5233644859813084
-            },
-            "passed": true,
-            "reasons": [],
-            "start_date": "2025-09-02"
+            "start_date": "2025-03-28"
           }
         ],
-        "walk_forward_pass_rate": 1.0
+        "walk_forward_pass_rate": 0.5
       },
       {
         "combo_id": "1da0279267c904a4564a",
@@ -762,12 +786,14 @@
           "win_count": 240,
           "win_rate": 0.5274725274725275
         },
-        "promotion_eligible": true,
-        "reasons": [],
-        "repeated_success_passed": true,
+        "promotion_eligible": false,
+        "reasons": [
+          "Walk-forward pass rate 0.50 is below 0.60."
+        ],
+        "repeated_success_passed": false,
         "walk_forward_folds": [
           {
-            "end_date": "2024-07-22",
+            "end_date": "2024-05-30",
             "fold_id": "WF-01",
             "metrics": {
               "clock_window": [
@@ -775,30 +801,34 @@
                 "09:30"
               ],
               "combo_id": "1da0279267c904a4564a",
-              "composite_score": -2.35457264,
-              "gross_r": 3.83785576,
-              "loss_count": 60,
+              "composite_score": -8.97312635,
+              "gross_r": -2.34486067,
+              "loss_count": 45,
               "max_drawdown_r": 7.53550311,
               "minimum_trades_pass": true,
-              "net_r": 1.29441078,
+              "net_r": -4.32089223,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.02937683,
-              "profitable_period_rate": 0.57142857,
+              "profit_factor": 0.88326899,
+              "profitable_period_rate": 0.4,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 2.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 117,
-              "win_count": 57,
-              "win_rate": 0.48717948717948717
+              "trade_count": 87,
+              "win_count": 42,
+              "win_rate": 0.4827586206896552
             },
-            "passed": true,
-            "reasons": [],
+            "passed": false,
+            "reasons": [
+              "Insufficient train history before this fold: no expanding selection possible (walk-forward cold start).",
+              "Profit factor 0.883 < 1.000.",
+              "Net R -4.321 <= 0.000."
+            ],
             "start_date": "2024-01-01"
           },
           {
-            "end_date": "2025-02-06",
+            "end_date": "2024-10-28",
             "fold_id": "WF-02",
             "metrics": {
               "clock_window": [
@@ -806,30 +836,32 @@
                 "09:30"
               ],
               "combo_id": "1da0279267c904a4564a",
-              "composite_score": 2.98572537,
-              "gross_r": 14.48174329,
-              "loss_count": 59,
-              "max_drawdown_r": 12.29126481,
+              "composite_score": 15.96682851,
+              "gross_r": 17.54756943,
+              "loss_count": 39,
+              "max_drawdown_r": 4.42268157,
               "minimum_trades_pass": true,
-              "net_r": 11.51626419,
+              "net_r": 15.45997984,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.26072599,
-              "profitable_period_rate": 0.5,
+              "profit_factor": 1.59619691,
+              "profitable_period_rate": 0.66666667,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 2.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 119,
-              "win_count": 60,
-              "win_rate": 0.5042016806722689
+              "trade_count": 85,
+              "win_count": 46,
+              "win_rate": 0.5411764705882353
             },
-            "passed": true,
-            "reasons": [],
-            "start_date": "2024-07-23"
+            "passed": false,
+            "reasons": [
+              "Combo was not in this fold's expanding-train top_k: selection would not have picked it here."
+            ],
+            "start_date": "2024-05-31"
           },
           {
-            "end_date": "2025-09-01",
+            "end_date": "2025-03-27",
             "fold_id": "WF-03",
             "metrics": {
               "clock_window": [
@@ -837,30 +869,30 @@
                 "09:30"
               ],
               "combo_id": "1da0279267c904a4564a",
-              "composite_score": 10.43767827,
-              "gross_r": 13.97987061,
+              "composite_score": 0.25604253,
+              "gross_r": 9.92318078,
               "loss_count": 45,
-              "max_drawdown_r": 6.19730172,
+              "max_drawdown_r": 12.29126481,
               "minimum_trades_pass": true,
-              "net_r": 11.43276288,
+              "net_r": 7.95321052,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.45221711,
-              "profitable_period_rate": 0.75,
+              "profit_factor": 1.26076348,
+              "profitable_period_rate": 0.66666667,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 2.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 112,
-              "win_count": 67,
-              "win_rate": 0.5982142857142857
+              "trade_count": 94,
+              "win_count": 49,
+              "win_rate": 0.5212765957446809
             },
             "passed": true,
             "reasons": [],
-            "start_date": "2025-02-07"
+            "start_date": "2024-10-29"
           },
           {
-            "end_date": "2026-03-20",
+            "end_date": "2025-09-01",
             "fold_id": "WF-04",
             "metrics": {
               "clock_window": [
@@ -868,40 +900,37 @@
                 "09:30"
               ],
               "combo_id": "1da0279267c904a4564a",
-              "composite_score": 8.05055139,
-              "gross_r": 12.54899766,
-              "loss_count": 51,
-              "max_drawdown_r": 6.55989679,
+              "composite_score": 3.92271009,
+              "gross_r": 7.17358012,
+              "loss_count": 35,
+              "max_drawdown_r": 5.34226491,
               "minimum_trades_pass": true,
-              "net_r": 9.72686619,
+              "net_r": 5.15113972,
               "no_future_leakage": true,
               "orb_bar_count": null,
-              "profit_factor": 1.31215342,
-              "profitable_period_rate": 0.71428571,
+              "profit_factor": 1.25669242,
+              "profitable_period_rate": 0.57142857,
               "range_mode": "clock_window",
               "require_volume_confirmation": false,
               "reward_risk_ratio": 2.0,
               "strategy_family": "orb_breakout",
-              "trade_count": 107,
-              "win_count": 56,
-              "win_rate": 0.5233644859813084
+              "trade_count": 82,
+              "win_count": 47,
+              "win_rate": 0.573170731707317
             },
             "passed": true,
             "reasons": [],
-            "start_date": "2025-09-02"
+            "start_date": "2025-03-28"
           }
         ],
-        "walk_forward_pass_rate": 1.0
+        "walk_forward_pass_rate": 0.5
       }
     ],
     "deterministic": true,
     "eligible_combo_ids": [
-      "ba1121c62248ed991403",
-      "4bef1b8edb889fedbda3",
-      "e8137778d2c886cabc95",
-      "e9419a76b29413beb302",
-      "1da0279267c904a4564a"
+      "ba1121c62248ed991403"
     ],
+    "fold_scheme": "expanding_train",
     "holdout_dates": [
       "2025-09-02",
       "2025-09-03",
@@ -1045,12 +1074,23 @@
     "live_trading_blocked": true,
     "no_future_leakage": true,
     "order_routing_enabled": false,
-    "proof_hash": "6ebe278851186e38d50b869cabcece6fe415747e3a9b77241d2f39ccdc4b5082",
+    "proof_hash": "64d046261c891e63178269f0c52e5803b8af923e1068940c0737cfc6acd9e5ad",
     "proof_id": "ab7b3163-cee6-5c0c-987c-68db75717273",
     "proof_version": "orb-proof.v1.91",
     "request_hash": "9b87326046694ff4e70a3cc87ba29e60ed28008af73904b54fbb5e7f448411c8",
     "research_only": true,
+    "selection_scope": "train_only",
     "symbol": "BEL",
+    "thresholds_used": {
+      "holdout_fraction": 0.25,
+      "minimum_oos_net_r": 0.0,
+      "minimum_oos_profit_factor": 1.0,
+      "minimum_oos_trades": 5.0,
+      "minimum_overall_trades": 20.0,
+      "minimum_walk_forward_pass_rate": 0.6,
+      "top_k": 5.0,
+      "walk_forward_folds": 4.0
+    },
     "timeframe": "5m",
     "trade_allowed": false,
     "train_dates": [
@@ -1468,6 +1508,239 @@
       "2025-08-28",
       "2025-08-29",
       "2025-09-01"
+    ]
+  },
+  "b7aedda0-7e0e-5b58-8749-cb817bf34486": {
+    "combo_proofs": [
+      {
+        "combo_id": "acd88e42b06ab7561863",
+        "holdout_metrics": {
+          "clock_window": null,
+          "combo_id": "acd88e42b06ab7561863",
+          "composite_score": 17.82254016,
+          "gross_r": 7.92853176,
+          "loss_count": 0,
+          "max_drawdown_r": 0.0,
+          "minimum_trades_pass": true,
+          "net_r": 7.82254016,
+          "no_future_leakage": true,
+          "orb_bar_count": 3,
+          "profit_factor": 999.0,
+          "profitable_period_rate": 1.0,
+          "range_mode": "bar_count",
+          "require_volume_confirmation": false,
+          "reward_risk_ratio": 1.0,
+          "strategy_family": "orb_breakout",
+          "trade_count": 8,
+          "win_count": 8,
+          "win_rate": 1.0
+        },
+        "oos_passed": true,
+        "overall_metrics": {
+          "clock_window": null,
+          "combo_id": "acd88e42b06ab7561863",
+          "composite_score": 41.29016064,
+          "gross_r": 31.71412704,
+          "loss_count": 0,
+          "max_drawdown_r": 0.0,
+          "minimum_trades_pass": true,
+          "net_r": 31.29016064,
+          "no_future_leakage": true,
+          "orb_bar_count": 3,
+          "profit_factor": 999.0,
+          "profitable_period_rate": 1.0,
+          "range_mode": "bar_count",
+          "require_volume_confirmation": false,
+          "reward_risk_ratio": 1.0,
+          "strategy_family": "orb_breakout",
+          "trade_count": 32,
+          "win_count": 32,
+          "win_rate": 1.0
+        },
+        "promotion_eligible": true,
+        "reasons": [],
+        "repeated_success_passed": true,
+        "walk_forward_folds": [
+          {
+            "end_date": "2025-01-06",
+            "fold_id": "WF-01",
+            "metrics": {
+              "clock_window": null,
+              "combo_id": "acd88e42b06ab7561863",
+              "composite_score": 15.86690512,
+              "gross_r": 5.94639882,
+              "loss_count": 0,
+              "max_drawdown_r": 0.0,
+              "minimum_trades_pass": true,
+              "net_r": 5.86690512,
+              "no_future_leakage": true,
+              "orb_bar_count": 3,
+              "profit_factor": 999.0,
+              "profitable_period_rate": 1.0,
+              "range_mode": "bar_count",
+              "require_volume_confirmation": false,
+              "reward_risk_ratio": 1.0,
+              "strategy_family": "orb_breakout",
+              "trade_count": 6,
+              "win_count": 6,
+              "win_rate": 1.0
+            },
+            "passed": false,
+            "reasons": [
+              "Insufficient train history before this fold: no expanding selection possible (walk-forward cold start)."
+            ],
+            "start_date": "2025-01-01"
+          },
+          {
+            "end_date": "2025-01-12",
+            "fold_id": "WF-02",
+            "metrics": {
+              "clock_window": null,
+              "combo_id": "acd88e42b06ab7561863",
+              "composite_score": 15.86690512,
+              "gross_r": 5.94639882,
+              "loss_count": 0,
+              "max_drawdown_r": 0.0,
+              "minimum_trades_pass": true,
+              "net_r": 5.86690512,
+              "no_future_leakage": true,
+              "orb_bar_count": 3,
+              "profit_factor": 999.0,
+              "profitable_period_rate": 1.0,
+              "range_mode": "bar_count",
+              "require_volume_confirmation": false,
+              "reward_risk_ratio": 1.0,
+              "strategy_family": "orb_breakout",
+              "trade_count": 6,
+              "win_count": 6,
+              "win_rate": 1.0
+            },
+            "passed": true,
+            "reasons": [],
+            "start_date": "2025-01-07"
+          },
+          {
+            "end_date": "2025-01-18",
+            "fold_id": "WF-03",
+            "metrics": {
+              "clock_window": null,
+              "combo_id": "acd88e42b06ab7561863",
+              "composite_score": 15.86690512,
+              "gross_r": 5.94639882,
+              "loss_count": 0,
+              "max_drawdown_r": 0.0,
+              "minimum_trades_pass": true,
+              "net_r": 5.86690512,
+              "no_future_leakage": true,
+              "orb_bar_count": 3,
+              "profit_factor": 999.0,
+              "profitable_period_rate": 1.0,
+              "range_mode": "bar_count",
+              "require_volume_confirmation": false,
+              "reward_risk_ratio": 1.0,
+              "strategy_family": "orb_breakout",
+              "trade_count": 6,
+              "win_count": 6,
+              "win_rate": 1.0
+            },
+            "passed": true,
+            "reasons": [],
+            "start_date": "2025-01-13"
+          },
+          {
+            "end_date": "2025-01-24",
+            "fold_id": "WF-04",
+            "metrics": {
+              "clock_window": null,
+              "combo_id": "acd88e42b06ab7561863",
+              "composite_score": 15.86690512,
+              "gross_r": 5.94639882,
+              "loss_count": 0,
+              "max_drawdown_r": 0.0,
+              "minimum_trades_pass": true,
+              "net_r": 5.86690512,
+              "no_future_leakage": true,
+              "orb_bar_count": 3,
+              "profit_factor": 999.0,
+              "profitable_period_rate": 1.0,
+              "range_mode": "bar_count",
+              "require_volume_confirmation": false,
+              "reward_risk_ratio": 1.0,
+              "strategy_family": "orb_breakout",
+              "trade_count": 6,
+              "win_count": 6,
+              "win_rate": 1.0
+            },
+            "passed": true,
+            "reasons": [],
+            "start_date": "2025-01-19"
+          }
+        ],
+        "walk_forward_pass_rate": 0.75
+      }
+    ],
+    "deterministic": true,
+    "eligible_combo_ids": [
+      "acd88e42b06ab7561863"
+    ],
+    "fold_scheme": "expanding_train",
+    "holdout_dates": [
+      "2025-01-25",
+      "2025-01-26",
+      "2025-01-27",
+      "2025-01-28",
+      "2025-01-29",
+      "2025-01-30",
+      "2025-01-31",
+      "2025-02-01"
+    ],
+    "live_trading_blocked": true,
+    "no_future_leakage": true,
+    "order_routing_enabled": false,
+    "proof_hash": "aeb6168c9673a0e048c66ffe29b65f2c9313c37e2e5d1a183305d7213ce9820d",
+    "proof_id": "b7aedda0-7e0e-5b58-8749-cb817bf34486",
+    "proof_version": "orb-proof.v1.91",
+    "request_hash": "8a642ccdb7a5607749761ddd0f77cfdbd48599fec2fe7095fa248558b8e04116",
+    "research_only": true,
+    "selection_scope": "train_only",
+    "symbol": "RELIANCE",
+    "thresholds_used": {
+      "holdout_fraction": 0.25,
+      "minimum_oos_net_r": 0.0,
+      "minimum_oos_profit_factor": 1.0,
+      "minimum_oos_trades": 3.0,
+      "minimum_overall_trades": 20.0,
+      "minimum_walk_forward_pass_rate": 0.5,
+      "top_k": 5.0,
+      "walk_forward_folds": 4.0
+    },
+    "timeframe": "5m",
+    "trade_allowed": false,
+    "train_dates": [
+      "2025-01-01",
+      "2025-01-02",
+      "2025-01-03",
+      "2025-01-04",
+      "2025-01-05",
+      "2025-01-06",
+      "2025-01-07",
+      "2025-01-08",
+      "2025-01-09",
+      "2025-01-10",
+      "2025-01-11",
+      "2025-01-12",
+      "2025-01-13",
+      "2025-01-14",
+      "2025-01-15",
+      "2025-01-16",
+      "2025-01-17",
+      "2025-01-18",
+      "2025-01-19",
+      "2025-01-20",
+      "2025-01-21",
+      "2025-01-22",
+      "2025-01-23",
+      "2025-01-24"
     ]
   }
 }

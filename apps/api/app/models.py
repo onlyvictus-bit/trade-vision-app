@@ -4801,6 +4801,9 @@ class OrbProofReport(BaseModel):
     eligible_combo_ids: list[str]
     deterministic: bool
     no_future_leakage: bool
+    selection_scope: str = "train_only"
+    fold_scheme: str = "expanding_train"
+    thresholds_used: dict[str, float] = Field(default_factory=dict)
     research_only: Literal[True] = True
     trade_allowed: Literal[False] = False
     order_routing_enabled: Literal[False] = False

@@ -4,7 +4,7 @@
 > 1) **Question → which file?** (former `CONTEXT_INDEX.md`)  
 > 2) **Which code/doc owns what?** (former `FILE_OWNERSHIP_MAP.md`)  
 > 3) **Full library catalog** of docs/folders, read order, plans, audit  
-> **Last updated: 2026-09-04 (v1.99.3-4 BEL prove/promote, v2.00-repair engine rebuild, v2.01 opening scenarios; graph 93/211)
+> **Last updated: 2026-09-06 (v2.01 day-type verdict + options readiness audit; ORB_SIMPLE_FLOW map indexed)
 > **Monorepo root:** `D:\Projects\trading-platforms\stock-app`  
 > **Trade Vision root:** `...\stock-app\trade-vision-app`  
 > **Do not treat this as code source of truth** — code truth is implementation; this is the **map to all maps**.  
@@ -88,6 +88,7 @@ Also linked from: `TRADE_VISION_README.md` (short) · `ARCHITECTURE.md` MASTER G
 ORB_TIMING_RESEARCH_V197 (docs/plans/)  - per-stock ORB clock-window timing research build spec (v1.97, gates ORB-T197-001..010)
 ORB_CONTEXT_NATIVE_PLAN_V2 (docs/plans/)  - v2.00 ORB upgrade plan: gap bias-lock + CPR wide/narrow + PDH/PDL family + execution realism (PROPOSED, milestones M1-M6, awaiting approval)  [+ v2.01-track amendment 2026-09-04: renumbered off shipped versions, M0, staged adoption, S5 fix, BEL default]
 ORB_GAP_TRADING_EXTERNAL_REVIEW_BRIEF (docs/plans/)  - self-contained brief + copy-paste prompt for outside-AI gap-morning review
+ORB_SIMPLE_FLOW (docs/)  - 9-box plain-English flow map: exact Python file + detail doc + built/needed per box; start here when lost
 ORB_STRATEGY_MEMORANDUM (docs/plans/)  - rule-level ORB v2 trade spec: entry/stop/target per gap×CPR×price-zone combo + worked examples (1A/1B/2/3/4)
 ORB_V2_JUDGE_FINDINGS (docs/plans/)  - adversarial verification of the v2 plan: 2 errors + 5 gaps found and integrated; incl. live-path prev-day flow problem
 ORB_V201_PRECODE_REVIEW_KIMI (docs/plans/)  - VERBATIM archive of the FIRST submission (2026-09-01 pre-code review: B1-B8/S-A/S-B/S1-S10/P1-P3/V1-V4; retro-archived in the 09-03 audit; byte-exact)

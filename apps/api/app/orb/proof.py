@@ -42,20 +42,48 @@ def run_orb_proof(request: OrbProofRequest) -> OrbProofReport:
         split = max(1, min(len(dates) - 1, int(len(dates) * (1.0 - request.holdout_fraction))))
         train_dates = dates[:split]
         holdout_dates = dates[split:]
+    # Walk-forward discipline: candidates are selected on TRAIN data only.
+    # The full-sample ranking below is display context, never the selector.
+    train_result = _run_subset(
+        request.discovery_request, train_dates,
+        minimum_trades=request.discovery_request.minimum_trades,
+    )
+    train_ranked = sorted(
+        train_result.ranked_combinations,
+        key=lambda item: (item.minimum_trades_pass, item.composite_score, item.net_r, item.combo_id),
+        reverse=True,
+    )
+    selected_ids = [item.combo_id for item in train_ranked[: request.top_k]]
     holdout = _run_subset(request.discovery_request, holdout_dates)
-    folds = _fold_dates(dates, request.walk_forward_folds)
-    fold_results = [
-        (fold_id, fold_dates, _run_subset(request.discovery_request, fold_dates))
-        for fold_id, fold_dates in folds
-    ]
+    # Expanding folds over the train period: fold k validates chunk k after
+    # training on all strictly earlier train chunks (grouped chronological).
+    fold_specs = _expanding_folds(train_dates, request.walk_forward_folds)
+    fold_results = []
+    for fold_id, fold_train, fold_validate in fold_specs:
+        fold_train_result = _run_subset(request.discovery_request, fold_train)
+        fold_selected = {
+            item.combo_id
+            for item in sorted(
+                fold_train_result.ranked_combinations,
+                key=lambda item: (item.minimum_trades_pass, item.composite_score, item.net_r, item.combo_id),
+                reverse=True,
+            )[: request.top_k]
+        }
+        fold_results.append(
+            (fold_id, fold_train, fold_validate, fold_selected,
+             _run_subset(request.discovery_request, fold_validate))
+        )
     combo_proofs = [
         _prove_combo(
             metrics,
             holdout,
             fold_results,
             request,
+            train_selected=metrics.combo_id in selected_ids,
+            train_trade_count=_train_trade_count(train_result, metrics.combo_id),
         )
-        for metrics in full.ranked_combinations[: request.top_k]
+        for metrics in full.ranked_combinations
+        if metrics.combo_id in selected_ids
     ]
     request_hash = _hash(request.model_dump(mode="json"))
     proof_id = str(uuid5(NAMESPACE_URL, f"tradevision:orb-proof:{request_hash}"))
@@ -77,6 +105,18 @@ def run_orb_proof(request: OrbProofRequest) -> OrbProofReport:
             item.overall_metrics.no_future_leakage
             for item in combo_proofs
         ),
+        "selection_scope": "train_only",
+        "fold_scheme": "expanding_train",
+        "thresholds_used": {
+            "minimum_overall_trades": float(request.thresholds.minimum_overall_trades),
+            "minimum_oos_trades": float(request.thresholds.minimum_oos_trades),
+            "minimum_oos_profit_factor": float(request.thresholds.minimum_oos_profit_factor),
+            "minimum_oos_net_r": float(request.thresholds.minimum_oos_net_r),
+            "minimum_walk_forward_pass_rate": float(request.thresholds.minimum_walk_forward_pass_rate),
+            "top_k": float(request.top_k),
+            "holdout_fraction": float(request.holdout_fraction),
+            "walk_forward_folds": float(request.walk_forward_folds),
+        },
     }
     report = OrbProofReport(
         **payload,
@@ -157,11 +197,19 @@ def list_orb_playbooks(
     return sorted(filtered, key=lambda item: (item.symbol, item.timeframe, item.playbook_id))
 
 
+def _train_trade_count(train_result, combo_id: str) -> int:
+    found = _find_metrics(train_result, combo_id)
+    return int(found.trade_count) if found is not None else 0
+
+
 def _prove_combo(
     overall: OrbComboMetrics,
     holdout_result,
     fold_results,
     request: OrbProofRequest,
+    *,
+    train_selected: bool,
+    train_trade_count: int = 0,
 ) -> OrbComboProof:
     holdout = _find_metrics(holdout_result, overall.combo_id)
     oos_reasons = _pass_reasons(
@@ -172,7 +220,7 @@ def _prove_combo(
     )
     oos_pass = not oos_reasons
     fold_reports: list[OrbWalkForwardFold] = []
-    for fold_id, dates, result in fold_results:
+    for fold_id, fold_train, fold_validate, fold_selected, result in fold_results:
         metrics = _find_metrics(result, overall.combo_id)
         reasons = _pass_reasons(
             metrics,
@@ -180,11 +228,17 @@ def _prove_combo(
             minimum_pf=request.thresholds.minimum_oos_profit_factor,
             minimum_net=request.thresholds.minimum_oos_net_r,
         )
+        if not fold_train:
+            reasons = ["Insufficient train history before this fold: no expanding "
+                       "selection possible (walk-forward cold start)."] + reasons
+        elif overall.combo_id not in fold_selected:
+            reasons = ["Combo was not in this fold's expanding-train top_k: "
+                       "selection would not have picked it here."] + reasons
         fold_reports.append(
             OrbWalkForwardFold(
                 fold_id=fold_id,
-                start_date=dates[0] if dates else "",
-                end_date=dates[-1] if dates else "",
+                start_date=fold_validate[0] if fold_validate else "",
+                end_date=fold_validate[-1] if fold_validate else "",
                 metrics=metrics,
                 passed=not reasons,
                 reasons=reasons,
@@ -196,11 +250,18 @@ def _prove_combo(
         else 0.0
     )
     repeated = pass_rate >= request.thresholds.minimum_walk_forward_pass_rate
-    overall_pass = overall.trade_count >= request.thresholds.minimum_overall_trades
+    # Sample-size gate counts TRAIN trades only: full-sample counts mix in
+    # holdout trades and could pass a combo the train sample never supported.
+    overall_pass = train_trade_count >= request.thresholds.minimum_overall_trades
     reasons: list[str] = []
+    if not train_selected:
+        reasons.append(
+            "Combo was not in the train-only top_k: full-sample ranking "
+            "cannot select candidates (selection-before-split is forbidden)."
+        )
     if not overall_pass:
         reasons.append(
-            f"Overall trades {overall.trade_count} are below "
+            f"Train trades {train_trade_count} are below "
             f"{request.thresholds.minimum_overall_trades}."
         )
     reasons.extend(f"OOS: {reason}" for reason in oos_reasons)
@@ -217,7 +278,7 @@ def _prove_combo(
         oos_passed=oos_pass,
         walk_forward_pass_rate=round(pass_rate, 8),
         repeated_success_passed=repeated,
-        promotion_eligible=overall_pass and oos_pass and repeated,
+        promotion_eligible=train_selected and overall_pass and oos_pass and repeated,
         reasons=reasons,
     )
 
@@ -241,13 +302,13 @@ def _pass_reasons(
     return reasons
 
 
-def _run_subset(request: OrbDiscoveryRequest, dates: list[str]):
+def _run_subset(request: OrbDiscoveryRequest, dates: list[str], minimum_trades: int = 1):
     series = _series_for_dates(request.series, dates)
     return run_orb_discovery(
         request.model_copy(
             update={
                 "series": series,
-                "minimum_trades": 1,
+                "minimum_trades": minimum_trades,
             }
         )
     )
@@ -281,18 +342,28 @@ def _date_for_bar(timestamp_ns: int) -> str:
     return str(local.date())
 
 
-def _fold_dates(dates: list[str], requested: int):
+def _expanding_folds(dates: list[str], requested: int) -> list[tuple[str, list[str], list[str]]]:
+    """Expanding walk-forward folds over one date span.
+
+    Returns (fold_id, train_prefix_dates, validate_dates) with strictly
+    growing train prefixes: fold k trains on all chunks before chunk k and
+    validates chunk k. Grouped chronological: no date appears in both sides.
+    """
     if not dates:
         return []
     fold_count = min(requested, len(dates))
     size = max(1, len(dates) // fold_count)
-    folds = []
+    chunks: list[list[str]] = []
     for index in range(fold_count):
         start = index * size
         end = len(dates) if index == fold_count - 1 else min(len(dates), (index + 1) * size)
         chunk = dates[start:end]
         if chunk:
-            folds.append((f"WF-{index + 1:02d}", chunk))
+            chunks.append(chunk)
+    folds: list[tuple[str, list[str], list[str]]] = []
+    for index, chunk in enumerate(chunks):
+        train_prefix = [day for earlier in chunks[:index] for day in earlier]
+        folds.append((f"WF-{index + 1:02d}", train_prefix, chunk))
     return folds
 
 

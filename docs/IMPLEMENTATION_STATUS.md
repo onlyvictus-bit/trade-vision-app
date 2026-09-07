@@ -10,12 +10,13 @@
 ## Latest completed tip (was CURRENT_VERSION_POINTER)
 
 ```text
-latest_completed_version = v2.01 (ORB opening scenarios: gap/CPR/zone classifier + model + 6 gates)
-latest_completed_title = Opening-Possibility Layer - every session classified (gap x CPR x zone) on real HSTRY data
-latest_completed_status = implemented-and-verified (6/6 new gates incl. real-data partition invariant over 1611 sessions; v2.00-repair suite 740/740 green)
-last_full_backend_regression = v2.00-repair, 2026-09-04, 740 passed (0 failed)
-last_full_backend_regression = v1.99.2, 2026-08-26, 734 passed (0 failed)
-latest_focused_backend_verification = prove operation 7/7 GATES met; promotion + guidance match verified on real BEL bars
+latest_completed_version = v2.01 (ORB opening scenarios + day-type validation + options readiness audit)
+latest_completed_title = Opening-Possibility Layer Complete - classifier, predictor, honest NO-GO verdict, options plugs mapped
+latest_completed_status = implemented-and-verified (8 scenario gates green; day-type predictor validated on 2685 sessions: TREND precision 0.30 = chance, RANGE 0.248 < chance - opening combo alone adds no edge; options audit: request-field plugs + wall math exist, Black-Scholes/chain-fetcher/store missing)
+last_full_backend_regression = proof-repair, 2026-09-06, 891 passed (0 failed, chunked runs: 556 + 56 + 279)
+latest_focused_backend_verification = v201 scenario gates 8 passed; v191 14 passed; BEL re-proof ELIGIBLE (same combo ba1121c6, WF 3/4 with honest fold-1 cold start)
+last_full_backend_regression = proof-repair, 2026-09-06, 891 passed (0 failed, chunked runs: 556 + 56 + 279)
+latest_focused_backend_verification = v191 14 passed; BEL re-proof ELIGIBLE (same combo ba1121c6, WF 3/4 with honest fold-1 cold start)
 latest_ui_verification = no frontend change (v1.97 build passed)
 next_context_maintenance_version = as needed after route/panel changes
 next_reasoning_build_target = daily TrendForge ritual; accumulate 30 paper outcomes (memory maturity); pta_entropy latency fix
@@ -79,20 +80,17 @@ to exclude candles whose close time is after the decision time.
 ### Verification snapshot (latest tip)
 
 ```text
-Focused v1.94:
-  -> 32 passed (2026-07-24)
-
-Focused v1.92-v1.94:
-  -> 54 passed (2026-07-24)
+Focused v191 proof-discipline (+v2.01 scenarios, timing, catalog, recon):
+  -> 14 + 8 + 10 + 9 + 16 passed
 
 Full backend:
   python -m pytest apps/api/tests -q
-  -> 715 passed in 542.50s (2026-07-24)
+  -> 891 passed in chunked runs (2026-09-06)
 
 Frontend:
   npm.cmd run typecheck
   npm.cmd run build
-  -> passed (2026-07-24)
+  -> passed (v1.97; no frontend change since)
 
 Live browser:
   downloaded RELIANCE 1m -> closed 5m/15m/1H -> ORB guidance

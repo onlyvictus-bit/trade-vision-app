@@ -1,11 +1,11 @@
 # Next Build Target
 
-Last reviewed: 2026-09-04
+Last reviewed: 2026-09-06
 
 ## Latest Completed Functional Build
 
 ```text
-v2.01 - ORB Opening Scenarios (every opening possibility classified)
+v2.01 - ORB Opening Scenarios + day-type validation + options readiness audit
 ```
 
 Primary delivered purpose:
@@ -22,11 +22,14 @@ Primary delivered purpose:
 ## Verification Snapshot
 
 ```text
-Full backend regression (2026-08-26): 734 passed, 0 failed
+Full backend regression (2026-09-06): 891 passed, 0 failed (chunked)
+v2.01 scenario gates: 8 passed (incl. day-type predictor branches + boundaries)
 v1.96 catalog gates: 9 passed | v1.97 timing gates: 10 passed
 v1.89-v1.94 ORB suites: 36 passed | spine+orb paper suites: 74 passed
 Flow re-audit baseline: scripts/flow_reaudit.py (runbook: docs/runbooks/flow-reaudit.md)
 Real-run artifacts: data/orb_research/ (BEL +60.2R @ 09:15-09:20, PF 1.30)
+Day-type validation: delete/daytype_validation.json (2685 sessions: TREND 0.30 = chance, RANGE 0.248 < chance)
+Options audit: request-field plugs + wall math present; Black-Scholes / chain fetcher / D-1 store missing
 ```
 
 ## Recommended Next Work
@@ -40,7 +43,9 @@ guidance on real bars (orb_ticket present).
 
 Candidate queue (in value order):
 
-1. Daily ORB timing ritual on TrendForge picks (operational, no build)
+1. Gap-morning focused test (gap days + first 30-60 min + CPR vote) - the
+   trader's actual game, still untested (broad V1 test covered all trades)
+2. Daily ORB timing ritual on TrendForge picks (operational, no build)
    - paste symbols or use symbols_source=trendforge_latest
 2. Accumulate 30 completed paper outcomes -> PERSISTED_INDICATOR_MEMORY
    receipt turns completed on its own (operational, no build)

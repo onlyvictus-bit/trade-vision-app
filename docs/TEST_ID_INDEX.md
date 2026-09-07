@@ -1,6 +1,6 @@
 # Test ID Index
 
-Last reviewed: 2026-07-24
+Last reviewed: 2026-09-06
 
 Purpose: avoid rereading all of `apps/api/tests/test_api.py` before locating relevant tests.
 
@@ -73,6 +73,27 @@ v1.84 full backend regression (historical): 543 passed
 | `test_v171_reg_003_missing_index_sector_breadth_caps_watch` | missing market context caps confidence at WATCH |
 | `test_v171_bayes_001_low_sample_uses_prior_shrinkage` | low sample count shrinks posterior toward prior |
 | `test_v171_bayes_002_three_failed_signals_activate_cooldown` | repeated losses activate cooldown and WAIT cap |
+
+## Implemented proof-discipline repair (walk-forward v2)
+
+```text
+REPAIR: run_orb_proof selected top_k on FULL-sample metrics then evaluated
+them (selection-before-split); folds validated chunks of ALL dates incl.
+holdout days; thresholds not recorded in the report.
+FIX: candidates = top_k of TRAIN-only discovery; folds = expanding
+(train-prefix select + validate chunk, fold 1 honestly reports
+insufficient-train-history); holdout evaluated once, never in folds;
+selection_scope/fold_scheme/thresholds_used recorded in OrbProofReport.
+v191 updates: test_004 rewritten for train-only folds (4 folds, 6 trades,
+pass_rate 0.75, fold-1 cold start explicit, no holdout leakage); new 013
+(train_selected=False blocks eligibility with explicit reason); new 014
+(same-session purge structural proof: entry/exit within one session date).
+BEL re-proof under repaired discipline: same combo ba1121c6 ELIGIBLE,
+holdout PF 1.271 / +12.08R unchanged, WF 3/4. Live playbook a1c78a28
+untouched (config identical; hash checks are internal-consistency only).
+Optional: re-promote to refresh the proof-hash chain (explicit approval needed).
+Full backend after repair: 891 passed 0 failed (chunked: 556 + 56 + 279).
+```
 
 ## Implemented v2.01 ORB Opening-Scenario Gates
 

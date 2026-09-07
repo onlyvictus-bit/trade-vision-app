@@ -20,6 +20,8 @@ data/*.db-shm
 data/*.db-wal
 # per-run release evidence bundles (hundreds of generated receipts)
 data/release_evidence_artifacts/
+# per-run executor dry-run bundles (generated test artifacts)
+data/executor_dry_runs/
 # secrets: encryption keys + credential files - NEVER commit
 data/secrets/
 # runtime caches, checkpoints, logs

@@ -136,8 +136,21 @@ def test_tv_v191_004_walk_forward_reports_real_fold_metrics(_stores):
     report = run_orb_proof(_proof_request(["win"] * 32))
     folds = report.combo_proofs[0].walk_forward_folds
     assert len(folds) == 4
-    assert all(fold.metrics and fold.metrics.trade_count == 8 for fold in folds)
-    assert report.combo_proofs[0].walk_forward_pass_rate == 1.0
+    # Walk-forward discipline (repaired): folds validate equal chunks of the
+    # 24 TRAIN days only (holdout days never appear in folds), so each fold
+    # carries 6 trades, not the old 8 (which mixed holdout days into folds).
+    assert all(fold.metrics and fold.metrics.trade_count == 6 for fold in folds)
+    # No fold may touch holdout dates (train/holdout separation).
+    assert all(fold.end_date in report.train_dates for fold in folds)
+    # Fold 1 has no prior train history: metrics present, selection honestly
+    # impossible -> passed=False with an explicit cold-start reason.
+    assert folds[0].passed is False
+    assert any("Insufficient train history" in reason for reason in folds[0].reasons)
+    assert all(fold.passed is True for fold in folds[1:])
+    assert report.combo_proofs[0].walk_forward_pass_rate == 0.75
+    assert report.selection_scope == "train_only"
+    assert report.fold_scheme == "expanding_train"
+    assert report.thresholds_used["minimum_oos_profit_factor"] == 1.0
 
 
 def test_tv_v191_005_proof_and_hash_are_deterministic(_stores):
@@ -252,3 +265,43 @@ def test_tv_v191_012_proof_and_playbook_are_research_only(_stores):
     assert playbook.trade_allowed is False
     assert playbook.order_routing_enabled is False
     assert playbook.live_trading_blocked is True
+
+def test_tv_v191_013_train_only_selection_blocks_holdout_only_winner(_stores):
+    """Selection-before-split is forbidden: a holdout-passing combo that was
+    never selected on train data must not be eligible, regardless of its
+    holdout metrics. Re-proves the winning combo with train_selected=False.
+    """
+    from app.orb.proof import _prove_combo, _run_subset
+
+    request = _proof_request(["win"] * 32)
+    report = run_orb_proof(request)
+    proof = report.combo_proofs[0]
+    assert proof.promotion_eligible is True
+    holdout_result = _run_subset(request.discovery_request, report.holdout_dates)
+    replayed = _prove_combo(
+        proof.overall_metrics,
+        holdout_result,
+        [("WF-99", [], report.holdout_dates, set(), holdout_result)],
+        request,
+        train_selected=False,
+    )
+    assert replayed.promotion_eligible is False
+    assert any("train-only" in reason for reason in replayed.reasons)
+
+
+def test_tv_v191_014_all_proof_trades_stay_within_one_session(_stores):
+    """Fold-boundary purge is structural: every backtest trade opens and
+    exits inside a single session, so no outcome can leak across folds."""
+    from app.orb.discovery import run_orb_discovery
+
+    request = _proof_request(["win"] * 8).discovery_request
+    result = run_orb_discovery(request)
+    assert result.trades, "fixture must produce trades"
+    for trade in result.trades:
+        entry_day = datetime.fromtimestamp(
+            trade.entry_timestamp_ns / 1_000_000_000, tz=timezone.utc
+        ).date()
+        exit_day = datetime.fromtimestamp(
+            trade.exit_timestamp_ns / 1_000_000_000, tz=timezone.utc
+        ).date()
+        assert trade.local_session_date == str(entry_day) == str(exit_day)
