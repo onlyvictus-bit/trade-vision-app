@@ -73,10 +73,10 @@ def extract(s: MarketSnapshot, p: Policy) -> dict:
     gap_touched = any(b.low <= prior.close if sign > 0 else b.high >= prior.close for b in bars)
     volume = sum(b.volume for b in bars)
     vwap = sum((b.high + b.low + b.close) / 3 * b.volume for b in bars) / volume if volume > 0 else None
-    # Exact source-plan definition: large gap is >= 1.5 * prior ATR. No hidden
-    # percentage floor is allowed because it changes the rule across symbols.
+    # Exact source-plan definition: large gap is strictly greater than 1.5x
+    # prior ATR. No hidden percentage floor is allowed across symbols.
     large_cut = 1.5 * prior.atr14 / prior.close * 100
-    gap_class = "FLAT" if abs(gap) <= p.gap_flat_pct + 1e-12 else ("LARGE_" if gap_atr >= 1.5 else "") + ("GAP_UP" if sign > 0 else "GAP_DOWN")
+    gap_class = "FLAT" if abs(gap) <= p.gap_flat_pct + 1e-12 else ("LARGE_" if gap_atr > 1.5 else "") + ("GAP_UP" if sign > 0 else "GAP_DOWN")
     count = p.range_minutes // p.feature_minutes
     locked = len(bars) >= count and bars[count - 1].close_ns == clock_ns(s.session_date, 555 + p.range_minutes)
     result = {
@@ -117,14 +117,11 @@ def extract(s: MarketSnapshot, p: Policy) -> dict:
         if outside:
             episode_active = True
         excursion = max(excursion, b.high) if sign > 0 else min(excursion, b.low)
-        # A close crossing back is observable even though high/low order isn't.
         if episode_active and (b.close - boundary) * sign <= 0:
             failures += 1
             episode_active = False
             last_failure = i
             last_failed_bar = b
-        # A wick rejection creates a rejection-watch, NOT an accepted-break
-        # failure count. A later independent close is still required for fade.
         swept = b.high > trigger if sign > 0 else b.low < trigger
         if not outside and swept and last_failed_bar is None:
             last_failure, last_failed_bar = i, b
