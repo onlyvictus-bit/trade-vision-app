@@ -16,6 +16,7 @@ from app.orb.adaptive.features import extract
 from app.orb.adaptive.risk_context import RiskContextSnapshot, capabilities as risk_capabilities
 from app.orb.adaptive.runtime import EventBatch, advance_session, new_session
 from app.orb.adaptive.scenario_detection import detect
+from app.orb.adaptive.service import _durable_event_payload
 from app.orb.adaptive.variants import CATALOGUE, assess
 from .helpers import DAY, SAFE, controller, policy, prior, snapshot
 
@@ -184,6 +185,44 @@ def test_raw_contexts_flow_through_event_batch_into_existing_capability_and_scen
     assert decision.selected_plan is None
     assert decision.public_ticket == "WAIT"
     assert any(code == "VERIFIED_REFERENCE_BLOCK:VIX_SPIKE" for code in decision.reason_codes)
+
+
+def test_independent_context_refresh_does_not_erase_other_still_valid_family():
+    c = controller()
+    state = new_session(DAY, (prior(),), c.policy, c.limits)
+    state = advance_session(
+        state,
+        EventBatch(
+            event_id="risk-1", available_ns=clock_ns(DAY, 600),
+            risk_contexts={"TEST": _risk_context(scheduled_result=True, index_aligned_long=True)},
+        ),
+        c, SAFE,
+    )
+    assert {"RISK_CONTEXT", "RESULT_DAY", "INDEX_ALIGNED_LONG"} <= {x.name for x in state.capabilities["TEST"]}
+
+    state = advance_session(
+        state,
+        EventBatch(
+            event_id="derivatives-1", available_ns=clock_ns(DAY, 601),
+            derivatives={"TEST": _derivatives()},
+        ),
+        c, SAFE,
+    )
+    names = {x.name for x in state.capabilities["TEST"]}
+    assert {"RISK_CONTEXT", "RESULT_DAY", "INDEX_ALIGNED_LONG", "DERIVATIVES_CONTEXT", "VIX"} <= names
+
+
+def test_legacy_bar_only_event_payload_does_not_gain_empty_v4_context_fields():
+    legacy = EventBatch(event_id="legacy-shape", available_ns=clock_ns(DAY, 600))
+    payload = _durable_event_payload(legacy)
+    assert "derivatives" not in payload
+    assert "risk_contexts" not in payload
+
+    enriched = EventBatch(
+        event_id="v4-shape", available_ns=clock_ns(DAY, 600),
+        risk_contexts={"TEST": _risk_context()},
+    )
+    assert "risk_contexts" in _durable_event_payload(enriched)
 
 
 def test_existing_safety_contract_remains_research_only():
