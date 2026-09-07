@@ -47,7 +47,7 @@ def detect(features: dict, errors: tuple[str, ...], capabilities: tuple[Capabili
     out["A01"] = "OBSERVED_PRICE_FLAG" if features.get("chop_risk") else "NOT_OBSERVED_IN_VALID_PREFIX"
     out["A02"] = "OBSERVED_EXTERNAL_FLAG" if "VIX_COMA" in names else ("NOT_OBSERVED_VERIFIED_VIX" if "VIX" in names else "UNOBSERVABLE_EXTERNAL_INPUT")
     out["A03"] = "OBSERVED_EXTERNAL_FLAG" if {"VIX_SPIKE", "VIX_HIGH"} & names else ("NOT_OBSERVED_VERIFIED_VIX" if "VIX" in names else "UNOBSERVABLE_EXTERNAL_INPUT")
-    if gap_atr >= 1.5:
+    if gap_atr > 1.5:
         out["A04"] = "RISK_ARMED_PRICE_FLAG"
     elif features.get("range_locked") or features.get("gap_class"):
         out["A04"] = "NOT_OBSERVED_IN_VALID_PREFIX"
@@ -65,8 +65,9 @@ def detect(features: dict, errors: tuple[str, ...], capabilities: tuple[Capabili
     out["B02"] = "OBSERVED_PRICE_FLAG" if range_locked and or_width_atr > 1.0 else ("NOT_OBSERVED_IN_VALID_PREFIX" if range_locked else "UNOBSERVABLE_INCOMPLETE_PREFIX")
     out["B03"] = "OBSERVED_PRICE_FLAG" if range_locked and or_width_atr < 0.25 else ("NOT_OBSERVED_IN_VALID_PREFIX" if range_locked else "UNOBSERVABLE_INCOMPLETE_PREFIX")
     out["B04"] = "OBSERVED_PRICE_FLAG" if first_bar_range_atr > 2.0 else "NOT_OBSERVED_IN_VALID_PREFIX"
-    # 09:15 + 135 minutes = 11:30. Scenario staleness is independent of a
-    # strategy policy that may choose an earlier last-entry cutoff.
+    # Standalone detector retains the source's 11:30 observation. The public
+    # registry overrides B05 with the actual policy cutoff supplied by caller,
+    # so controller coverage follows the registered 10:15 policy when active.
     out["B05"] = "OBSERVED_CLOCK_FLAG" if elapsed >= 135 else "NOT_OBSERVED_IN_VALID_PREFIX"
     out["B06"] = "OBSERVED_PRICE_FLAG" if failure_count >= 2 else "NOT_OBSERVED_IN_VALID_PREFIX"
 
