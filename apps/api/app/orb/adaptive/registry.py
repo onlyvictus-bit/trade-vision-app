@@ -36,6 +36,10 @@ def coverage(
     calculated from elapsed session minutes by scenario_detection.detect().
     """
     statuses = detect(features, errors, capabilities, now)
+    # Preserve the established public status literal while the dedicated
+    # detector internally records why dealer gamma is unobservable.
+    if statuses.get("F02") == "UNOBSERVABLE_DEALER_SIGN_INPUT":
+        statuses["F02"] = "UNOBSERVABLE_EXTERNAL_INPUT"
 
     # Controller-risk coverage remains separate from the A-G source taxonomy.
     # These are invariant/control states, not invented market predictions.
