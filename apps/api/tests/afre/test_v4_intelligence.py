@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from app.orb.adaptive.contracts import Capability, clock_ns
+from app.orb.adaptive.contracts import clock_ns
 from app.orb.adaptive.derivatives import (
     DerivativesSnapshot,
     FuturesLeg,
@@ -14,9 +14,10 @@ from app.orb.adaptive.derivatives import (
 )
 from app.orb.adaptive.features import extract
 from app.orb.adaptive.risk_context import RiskContextSnapshot, capabilities as risk_capabilities
+from app.orb.adaptive.runtime import EventBatch, advance_session, new_session
 from app.orb.adaptive.scenario_detection import detect
 from app.orb.adaptive.variants import CATALOGUE, assess
-from .helpers import DAY, controller, policy, snapshot
+from .helpers import DAY, SAFE, controller, policy, prior, snapshot
 
 
 def _derivatives(*, dealer_sign=-1):
@@ -51,6 +52,16 @@ def _derivatives(*, dealer_sign=-1):
         fii_index_futures_long=10, fii_index_futures_short=90,
         is_weekly_expiry=True,
     )
+
+
+def _risk_context(**updates):
+    base = dict(
+        symbol="TEST", session_date=date.fromisoformat(DAY),
+        available_ns=clock_ns(DAY, 600), expires_ns=clock_ns(DAY, 700),
+        source_id="verified-risk-fixture",
+    )
+    base.update(updates)
+    return RiskContextSnapshot(**base)
 
 
 def test_large_gap_is_exactly_one_point_five_atr_without_hidden_percent_floor():
@@ -108,10 +119,7 @@ def test_dealer_gex_never_infers_dealer_side_from_open_interest():
 
 def test_all_30_failure_scenarios_become_observable_when_required_inputs_are_supplied():
     dctx = calculate(_derivatives())
-    rctx = RiskContextSnapshot(
-        symbol="TEST", session_date=date.fromisoformat(DAY),
-        available_ns=clock_ns(DAY, 600), expires_ns=clock_ns(DAY, 700),
-        source_id="verified-risk-fixture",
+    rctx = _risk_context(
         scheduled_result=True, rbi_mpc_window=True, budget_or_election_event=True,
         ex_dividend_today=True, corporate_action_adjustment_verified=False,
         unscheduled_news_shock_verified=True, circuit_locked=True,
@@ -154,6 +162,28 @@ def test_complete_18_variant_catalogue_is_evaluated_and_wired_into_decision_feat
         assert f"{prefix}_side" in decision.features
         assert f"{prefix}_template" in decision.features
         assert f"{prefix}_reason" in decision.features
+
+
+def test_raw_contexts_flow_through_event_batch_into_existing_capability_and_scenario_path():
+    c = controller()
+    state = new_session(DAY, (prior(),), c.policy, c.limits)
+    event = EventBatch(
+        event_id="context-only-1",
+        available_ns=clock_ns(DAY, 600),
+        derivatives={"TEST": _derivatives()},
+        risk_contexts={"TEST": _risk_context(scheduled_result=True, index_aligned_long=True)},
+    )
+    state = advance_session(state, event, c, SAFE)
+    names = {x.name for x in state.capabilities["TEST"]}
+    assert {"DERIVATIVES_CONTEXT", "VIX", "VIX_SPIKE", "RISK_CONTEXT", "RESULT_DAY", "INDEX_ALIGNED_LONG"} <= names
+    decision = state.decisions["TEST"]
+    assert decision.scenario_status["A03"] == "OBSERVED_EXTERNAL_FLAG"
+    assert decision.scenario_status["C01"] == "RISK_ARMED_EXTERNAL"
+    # Delta-VIX shock is a blocking capability. The same existing fail-closed
+    # controller path must therefore prevent a paper proposal.
+    assert decision.selected_plan is None
+    assert decision.public_ticket == "WAIT"
+    assert any(code == "VERIFIED_REFERENCE_BLOCK:VIX_SPIKE" for code in decision.reason_codes)
 
 
 def test_existing_safety_contract_remains_research_only():
