@@ -157,6 +157,25 @@ def _merge_context_capabilities(state: SessionState, event: EventBatch, quaranti
     return result
 
 
+def _decision_hard_block(decision: Decision) -> bool:
+    """Keep a controller veto a veto when runtime projects public tickets."""
+    if decision.internal_action == "HALT_AFFECTED_DECISIONS_FOR_DATA":
+        return True
+    return any(
+        code.startswith("REQUIRED_CAPABILITY_UNAVAILABLE:")
+        or code.startswith("VERIFIED_REFERENCE_BLOCK:")
+        or code in {
+            "REGISTERED_HOST_D1_DATA_GATE_FAILED",
+            "MISSING_DUPLICATE_OR_REORDERED_FEATURE_INTERVAL",
+            "NATIVE_FEATURE_RESOLUTION_MISMATCH",
+            "REVISION_REQUIRES_SEPARATE_RECONCILIATION_RUN",
+            "UNVERIFIED_MIXED_FEATURE_SOURCES",
+            "STALE_FEATURE_PREFIX",
+        }
+        for code in decision.reason_codes
+    )
+
+
 def advance_session(state: SessionState, event: EventBatch, controller: Controller,
                     safety: SafetyState, *, paper_authority: bool = False,
                     proof_hash: str | None = None) -> SessionState:
@@ -251,9 +270,15 @@ def advance_session(state: SessionState, event: EventBatch, controller: Controll
         aligned = len(last_closes) == 1 and None not in last_closes
         proposal = select_global(decisions, p, event.available_ns) if aligned else None
         if not aligned:
-            decisions = {s: evolve(d, public_ticket="WATCH", internal_action="WAIT_FOR_UNIVERSE_WATERMARK",
-                                    reason_codes=d.reason_codes + ("UNIVERSE_NOT_SYNCHRONIZED",))
-                         for s, d in decisions.items()}
+            decisions = {
+                s: evolve(
+                    d,
+                    public_ticket="WAIT" if _decision_hard_block(d) else "WATCH",
+                    internal_action=d.internal_action if _decision_hard_block(d) else "WAIT_FOR_UNIVERSE_WATERMARK",
+                    reason_codes=d.reason_codes + ("UNIVERSE_NOT_SYNCHRONIZED",),
+                )
+                for s, d in decisions.items()
+            }
     if position and position.status == "PENDING" and (not safety.allows_analysis or (position.origin == "HUMAN_APPROVED_PAPER" and not paper_authority)):
         position = cancel_pending(position, "AUTHORITY_REVOKED_BEFORE_FILL")
     if position and position.status == "PENDING" and position.plan.symbol in decisions:
@@ -277,7 +302,8 @@ def advance_session(state: SessionState, event: EventBatch, controller: Controll
     if blocked:
         proposal = None
     for symbol, decision in list(decisions.items()):
-        can_offer = bool(proposal and decision.selected_plan and
+        decision_blocked = blocked or _decision_hard_block(decision)
+        can_offer = bool(not decision_blocked and proposal and decision.selected_plan and
                          decision.selected_plan.proposal_id == proposal.proposal_id and paper_authority and proof_hash)
         action = "REQUEST_PAPER_APPROVAL" if can_offer else decision.internal_action
         if filled:
@@ -291,7 +317,7 @@ def advance_session(state: SessionState, event: EventBatch, controller: Controll
         elif quarantine:
             action = "HALT_AFFECTED_DECISIONS_FOR_DATA"
         decisions[symbol] = evolve(decision, public_ticket="PAPER-CANDIDATE" if can_offer else
-                                   "WAIT" if blocked else "WATCH", internal_action=action,
+                                   "WAIT" if decision_blocked else "WATCH", internal_action=action,
                                    proof_hash=proof_hash if can_offer else None)
     return evolve(state, feature_prefixes=prefixes, execution_seen=seen, capabilities=caps,
                   decisions=decisions, active_proposal=proposal, position=position,
