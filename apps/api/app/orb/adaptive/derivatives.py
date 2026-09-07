@@ -10,7 +10,6 @@ explicitly supplied. Open interest by itself is not evidence of dealer side.
 """
 from __future__ import annotations
 
-import math
 from datetime import date
 from enum import StrEnum
 from statistics import mean
@@ -166,6 +165,13 @@ def _pct_change(current: float | None, previous: float | None) -> float | None:
     return (current - previous) / previous * 100.0
 
 
+def _front_options(options: tuple[OptionContract, ...]) -> tuple[OptionContract, ...]:
+    if not options:
+        return ()
+    expiry = min(o.expiry for o in options)
+    return tuple(o for o in options if o.expiry == expiry)
+
+
 def _nearest_atm(options: tuple[OptionContract, ...], spot: float) -> tuple[OptionContract, ...]:
     if not options:
         return ()
@@ -291,15 +297,16 @@ def _greek_exposure(options: tuple[OptionContract, ...], spot: float) -> tuple[f
 
 
 def calculate(snapshot: DerivativesSnapshot) -> DerivativesContext:
-    atm = _atm_iv(snapshot.options, snapshot.spot)
+    front_options = _front_options(snapshot.options)
+    atm = _atm_iv(front_options, snapshot.spot)
     iv_rank = _iv_rank(atm, snapshot.iv_history)
     term_points, inverted = _term_structure(snapshot.options, snapshot.spot)
-    skew = _skew25(snapshot.options)
-    pcr = _pcr(snapshot.options)
-    max_pain, max_pain_distance = _max_pain(snapshot.options, snapshot.spot)
+    skew = _skew25(front_options)
+    pcr = _pcr(front_options)
+    max_pain, max_pain_distance = _max_pain(front_options, snapshot.spot)
     buildup = _oi_buildup(snapshot.futures)
     basis, adjusted_basis, rollover, positive_rollover = _basis_and_rollover(snapshot)
-    unsigned_gex, signed_gex, vanna, charm, warnings = _greek_exposure(snapshot.options, snapshot.spot)
+    unsigned_gex, signed_gex, vanna, charm, warnings = _greek_exposure(front_options, snapshot.spot)
     vix_change = _pct_change(snapshot.vix, snapshot.previous_vix)
     iv_crush = _pct_change(atm, snapshot.previous_atm_iv)
     gift_gap_pct = None
@@ -372,7 +379,7 @@ def capabilities(ctx: DerivativesContext) -> tuple[Capability, ...]:
     when its registered threshold is actually observed. Missing inputs remain
     absent, therefore required policies fail closed in validate_prefix().
     """
-    out: list[Capability] = []
+    out: list[Capability] = [_cap(ctx, "DERIVATIVES_CONTEXT", reason=f"calculated from {ctx.source_id}")]
     if ctx.vix_regime is not None:
         out.append(_cap(ctx, "VIX", reason=f"regime={ctx.vix_regime.value}"))
         if ctx.vix_regime == VixRegime.BELOW_11:
