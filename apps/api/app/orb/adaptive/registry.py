@@ -31,11 +31,13 @@ def coverage(
 ) -> dict[str, str]:
     """Return all 30 source scenarios plus 20 controller-risk contracts.
 
-    `cutoff` is retained for API compatibility and controller-contract status;
-    source scenario B05 has its own documented 11:30 staleness threshold and is
-    calculated from elapsed session minutes by scenario_detection.detect().
+    The source brief described 11:30 level staleness, while the registered AFRE
+    policy intentionally uses its actual policy cutoff (currently 10:15). The
+    public scenario state therefore follows `cutoff`; the standalone detector
+    retains the source observation for research comparison only.
     """
     statuses = detect(features, errors, capabilities, now)
+    statuses["B05"] = "OBSERVED_CLOCK_FLAG" if now >= cutoff else "NOT_OBSERVED_IN_VALID_PREFIX"
     # Preserve the established public status literal while the dedicated
     # detector internally records why dealer gamma is unobservable.
     if statuses.get("F02") == "UNOBSERVABLE_DEALER_SIGN_INPUT":
