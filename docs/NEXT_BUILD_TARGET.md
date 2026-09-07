@@ -44,6 +44,12 @@ guidance on real bars (orb_ticket present).
 
 Candidate queue (in value order):
 
+0. v2.02-repair remainder AFTER OpenAlgo credentials (parked, NOT optional):
+   paste key -> G0 capture (4 read-only fixtures, immutable) -> G1/G2 provider
+   remap + batch confirm -> G4 field-name confirm -> flip TRADEVISION_V173_
+   DERIVATIVES on -> G9/G10 live-proof -> captured-contract + PIT + replay +
+   full-regression release gate. Full brief: docs/plans/ORB_V202_REPAIR_PLAN.md
+   § "After OpenAlgo credentials arrive". NO-GO for main stands until green.
 1. Gap-morning focused test (gap days + first 30-60 min + CPR vote) - the
    trader's actual game, still untested (broad V1 test covered all trades)
 2. Daily ORB timing ritual on TrendForge picks (operational, no build)

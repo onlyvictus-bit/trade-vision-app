@@ -517,3 +517,42 @@ because G9/G10 wait for G0–G8.
 | TV-RPR-011 provenance | G11 | `contracts.py`, `service.py`, `store.py` | provenance tests | planned |
 | TV-RPR-012 walls/policy | G12 | `calculators.py`, `contracts.py`, `reasoning.py` | wall + policy tests | planned |
 | TV-RPR-013 release | wave | all | full regression 0-failed + SHADOW | planned |
+
+## After OpenAlgo credentials arrive (G0 unblock checklist)
+
+Paste `OPENALGO_BASE_URL` + `OPENALGO_API_KEY` (session env only — never written
+to files, fixtures, or manifests). Then code the parked half in this order:
+
+```text
+G0  Capture (BLOCKING): 1x OptionChain(with_greeks=true) + 1x MultiOptionGreeks
+    + 1x expiry + 1x futures-search (NIFTY/NFO, one current expiry) via
+    scripts/capture_openalgo_contract.py (to be written at G0; key from env).
+    Manifest per fixture: timestamp, endpoint, redacted request, HTTP status,
+    content-type, underlying/exchange/expiry. Raw fixtures immutable under
+    apps/api/tests/fixtures/openalgo_captured/. Then run the current parser over
+    them: expected result is FAILURE exposing the real mismatch (oracle working).
+    Pivot rule: capture contradicts the provisional model (different endpoints,
+    batching, nesting, auth, no with_greeks) -> STOP G1, return with the observed
+    contract, revise plan. No creds -> Candidate 3 (isolate-and-defer), no fakes.
+```
+
+```text
+G1  Provider correction (openalgo.py): remap chain/Greeks parsing field-by-field
+    to captured truth; replace PROVISIONAL_* block; keep strict join + report.
+    Tests: OPENALGO-001 rewritten against captured fixtures (must use captured or
+    byte-identical-derived-with-redactions — never memory-written vendor JSON).
+G2  Batching (openalgo.py): confirm/adjust OPENALGO_MULTI_GREEKS_MAX_BATCH from
+    capture; keep auto-chunking. Test: OPENALGO-002 with captured limit.
+G4  Field names: point CONTRACT_METADATA_MISSING at confirmed lotsize/tick fields;
+    re-run OPENALGO-006 + full suite.
+G9  Flip the switch: set TRADEVISION_V173_DERIVATIVES=on in shadow env; POST
+    /risk/analyze now auto-consumes context (code already wired). Prove with a
+    live replay-backed BRIDGE run; any failure -> flag back off, report.
+G10 Enable derivatives_source in the live AFRE session path (research.py seam is
+    built; production caller passes it). Prove AFRE-001..004 against a captured
+    session; SUPPORT-still-creates-nothing re-proven on live-shaped data.
+Wave Release gate: captured-contract tests + PIT adversarial + replay determinism
+    + full backend 0-failed with REAL counts (X passed / 0 failed / Y skipped) +
+    SHADOW acceptance (health truthful, OFF defaults, no live authority). Only
+    then discuss main; the NO-GO-for-main stands until this checklist is green.
+```

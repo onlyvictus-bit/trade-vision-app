@@ -48,16 +48,20 @@ def afre_capability_payloads(context: DerivativesContext, assessment: ScenarioAs
         "reason": "fresh canonical derivatives context" if valid else f"derivatives status={context.status}",
     })
     if assessment.relation in {EvidenceRelation.CONFLICT, EvidenceRelation.BLOCK}:
-        rows.append({
-            "name": "DERIVATIVES_SCENARIO_CONFLICT",
-            "available_ns": assessment.as_of_ns,
-            "expires_ns": expires_ns,
-            "status": "VALID",
-            "evidence_hash": digest({"base": base_hash, "relation": assessment.relation.value}),
-            "blocks_new_entry": assessment.relation == EvidenceRelation.BLOCK or assessment.public_ticket_cap == "WAIT",
-            "reason": ";".join(assessment.reason_codes)[:300],
-        })
-    if assessment.relation == EvidenceRelation.SUPPORT:
+        # A conflict assessed on already-expired context is born stale: omit it rather
+        # than mint an invalid capability or pretend availability that never existed.
+        # The status cap above already carries the BLOCK for non-AVAILABLE contexts.
+        if assessment.as_of_ns < expires_ns:
+            rows.append({
+                "name": "DERIVATIVES_SCENARIO_CONFLICT",
+                "available_ns": assessment.as_of_ns,
+                "expires_ns": expires_ns,
+                "status": "VALID",
+                "evidence_hash": digest({"base": base_hash, "relation": assessment.relation.value}),
+                "blocks_new_entry": assessment.relation == EvidenceRelation.BLOCK or assessment.public_ticket_cap == "WAIT",
+                "reason": ";".join(assessment.reason_codes)[:300],
+            })
+    if assessment.relation == EvidenceRelation.SUPPORT and assessment.as_of_ns < expires_ns:
         rows.append({
             "name": "DERIVATIVES_SCENARIO_SUPPORT",
             "available_ns": assessment.as_of_ns,
@@ -74,3 +78,14 @@ def typed_afre_capabilities(context: DerivativesContext, assessment: ScenarioAss
     """Optional strongly-typed bridge when loaded inside the Trade Vision repo."""
     from ..adaptive.contracts import Capability
     return tuple(Capability.model_validate(x) for x in afre_capability_payloads(context, assessment, ttl_seconds=ttl_seconds))
+
+
+def derivatives_event_batch_capabilities(context: DerivativesContext, assessment: ScenarioAssessment, *,
+                                         ttl_seconds: int = 30) -> dict[str, tuple]:
+    """G10: merge-ready {SYMBOL: (Capability, ...)} for EventBatch construction.
+
+    The single typed path into AFRE sessions: callers building an EventBatch merge
+    this dict into `EventBatch.capabilities` (see `replay_day(..., derivatives_source=...)`).
+    No other object shape may carry derivative capabilities into a session.
+    """
+    return {context.symbol.upper(): typed_afre_capabilities(context, assessment, ttl_seconds=ttl_seconds)}

@@ -123,6 +123,21 @@ def build_execution_event_oi_risk_report(request: ExecutionEventOiRiskRequest) -
     )
 
 
+def build_report_with_derivatives_context(request: ExecutionEventOiRiskRequest, context) -> ExecutionEventOiRiskReport:
+    """G9: v1.73 report with options fields auto-populated from a DerivativesContext.
+
+    The overlay maps computed context values onto the request (never overwriting
+    caller fields with None), then builds through the identical report path, so a
+    context-fed report differs from a hand-typed one only in its evidence source.
+    `context` is a DerivativesContext (untyped here to keep this module free of an
+    orb import at module load; validated structurally by the overlay keys).
+    """
+    from app.orb.derivatives.bridges import v173_payload_overlay
+
+    merged = v173_payload_overlay(context, request.model_dump(mode="json"))
+    return build_execution_event_oi_risk_report(ExecutionEventOiRiskRequest.model_validate(merged))
+
+
 def _effective_spread_pct(request: ExecutionEventOiRiskRequest, bars: list[CandleBar]) -> float:
     if request.spread_pct is not None:
         return request.spread_pct

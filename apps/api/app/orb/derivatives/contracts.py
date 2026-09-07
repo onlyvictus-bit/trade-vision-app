@@ -126,6 +126,10 @@ class OptionChainSnapshot(Frozen):
     rows: tuple[OptionStrike, ...]
     provider_payload_hash: str = Field(min_length=16, max_length=128)
     quote_timestamp_status: Literal["PROVIDER_TIMESTAMP", "OBSERVED_AT_RECEIPT"] = "OBSERVED_AT_RECEIPT"
+    # G1: vendor server timestamp when supplied (epoch seconds or ISO); None keeps
+    # the conservative OBSERVED_AT_RECEIPT posture. Transport latency/source age
+    # are measurable only when this is present.
+    provider_server_ns: int | None = Field(default=None, ge=0)
 
     @model_validator(mode="after")
     def validate_chain(self) -> "OptionChainSnapshot":

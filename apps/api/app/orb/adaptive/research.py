@@ -63,7 +63,10 @@ def _complete_intervals(bars: tuple[Bar, ...], start: int, end: int, minutes: in
     return [b.open_ns for b in selected] == wanted and all(b.minutes == minutes and b.revision == 0 for b in selected)
 
 
-def replay_day(day: ResearchDay, controller: Controller, *, retain_decisions: Callable | None = None) -> DailyResult:
+def replay_day(day: ResearchDay, controller: Controller, *, retain_decisions: Callable | None = None,
+               derivatives_source: Callable[[str, int], tuple] | None = None) -> DailyResult:
+    """Replay one research day. `derivatives_source(symbol, watermark_ns)` (G10) optionally
+    contributes typed derivative capabilities per watermark; None preserves exact prior behavior."""
     p, limits = controller.policy, controller.limits
     state = new_session(day.session_date, tuple(m.prior for m in day.markets), p, limits)
     groups = defaultdict(lambda: {"features": [], "execution": [], "capabilities": {}})
@@ -79,6 +82,12 @@ def replay_day(day: ResearchDay, controller: Controller, *, retain_decisions: Ca
             groups[max(c.available_ns, state.watermark_ns)]["capabilities"].setdefault(market.prior.symbol, []).append(c)
     safety = SafetyState(mode="RESEARCH", kill_switch_armed=True, data_gate_passed=True)
     for watermark, group in sorted(groups.items()):
+        # G10: merge derivative capabilities from the single typed bridge path.
+        if derivatives_source is not None:
+            for sym in {b.symbol for b in (*group["features"], *group["execution"])} | set(group["capabilities"]):
+                extra = derivatives_source(sym, watermark) or ()
+                if extra:
+                    group["capabilities"].setdefault(sym, []).extend(extra)
         event = EventBatch(event_id=digest([day.source_manifest_hash, day.session_date, watermark]),
                            available_ns=watermark, feature_bars=tuple(group["features"]),
                            execution_bars=tuple(group["execution"]),

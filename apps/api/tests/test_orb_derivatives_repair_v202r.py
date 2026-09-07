@@ -1,9 +1,9 @@
-"""ORB v2.02 repair gates G3-G8/G11/G12 (vendor-independent half).
+"""ORB v2.02 repair gates (vendor-independent half + G1/G2 provisional-model).
 
-Covers: STORE-001, health matrix, OPENALGO-003/004/005/006 (mechanics only —
-field-name confirmation waits for G0 capture), PIT-001..004, REQUIRED/OPTIONAL
-policy, REPLAY-001/002, wall top_k/persistence, provenance mutation.
-Vendor-JSON-shaped fixtures are NOT used here; canonical-domain factories only.
+Covers: STORE-001, health matrix, OPENALGO-001..006 (001/002 against the
+PROVISIONAL model — synthetic-shaped, clearly labeled, NOT vendor proof),
+PIT-001..004, REQUIRED/OPTIONAL policy, REPLAY-001/002, wall top_k/persistence,
+provenance mutation. G0 capture still required to confirm the provisional model.
 """
 from __future__ import annotations
 
@@ -44,6 +44,68 @@ from app.orb.derivatives.reasoning import DerivativesScenarioController
 from app.orb.derivatives.replay import ReplayPoint, evaluate_replay
 from app.orb.derivatives.service import DerivativesService
 from app.orb.derivatives.store import DerivativesStore
+
+# --- Minimal AFRE fixtures (self-contained: tests/afre/helpers is not importable
+# from the repo root, and cross-test imports couple suites). Shapes mirror the
+# documented AFRE helper conventions; all values are synthetic, never market evidence.
+from datetime import timedelta
+
+from app.orb.adaptive.contracts import (
+    AccountLimits,
+    Bar,
+    MarketSnapshot,
+    MINUTE,
+    NS,
+    Policy,
+    PriorContext,
+    SafetyState,
+)
+from app.orb.adaptive.controller import Controller
+from app.orb.adaptive.runtime import EventBatch, advance_session, new_session
+
+AFRE_DAY = "2026-09-04"
+AFRE_ROWS = [(102, 102.6, 101.8, 102.2), (102.2, 102.95, 102.1, 102.72),
+             (102.72, 102.8, 102.3, 102.42), (102.4, 102.45, 101.95, 101.98)]
+AFRE_SAFE = SafetyState(mode="MOCK", kill_switch_armed=True, data_gate_passed=True)
+
+
+def _afre_limits(account="fixture"):
+    return AccountLimits(account_id=account, risk_budget=1000, maximum_notional=100000, maximum_quantity=500)
+
+
+def _afre_policy(**kwargs):
+    return Policy(range_minutes=5, reward_risk=1, **kwargs)
+
+
+def _afre_prior(symbol="TEST", day=AFRE_DAY, **kwargs):
+    from app.orb.adaptive.contracts import clock_ns
+
+    prev = (date.fromisoformat(day) - timedelta(days=1)).isoformat()
+    fields = dict(symbol=symbol, session_date=prev, available_ns=clock_ns(prev, 930), high=102, low=98, close=100,
+                  atr14=2, tick_size=.01, source_id="fixture", price_basis="basis",
+                  verified_prior_session=True, basis_verified=True)
+    return PriorContext(**(fields | kwargs))
+
+
+def _afre_bar(i, row=None, *, day=AFRE_DAY, symbol="TEST", minutes=5, lag=0, **kwargs):
+    from app.orb.adaptive.contracts import clock_ns
+
+    row = AFRE_ROWS[i] if row is None else row
+    t = clock_ns(day, 555) + i * minutes * MINUTE
+    fields = dict(symbol=symbol, minutes=minutes, open_ns=t, close_ns=t + minutes * MINUTE,
+                  available_ns=t + minutes * MINUTE + lag * NS, open=row[0], high=row[1], low=row[2], close=row[3],
+                  volume=1000, source_id="fixture", price_basis="basis")
+    return Bar(**(fields | kwargs))
+
+
+def _afre_snapshot(rows=AFRE_ROWS, *, day=AFRE_DAY, symbol="TEST", **kwargs):
+    bars = tuple(_afre_bar(i, r, day=day, symbol=symbol) for i, r in enumerate(rows))
+    return MarketSnapshot(**(dict(session_date=day, as_of_ns=bars[-1].available_ns,
+                                  prior=_afre_prior(symbol, day), bars=bars) | kwargs))
+
+
+def _afre_controller(p=None, account="fixture"):
+    return Controller(p or _afre_policy(), _afre_limits(account))
 
 NOW = 1_800_000_000_000_000_000
 EXP = date(2026, 9, 29)
@@ -450,3 +512,264 @@ def test_api_identity_error_is_422_and_provider_error_is_503():
     app2 = FastAPI()
     app2.include_router(router(raiser_provider))
     assert TestClient(app2).post("/api/v1/orb/derivatives/analyze", json=body).status_code == 503
+
+
+# G1/G2 provisional-model enforcement (synthetic-shaped, NOT vendor proof) -----
+
+def _legs(*symbols):
+    return {s: {"strike": 100.0, "option_type": "CE", "days_to_expiry": 5.0,
+                "forward_price": 100.0, "option_price": 5.0} for s in symbols}
+
+
+class _BatchClient:
+    """Counts wire calls and serves provisional-model batch rows."""
+
+    def __init__(self, rows):
+        self.rows = rows
+        self.calls = 0
+        self.payloads = []
+
+    def post(self, url, json=None, timeout=None):
+        import httpx as _httpx
+
+        self.calls += 1
+        self.payloads.append(json)
+        wanted = {it["symbol"] for it in (json or {}).get("symbols", [])}
+        rows = [r for r in self.rows if r.get("symbol") in wanted] or self.rows
+        return _httpx.Response(200, json={"status": "success", "data": rows},
+                               request=_httpx.Request("POST", url))
+
+
+def _greeks_row(symbol, iv=20.0):
+    return {"status": "success", "symbol": symbol, "implied_volatility": iv,
+            "greeks": {"delta": .5, "gamma": .02, "theta": -1, "vega": 1, "rho": .1}}
+
+
+def test_openalgo_001_provisional_join_and_report():
+    from app.orb.derivatives.openalgo import OPENALGO_MULTI_GREEKS_MAX_BATCH
+
+    assert OPENALGO_MULTI_GREEKS_MAX_BATCH == 50
+    client = _BatchClient([_greeks_row("A"), _greeks_row("B")])
+    p = OpenAlgoDataProvider(base_url="http://127.0.0.1:9", api_key="K", client=client)
+    rep = {}
+    out = p.multi_option_greeks([("A", "NFO"), ("B", "NFO")], chain_legs=_legs("A", "B"), report=rep)
+    assert len(out) == 2 and rep["parsed"] == 2 and rep["failed"] == 0 and rep["chunks"] == 1
+
+
+def test_openalgo_002_51_symbols_chunked_with_top_level_expiry():
+    syms = [(f"S{i:03d}", "NFO") for i in range(51)]
+    client = _BatchClient([_greeks_row(f"S{i:03d}") for i in range(51)])
+    p = OpenAlgoDataProvider(base_url="http://127.0.0.1:9", api_key="K", client=client)
+    rep = {}
+    out = p.multi_option_greeks(syms, chain_legs=_legs(*[f"S{i:03d}" for i in range(51)]),
+                                expiry_time="2026-09-29T15:30:00+05:30", report=rep)
+    assert len(out) == 51 and client.calls == 2 and rep["chunks"] == 2
+    assert all(pl["expiry_time"] == "2026-09-29T15:30:00+05:30" for pl in client.payloads)
+    assert all("forward_price" not in it and "expiry_time" not in it
+               for pl in client.payloads for it in pl["symbols"])
+    with pytest.raises(ValueError, match=r"1\.\.50"):
+        p.multi_option_greeks(syms[:1], chain_legs=_legs(syms[0][0]), batch_size=51)
+
+
+def test_openalgo_join_failures_are_loud():
+    client = _BatchClient([_greeks_row("GHOST")])
+    p = OpenAlgoDataProvider(base_url="http://127.0.0.1:9", api_key="K", client=client)
+    with pytest.raises(OpenAlgoProtocolError, match="UNJOINED_GREEKS_ROWS"):
+        p.multi_option_greeks([("GHOST", "NFO")], chain_legs=_legs("OTHER"))
+    with pytest.raises(OpenAlgoProtocolError, match="chain_legs is required"):
+        p.multi_option_greeks([("A", "NFO")])
+    empty = _BatchClient([{"status": "error", "symbol": "A"}])
+    p2 = OpenAlgoDataProvider(base_url="http://127.0.0.1:9", api_key="K", client=empty)
+    with pytest.raises(OpenAlgoProtocolError, match="zero usable"):
+        p2.multi_option_greeks([("A", "NFO")], chain_legs=_legs("A"))
+
+
+def test_validate_live_contract_ok_and_deviation():
+    from app.orb.derivatives.openalgo import validate_live_contract
+
+    good_chain = {"chain": [{"strike": 100, "ce": {"symbol": "A", "ltp": 5, "oi": 10,
+                                                   "lotsize": 25, "tick_size": .05}}]}
+    good_greeks = {"data": [{"symbol": "A", "implied_volatility": 20, "greeks": {"delta": .5}}]}
+    assert validate_live_contract(good_chain, good_greeks) == (True, "provisional shape holds")
+    hybrid = {"data": [{"symbol": "A", "strike": 100, "option_type": "CE", "implied_volatility": 20,
+                        "greeks": {"delta": .5}}]}
+    ok, reason = validate_live_contract(good_chain, hybrid)
+    assert ok is False and "chain fields" in reason
+    assert validate_live_contract({}, {})[0] is False
+
+
+# G9 v1.73 runtime wiring ---------------------------------------------------------
+
+def _v173_request():
+    from app.behavior.execution_event_oi_risk import ExecutionEventOiRiskRequest
+    from app.models import CandleBar, CandleSeries
+
+    bars = [CandleBar(symbol="NIFTY", timeframe="5m", timestamp_ns=NOW - (40 - i) * 300_000_000_000,
+                      open=100.0, high=100.5, low=99.5, close=100.0 + (i % 3) * 0.05,
+                      volume=1000.0, source="mock", sequence_number=i + 1) for i in range(40)]
+    return ExecutionEventOiRiskRequest(series=CandleSeries(symbol="NIFTY", timeframe="5m", bars=bars),
+                                       entry_price=100.0, stop_loss=99.0, target=101.5,
+                                       spread_pct=0.05, average_slippage_pct=0.02,
+                                       depth_available=True, visible_depth_value=1_000_000.0,
+                                       event_context_status="available",
+                                       options_context_status="unavailable")
+
+
+def test_bridge001_context_populates_real_request():
+    from app.behavior.execution_event_oi_risk import (
+        build_execution_event_oi_risk_report,
+        build_report_with_derivatives_context,
+    )
+
+    ctx = avail_ctx()
+    assert ctx.status == "AVAILABLE"
+    base = build_execution_event_oi_risk_report(_v173_request())
+    assert base.options_context_status == "unavailable"
+    fed = build_report_with_derivatives_context(_v173_request(), ctx)
+    assert fed.options_context_status == "available"
+    assert fed.expected_move_pct == (ctx.iv_horizon_expected_move_pct or ctx.atm_straddle_expected_move_pct)
+    assert fed.max_pain_magnet in ("active_pin_zone", "nearby_magnet", "distant")
+    assert fed.trade_allowed is False and fed.live_trading_blocked is True
+
+
+def test_bridge002_resolver_off_by_default_and_replay_backed(tmp_path, monkeypatch):
+    from app.orb.derivatives.integration import resolve_context_for_symbol
+
+    monkeypatch.delenv("TRADEVISION_V173_DERIVATIVES", raising=False)
+    assert resolve_context_for_symbol("NIFTY", tmp_path) is None
+    # Flag on + replay profile: real context flows with zero vendor credentials.
+    monkeypatch.delenv("OPENALGO_BASE_URL", raising=False)
+    monkeypatch.delenv("OPENALGO_API_KEY", raising=False)
+    monkeypatch.setenv("TRADEVISION_V173_DERIVATIVES", "on")
+    monkeypatch.setenv("TRADEVISION_DERIVATIVES_PROFILE", "replay")
+    monkeypatch.setenv("TRADEVISION_DERIVATIVES_REPLAY_DIR", str(_record(tmp_path)))
+    monkeypatch.setenv("TRADEVISION_DERIVATIVES_DB", str(tmp_path / "g9.db"))
+    monkeypatch.setenv("TRADEVISION_DERIVATIVES_MIN_CHAIN_ROWS", "5")
+    old = dintegration._SERVICE
+    dintegration._SERVICE = None
+    try:
+        ctx = resolve_context_for_symbol("NIFTY", tmp_path)
+        assert ctx is not None and ctx.symbol == "NIFTY"
+        fed_req = _v173_request()
+        from app.behavior.execution_event_oi_risk import build_report_with_derivatives_context
+
+        fed = build_report_with_derivatives_context(fed_req, ctx)
+        assert fed.options_context_status == "available"
+    finally:
+        dintegration._SERVICE = old
+
+
+# G10 AFRE EventBatch wiring ----------------------------------------------------------
+
+def _afre_ctx(ns):
+    return build_context(chain(ns=ns), greeks(), now_ns=ns, policy=DerivativesPolicy(minimum_chain_rows=5))
+
+
+def test_afre001_capability_enters_eventbatch():
+    from app.orb.derivatives.bridges import derivatives_event_batch_capabilities
+
+    ns = _afre_bar(0).available_ns
+    ctx = _afre_ctx(ns)
+    a = DerivativesScenarioController().evaluate(scen(ns=ns), ctx)
+    merged = derivatives_event_batch_capabilities(ctx, a)
+    assert set(merged) == {"NIFTY"} and merged["NIFTY"][0].name == "DERIVATIVES_CONTEXT_VALID"
+    c = _afre_controller()
+    state = new_session("2026-09-04", (_afre_prior(),), c.policy, c.limits)
+    b = _afre_bar(0)
+    state = advance_session(state, EventBatch(event_id="e-cap", available_ns=b.available_ns,
+                                              feature_bars=(b,), execution_bars=(b,),
+                                              capabilities={"TEST": merged["NIFTY"]}), c, AFRE_SAFE)
+    snap_caps = dict(state.capabilities)
+    assert "TEST" in snap_caps and snap_caps["TEST"][0].name == "DERIVATIVES_CONTEXT_VALID"
+
+
+def test_afre002_reaches_snapshot_and_satisfies_required():
+    from app.orb.derivatives.bridges import derivatives_event_batch_capabilities
+
+    base = _afre_snapshot()
+    t0 = base.as_of_ns
+    ctx = _afre_ctx(t0)
+    a = DerivativesScenarioController().evaluate(scen(ns=t0), ctx)
+    caps = derivatives_event_batch_capabilities(ctx, a)["NIFTY"]
+    enriched = MarketSnapshot(session_date=base.session_date, as_of_ns=t0,
+                              prior=base.prior, bars=base.bars, capabilities=caps)
+    d = _afre_controller(_afre_policy(required_capabilities=("DERIVATIVES_CONTEXT_VALID",))).evaluate(enriched)
+    assert "REQUIRED_CAPABILITY_UNAVAILABLE:DERIVATIVES_CONTEXT_VALID" not in d.reason_codes
+
+
+def test_afre003_blocked_capability_blocks_candidate():
+    from app.orb.derivatives.bridges import derivatives_event_batch_capabilities
+
+    base = _afre_snapshot()
+    t0 = base.as_of_ns
+    # STALE by 25s against a 20s policy: caps stay in-window at t0, so the block
+    # path (not expiry) is what stops the candidate.
+    stale = build_context(chain(ns=t0 - 25_000_000_000), greeks(), now_ns=t0,
+                          policy=DerivativesPolicy(minimum_chain_rows=5, max_chain_age_seconds=20))
+    assert stale.status == "STALE"
+    a = DerivativesScenarioController().evaluate(scen(ns=t0), stale)
+    caps = derivatives_event_batch_capabilities(stale, a)["NIFTY"]
+    assert caps[0].status == "BLOCKED" and caps[0].blocks_new_entry is True
+    blocked = [c for c in caps if c.blocks_new_entry]
+    assert blocked, "STALE context must yield at least one entry-blocking capability"
+    from app.orb.adaptive.contracts import MarketSnapshot
+
+    cap = blocked[0]
+    in_window = MarketSnapshot(session_date=base.session_date, as_of_ns=t0,
+                               prior=base.prior, bars=base.bars, capabilities=(cap,))
+    d = _afre_controller().evaluate(in_window)
+    assert any(r.startswith("VERIFIED_REFERENCE_BLOCK") for r in d.reason_codes)
+
+
+def test_afre004_support_alone_creates_nothing():
+    # Capabilities must never manufacture or alter a plan: identical snapshot with
+    # and without SUPPORT caps yields the same trading outcome.
+    from datetime import date
+
+    from app.orb.derivatives.bridges import derivatives_event_batch_capabilities
+
+    base = _afre_snapshot()
+    plain = _afre_controller().evaluate(base)
+    t0 = base.as_of_ns
+    ctx = build_context(chain(ns=t0), greeks(), now_ns=t0, policy=DerivativesPolicy(minimum_chain_rows=5))
+    a = DerivativesScenarioController().evaluate(scen(ns=t0, session_date=date(2026, 9, 7)), ctx)
+    caps = derivatives_event_batch_capabilities(ctx, a)["NIFTY"]
+    assert not any(c.blocks_new_entry for c in caps if c.name == "DERIVATIVES_SCENARIO_SUPPORT")
+    enriched = MarketSnapshot(session_date=base.session_date, as_of_ns=base.as_of_ns,
+                              prior=base.prior, bars=base.bars, capabilities=caps)
+    got, want = _afre_controller().evaluate(enriched).selected_plan, plain.selected_plan
+    # Capabilities ride along (snapshot hash legitimately differs) but must not
+    # change the trading outcome: same presence, same template/side/levels.
+    assert (got is None) == (want is None)
+    if got is not None and want is not None:
+        assert (got.template, got.side, got.reference_entry, got.stop) == \
+               (want.template, want.side, want.reference_entry, want.stop)
+
+
+# E2E-001 provisional chain (fixture-backed, clearly labeled) ------------------------
+
+def test_e2e001_provisional_chain_fixture_to_afre(tmp_path, monkeypatch):
+    """Provisional E2E (NOT vendor proof): recorded fixture -> context -> v1.73 ->
+    AFRE capabilities -> MarketSnapshot. G0 capture still required for vendor truth."""
+    from app.behavior.execution_event_oi_risk import build_report_with_derivatives_context
+    from app.orb.derivatives.bridges import derivatives_event_batch_capabilities
+
+    monkeypatch.delenv("OPENALGO_BASE_URL", raising=False)
+    monkeypatch.delenv("OPENALGO_API_KEY", raising=False)
+    monkeypatch.setenv("TRADEVISION_DERIVATIVES_PROFILE", "replay")
+    monkeypatch.setenv("TRADEVISION_DERIVATIVES_REPLAY_DIR", str(_record(tmp_path)))
+    monkeypatch.setenv("TRADEVISION_DERIVATIVES_DB", str(tmp_path / "e2e.db"))
+    monkeypatch.setenv("TRADEVISION_DERIVATIVES_MIN_CHAIN_ROWS", "5")
+    old = dintegration._SERVICE
+    dintegration._SERVICE = None
+    try:
+        svc = dintegration.build_service(tmp_path)
+        bundle = svc.refresh(underlying="NIFTY", underlying_exchange="NSE_INDEX", expiry_date=EXP,
+                             scenario=scen())
+        assert bundle.assessment is not None
+        fed = build_report_with_derivatives_context(_v173_request(), bundle.context)
+        assert fed.options_context_status == "available"
+        caps = derivatives_event_batch_capabilities(bundle.context, bundle.assessment)
+        assert caps["NIFTY"] and all(getattr(c, "status", None) in ("VALID", "BLOCKED") for c in caps["NIFTY"])
+    finally:
+        dintegration._SERVICE = old

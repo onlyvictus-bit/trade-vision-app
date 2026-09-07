@@ -36,6 +36,49 @@ class OpenAlgoUnavailable(OpenAlgoError):
     """429/transient-5xx exhausted bounded retries, or final 5xx. Safe to surface as 503 downstream."""
 
 
+# --- G1-PROVISIONAL vendor contract model -------------------------------------
+# Status: UNVERIFIED against the live server until G0 capture. Every claim below
+# comes from the external review description, not from a captured response.
+# The enforcement mechanism (strict join + validate_live_contract + parse report)
+# is exact regardless: a wrong model fails LOUD at first live use, never silently.
+# G0 replaces this block with captured truth; the enforcement stays.
+OPENALGO_MULTI_GREEKS_MAX_BATCH = 50  # provisional: confirm at G0; chunking exact either way
+PROVISIONAL_CONTRACT_NOTES = (
+    "batch items carry symbol/exchange (+optional underlying_*); expiry_time is top-level; "
+    "batch rows carry symbol + greeks{delta,gamma,theta,vega,rho} + implied_volatility; "
+    "strike/option_type/DTE/forward/price are joined from the canonical chain leg by symbol."
+)
+
+
+def validate_live_contract(chain_sample: dict, greeks_sample: dict) -> tuple[bool, str]:
+    """G1: fingerprint check for first live use. Returns (ok, reason).
+
+    Pass captured/observed vendor responses here before trusting the provider:
+    ok=True means the provisional shape holds; ok=False names the deviation and
+    the caller must STOP (pivot condition) instead of adapting code blindly.
+    """
+    try:
+        chain_rows = chain_sample.get("chain")
+        if not isinstance(chain_rows, list) or not chain_rows:
+            return False, "chain sample has no chain array"
+        leg = (chain_rows[0].get("ce") or chain_rows[0].get("pe") or {})
+        for field in ("symbol", "ltp", "oi", "lotsize", "tick_size"):
+            if leg.get(field) in (None, ""):
+                return False, f"chain leg missing {field}"
+        grows = greeks_sample.get("data")
+        if not isinstance(grows, list) or not grows:
+            return False, "greeks sample has no data array"
+        row = grows[0]
+        if not row.get("symbol") or not isinstance(row.get("greeks"), dict):
+            return False, "greeks row missing symbol/greeks mapping"
+        unexpected = {"strike", "option_type", "days_to_expiry", "spot_price", "option_price"} & set(row)
+        if unexpected:
+            return False, f"greeks row carries chain fields {sorted(unexpected)} (model assumes join)"
+        return True, "provisional shape holds"
+    except (AttributeError, TypeError, ValueError) as exc:
+        return False, f"contract sample unreadable: {type(exc).__name__}"
+
+
 def _parse_expiry(value: str) -> date:
     value = value.strip().upper()
     for fmt in ("%d%b%y", "%d-%b-%y", "%d-%b-%Y", "%Y-%m-%d"):
@@ -48,6 +91,26 @@ def _parse_expiry(value: str) -> date:
 
 def _payload_hash(data: Any) -> str:
     return hashlib.sha256(json.dumps(data, sort_keys=True, separators=(",", ":"), default=str).encode()).hexdigest()
+
+
+def _provider_server_ns(data: dict[str, Any]) -> int | None:
+    """Best-effort vendor server timestamp (epoch seconds or ISO); None if absent.
+
+    Never raises: timestamp evidence is optional, absence keeps OBSERVED_AT_RECEIPT.
+    """
+    for key in ("server_ts", "server_time", "timestamp"):
+        raw = data.get(key)
+        if raw in (None, ""):
+            continue
+        try:
+            return int(float(raw) * 1_000_000_000)
+        except (TypeError, ValueError):
+            pass
+        try:
+            return int(datetime.fromisoformat(str(raw)).timestamp() * 1_000_000_000)
+        except (TypeError, ValueError):
+            continue
+    return None
 
 
 class OpenAlgoDataProvider:
@@ -265,6 +328,7 @@ class OpenAlgoDataProvider:
                 options_exchange="NFO" if exchange.upper() in {"NSE", "NSE_INDEX", "NFO"} else "BFO",
                 expiry_date=exp, underlying_ltp=float(data["underlying_ltp"]), atm_strike=float(data["atm_strike"]),
                 as_of_ns=now, received_ns=now, rows=tuple(rows), provider_payload_hash=_payload_hash(data),
+                provider_server_ns=_provider_server_ns(data),
             )
         except (KeyError, TypeError, ValueError) as exc:
             raise OpenAlgoProtocolError(f"invalid option chain response: {type(exc).__name__}") from exc
@@ -274,53 +338,97 @@ class OpenAlgoDataProvider:
         symbols: Sequence[tuple[str, str]],
         *,
         interest_rate_pct: float = 0.0,
-        forward_price: float | None = None,
+        chain_legs: dict[str, dict[str, Any]] | None = None,
         underlying_symbol: str | None = None,
         underlying_exchange: str | None = None,
         expiry_time: str | None = None,
-        batch_size: int = 100,
+        batch_size: int = OPENALGO_MULTI_GREEKS_MAX_BATCH,
+        report: dict[str, Any] | None = None,
     ) -> tuple[Greeks, ...]:
-        if batch_size < 1 or batch_size > 500:
-            raise ValueError("batch_size must be 1..500")
+        """Batch Greeks joined to canonical chain legs by symbol (G1/G2).
+
+        chain_legs maps symbol -> {strike, option_type ("CE"/"PE"), days_to_expiry,
+        forward_price, option_price}. It is REQUIRED: a row that cannot be joined
+        raises instead of being silently fabricated or dropped (the P0-1 defect).
+        Vendor-shaped per-row metadata is never trusted; chain legs are the truth.
+        `report` (optional dict) receives chunks/requested/parsed/failed/unjoined
+        counts for observability; failures that matter raise regardless.
+        """
+        if chain_legs is None:
+            raise OpenAlgoProtocolError("chain_legs is required: Greeks must join to canonical chain legs by symbol")
+        if batch_size < 1 or batch_size > OPENALGO_MULTI_GREEKS_MAX_BATCH:
+            raise ValueError(f"batch_size must be 1..{OPENALGO_MULTI_GREEKS_MAX_BATCH}")
+        if report is None:
+            report = {}
+        report.update({"chunks": 0, "requested": len(symbols), "parsed": 0, "failed": 0,
+                       "unjoined": 0, "failed_symbols": []})
         results: list[Greeks] = []
+        rows_seen = 0
         for start in range(0, len(symbols), batch_size):
             part = symbols[start:start + batch_size]
+            report["chunks"] += 1
             items: list[dict[str, Any]] = []
             for symbol, exchange in part:
                 item: dict[str, Any] = {"symbol": symbol, "exchange": exchange}
-                if forward_price is not None:
-                    item["forward_price"] = forward_price
                 if underlying_symbol:
                     item["underlying_symbol"] = underlying_symbol
                 if underlying_exchange:
                     item["underlying_exchange"] = underlying_exchange
-                if expiry_time:
-                    item["expiry_time"] = expiry_time
                 items.append(item)
             payload: dict[str, Any] = {"symbols": items, "interest_rate": interest_rate_pct}
+            if expiry_time:
+                payload["expiry_time"] = expiry_time
             data = self._post("multioptiongreeks", payload)
             rows = data.get("data") or []
             if not isinstance(rows, list):
                 raise OpenAlgoProtocolError("multioptiongreeks data must be an array")
+            rows_seen += len(rows)
             for row in rows:
                 if not isinstance(row, dict):
+                    report["failed"] += 1
                     continue
                 status = str(row.get("status", "error")).lower()
                 if status != "success":
+                    report["failed"] += 1
+                    report["failed_symbols"].append(str(row.get("symbol", "?"))[:48])
+                    continue
+                symbol = str(row.get("symbol") or "")
+                leg = (chain_legs or {}).get(symbol)
+                if not isinstance(leg, dict):
+                    report["unjoined"] += 1
                     continue
                 gr = row.get("greeks") or {}
+                if not isinstance(gr, dict):
+                    report["failed"] += 1
+                    report["failed_symbols"].append(symbol[:48])
+                    continue
                 try:
                     results.append(Greeks(
-                        symbol=str(row["symbol"]), strike=float(row["strike"]), option_type=OptionType(str(row["option_type"]).upper()),
-                        days_to_expiry=float(row.get("days_to_expiry") or 0), forward_price=float(row.get("spot_price") or forward_price or 0),
-                        option_price=float(row.get("option_price") or 0), implied_volatility_pct=float(row.get("implied_volatility") or 0),
+                        symbol=symbol, strike=float(leg["strike"]),
+                        option_type=OptionType(str(leg["option_type"]).upper()),
+                        days_to_expiry=float(leg.get("days_to_expiry") or 0),
+                        forward_price=float(leg.get("forward_price") or 0),
+                        option_price=float(leg.get("option_price") or 0),
+                        implied_volatility_pct=float(row.get("implied_volatility") or 0),
                         delta=float(gr.get("delta") or 0), gamma=max(float(gr.get("gamma") or 0), 0.0),
-                        theta_per_day=float(gr.get("theta") or 0), vega_per_vol_point=float(gr.get("vega") or 0), rho=float(gr.get("rho") or 0),
+                        theta_per_day=float(gr.get("theta") or 0), vega_per_vol_point=float(gr.get("vega") or 0),
+                        rho=float(gr.get("rho") or 0),
                         model="OPENALGO_BLACK76", status="VALID" if float(row.get("implied_volatility") or 0) > 0 else "PARTIAL",
                         reason=str(row.get("note") or "")[:300],
                     ))
+                    report["parsed"] += 1
                 except (KeyError, ValueError, TypeError):
-                    continue
+                    report["failed"] += 1
+                    report["failed_symbols"].append(symbol[:48])
+        if report["unjoined"]:
+            raise OpenAlgoProtocolError(
+                f"UNJOINED_GREEKS_ROWS: {report['unjoined']} batch rows match no canonical chain leg "
+                f"(mapping bug, not vendor data) symbols={report['failed_symbols'][:5]}")
+        if rows_seen and not results:
+            # Vendor answered but nothing was usable: loud, so the coverage gate
+            # never mistakes an empty Greeks set for clean low-volatility evidence.
+            raise OpenAlgoProtocolError(
+                f"multioptiongreeks returned zero usable rows (failed={report['failed']})")
         return tuple(results)
 
     def greeks_for_chain(
@@ -329,16 +437,24 @@ class OpenAlgoDataProvider:
         *,
         interest_rate_pct: float = 0.0,
         forward_symbol: str | None = None,
-        batch_size: int = 100,
+        batch_size: int = OPENALGO_MULTI_GREEKS_MAX_BATCH,
     ) -> tuple[Greeks, ...]:
+        # G1-provisional join truth: strike/type come from the canonical chain leg;
+        # DTE from chain expiry vs today; forward from spot; price from leg LTP.
+        # The vendor is never asked for chain metadata (it does not send it).
+        today = datetime.now(timezone.utc).date()
+        dte = max(0.0, float((chain.expiry_date - today).days))
         symbols: list[tuple[str, str]] = []
+        legs: dict[str, dict[str, Any]] = {}
         for row in chain.rows:
-            if row.ce and row.ce.ltp > 0:
-                symbols.append((row.ce.symbol, chain.options_exchange))
-            if row.pe and row.pe.ltp > 0:
-                symbols.append((row.pe.symbol, chain.options_exchange))
+            for leg, kind in ((row.ce, "CE"), (row.pe, "PE")):
+                if leg is not None and leg.ltp > 0:
+                    symbols.append((leg.symbol, chain.options_exchange))
+                    legs[leg.symbol] = {"strike": leg.strike, "option_type": kind,
+                                        "days_to_expiry": dte, "forward_price": chain.underlying_ltp,
+                                        "option_price": leg.ltp}
         return self.multi_option_greeks(
-            symbols, interest_rate_pct=interest_rate_pct,
+            symbols, interest_rate_pct=interest_rate_pct, chain_legs=legs,
             underlying_symbol=forward_symbol or chain.underlying,
             underlying_exchange=chain.options_exchange if forward_symbol else chain.underlying_exchange,
             batch_size=batch_size,

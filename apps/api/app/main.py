@@ -492,6 +492,7 @@ from .behavior.context_engines import (
 from .behavior.market_regime_feedback import build_market_regime_feedback_report
 from .behavior.market_structure_liquidity import build_market_structure_liquidity_report
 from .behavior.execution_event_oi_risk import build_execution_event_oi_risk_report
+from .behavior.execution_event_oi_risk import build_report_with_derivatives_context
 from .behavior.post_entry_lifecycle import build_post_entry_lifecycle_report
 from .behavior.final_confluence_arbiter import build_final_confluence_arbiter_report
 from .behavior.session_memory import (
@@ -2885,6 +2886,17 @@ async def behavior_execution_event_oi_risk_analyze(payload: ExecutionEventOiRisk
     if quality.blocks_trade:
         raise api_error(409, "behavior_data_quality_blocked", "Execution/event/OI risk guard requires clean causal candle data.")
     result = build_execution_event_oi_risk_report(payload)
+    # G9: when explicitly enabled, computed derivatives context replaces hand-typed
+    # options fields through the identical report path. Any failure (flag off, no
+    # provider/expiry, fetch error) keeps the base report — never raises, never blocks.
+    try:
+        from .orb.derivatives.integration import resolve_context_for_symbol
+
+        _dctx = resolve_context_for_symbol(payload.series.symbol, PROJECT_ROOT)
+        if _dctx is not None:
+            result = build_report_with_derivatives_context(payload, _dctx)
+    except Exception:
+        pass
     if result.confidence_cap == "WAIT" or result.execution_plan_status == "BLOCKED":
         audit("warning", f"Execution/event/OI risk capped {result.symbol}: {result.execution_plan_status}", "behavior_execution_event_oi")
     return envelope(result, capability_status=CapabilityStatus.MOCK)

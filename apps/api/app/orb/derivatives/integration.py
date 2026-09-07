@@ -82,3 +82,31 @@ def mount(app: FastAPI, project_root: Path) -> None:
         if not os.getenv("OPENALGO_BASE_URL") or not os.getenv("OPENALGO_API_KEY"):
             raise ValueError("SHADOW_DERIVATIVES_REQUIRES_OPENALGO_BASE_URL_AND_API_KEY")
     app.include_router(router(lambda: build_service(project_root)))
+
+
+def resolve_context_for_symbol(symbol: str, project_root: Path, *, underlying_exchange: str = "NSE_INDEX"):
+    """G9: resolve a DerivativesContext for a v1.73-style caller, or None.
+
+    Gated by TRADEVISION_V173_DERIVATIVES=on (default off → None, zero behavior
+    change). Expiry = nearest options expiry on/after today UTC (provisional
+    session mapping, documented; G0 may refine to exchange-calendar sessions).
+    ANY failure (flag off, no provider, no expiry, fetch error) returns None so
+    the caller keeps its hand-typed/unavailable path — never raises, never blocks.
+    """
+    from datetime import datetime, timezone
+
+    if os.getenv("TRADEVISION_V173_DERIVATIVES", "off").strip().lower() != "on":
+        return None
+    try:
+        svc = build_service(project_root)
+        today = datetime.now(timezone.utc).date()
+        expiries = svc.provider.expiries(symbol.upper(), underlying_exchange, "options")
+        upcoming = [d for d in expiries if d >= today]
+        if not upcoming:
+            return None
+        bundle = svc.refresh(underlying=symbol.upper(), underlying_exchange=underlying_exchange,
+                             expiry_date=min(upcoming), strike_count=None, scenario=None,
+                             auto_resolve_futures=False, fetch_next_expiry_term=False)
+        return bundle.context
+    except Exception:
+        return None

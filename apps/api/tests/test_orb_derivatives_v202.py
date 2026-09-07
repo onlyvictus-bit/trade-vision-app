@@ -208,17 +208,21 @@ def test_store_previous_snapshot_and_iv_history(tmp_path):
 
 
 def test_openalgo_provider_parses_option_chain_and_batch_greeks():
+    # G1: batch rows carry symbol + greeks only; strike/type/DTE/forward/price are
+    # joined from the canonical chain leg by symbol (provisional-model mock: the
+    # hybrid single-endpoint shape previously mocked here does not exist on batch).
     def handler(req: httpx.Request):
         body=json.loads(req.content)
         if req.url.path.endswith("/optionchain"):
-            return httpx.Response(200,json={"status":"success","underlying":"NIFTY","underlying_ltp":100,"expiry_date":"29SEP26","atm_strike":100,"chain":[
+            return httpx.Response(200,json={"status":"success","underlying":"NIFTY","underlying_ltp":100,"expiry_date":"29SEP26","atm_strike":100,"server_ts":1759100000,"chain":[
                 {"strike":100,"ce":{"symbol":"C100","label":"ATM","ltp":5,"bid":4.9,"ask":5.1,"volume":100,"oi":200,"lotsize":25,"tick_size":.05},
                               "pe":{"symbol":"P100","label":"ATM","ltp":6,"bid":5.9,"ask":6.1,"volume":110,"oi":220,"lotsize":25,"tick_size":.05}}
             ]})
         if req.url.path.endswith("/multioptiongreeks"):
+            assert all("forward_price" not in it and "expiry_time" not in it for it in body["symbols"])
             return httpx.Response(200,json={"status":"success","summary":{"total":2,"success":2,"failed":0},"data":[
-                {"status":"success","symbol":"C100","strike":100,"option_type":"CE","days_to_expiry":22,"spot_price":100,"option_price":5,"implied_volatility":20,"greeks":{"delta":.5,"gamma":.02,"theta":-1,"vega":1,"rho":.1}},
-                {"status":"success","symbol":"P100","strike":100,"option_type":"PE","days_to_expiry":22,"spot_price":100,"option_price":6,"implied_volatility":21,"greeks":{"delta":-.5,"gamma":.02,"theta":-1,"vega":1,"rho":-.1}}
+                {"status":"success","symbol":"C100","implied_volatility":20,"greeks":{"delta":.5,"gamma":.02,"theta":-1,"vega":1,"rho":.1}},
+                {"status":"success","symbol":"P100","implied_volatility":21,"greeks":{"delta":-.5,"gamma":.02,"theta":-1,"vega":1,"rho":-.1}}
             ]})
         return httpx.Response(404)
     client=httpx.Client(transport=httpx.MockTransport(handler))
@@ -226,6 +230,9 @@ def test_openalgo_provider_parses_option_chain_and_batch_greeks():
     c=p.option_chain(underlying="NIFTY",exchange="NSE_INDEX",expiry_date=EXP,strike_count=1,now_ns=NOW)
     g=p.greeks_for_chain(c)
     assert c.rows[0].ce.symbol=="C100" and len(g)==2
+    assert {x.symbol for x in g}=={"C100","P100"}
+    assert all(x.strike==100.0 and x.option_price in (5.0,6.0) for x in g)
+    assert c.provider_server_ns==1759100000*1_000_000_000
     assert "secret" not in repr(p)
 
 
