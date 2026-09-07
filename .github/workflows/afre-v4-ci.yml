@@ -42,6 +42,25 @@ jobs:
           cache-dependency-path: apps/api/requirements.txt
       - name: Install API dependencies
         run: python -m pip install --upgrade pip && pip install -r apps/api/requirements.txt
-      - name: Run complete API test suite
+      - name: Run complete API test suite on PR
+        working-directory: apps/api
+        run: pytest tests -q
+
+  main-baseline-full-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: apps/api/requirements.txt
+      - name: Install API dependencies
+        run: python -m pip install --upgrade pip && pip install -r apps/api/requirements.txt
+      - name: Run identical complete API suite on main baseline
         working-directory: apps/api
         run: pytest tests -q
