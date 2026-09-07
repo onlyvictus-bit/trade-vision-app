@@ -16,7 +16,9 @@ no live trading exists anywhere; human approval is required for paper trades.**
 
 - Engine: signal spotter → history tester (72 combos/stock) → walk-forward
   exam (75/25 split + 4 folds) → playbook store → daily guidance → paper
-  ledger → reliability memory. Full test suite: **740 passed, 0 failed**.
+  ledger → reliability memory. Full test suite: **914 passed, 0 failed**
+  (v2.02-derivatives, 2026-09-07; includes derivatives 22/22 OFF-by-default,
+  v2.01 scenarios 8).
 - One live result: **BEL, 09:15–09:20 window, +60.2R, profit factor 1.30,
   515 trades, 70% of months positive**; holdout (unseen) PF 1.27, +12.08R;
   walk-forward 4/4 folds passed (PF 1.13–1.44). Promoted to playbook `a1c78a28`.

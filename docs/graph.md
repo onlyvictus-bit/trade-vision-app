@@ -2,17 +2,17 @@
 
 > **Purpose:** Actual (not aspirational) structural map of modules, data flows, and authority boundaries.  
 > **Machine-readable twin:** `docs/graph/project_graph.json` (served by `GET /api/knowledge/graph`)  
-> **Last verified against code:** 2026-09-04  
-> **Latest completed version:** v2.01 (ORB Opening Scenarios)  
+> **Last verified against code:** 2026-09-07  
+> **Latest completed version:** v2.02-derivatives (ORB Derivatives Intelligence, OFF by default)  
 > **Source of truth for ??what shipped??:** `docs/IMPLEMENTATION_STATUS.md`  
 > **Merged 2026-07-24:** former `docs/README_GRAPH.md` (how-to + update rule) into **A0 below** ?? **do not recreate** that file.  
-> **Graph JSON refresh 2026-09-04:** v1.99.3-4 BEL prove/promote, v2.00-repair, v2.01 opening-scenario nodes/edges (93 nodes / 211 edges, zero dangling).  
+> **Graph JSON refresh 2026-09-07:** v2.02-derivatives subsystem node/edges (94 nodes / 213 edges, zero dangling).  
 > **Product spine requirement (not this file):** `docs/plans/FINAL_REQUIRED_FLOW.md`  
 > **Living contracts / operator map:** `ARCHITECTURE.md`
 
 ---
 
-## 0a. Recent additions (v1.96 - v2.01, 2026-08-25 - 2026-09-04)
+## 0a. Recent additions (v1.96 - v2.02, 2026-08-25 - 2026-09-07)
 
 ```text
 v1.96  Indicator Intelligence Catalog
@@ -59,6 +59,12 @@ v2.00-repair  Engine damage rebuild (03-09 wipe of grok_provider +
 v2.01  ORB opening scenarios (orb/context.py gap/CPR/zone classifier +
        OrbOpeningScenario model; 6 gates incl. real-data partition invariant
        over 1611 sessions; median width_atr 0.147 finding supports CPR-04/H3)
+
+v2.02-derivatives  ORB Derivatives Intelligence (dormant research subsystem)
+       15 modules (provider, chain snapshots, calculators, Greeks, reasoning,
+       store, service, API) + 22 tests + docs/derivatives/; ATR parity
+       (SMA-seeded Wilder canonical); IV/skew surfacing (warn/info only);
+       main.py 3-line mount, OFF default verified (zero routes, no creds)
 ```
 
 ---

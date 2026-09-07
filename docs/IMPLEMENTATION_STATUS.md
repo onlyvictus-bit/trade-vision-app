@@ -10,13 +10,13 @@
 ## Latest completed tip (was CURRENT_VERSION_POINTER)
 
 ```text
-latest_completed_version = v2.01 (ORB opening scenarios + day-type validation + options readiness audit)
-latest_completed_title = Opening-Possibility Layer Complete - classifier, predictor, honest NO-GO verdict, options plugs mapped
-latest_completed_status = implemented-and-verified (8 scenario gates green; day-type predictor validated on 2685 sessions: TREND precision 0.30 = chance, RANGE 0.248 < chance - opening combo alone adds no edge; options audit: request-field plugs + wall math exist, Black-Scholes/chain-fetcher/store missing)
-last_full_backend_regression = proof-repair, 2026-09-06, 891 passed (0 failed, chunked runs: 556 + 56 + 279)
+latest_completed_version = v2.02-derivatives (ORB Derivatives Intelligence installed OFF-by-default + ATR parity + IV/skew surfacing)
+latest_completed_title = Derivatives Subsystem Live (dormant) - Greeks/chain analytics ready for future broker data
+latest_completed_status = implemented-and-verified (derivatives 22/22 in host; ATR parity: SMA-seeded Wilder canonical, v2.01 gates re-proven incl. real-data coverage; full backend 914 passed / 0 failed)
+last_full_backend_regression = v2.02-derivatives, 2026-09-07, 914 passed (0 failed, chunked: 358 + 556)
+prior_full_backend_regression = proof-repair, 2026-09-06, 891 passed (0 failed, chunked runs: 556 + 56 + 279)
 latest_focused_backend_verification = v201 scenario gates 8 passed; v191 14 passed; BEL re-proof ELIGIBLE (same combo ba1121c6, WF 3/4 with honest fold-1 cold start)
-last_full_backend_regression = proof-repair, 2026-09-06, 891 passed (0 failed, chunked runs: 556 + 56 + 279)
-latest_focused_backend_verification = v191 14 passed; BEL re-proof ELIGIBLE (same combo ba1121c6, WF 3/4 with honest fold-1 cold start)
+latest_repair_verification = v2.02-repair vendor-independent gates (G3/G4-logic/G5/G6/G7/G8/G11-mech/G12): 26 passed; bundle 22 preserved; full backend 939 passed / 0 failed / 4 skipped (2026-09-07); vendor half (G0/G1/G2/G9/G10) PARKED for capture
 latest_ui_verification = no frontend change (v1.97 build passed)
 next_context_maintenance_version = as needed after route/panel changes
 next_reasoning_build_target = daily TrendForge ritual; accumulate 30 paper outcomes (memory maturity); pta_entropy latency fix

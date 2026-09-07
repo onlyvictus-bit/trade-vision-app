@@ -1,5 +1,9 @@
 # v1.87 Paper Guidance Spine P0 Review
 
+> Note 2026-09-07: v1.87-v1.94 reviews below are frozen history. Current tip
+> v2.02-derivatives (914 passed; derivatives 22/22; v2.01 scenarios 8) per
+> `docs/IMPLEMENTATION_STATUS.md`.
+
 Reviewed: 2026-07-23
 
 Verdict: VERIFIED

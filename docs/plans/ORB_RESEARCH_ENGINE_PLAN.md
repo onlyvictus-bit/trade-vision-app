@@ -2,6 +2,11 @@
 
 > **Status:** Approved ORB-first paper-guidance campaign; implementation starts after v1.88 snapshot spine  
 > **Date:** 2026-07-24  
+> **Frozen history:** v1.89-v1.94 shipped per this plan. Successors: v1.96 catalog,
+> v1.97 timing (`ORB_TIMING_RESEARCH_V197.md`), v2.01 classifier
+> (`orb/context.py` standalone), v2.02-derivatives dormant subsystem
+> (`docs/derivatives/ORB_DERIVATIVES_V202_INTEGRATION.md`). Tip authority:
+> `docs/IMPLEMENTATION_STATUS.md` (v2.02-derivatives, 914 passed). Body below frozen.  
 > **Owner need:** Backtest stocks to find **which ORB strategy**, **timeframe**, **ORB candle count / clock window**, and **ORB combination** is best by **profit** and **most repeated success**  
 > **Placement principle:** **split by use case** — not “everything in one folder.”  
 > **Discovery home:** Stock App `research/` (+ ORR indicators)  

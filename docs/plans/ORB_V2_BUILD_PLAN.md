@@ -1,6 +1,8 @@
 # ORB v2 Build Plan (v2.01 track) — approved design, staged 4→2→1
 
-> Status: APPROVED DESIGN, not started. Council verdict: staged candidate 2,
+> Status: APPROVED DESIGN, M1 SHIPPED standalone 2026-09-07 (`orb/context.py`
+> classifier + 8 scenario gates; NOT wired into `orb/core.py`). M2–M6 gated on
+> V1-slice/OOS proof, not started. Council verdict: staged candidate 2,
 > P ≈ 0.72 (CI 0.60–0.83). Parent spec: ORB_STRATEGY_MEMORANDUM.md v2.4.
 > Plan: ORB_CONTEXT_NATIVE_PLAN_V2.md (§11–§13). Rule: no milestone starts
 > without its gate green; every milestone reversible via its config key.

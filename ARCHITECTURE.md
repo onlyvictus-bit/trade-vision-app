@@ -1,7 +1,7 @@
 # Trade Vision ARCHITECTURE
 
 > **Fable-level living architecture** — contracts first, implementation second.  
-> **Last verified against code:** 2026-07-24 · **Latest completed:** **v1.94**  
+> **Last verified against code:** 2026-09-07 · **Latest completed:** **v2.02-derivatives**  
 > **Monorepo Stock App surface:** absorbed into § A-SA · § G-SA · §6 (verified vs `server.py` + tree; chart canvas deep-dives remain root `STOCK_APP_ARCHITECTURE.md` §5–8).  
 > **Companion docs:** `docs/context.md` (domain/invariants) · `docs/graph.md` (structure) · `docs/graph/project_graph.json` (machine)  
 > **Ship log + latest tip:** `docs/IMPLEMENTATION_STATUS.md` (tip at top; full version log below)  
@@ -26,9 +26,9 @@
 | **-** | Implicit “latest = v1.87” assumption (superseded by v1.94) |
 | **-** | Root stale claims **not** absorbed: `WS /ws/{symbol}` (actual: `/ws/price/{symbol}` · `/ws/realtime/{symbol}`); sim field is `initial_cash` not `initial_balance`; root MASTER GUIDE tip “TV v1.86” is obsolete |
 
-## Current Production Boundary: v1.94
+## Current Production Boundary: v2.02-derivatives
 
-The completed research/paper-guidance path is:
+The completed research/paper-guidance path is (v1.94 spine + v1.96-v2.02 ORB research):
 
 ```text
 D1 fail-closed safety gate
@@ -2830,6 +2830,20 @@ Finding: median width_atr 0.147 on RELIANCE/BEL/TCS - NARROW absorbs ~97% of
 days (supports memo CPR-04/H3 redundancy warning; thresholds stay priors).
 ```
 
+## v2.02-derivatives ORB Derivatives Intelligence (dormant research subsystem)
+
+```text
+Bundle verified before install (SHA-256 match, 22/22 green in our venv).
+apps/api/app/orb/derivatives/ (15 modules: OpenAlgo provider, chain/futures
+snapshots, calculators, Greeks, reasoning controller, store, service, API).
+Patches applied via reviewed Edits: ATR parity (SMA-seeded Wilder canonical,
+v2.01 gates re-proven incl. real-data coverage) + IV/skew surfacing
+(OPT-003/005 warn/info only) + main.py 3-line mount (OFF default verified:
+zero derivatives routes, no credentials loaded). Excluded: foreign conftest,
+__pycache__, empty specs/. Profile stays OFF until replay/proof passes.
+Gates: tests/test_orb_derivatives_v202.py (22 tests).
+```
+
 ### F2. Version → key files (high-signal)
 
 Paths under `apps/api/app/behavior/` unless noted.
@@ -2855,7 +2869,8 @@ Paths under `apps/api/app/behavior/` unless noted.
 | v1.99.1-2 | `data_quality.py` session-closure classification; `paper_guidance_spine.py` `SNAPSHOT_INDICATOR_WINDOW_BARS=400`; tool `scripts/flow_reaudit.py`; runbook `docs/runbooks/flow-reaudit.md` |
 | v1.99.3-4 | `scripts/prove_bel.py` (GATES.md 7/7, verdict ELIGIBLE, proof ab7b3163); `scripts/promote_bel.py` (playbook a1c78a28 active BEL 5m) |
 | v2.00-repair | rebuilt `behavior/grok_provider.py` + `behavior/jarvis_decision_quality_gate.py`; gates `test_reconstruction_v200.py` (16 tests) |
-| v2.01 | `apps/api/app/orb/context.py` (gap/CPR/zone classifier) + `OrbOpeningScenario`; gates `test_orb_opening_scenarios_v201.py` (6 tests) |
+| v2.01 | `apps/api/app/orb/context.py` (gap/CPR/zone classifier) + `OrbOpeningScenario`; gates `test_orb_opening_scenarios_v201.py` (8 tests) |
+| v2.02-derivatives | `apps/api/app/orb/derivatives/` (15 modules, OFF-by-default research subsystem) + `tests/test_orb_derivatives_v202.py` (22 tests); ATR parity (SMA-seeded Wilder canonical); IV/skew surfacing (OPT-003/005 warn/info); main.py 3-line mount |
 | OpenAlgo lane | `jarvis_openalgo_*`, `jarvis_paper_ready_safety_audit.py`, `openalgo_transport.py`, `apps/openalgo-adapter/` (**simulator**) |
 | Twin / Kronos | `shared_snapshot.py`, `twin_arbiter.py`, `full_twin_analysis.py`, `kronos_proxy.py`; service `apps/kronos-service/` |
 | Shells | `apps/api/app/main.py` routes · `apps/web/src/App.tsx` UI |

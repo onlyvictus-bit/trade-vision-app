@@ -1,6 +1,6 @@
 # ORB Strategy Memorandum — Context-Native ORB Playbook (Rule-Level) — v2.4
 
-> **Status:** SPEC for the v1.98–v2.00 ORB upgrade (`docs/plans/ORB_CONTEXT_NATIVE_PLAN_V2.md`). PROPOSED, not built.
+> **Status:** SPEC for the v2.01+ ORB upgrade track (`docs/plans/ORB_CONTEXT_NATIVE_PLAN_V2.md`). PROPOSED, not built. (Old header said v1.98–v2.00; renumbered: those numbers collided with shipped v1.98 real-9C / v1.99 coverage+BEL.)
 > **v2.4 (2026-09-03):** third Kimi submission (consolidated Tasks 1–4, archived byte-exact in `ORB_V201C_NSE_REVIEW_KIMI_PART3.md`; accounting `ORB_V201_VERIFIED_ANSWER.md` §8) integrated — **third independent confirmations** of STOP-01 `or_width_conditional`, REENTRY-01, ENTRY-04 (10:45), EXIT-03 (15:10), and the top-10 ranking; **10 new rules** (§7A.8): CHASE-01 no-chase discipline, ORPDC-01 contested open, GIFTDIV-01 open-vs-GIFT divergence, IDX-02 sector divergence, EXIT-07 post-breakout management, RVOL-01 fail path, EVENT-02 MPC post-buffer, EVENT-07 result D-1 tag, UNIV-03 concrete spread threshold + dual-source tick check, and the ORW 0.75–1.0×ATR intermediate band; **§7A.7 register updated** (VIX and ORW-wide now 2-of-3 majorities; third afternoon variant; third circuit-band version; gap-moderate conflict).
 > **v2.3 (2026-09-02):** second Kimi submission (Task 3/4 continuation + reasoning trace, archived byte-exact in `ORB_V201B_NSE_REVIEW_KIMI_PART2.md`; accounting `ORB_V201_VERIFIED_ANSWER.md` §7) integrated — STOP-01 gains the `or_width_conditional` deterministic default, REENTRY-01 trap-signature conditions, ENTRY-04 late-entry truncation, UNIV-04 both-direction first-bar guards + UNIV-05 chop guards, DERIV-02 dividend/rollover amendments + DERIV-08 participant-OI tilts, EXP-05/06/07 (post-expiry tag, expiry confirm overlay, **calendar-file mandate**), AFT-01 level-staleness principle, and §7A.7 **calibration conflict register** (13 thresholds on which the two reviews disagree — config priors, discovery decides).
 > **v2.2 (2026-09-02):** second external review (`ORB_V201_NSE_REVIEW_KIMI.md`, verified in `ORB_V201_VERIFIED_ANSWER.md`) integrated — STOP-01 stop-doctrine fix (W1: memo examples used ORM while the engine/spec uses opposite-OR-side and reversals use sweep extremes), event/corporate-actions calendar layer **un-deferred** (§7A), universe hygiene (§7A), index & derivatives overlay staged experimental (§7A), **Tuesday expiry protocol** (verified SEBI change, §7A), separate afternoon playbook (§7A), RVOL-01, ENTRY-01 vol-scaled buffer, ENTRY-03 time-to-target, EXIT-06 precedence, VWAP-01..03, CTX-02 amendment + CTX-05. Change log §12.
@@ -89,7 +89,7 @@ The v2.0 ladder claimed top-down first-match-wins, but the trap overrides must b
 
 | Gap state (GAP-01) | Allowed | Forbidden | Notes |
 |---|---|---|---|
-| FLAT (<0.1%) | Both | — | Standard ORB, no modification |
+| FLAT (≤0.1%, matching repo classifier `_gap_type`) | Both | — | Standard ORB, no modification |
 | GAP_UP (≥ +0.1%) | LONG only | shorts until a 5m **close** below ORL *and* below PDC | Short = gap-fail trade, half size |
 | GAP_DOWN (≤ −0.1%) | SHORT only | longs until a 5m **close** above PDC (gap filled) | Long = gap-fill trade, half size |
 | LARGE either (≥ max(1.0%, 1.4 × ATR%)) | GAP-02 protocol | blind breakouts | |

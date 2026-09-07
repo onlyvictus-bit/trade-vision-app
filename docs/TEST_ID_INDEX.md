@@ -1,6 +1,6 @@
 # Test ID Index
 
-Last reviewed: 2026-09-06
+Last reviewed: 2026-09-07
 
 Purpose: avoid rereading all of `apps/api/tests/test_api.py` before locating relevant tests.
 
@@ -15,12 +15,20 @@ apps/api/tests/test_orb_paper_ledger_v193.py
 apps/api/tests/test_orb_feedback_hardening_v194.py
 apps/api/tests/test_indicator_intelligence_catalog.py
 apps/api/tests/test_orb_timing_v197.py
+apps/api/tests/test_orb_derivatives_v202.py
+apps/api/tests/test_orb_derivatives_repair_v202r.py
 ```
 
 Current observed regression size:
 
 ```text
-v1.94 full backend regression (2026-07-24): 715 passed, 0 failed
+v2.02-repair full backend regression (2026-09-07): 939 passed, 0 failed, 4 skipped
+  command: python -m pytest apps/api/tests -q
+repair focused module: 26 passed (test_orb_derivatives_repair_v202r.py:
+  STORE-001, health matrix, OPENALGO-003/004/005/006 mechanics, PIT-001..004,
+  REQUIRED/OPTIONAL policy, REPLAY-001/002, wall top_k/persistence, provenance,
+  api 422/503 mapping, malformed-body guard)
+v1.94 full backend regression (2026-07-24): 715 passed, 0 failed (historical)
   command: python -m pytest apps/api/tests -q
 v1.94 focused module: 32 passed
 v1.92-v1.94 focused modules: 54 passed
@@ -93,6 +101,37 @@ holdout PF 1.271 / +12.08R unchanged, WF 3/4. Live playbook a1c78a28
 untouched (config identical; hash checks are internal-consistency only).
 Optional: re-promote to refresh the proof-hash chain (explicit approval needed).
 Full backend after repair: 891 passed 0 failed (chunked: 556 + 56 + 279).
+```
+
+## Implemented v2.02-derivatives ORB Derivatives Intelligence
+
+```text
+Bundle verified before install: SHA-256 match, 22/22 tests green in our venv.
+Installed: apps/api/app/orb/derivatives/ (15 modules: provider, chain
+snapshots, calculators, Greeks, reasoning, store, service, API) +
+tests/test_orb_derivatives_v202.py + docs/derivatives/ (no collisions).
+Patches applied via Edit (reviewed, not blind): ATR parity (SMA-seeded
+Wilder canonical in orb/context.py; v2.01 gates re-proven green incl.
+real-data coverage) + IV/skew surfacing (OPT-003/005 warn/info only, no
+direction votes) + main.py 3-line mount (OFF default verified: zero
+derivatives routes registered, no credentials loaded).
+Full backend after install: 914 passed 0 failed.
+Profile stays OFF until replay/proof passes; no live mode exists.
+```
+
+## Implemented v2.02 repair wave (vendor-independent gates, 2026-09-07)
+
+```text
+Scope: G8 store :memory: (shared-cache + keepalive), G7 truthful health matrix,
+G3 typed HTTP boundary (Auth/Unavailable + bounded retry + non-JSON guard),
+G5 PIT admission gate (DerivativesIdentityError, 422 mapping, PIT-001..004),
+G6 credential-free replay provider (REPLAY-001/002 determinism),
+G4-logic (no fabricated lot/tick in either parser), G12 (top_k bounding +
+1-step persistence + REQUIRED/OPTIONAL policy), G11-mechanism (per-input
+provenance hashes). PARKED for G0 capture: G1/G2 provider rewrite, field names,
+G9/G10 wiring, captured/AFRE/bridge/E2E tests.
+Evidence: test_orb_derivatives_repair_v202r.py 26 passed; bundle 22 preserved;
+full backend 939 passed / 0 failed / 4 skipped. No live/vendor authority added.
 ```
 
 ## Implemented v2.01 ORB Opening-Scenario Gates

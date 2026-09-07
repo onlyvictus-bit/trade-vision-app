@@ -1,6 +1,9 @@
 # Trade Vision SPEC
 
-## Current Release Scope: v1.94
+## Current Release Scope: v2.02-derivatives
+
+Tip authority: `docs/IMPLEMENTATION_STATUS.md` (914 passed 2026-09-07). v1.94
+sections below are frozen history; v2.01/v2.02 scopes are appended at the end.
 
 Trade Vision is a research and explicitly human-controlled local paper-guidance
 system. Its current normative pipeline is D1 safety, D2 immutable closed-candle
@@ -944,3 +947,24 @@ record disabled / lifecycle evaluation disabled
 5. Idempotent storage does not duplicate the same packet identity incorrectly.
 6. `docs/IMPLEMENTATION_STATUS.md`, `docs/graph/project_graph.json`, `ARCHITECTURE.md`, `docs/context.md`, and `docs/graph.md` list v1.86 as latest completed functional version after context maintenance.
 7. No route sets `order_routing_enabled=true` or creates broker orders from TrendForge candidates.
+
+## Scope: v2.01 ORB Opening Classifier (standalone, coded + finished)
+
+`apps/api/app/orb/context.py` (`classify_opening`, gap/CPR/PDH-PDL/session-VWAP/ATR;
+`daily_from_intraday`, `classify_history`, `predict_day_type`, `label_day_outcome`)
+is implemented and verified standalone. It is NOT yet wired into `orb/core.py`
+live guidance. Verified by `apps/api/tests/test_orb_opening_scenarios_v201.py`
+(8 gates: gap/CPR/zone/parity/guards/coverage + predict branches + label
+boundaries). Research-only; `trade_allowed=false`, `live_trading_blocked=true`.
+
+## Scope: v2.02-derivatives ORB Derivatives Intelligence (OFF-by-default, coded + finished)
+
+`apps/api/app/orb/derivatives/` (15 modules: contracts, calculators, black76_extra,
+service, store, bridges, replay, api router `/api/v1/orb/derivatives`, integration)
+is installed OFF-by-default dormant. Mount is gated by
+`TRADEVISION_DERIVATIVES_PROFILE=off|shadow|replay` (`main.py`); no LIVE profile
+exists; SHADOW requires `OPENALGO_*`. ATR parity DONE: SMA-seeded Wilder canonical.
+IV/skew surfacing is warn/info only. Verified by
+`apps/api/tests/test_orb_derivatives_v202.py` (22/22 in host). No trading-authority
+change: research-only context (support/conflict/unknown/block/cap/predict-failure),
+never a trade.

@@ -3,7 +3,7 @@
 > **What this file is:** a complete, self-contained briefing for an outside AI
 > reviewer. It describes what is built, what is not, how the system works,
 > and exactly what guidance is wanted. No repo access needed.
-> **Date:** 2026-09-04 · **System state:** v2.01 (740/740 tests green)
+> **Date:** 2026-09-04 · **System state:** v2.02-derivatives (914/914 tests green, 2026-09-07; OFF-by-default derivatives dormant; v2.01 classifier standalone)
 
 ---
 
@@ -36,7 +36,7 @@ pandas/numpy/scipy. Data: local CSV history (~90 NSE stocks × 7 timeframes,
 | 9 | Indicator library | 49 of 94 indicators compute live (trend, momentum, volume, volatility, CPR, pivots, patterns) | 9 catalog gates |
 | 10 | Paper loop | Human-approved paper trades tracked bar-by-bar → win/loss + reliability memory | full suite green |
 
-**Full backend suite: 740 passed / 0 failed.** Key formulas: gap FLAT < 0.1%,
+**Full backend suite: 914 passed / 0 failed (v2.02-derivatives, 2026-09-07).** Key formulas: gap FLAT < 0.1%,
 LARGE ≥ max(1.0%, 1.4×ATR%); CPR narrow < 0.5×ATR; R = |entry − stop|;
 lag_weight = 1/(1+delay); costs = commission + slippage, stop-first on ties.
 

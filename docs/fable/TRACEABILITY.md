@@ -1,6 +1,7 @@
 # Trade Vision Campaign Traceability
 
-Last updated: 2026-07-24
+Last updated: 2026-09-07 (tip: v2.02-derivatives + repair wave, 939 passed; authority:
+`docs/IMPLEMENTATION_STATUS.md`)
 
 | Requirement | Design | Milestone | Implementation | Verification | Status |
 |---|---|---|---|---|---|
@@ -29,3 +30,20 @@ Last updated: 2026-07-24
 | TV-OPS-003 stale responses cannot overwrite current evidence | generation-token merge | proposed v1.95 | pending | TV-V195-005/006/015 | planned |
 | TV-OPS-004 all existing panels remain reachable | loader ownership manifest | proposed v1.95 | pending | TV-V195-011/012/018 | planned |
 | TV-OPS-005 UI refresh does not change trading authority | request-scheduling-only boundary | proposed v1.95 | pending | TV-V195-016/020 | planned |
+| TV-ORB-005 indicator catalog 94 contracts | ontology + lag vote | v1.96 | `behavior/indicator_registry.py` + `indicator_lag_voting.py` | CAT-V196-001..009 | verified |
+| TV-ORB-006 per-stock timing windows | HSTRY batch research | v1.97 | `orb/timing_research.py` + `orb/hstry_csv.py` | ORB-T197-001..010 | verified |
+| TV-ORB-007 BEL proof + promotion | OOS/WF + playbook | v1.91/v1.99 | `orb/proof.py` + `scripts/prove_bel.py` | TV-V191-001..014 + BEL ELIGIBLE ab7b3163/a1c78a28 | verified |
+| TV-ORB-008 opening classifier standalone | gap/CPR/zone | v2.01 | `orb/context.py` (not wired to core) | TV-V201-001..008 | verified |
+| TV-ORB-009 derivatives dormant subsystem | OFF-profile mount | v2.02-derivatives | `orb/derivatives/` (15 modules) | 22/22 bundle gates | verified |
+| TV-RPR-001/002 provider+batch | PARKED for G0 capture | `openalgo.py` (no rewrite yet) | captured-contract tests | parked |
+| TV-RPR-003 error boundary | G3 | `openalgo.py` + `api.py` handler | OPENALGO-003/004/005 + non-JSON guard | verified |
+| TV-RPR-004 metadata fail-closed | G4-logic | `openalgo.py`, `fixtures.py` | OPENALGO-006 (names pending G1) | verified |
+| TV-RPR-005 PIT/identity | G5 | `contracts.py`, `reasoning.py`, `service.py`, `replay.py` | PIT-001..004 | verified |
+| TV-RPR-006 replay | G6 | `integration.py`, `fixtures.py` | REPLAY-001/002 | verified |
+| TV-RPR-007 health | G7 | `api.py` | health matrix | verified |
+| TV-RPR-008 storage | G8 | `store.py` | STORE-001 | verified |
+| TV-RPR-009 v1.73 wiring | G9 | PARKED for G0 | BRIDGE-001/002 | parked |
+| TV-RPR-010 AFRE wiring | G10 | PARKED for G0 | AFRE-001..004 | parked |
+| TV-RPR-011 provenance | G11-mech | `contracts.py`, `service.py` | provenance tests (re-verify post-G1) | verified |
+| TV-RPR-012 walls/policy | G12 | `calculators.py`, `contracts.py`, `reasoning.py` | wall + policy tests | verified |
+| TV-RPR-013 repair wave | G3/G4-logic/G5/G6/G7/G8 | provider/store/api/reasoning/integration/fixtures | 26 repair tests + 939 full | verified |

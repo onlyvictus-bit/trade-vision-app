@@ -71,12 +71,22 @@ def zone_at(price: float, pdh: float, pdl: float, tc: float, bc: float) -> str:
 
 
 def atr_wilder(high: pd.Series, low: pd.Series, close: pd.Series, period: int = 14) -> float:
-    """Wilder ATR(14). Needs period + 1 daily bars minimum."""
+    """Canonical Wilder ATR: SMA seed, then Wilder recurrence.
+
+    Single canonical implementation shared with orb/adaptive/features.py
+    (v2.02 parity: removes the EWM-seed divergence between the two ORB
+    context paths on short windows).
+    """
+    if period < 1 or len(close) < period + 1:
+        raise ValueError("ATR_REQUIRES_PERIOD_PLUS_ONE_PRIOR_SESSIONS")
     prev_close = close.shift(1)
     tr = pd.concat(
         [high - low, (high - prev_close).abs(), (low - prev_close).abs()], axis=1
-    ).max(axis=1)
-    return float(tr.ewm(alpha=1.0 / period, adjust=False, min_periods=period).mean().iloc[-1])
+    ).max(axis=1).iloc[1:]
+    atr = float(tr.iloc[:period].mean())
+    for value in tr.iloc[period:]:
+        atr = (atr * (period - 1) + float(value)) / period
+    return atr
 
 
 def classify_opening(

@@ -1,11 +1,11 @@
 # Next Build Target
 
-Last reviewed: 2026-09-06
+Last reviewed: 2026-09-07
 
 ## Latest Completed Functional Build
 
 ```text
-v2.01 - ORB Opening Scenarios + day-type validation + options readiness audit
+v2.02-derivatives - ORB Derivatives Intelligence installed OFF-by-default
 ```
 
 Primary delivered purpose:
@@ -22,14 +22,15 @@ Primary delivered purpose:
 ## Verification Snapshot
 
 ```text
-Full backend regression (2026-09-06): 891 passed, 0 failed (chunked)
-v2.01 scenario gates: 8 passed (incl. day-type predictor branches + boundaries)
+Full backend regression (2026-09-07): 939 passed, 0 failed, 4 skipped (repair wave incl.)
+v2.02 repair focused: 26 passed (G3/G4-logic/G5/G6/G7/G8/G11-mech/G12); bundle 22 preserved
+v2.02 derivatives bundle: 22 passed | v2.01 scenario gates: 8 passed (incl. day-type predictor branches + boundaries)
 v1.96 catalog gates: 9 passed | v1.97 timing gates: 10 passed
 v1.89-v1.94 ORB suites: 36 passed | spine+orb paper suites: 74 passed
 Flow re-audit baseline: scripts/flow_reaudit.py (runbook: docs/runbooks/flow-reaudit.md)
 Real-run artifacts: data/orb_research/ (BEL +60.2R @ 09:15-09:20, PF 1.30)
 Day-type validation: delete/daytype_validation.json (2685 sessions: TREND 0.30 = chance, RANGE 0.248 < chance)
-Options audit: request-field plugs + wall math present; Black-Scholes / chain fetcher / D-1 store missing
+Derivatives v2.02: OFF-by-default dormant; chain/Greeks calc + store/bridges shipped (22/22); ATR parity DONE
 ```
 
 ## Recommended Next Work

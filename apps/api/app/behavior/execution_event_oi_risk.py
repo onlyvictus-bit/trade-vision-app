@@ -364,6 +364,16 @@ def _gates(
         _gate("EVENT-003", "Unavailable event data is not marked clean", request.event_context_status != "unavailable", "warn" if request.event_context_status == "unavailable" else "info", f"event_context_status={request.event_context_status}."),
         _gate("OPT-001", "Expected move caps unrealistic target", expected_limit != "target_beyond_expected_move", "block" if expected_limit == "target_beyond_expected_move" else "info", f"expected_move_limit={expected_limit}."),
         _gate("OPT-002", "Gamma wall context is surfaced when available", not gamma_context.startswith("call_gamma_wall"), "warn" if gamma_context.startswith("call_gamma_wall") else "info", f"gamma_wall_context={gamma_context}."),
+        # Research-context only until separately proved. These gates consume
+        # the previously-unused fields without turning them into direction votes.
+        _gate("OPT-003", "Elevated IV percentile is surfaced as uncertainty context",
+              request.iv_percentile is None or request.iv_percentile < 80.0,
+              "warn" if request.iv_percentile is not None and request.iv_percentile >= 80.0 else "info",
+              f"iv_percentile={request.iv_percentile}."),
+        _gate("OPT-005", "Large IV skew is surfaced without inferring direction",
+              request.iv_skew is None or abs(request.iv_skew) < 5.0,
+              "warn" if request.iv_skew is not None and abs(request.iv_skew) >= 5.0 else "info",
+              f"iv_skew={request.iv_skew}."),
         _gate("OPT-004", "Missing OI does not fabricate options context", request.options_context_status != "unavailable", "warn" if request.options_context_status == "unavailable" else "info", f"options_context_status={request.options_context_status}."),
         _gate("V173-SAFE-001", "Closed-candle minimum history is present", source_bar_count >= request.minimum_bars, "block" if source_bar_count < request.minimum_bars else "info", f"source_bar_count={source_bar_count}."),
         _gate("V173-SAFE-002", "Unavailable constraints cap confidence", not unavailable, "warn" if unavailable else "info", f"unavailable_reasons={len(unavailable)}."),
@@ -406,6 +416,10 @@ def _failure_questions(request: ExecutionEventOiRiskRequest, depth_status: str, 
         questions.append("Is the target unrealistic versus the expected move?")
     if request.options_context_status == "unavailable":
         questions.append("Would OI/max-pain/gamma data change the target or range-risk assessment?")
+    if request.iv_percentile is not None and request.iv_percentile >= 80.0:
+        questions.append("Is elevated IV increasing both breakout and failure magnitude enough to invalidate static risk assumptions?")
+    if request.iv_skew is not None and abs(request.iv_skew) >= 5.0:
+        questions.append("Does large skew indicate asymmetric tail demand that conflicts with this setup, without treating skew as a direction vote?")
     return questions
 
 

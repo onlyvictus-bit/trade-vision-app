@@ -1105,6 +1105,10 @@ class ExecutionEventOiRiskRequest(BaseModel):
     call_gamma_wall: float | None = Field(default=None, gt=0)
     put_gamma_wall: float | None = Field(default=None, gt=0)
     oi_concentration_pct: float | None = Field(default=None, ge=0.0, le=100.0)
+    # RESERVED for future broker options-chain feed (no options-chain fetcher,
+    # IV solver, or chain store exists yet). Accepted but not consumed by any
+    # calculation as of v2.01; wiring them in requires the DerivativesContext
+    # contract + chain snapshot store first. See ORB audit 2026-09-07.
     iv_percentile: float | None = Field(default=None, ge=0.0, le=100.0)
     iv_skew: float | None = Field(default=None, ge=-100.0, le=100.0)
     minimum_bars: int = Field(default=30, ge=9, le=500)

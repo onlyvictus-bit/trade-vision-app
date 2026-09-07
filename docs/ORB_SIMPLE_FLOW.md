@@ -56,6 +56,7 @@
 | 3 | Exam: luck or real edge? | `apps/api/app/orb/proof.py` → `run_orb_proof` | same as above | ✅ 4 walk-forward folds |
 | 3 | Which opening time wins? | `apps/api/app/orb/timing_research.py` → `run_timing_research` | `docs/plans/ORB_TIMING_RESEARCH_V197.md` | ✅ 09:20/30/35/40 ranked |
 | 3 | Classify the open (gap/CPR/zone) | `apps/api/app/orb/context.py` → `classify_opening` | `docs/plans/ORB_CONTEXT_NATIVE_PLAN_V2.md` §11 | ✅ standalone (not yet wired into core) |
+| 3 | Derivatives context (OFF by default) | `apps/api/app/orb/derivatives/` → `DerivativesService` (15 modules; router `/api/v1/orb/derivatives`) | `docs/derivatives/ORB_DERIVATIVES_V202_INTEGRATION.md` | ✅ dormant; 22/22 gates; ATR parity DONE; shadow needs `OPENALGO_*` |
 | 3 | 49 indicators compute | `apps/api/app/behavior/real_indicator_adapter.py` | `docs/INDICATOR_INTELLIGENCE_CATALOG.md` | 🟡 49/94 live |
 | 3 | Trend/structure/risk engines | `apps/api/app/behavior/` (v1.70–75 modules) | `ARCHITECTURE.md` F2 table | ✅ |
 | 3 | Multi-timeframe check | `timeframe_feature_builder.py` | `ARCHITECTURE.md` | ✅ closed-bar only |

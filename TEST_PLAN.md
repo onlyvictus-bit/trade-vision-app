@@ -1,23 +1,25 @@
 # Trade Vision TEST_PLAN
 
-## Current Release Verification: v1.94
+## Current Release Verification: v2.02-derivatives
 
-Verified 2026-07-24:
+Verified 2026-09-07:
 
 ```text
 python -m pytest apps/api/tests -q
--> 715 passed in 542.50s
+-> 914 passed / 0 failed (chunked: 358 + 556)
 
-focused v1.94 lifecycle/hardening
--> 32 passed
-
-focused v1.92-v1.94 UI/ledger/lifecycle
--> 54 passed
+focused v2.02 derivatives bundle: 22 passed
+focused v2.01 opening scenarios: 8 passed
+focused v1.96 catalog: 9 passed | v1.97 timing: 10 passed
+focused v1.89-v1.94 ORB suites: 36 passed | spine+orb paper: 74 passed
 
 npm.cmd run typecheck
 npm.cmd run build
--> passed
+-> passed (v1.97; no frontend change since)
 ```
+
+Tip authority: `docs/IMPLEMENTATION_STATUS.md`. v1.94 section below is frozen
+history (715 passed 2026-07-24).
 
 Observed browser result:
 
@@ -873,3 +875,18 @@ frontend workspace typecheck: passed
 frontend production build: passed
 desktop/mobile browser acceptance: passed with no horizontal overflow
 ```
+
+## v2.01 ORB Opening Scenarios Tests (coded + finished)
+
+File: `apps/api/tests/test_orb_opening_scenarios_v201.py` — 8 gates
+`TV-V201-001..008` (gap/CPR/zone/parity/guards/coverage + predict_day_type
+branches + label_day_outcome boundaries). Proves `orb/context.py` standalone
+classifier; live `orb/core.py` wiring explicitly out of scope. Research-only,
+live blocked.
+
+## v2.02-derivatives ORB Derivatives Tests (coded + finished, OFF-by-default)
+
+File: `apps/api/tests/test_orb_derivatives_v202.py` — 22/22 passed in host.
+Proves NSE expiry/ticks, chain/Greeks calc, reasoning/store/bridges, OFF-profile
+mount, shadow-gate on `OPENALGO_*`, ATR parity (SMA-seeded Wilder canonical),
+research-only envelopes. Full backend tip: 914 passed 2026-09-07.

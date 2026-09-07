@@ -1,11 +1,17 @@
 # Trade Vision Campaign Specification
 
-Last updated: 2026-07-24
+Last updated: 2026-09-07
 
 ## Outcome
 
 Make Trade Vision a production-ready research and paper-guidance system while
 keeping live broker execution outside Trade Vision.
+
+ORB status through v2.02-derivatives (coded + finished, research-only): ORB core
+v1.89, discovery v1.90, proof v1.91 (BEL ELIGIBLE, playbook a1c78a28 ACTIVE),
+guidance v1.92, ledger v1.93, lifecycle/feedback v1.94, catalog v1.96, timing
+v1.97, opening classifier v2.01 (standalone), derivatives v2.02 (OFF-by-default
+dormant). v1.87/v1.94 sections below are frozen history.
 
 ## Approved Milestone
 
@@ -34,10 +40,10 @@ Required:
 
 ## Non-Goals
 
-- ORB research implementation.
-- D3-D8 decision orchestration.
-- Frontend guidance card.
-- Paper fill, OpenAlgo routing, or live broker integration.
+- Live broker integration, order routing, or auto-fill from Trade Vision.
+- Wiring `orb/context.py` v2.01 classifier into live `orb/core.py` (needs
+  separate approved milestone + OOS proof).
+- Enabling derivatives beyond OFF/shadow/replay (needs ledger proof n>=30 OOS).
 - Rewriting existing evidence engines.
 
 ## Observable Success

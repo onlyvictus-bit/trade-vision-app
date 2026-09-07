@@ -68,3 +68,18 @@ non-orphaned, identity-valid outcomes and is reduce/quarantine-only. Ticket,
 ledger, and outcome stores use atomic JSON replacement rather than an
 unapproved database migration. Retention is preview-only. No broker/OpenAlgo
 route or automatic fill is introduced.
+
+## TV-ADR-008 - ORB Opening Classifier Ships Standalone (v2.01)
+
+Status: implemented 2026-09-07 (`orb/context.py`, 8 scenario gates).
+
+`classify_opening` (gap/CPR/zone) is research-only and NOT wired into live
+`orb/core.py` until a separate approved milestone + OOS proof passes.
+
+## TV-ADR-009 - Derivatives Ships Dormant OFF-by-Default (v2.02-derivatives)
+
+Status: implemented 2026-09-07 (`orb/derivatives/`, 22/22 gates).
+
+Mount gated by `TRADEVISION_DERIVATIVES_PROFILE=off|shadow|replay`; no LIVE
+profile; shadow requires `OPENALGO_*`. ATR parity canonical: SMA-seeded Wilder.
+No trading-authority change.

@@ -561,6 +561,11 @@ app = FastAPI(
     description="Safe mock-first production spine for Trade Vision.",
 )
 
+# OFF by default. In SHADOW this only exposes research analysis endpoints;
+# it cannot place/route orders and loads OpenAlgo credentials only when enabled.
+from .orb.derivatives.integration import mount as mount_orb_derivatives
+mount_orb_derivatives(app, PROJECT_ROOT)
+
 
 @app.post("/api/v1/integrations/trendforge/pull-latest")
 async def trendforge_pull_latest(max_age_seconds: int = 120):

@@ -1,6 +1,9 @@
 # ORB Context-Native Upgrade Plan V2 (Gap + CPR + PDH/PDL + Execution Realism)
 
-> **Status:** PROPOSED — awaiting user approval of milestones M0–M6. Not built.
+> **Status:** PROPOSED — awaiting user approval of milestones M0–M6. Not built
+> (exception: M1 classifier `orb/context.py` SHIPPED standalone v2.01, unwired).
+> **Name note:** this plan's `v2.02` (PDH/PDL+realism track) is NOT the shipped
+> `v2.02-derivatives` (OFF-by-default derivatives subsystem, 22/22 gates).
 > **v2.01-track amendment (2026-09-04, build audit):** milestone versions renumbered (v1.98–v2.00 collided with shipped work: v1.98 real 9C candles, v1.99 indicator coverage + BEL) — see §11. M0 added (data inventory + V1 pre-test + BEL decision). Adoption staged 4→2→1.
 > **Date:** 2026-08-31 · **v2.1 addendum (2026-09-01):** external pre-code review (Kimi) integrated — see §7; **v2.2 addendum (2026-09-02):** second external review (NSE market structure) integrated — see §8; **v2.3 addendum (2026-09-02):** second Kimi submission (Task 3/4 continuation) integrated — see §9. Rule spec is `ORB_STRATEGY_MEMORANDUM.md` **v2.3** (rule IDs incl. EVENT/UNIV/IDX/VIX/DERIV/EXP/AFT layers + §7A.7 calibration register).
 > **Companion docs:**

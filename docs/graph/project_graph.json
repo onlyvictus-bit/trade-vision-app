@@ -1,13 +1,13 @@
 {
-  "schema_version": "tradevision.project_graph.v2.01-sync",
-  "generated_at": "2026-09-04T20:00:00+05:30",
+  "schema_version": "tradevision.project_graph.v2.02-derivatives",
+  "generated_at": "2026-09-07T00:00:00+05:30",
   "root": "Trade Vision",
   "summary": {
-    "nodes": 93,
-    "edges": 211,
-    "source": "v2.01_sync_graph_refresh",
-    "previous_schema_version": "tradevision.project_graph.v1.99.2-flowreaudit",
-    "previous_source": "v1.99.2_flowreaudit_graph_refresh"
+    "nodes": 94,
+    "edges": 213,
+    "source": "v2.02-derivatives_graph_refresh",
+    "previous_schema_version": "tradevision.project_graph.v2.02-derivatives",
+    "previous_source": "v2.02-derivatives_graph_refresh"
   },
   "nodes": [
     {
@@ -474,6 +474,11 @@
       "id": "reconstruction-gates",
       "label": "test_reconstruction_v200.py (16 dedicated gates)",
       "type": "test"
+    },
+    {
+      "id": "orb-derivatives-v202",
+      "label": "ORB Derivatives Intelligence v2.02 (OFF by default)",
+      "type": "module"
     }
   ],
   "edges": [
@@ -1531,6 +1536,16 @@
       "from": "reconstruction-gates",
       "to": "engine-repair-v200",
       "label": "verify_rebuild"
+    },
+    {
+      "from": "orb-derivatives-v202",
+      "to": "orb-core-v189",
+      "label": "challenges_but_never_overrides"
+    },
+    {
+      "from": "orb-derivatives-v202",
+      "to": "file-document-index",
+      "label": "indexed_in"
     }
   ]
 }

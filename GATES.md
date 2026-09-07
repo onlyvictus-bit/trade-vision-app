@@ -1,5 +1,9 @@
 # Gates: prove BEL (walk-forward verification of the 09:15-09:20 combo)
 
+> Tip: latest completed = v2.02-derivatives (914 passed 2026-09-07) per
+> `docs/IMPLEMENTATION_STATUS.md`. This file covers the BEL v1.91 proof only
+> (frozen evidence, still valid).
+
 OWNS: scripts/prove_bel.py, GATES.md, data/orb_research/bel_proof_output.txt
 
 Scope: run the v1.91 proof layer on the exact BEL discovery request and report

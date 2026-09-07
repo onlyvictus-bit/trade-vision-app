@@ -23,12 +23,13 @@ D:\trade vision\our-design\TRADE_VISION_MASTER_PRODUCTION_PLAN.md
 ## Current Project State
 
 ```text
-latest_completed_version = v2.01
-latest_functional_version = v2.01
+latest_completed_version = v2.02-derivatives
+latest_functional_version = v2.02-derivatives
 current_mode = research / mock / paper-review only
 live_trading = blocked
 order_routing = blocked inside Trade Vision
 broker_credentials = not created by Trade Vision
+tip_authority = docs/IMPLEMENTATION_STATUS.md (this block defers to it on conflict)
 ```
 
 `v1.87-v1.94` provide the strict closed-candle Paper Guidance spine,
@@ -46,9 +47,18 @@ and complete safe indicator coverage: 49 of 94 indicators compute at runtime,
 registry 86 validated / 7 proxy / 1 blocked, and the silently-dead PTA marker
 stack (v1.86-v1.98) is fixed.
 
-Verified 2026-08-25: full backend 734 passed / 0 failed (includes v1.96
-catalog gates 9, v1.97 timing gates 10, v1.89-v1.94 ORB suites). Frontend
-typecheck/build passed (v1.97).
+`v2.01` adds the ORB opening classifier (`apps/api/app/orb/context.py`:
+gap/CPR/PDH-PDL/session-VWAP/ATR, `classify_opening`, standalone research-only,
+not yet wired into `orb/core.py`; 8 scenario gates passed).
+
+`v2.02-derivatives` installs the ORB Derivatives Intelligence subsystem
+(`apps/api/app/orb/derivatives/`, 15 modules, OFF-by-default dormant, ATR parity:
+SMA-seeded Wilder canonical, IV/skew surfacing warn/info only; 22/22 gates
+passed in host). No trading authority change: research-only, live blocked.
+
+Verified 2026-09-07: full backend 939 passed / 0 failed / 4 skipped (914 baseline
++ 26 repair gates: G3/G4-logic/G5/G6/G7/G8/G11-mech/G12; vendor half parked for
+G0 capture). Frontend typecheck/build passed (v1.97; no frontend change since).
 
 ## What Trade Vision Is
 
@@ -106,7 +116,7 @@ Live trading stays **blocked**. TV local paper ledger ≠ Stock App `sim_trading
 ## AI / New-Chat Handoff (merged from former `docs/AI_HANDOFF_CONTEXT.md`)
 
 > **Merged 2026-07-24 into this README.** Do **not** recreate `docs/AI_HANDOFF_CONTEXT.md`.  
-> **Alignment check:** former handoff tip said **v1.87** / next v1.88 — that was **stale**. Corrected below to **v1.94** per `IMPLEMENTATION_STATUS`, `ARCHITECTURE`, `NEXT_BUILD_TARGET`, and code.  
+> **Alignment check (2026-09-07):** former handoff tip said **v1.87** / next v1.88, later corrected to **v1.94** — both now **stale**. Current tip is **v2.02-derivatives** per `IMPLEMENTATION_STATUS` (914 passed).  
 > **Safety rules** still live in short form in `docs/SAFETY_INVARIANTS.md` (do not merge law into ship log).  
 > **Product spine requirement:** `docs/plans/FINAL_REQUIRED_FLOW.md`.  
 > **Per-version ship diary authority:** `docs/IMPLEMENTATION_STATUS.md` (tip + full log). Historical notes below are preserved from the former handoff and may lag wording of the ship log — if conflict, **IMPLEMENTATION_STATUS wins**.
@@ -123,15 +133,15 @@ Prefer for full domain/structure: `docs/context.md` + `docs/graph.md` + `ARCHITE
 D:\Projects\trading-platforms\stock-app\trade-vision-app
 ```
 
-### Current confirmed build state (aligned 2026-07-24)
+### Current confirmed build state (aligned 2026-09-07; authority: docs/IMPLEMENTATION_STATUS.md)
 
 ```text
-latest_completed_version = v1.94
-latest_completed_title = ORB Paper Lifecycle Feedback And Atomic Store Hardening
-latest_completed_status = implemented-and-full-backend-verified
-last_full_backend_regression = 715 passed (0 failed), 2026-07-24
-latest_focused = v1.94 32 passed; v1.92-v1.94 54 passed
-latest_ui = typecheck/build passed; RELIANCE ORB WATCH/NO_PLAYBOOK lifecycle blocked; store PASS
+latest_completed_version = v2.02-derivatives
+latest_completed_title = Derivatives Subsystem Live (dormant) - Greeks/chain analytics ready for future broker data
+latest_completed_status = implemented-and-verified (derivatives 22/22; ATR parity DONE; repair wave 26 passed; full backend 939 passed / 0 failed / 4 skipped)
+last_full_backend_regression = 939 passed (0 failed, 4 skipped), 2026-09-07
+latest_focused = v2.02-repair 26 passed (vendor half parked for G0); v2.01 scenarios 8 passed; v1.97 timing 10 passed; BEL re-proof ELIGIBLE (combo ba1121c6, WF 3/4)
+latest_ui = typecheck/build passed (v1.97; no frontend change since)
 current_mode = research / mock / paper-review only
 live_trading = blocked
 order_routing = blocked inside Trade Vision

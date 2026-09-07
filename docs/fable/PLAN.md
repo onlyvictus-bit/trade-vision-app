@@ -457,9 +457,13 @@ The request manifest must fail tests when:
 
 ---
 
-## Proposed milestone TV-ORB-V2 / v1.98-v2.00
+## Shipped ORB continuation v2.01 / v2.02-derivatives (+ plan-track v1.98-v2.00 renamed)
 
-Status: PROPOSED 2026-08-31 — plan only, awaiting user approval of milestones M1-M6. No code written.
+Status: v2.01 classifier + v2.02-derivatives subsystem SHIPPED 2026-09-07
+(research-only). Old label `v1.98-v2.00` pre-dated the shipped renumber; the
+remaining plan-track items (M2-M6: gap lock, CPR filter, PDH/PDL family, exit
+realism, regime filter) still need separate approval + OOS proof. M1
+(`orb/context.py`) is built standalone-only, not wired into `orb/core.py`.
 
 1. M1 (v1.98) context-native core: new `orb/context.py` (gap/CPR/PDH-PDL/session-VWAP/ATR, PIT-guarded), `OrbBuildRequest.previous_day`, live-path prev-day wiring from the behavior pipeline, unknown-context fail-open policy, causal whitelist v0.15, per-day context precompute.
 2. M2 (v1.98) gap bias-lock + large-gap trap protocol; M3 (v1.98) CPR wide/narrow family filter.
@@ -483,3 +487,19 @@ Acceptance:
 - fail-open on unknown context, never fabricated context;
 - all thresholds are repo constants or single config keys (no parallel constants);
 - state.py feature rows + GATES/SPEC/TEST_PLAN/ARCHITECTURE updates per version.
+
+---
+
+## Approved campaign: ORB v2.02 Repair & Integration (Candidate 2, capture-first)
+
+Status: APPROVED 2026-09-07 (user authorization in conversation). Implementation
+NOT started. Full milestone plan: `docs/plans/ORB_V202_REPAIR_PLAN.md` (G0–G12,
+each with purpose / files / preconditions / intent / tests / acceptance /
+rollback / evidence / next-gate dependency).
+
+Order: G0 capture oracle (BLOCKING) → G1–G4 provider/hardening → G5 PIT-critical
+(+PIT-004 wrong-expiry) → G6–G8 replay/health/store → G9 v1.73 + G10 AFRE wiring
+(only after G0–G8 green) → G11 provenance → G12 walls/policy → test wave → full
+regression → SHADOW acceptance. Pivot: capture contradiction or no creds →
+Candidate 3 (isolate-and-defer), no synthetic vendor fixtures. SHADOW invariants
+hold throughout (AFRE OFF, derivatives OFF, no live profile, no order authority).

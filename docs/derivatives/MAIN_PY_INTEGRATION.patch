@@ -1,0 +1,14 @@
+*** apps/api/app/main.py
+@@
+ from .orb import (
+@@
+ )
++from .orb.derivatives.integration import mount as mount_orb_derivatives
+@@
+ app = FastAPI(
+@@
+ )
++
++# OFF by default. In SHADOW this only exposes research analysis endpoints;
++# it cannot place/route orders and loads OpenAlgo credentials only when enabled.
++mount_orb_derivatives(app, PROJECT_ROOT)

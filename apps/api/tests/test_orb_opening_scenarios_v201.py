@@ -69,6 +69,9 @@ def test_tv_v201_001_gap_boundaries() -> None:
     assert _scenario(today_open=1002.5)["gap_state"] == "FLAT"          # +0.05%
     assert _scenario(today_open=1007.0)["gap_state"] == "GAP_UP"        # +0.50%
     assert _scenario(today_open=997.0)["gap_state"] == "GAP_DOWN"       # -0.50%
+    # exact 0.1% boundary is FLAT (inclusive, matching repo _gap_type per E1)
+    assert _scenario(today_open=1002.0 * 1.001)["gap_state"] == "FLAT"
+    assert _scenario(today_open=1002.0 * 0.999)["gap_state"] == "FLAT"
     assert _scenario(today_open=1022.0)["gap_state"] == "LARGE_GAP_UP"  # +1.996% over max(1, 1.68)
     assert _scenario(today_open=982.0)["gap_state"] == "LARGE_GAP_DOWN"
     # small ATR lowers nothing below the 1.0 floor

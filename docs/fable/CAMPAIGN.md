@@ -1,11 +1,23 @@
 # Trade Vision Production Campaign
 
-Last updated: 2026-07-24
+Last updated: 2026-09-07
 
 ## Current Phase
 
-`v1.87-v1.94` are completed. The approved Paper Guidance + ORB paper campaign
-has no remaining implementation milestone.
+`v1.87-v1.94` paper-guidance + ORB campaign completed and verified. ORB research
+continued through `v2.02-derivatives` (coded + finished, research-only):
+
+- v1.96 Indicator Intelligence Catalog (94 contracts, 9 gates)
+- v1.97 ORB Timing Research (09:20/30/35/40 windows, 10 gates; BEL 09:15-09:20
+  ELIGIBLE, proof ab7b3163, playbook a1c78a28 ACTIVE)
+- v2.01 ORB opening classifier `orb/context.py` (standalone, 8 gates, not wired
+  into core)
+- v2.02-derivatives ORB Derivatives Intelligence (OFF-by-default dormant,
+  22/22 gates, ATR parity DONE)
+
+Tip authority: `docs/IMPLEMENTATION_STATUS.md` (939 passed 2026-09-07 — 914 baseline
++ 26 repair gates; vendor half parked for G0 capture). v1.94
+sections below are frozen history.
 
 ## Sequence
 
