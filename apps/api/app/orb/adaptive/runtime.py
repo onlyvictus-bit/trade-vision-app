@@ -15,6 +15,8 @@ from .contracts import (
 )
 from .controller import Controller
 from .execution import advance_position, cancel_pending, mark_unknown, start_position
+from .derivatives import DerivativesSnapshot, calculate as calculate_derivatives, capabilities as derivatives_capabilities
+from .risk_context import RiskContextSnapshot, capabilities as risk_capabilities
 
 
 class EventBatch(Frozen):
@@ -23,6 +25,8 @@ class EventBatch(Frozen):
     feature_bars: Annotated[tuple[Bar, ...], Field(max_length=100)] = ()
     execution_bars: Annotated[tuple[Bar, ...], Field(max_length=500)] = ()
     capabilities: dict[str, tuple[Capability, ...]] = Field(default_factory=dict)
+    derivatives: dict[str, DerivativesSnapshot] = Field(default_factory=dict)
+    risk_contexts: dict[str, RiskContextSnapshot] = Field(default_factory=dict)
     integrity_faults: tuple[str, ...] = ()
 
     @model_validator(mode="after")
@@ -35,6 +39,12 @@ class EventBatch(Frozen):
             raise ValueError("ONE_NEW_FEATURE_BAR_PER_SYMBOL_PER_BATCH")
         if any(c.available_ns > self.available_ns for cs in self.capabilities.values() for c in cs):
             raise ValueError("REFERENCE_FROM_FUTURE")
+        for symbol, snap in self.derivatives.items():
+            if symbol != snap.symbol or snap.available_ns > self.available_ns:
+                raise ValueError("DERIVATIVES_CONTEXT_IDENTITY_OR_FUTURE_MISMATCH")
+        for symbol, snap in self.risk_contexts.items():
+            if symbol != snap.symbol or snap.available_ns > self.available_ns:
+                raise ValueError("RISK_CONTEXT_IDENTITY_OR_FUTURE_MISMATCH")
         return self
 
 
@@ -111,6 +121,42 @@ def pending_invalidation(position: Position, decision: Decision) -> str | None:
     return None
 
 
+def _merge_context_capabilities(state: SessionState, event: EventBatch, quarantine: list[str]) -> dict[str, tuple[Capability, ...]]:
+    """Calculate raw context snapshots before the normal capability reducer."""
+    merged: dict[str, list[Capability]] = {symbol: list(rows) for symbol, rows in event.capabilities.items()}
+
+    for symbol, snap in event.derivatives.items():
+        if symbol not in state.universe or snap.session_date.isoformat() != state.session_date:
+            quarantine.append("DERIVATIVES_CONTEXT_OUTSIDE_FROZEN_SESSION_OR_UNIVERSE")
+            continue
+        try:
+            rows = derivatives_capabilities(calculate_derivatives(snap))
+        except (ValueError, ArithmeticError, OverflowError):
+            quarantine.append("DERIVATIVES_CONTEXT_CALCULATION_FAILED")
+            continue
+        merged.setdefault(symbol, []).extend(rows)
+
+    for symbol, snap in event.risk_contexts.items():
+        if symbol not in state.universe or snap.session_date.isoformat() != state.session_date:
+            quarantine.append("RISK_CONTEXT_OUTSIDE_FROZEN_SESSION_OR_UNIVERSE")
+            continue
+        try:
+            rows = risk_capabilities(snap)
+        except ValueError:
+            quarantine.append("RISK_CONTEXT_CALCULATION_FAILED")
+            continue
+        merged.setdefault(symbol, []).extend(rows)
+
+    result: dict[str, tuple[Capability, ...]] = {}
+    for symbol, rows in merged.items():
+        names = [x.name for x in rows]
+        if len(names) != len(set(names)):
+            quarantine.append("DUPLICATE_CAPABILITY_NAME")
+            continue
+        result[symbol] = tuple(rows)
+    return result
+
+
 def advance_session(state: SessionState, event: EventBatch, controller: Controller,
                     safety: SafetyState, *, paper_authority: bool = False,
                     proof_hash: str | None = None) -> SessionState:
@@ -171,8 +217,12 @@ def advance_session(state: SessionState, event: EventBatch, controller: Controll
             continue
         prefixes[b.symbol] = old + (b,)
         changed = True
+
+    # Canonical raw contexts are reduced to the same Capability contract used
+    # by manually supplied verified references. No second decision path exists.
+    incoming_capabilities = _merge_context_capabilities(state, event, quarantine)
     caps = dict(state.capabilities)
-    for symbol, records in event.capabilities.items():
+    for symbol, records in incoming_capabilities.items():
         if symbol not in state.universe:
             quarantine.append("CAPABILITY_SYMBOL_OUTSIDE_UNIVERSE")
             continue
@@ -197,8 +247,6 @@ def advance_session(state: SessionState, event: EventBatch, controller: Controll
                     decisions[symbol] = evolve(decisions[symbol], gap_ever_touched_pdc=True)
             except ValueError:
                 quarantine.append("SNAPSHOT_VALIDATION_FAILED:" + symbol)
-        # All declared symbols must have equally closed prefixes. This avoids
-        # falsely calling a partial local watchlist a synchronized universe.
         last_closes = {xs[-1].close_ns if xs else None for xs in prefixes.values()}
         aligned = len(last_closes) == 1 and None not in last_closes
         proposal = select_global(decisions, p, event.available_ns) if aligned else None
@@ -212,8 +260,6 @@ def advance_session(state: SessionState, event: EventBatch, controller: Controll
         reason = pending_invalidation(position, decisions[position.plan.symbol])
         if reason:
             position = cancel_pending(position, reason)
-    # Once an interval should have been available, missing prices do not become
-    # a benign no-fill. UNKNOWN keeps the consumed attempt reserved.
     if position and position.status in {"PENDING", "OPEN"}:
         due = position.expected_open_ns + p.execution_minutes * MINUTE + p.max_feature_lag_seconds * NS
         if event.available_ns > due:
@@ -244,7 +290,6 @@ def advance_session(state: SessionState, event: EventBatch, controller: Controll
             action = "SKIP_SESSION_ENTRY_WINDOW_EXPIRED"
         elif quarantine:
             action = "HALT_AFFECTED_DECISIONS_FOR_DATA"
-        # Never leave an earlier PAPER-CANDIDATE badge alive after revocation.
         decisions[symbol] = evolve(decision, public_ticket="PAPER-CANDIDATE" if can_offer else
                                    "WAIT" if blocked else "WATCH", internal_action=action,
                                    proof_hash=proof_hash if can_offer else None)
