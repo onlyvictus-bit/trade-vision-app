@@ -25,6 +25,21 @@ def view(state: SessionState) -> dict:
             "decisions": {s: d.model_dump(mode="json") for s,d in state.decisions.items()}}
 
 
+def _durable_event_payload(event: EventBatch) -> dict:
+    """Keep pre-v4 bar-only event JSON byte-semantically compatible.
+
+    Existing durable idempotency compares the stored payload for a repeated
+    event_id. New empty context fields therefore must not appear in a legacy
+    bar/capability-only retry. Non-empty v4 context is retained in full.
+    """
+    payload = event.model_dump(mode="json")
+    if not event.derivatives:
+        payload.pop("derivatives", None)
+    if not event.risk_contexts:
+        payload.pop("risk_contexts", None)
+    return payload
+
+
 class Service:
     def __init__(self, store: Store, controller: Controller, *, safety: Callable[[], SafetyState],
                  clock: Callable[[], int] = time.time_ns, paper_enabled: bool = False,
@@ -73,7 +88,7 @@ class Service:
             raise ValueError("EVENT_AVAILABLE_TIME_EXCEEDS_SERVER_CLOCK")
         if not self.historical_shadow and now-event.available_ns > self.controller.policy.max_feature_lag_seconds*NS:
             raise ValueError("DELIVERY_STALE_REPLAY_SEPARATELY")
-        payload = {"kind": "TIMER"} if _timer else {"kind": "OBSERVATION", "event": event.model_dump(mode="json")}
+        payload = {"kind": "TIMER"} if _timer else {"kind": "OBSERVATION", "event": _durable_event_payload(event)}
         def transition(old):
             if old is None: raise Conflict("SESSION_NOT_STARTED")
             safety = self.safety()
