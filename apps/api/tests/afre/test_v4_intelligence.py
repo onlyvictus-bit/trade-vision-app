@@ -13,6 +13,7 @@ from app.orb.adaptive.derivatives import (
     capabilities as derivative_capabilities,
 )
 from app.orb.adaptive.features import extract
+from app.orb.adaptive.registry import coverage
 from app.orb.adaptive.risk_context import RiskContextSnapshot, capabilities as risk_capabilities
 from app.orb.adaptive.runtime import EventBatch, advance_session, new_session
 from app.orb.adaptive.scenario_detection import detect
@@ -65,17 +66,32 @@ def _risk_context(**updates):
     return RiskContextSnapshot(**base)
 
 
-def test_large_gap_is_exactly_one_point_five_atr_without_hidden_percent_floor():
+def test_large_gap_is_strictly_greater_than_one_point_five_atr_without_hidden_percent_floor():
     p = policy()
     at_boundary = snapshot(rows=[(103.0, 103.2, 102.8, 103.0)])
+    above = snapshot(rows=[(103.01, 103.2, 102.8, 103.0)])
     below = snapshot(rows=[(102.99, 103.1, 102.8, 103.0)])
     a = extract(at_boundary, p)
-    b = extract(below, p)
+    b = extract(above, p)
+    c = extract(below, p)
     assert a["gap_atr"] == pytest.approx(1.5)
-    assert a["gap_class"] == "LARGE_GAP_UP"
+    assert a["gap_class"] == "GAP_UP"
     assert a["large_gap_threshold_pct"] == pytest.approx(3.0)
-    assert b["gap_atr"] < 1.5
-    assert b["gap_class"] == "GAP_UP"
+    assert b["gap_atr"] > 1.5
+    assert b["gap_class"] == "LARGE_GAP_UP"
+    assert c["gap_atr"] < 1.5
+    assert c["gap_class"] == "GAP_UP"
+
+
+def test_public_b05_uses_actual_policy_cutoff_not_source_reference_time():
+    cutoff = clock_ns(DAY, 615)
+    features = {"elapsed_minutes": 60, "gap_atr": 0.5}
+    before = coverage(features, (), cutoff - 1, cutoff)
+    at_cutoff = coverage(features, (), cutoff, cutoff)
+    assert before["B05"] == "NOT_OBSERVED_IN_VALID_PREFIX"
+    assert at_cutoff["B05"] == "OBSERVED_CLOCK_FLAG"
+    assert before["X05"] == "ENTRY_WINDOW_OPEN"
+    assert at_cutoff["X05"] == "ENTRY_WINDOW_EXPIRED"
 
 
 def test_derivatives_overlay_calculates_full_registered_task3_metrics_on_front_expiry():
