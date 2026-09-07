@@ -14,6 +14,8 @@ continued through `v2.02-derivatives` (coded + finished, research-only):
   into core)
 - v2.02-derivatives ORB Derivatives Intelligence (OFF-by-default dormant,
   22/22 gates, ATR parity DONE)
+- AFRE v3.1 + TradePlan v1 migrated (working tree; M5 re-proof owed, proofs don't transfer)
+- D6 M2 shadow adapter built (dormant, output-neutral; M3 gates + paper decision open)
 
 Tip authority: `docs/IMPLEMENTATION_STATUS.md` (939 passed 2026-09-07 — 914 baseline
 + 26 repair gates; vendor half parked for G0 capture). v1.94

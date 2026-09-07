@@ -260,6 +260,7 @@ def run_paper_guidance_p1(
     )
     receipts.append(arbiter_receipt)
     _record_engine_state(arbiter_receipt, engines_run, engines_skipped, warnings)
+    _run_d6_shadow(arbiter_request, arbiter, execution_risk, snapshot, series, request)
 
     final_band = _paper_band_from_arbiter(arbiter.final_decision)
     confidence_cap = min(
@@ -1197,3 +1198,69 @@ def _paper_band_from_arbiter(final_decision: str) -> str:
     if final_decision in {"WAIT", "WATCH", "AVOID"}:
         return final_decision
     return "WAIT"
+
+
+def _run_d6_shadow(arbiter_request, arbiter, execution_risk, snapshot, series, request) -> None:
+    """M2-D: run the D6 shadow comparator once per P1 run. Output-neutral by design.
+
+    Returns None always; the divergence record goes to a bounded sidecar JSONL file
+    (never into guidance, receipts, warnings, or hashes). Flag off (default) returns
+    before importing anything or touching the filesystem.
+    """
+    import os
+
+    if os.getenv("TRADEVISION_D6_SHADOW", "off").strip().lower() != "on":
+        return
+    from .d6_shadow_adapter import compare, risks_from_spine
+
+    bars = list(getattr(series, "bars", []) or [])
+    if not bars:
+        return
+    try:
+        from .point_in_time_guard import timeframe_duration_ns
+
+        duration_ns = timeframe_duration_ns(snapshot.timeframe)
+        last_open_ns = int(bars[-1].timestamp_ns)
+        # relative_strength arrives 0..1 in the arbiter request; the arbiter's own
+        # vote uses (x*2-1), so the adapter receives the identical transform.
+        layer_scores = {layer: float(getattr(arbiter_request, field, 0.0) or 0.0)
+                        for layer, field in
+                        (("market_regime", "market_regime_score"), ("structure_levels", "structure_score"),
+                         ("volume_auction", "volume_auction_score"), ("indicators", "indicator_signal_score"))}
+        layer_scores["relative_strength"] = float(getattr(arbiter_request, "relative_strength_score", 0.5) or 0.0) * 2.0 - 1.0
+        record = compare(
+            symbol=snapshot.symbol, timeframe=snapshot.timeframe, direction=arbiter_request.direction,
+            layer_scores=layer_scores,
+            risks=risks_from_spine(
+                trap_score=float(getattr(arbiter_request, "trap_score", 0.0) or 0.0),
+                event_risk_score=float(getattr(arbiter_request, "event_risk_score", 0.0) or 0.0),
+                data_quality_pass=bool(getattr(arbiter_request, "data_quality_pass", False)),
+                liquidity_grade=str(getattr(arbiter_request, "liquidity_grade", "UNKNOWN")),
+                execution_slippage_risk=float(getattr(execution_risk, "slippage_risk", 0.0) or 0.0)),
+            snapshot_id=snapshot.snapshot_hash, session_id=str(getattr(snapshot, "session_id", snapshot.symbol)),
+            bar_open_ns=last_open_ns, bar_close_ns=last_open_ns + int(duration_ns),
+            decision_ns=int(snapshot.decision_time_ns),
+            entry=None, stop=None, target=None, entry_plan_authority_present=False,
+            evidence_count=int(getattr(arbiter_request, "evidence_count", 0) or 0),
+            minimum_evidence_count=int(getattr(arbiter_request, "minimum_evidence_count", 30) or 30),
+            short_logic_enabled=bool(getattr(arbiter_request, "short_logic_enabled", False)),
+            data_quality_pass=bool(getattr(arbiter_request, "data_quality_pass", False)),
+            arbiter_band=str(getattr(arbiter, "final_decision", "WAIT")))
+    except Exception:
+        return  # Shadow must never break guidance; unrecordable divergence is dropped.
+    if record is None:
+        return
+    path = os.getenv("TRADEVISION_D6_SHADOW_LOG", "data/d6_shadow_divergence.jsonl")
+    try:
+        lines: list[str] = []
+        if os.path.isfile(path):
+            with open(path, encoding="utf-8") as handle:
+                lines = handle.read().splitlines()
+        lines.append(json.dumps({"adapter_version": record.adapter_version, "input_hash": record.input_hash,
+                                 "arbiter_band": record.arbiter_band, "d6_status": record.d6_status,
+                                 "d6_side": record.d6_side, "d6_permission": record.d6_permission,
+                                 "causes": list(record.causes)}, sort_keys=True))
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.write("\n".join(lines[-500:]) + "\n")
+    except OSError:
+        pass

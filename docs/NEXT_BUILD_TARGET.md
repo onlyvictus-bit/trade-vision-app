@@ -22,8 +22,9 @@ Primary delivered purpose:
 ## Verification Snapshot
 
 ```text
-Full backend regression (2026-09-07): 939 passed, 0 failed, 4 skipped (repair wave incl.)
+Full backend regression (2026-09-07): 1215 passed, 0 failed, 4 skipped (D6 M2 incl.)
 v2.02 repair focused: 26 passed (G3/G4-logic/G5/G6/G7/G8/G11-mech/G12); bundle 22 preserved
+D6 focused: 230 vendored + 14 adapter tests green; adapter dormant, output-neutral wiring
 v2.02 derivatives bundle: 22 passed | v2.01 scenario gates: 8 passed (incl. day-type predictor branches + boundaries)
 v1.96 catalog gates: 9 passed | v1.97 timing gates: 10 passed
 v1.89-v1.94 ORB suites: 36 passed | spine+orb paper suites: 74 passed

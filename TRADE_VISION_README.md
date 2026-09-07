@@ -56,9 +56,11 @@ not yet wired into `orb/core.py`; 8 scenario gates passed).
 SMA-seeded Wilder canonical, IV/skew surfacing warn/info only; 22/22 gates
 passed in host). No trading authority change: research-only, live blocked.
 
-Verified 2026-09-07: full backend 939 passed / 0 failed / 4 skipped (914 baseline
-+ 26 repair gates: G3/G4-logic/G5/G6/G7/G8/G11-mech/G12; vendor half parked for
-G0 capture). Frontend typecheck/build passed (v1.97; no frontend change since).
+Verified 2026-09-07: full backend 1215 passed / 0 failed / 4 skipped (composition:
+939 repair-wave baseline + 12 repair-test growth + 20 tradeplan kernel + 230 D6
+vendored + 14 D6 adapter; tip authority IMPLEMENTATION_STATUS). D6 dormant,
+vendor half parked for G0 capture. Frontend typecheck/build passed (v1.97;
+no frontend change since).
 
 ## What Trade Vision Is
 
@@ -138,8 +140,8 @@ D:\Projects\trading-platforms\stock-app\trade-vision-app
 ```text
 latest_completed_version = v2.02-derivatives
 latest_completed_title = Derivatives Subsystem Live (dormant) - Greeks/chain analytics ready for future broker data
-latest_completed_status = implemented-and-verified (derivatives 22/22; ATR parity DONE; repair wave 26 passed; full backend 939 passed / 0 failed / 4 skipped)
-last_full_backend_regression = 939 passed (0 failed, 4 skipped), 2026-09-07
+latest_completed_status = implemented-and-verified (derivatives 22/22; ATR parity DONE; repair wave 26 passed; D6 M2 adapter 14 green; full backend 1215 passed / 0 failed / 4 skipped)
+last_full_backend_regression = 1215 passed (0 failed, 4 skipped), 2026-09-07
 latest_focused = v2.02-repair 26 passed (vendor half parked for G0); v2.01 scenarios 8 passed; v1.97 timing 10 passed; BEL re-proof ELIGIBLE (combo ba1121c6, WF 3/4)
 latest_ui = typecheck/build passed (v1.97; no frontend change since)
 current_mode = research / mock / paper-review only

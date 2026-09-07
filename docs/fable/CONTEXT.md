@@ -5,11 +5,11 @@ Last updated: 2026-09-07
 Objective: harden the completed Paper Guidance + ORB simulated-paper path
 (through v2.02-derivatives, research-only).
 
-Current milestone: v2.02-derivatives implemented-and-verified; tip authority is
-`docs/IMPLEMENTATION_STATUS.md` (full backend 939 passed 2026-09-07 = 914 baseline
-+ 26 repair gates G3/G4-logic/G5/G6/G7/G8/G11-mech/G12; bundle 22 preserved;
-BEL re-proof ELIGIBLE combo ba1121c6 WF 3/4; playbook a1c78a28 ACTIVE;
-vendor half G0/G1/G2/G9/G10 PARKED for capture; frontend unchanged since v1.97).
+Current milestone: v2.02-derivatives + AFRE-3.1/D6-M2 implemented; tip authority is
+`docs/IMPLEMENTATION_STATUS.md` (full backend 1215 passed 2026-09-07; D6 adapter
+dormant + output-neutral; AFRE-3.0 proofs + BEL do NOT transfer; BEL re-proof
+ELIGIBLE combo ba1121c6 WF 3/4, playbook a1c78a28 ACTIVE; vendor half
+G0/G1/G2/G9/G10 PARKED for capture; frontend unchanged since v1.97).
 
 Approved scope:
 

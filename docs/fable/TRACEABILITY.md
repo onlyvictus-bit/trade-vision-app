@@ -42,8 +42,14 @@ Last updated: 2026-09-07 (tip: v2.02-derivatives + repair wave, 939 passed; auth
 | TV-RPR-006 replay | G6 | `integration.py`, `fixtures.py` | REPLAY-001/002 | verified |
 | TV-RPR-007 health | G7 | `api.py` | health matrix | verified |
 | TV-RPR-008 storage | G8 | `store.py` | STORE-001 | verified |
-| TV-RPR-009 v1.73 wiring | G9 | PARKED for G0 | BRIDGE-001/002 | parked |
-| TV-RPR-010 AFRE wiring | G10 | PARKED for G0 | AFRE-001..004 | parked |
+| TV-RPR-009 v1.73 wiring | G9 | `execution_event_oi_risk.py` + `main.py` (flag-gated) + `integration.py` resolver | BRIDGE-001/002 (re-verify vs capture post-G0) | verified |
+| TV-RPR-010 AFRE wiring | G10 | `bridges.py` + `adaptive/research.py` seam | AFRE-001..004 (re-verify vs capture post-G0) | verified |
 | TV-RPR-011 provenance | G11-mech | `contracts.py`, `service.py` | provenance tests (re-verify post-G1) | verified |
 | TV-RPR-012 walls/policy | G12 | `calculators.py`, `contracts.py`, `reasoning.py` | wall + policy tests | verified |
 | TV-RPR-013 repair wave | G3/G4-logic/G5/G6/G7/G8 | provider/store/api/reasoning/integration/fixtures | 26 repair tests + 939 full | verified |
+| TV-RPR-014 provisional vendor model | G1/G2/G4-names | `openalgo.py` (strict join, 50-cap, fingerprint) | OPENALGO-001/002 + join-failure tests (confirm at G0) | verified |
+| TV-D6-001 vendor-add | D6 M1 | `tradevision_d6/`, `tests/d6/`, `tools/` | 230 vendored tests | verified |
+| TV-D6-002 shadow adapter | D6 M2 | `behavior/d6_shadow_adapter.py` + spine call site (flag-gated) | 14 adapter tests + wiring neutrality | verified |
+| TV-D6-003 acceptance gates | D6 M3 | — | NOT started; paper decision blocked | planned |
+| TV-AFRE-031 migration | AFRE M1-M3 | `orb/tradeplan/`, `adaptive/*` migration, export re-mark | kernel 20 + host verify + 971 full | verified |
+| TV-AFRE-032 fresh proof | AFRE M5 | — | NOT started; 3.0 proofs void | planned |

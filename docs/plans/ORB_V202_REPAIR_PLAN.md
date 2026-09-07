@@ -48,14 +48,15 @@ Contract/PIT/replay/bridge/E2E test wave → full regression → SHADOW acceptan
 
 ## Re-sequence addendum (authorized 2026-09-07: "build remaining, paste creds later")
 
-G0 capture is pending operator credentials. Until they arrive, the vendor-dependent
-gates are PARKED (G1, G2, G4 field-name confirmation, G9, G10, OPENALGO-001/002,
-BRIDGE-*, AFRE-*, E2E-001, captured-contract tests) and the vendor-independent
-gates build in this order: G8 → G7 → G3 → G5 → G6 → G4-logic → G12 → G11-mechanism.
-Rules for the interim: no rewrite against the unwitnessed vendor schema; G4 removes
-fabricated defaults but real field-name mapping stays deferred to G1; G11 builds the
-hash-chain mechanism on the current input set and is re-verified post-G1; synthetic
-fixtures used below are canonical-domain (in-code), never vendor-JSON shaped.
+G0 capture is pending operator credentials. The vendor-independent gates built first
+(G8 → G7 → G3 → G5 → G6 → G4-logic → G12 → G11-mech); then, on further authorization
+("finish all coding now"), G1/G2/G9/G10 were ALSO built against the provisional
+vendor model with strict enforcement (loud mismatch, never silent) — see "Build status
+2026-09-07 (vendor-independent half DONE)" and the G1/G2/G9/G10 implementation notes.
+Truly parked for capture: G0 itself, vendor-truth confirmation of G1/G2/G4 names,
+and the captured-contract/AFRE-live test wave. Synthetic fixtures used are
+canonical-domain (in-code) except clearly-labeled provisional-model vendor shapes,
+which G0 must confirm or revise (pivot condition stands).
 
 ## Build status 2026-09-07 (vendor-independent half DONE)
 

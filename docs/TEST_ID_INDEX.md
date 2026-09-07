@@ -22,12 +22,12 @@ apps/api/tests/test_orb_derivatives_repair_v202r.py
 Current observed regression size:
 
 ```text
-v2.02-repair full backend regression (2026-09-07): 939 passed, 0 failed, 4 skipped
+v2.02+D6 full backend regression (2026-09-07): 1215 passed, 0 failed, 4 skipped
   command: python -m pytest apps/api/tests -q
-repair focused module: 26 passed (test_orb_derivatives_repair_v202r.py:
-  STORE-001, health matrix, OPENALGO-003/004/005/006 mechanics, PIT-001..004,
-  REQUIRED/OPTIONAL policy, REPLAY-001/002, wall top_k/persistence, provenance,
-  api 422/503 mapping, malformed-body guard)
+repair focused module: 37 passed (test_orb_derivatives_repair_v202r.py)
+D6 focused modules: 230 vendored (tests/d6) + 14 adapter (test_d6_shadow_adapter.py:
+  determinism, risk monotonicity, no-fallback, abstains, wiring neutrality)
+tradeplan kernel: 20 passed (tests/tradeplan)
 v1.94 full backend regression (2026-07-24): 715 passed, 0 failed (historical)
   command: python -m pytest apps/api/tests -q
 v1.94 focused module: 32 passed
