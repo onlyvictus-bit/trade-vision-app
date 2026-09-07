@@ -19,6 +19,30 @@ from .derivatives import DerivativesSnapshot, calculate as calculate_derivatives
 from .risk_context import RiskContextSnapshot, capabilities as risk_capabilities
 
 
+_DERIVATIVE_CAPABILITY_NAMES = frozenset({
+    "DERIVATIVES_CONTEXT", "VIX", "VIX_COMA", "VIX_HIGH", "VIX_SPIKE",
+    "IV_RANK", "IV_RANK_HIGH", "IV_TERM_INVERSION", "IV_CRUSH", "SKEW_25D",
+    "PCR", "PCR_EXTREME_HIGH", "PCR_EXTREME_LOW", "OI_BUILDUP",
+    "OI_LONG_BUILDUP", "OI_SHORT_BUILDUP", "OI_SHORT_COVERING", "OI_LONG_UNWINDING",
+    "OI_FLAT_OR_AMBIGUOUS", "MAX_PAIN_NEAR", "DEALER_GEX", "POSITIVE_DEALER_GAMMA",
+    "NEGATIVE_DEALER_GAMMA", "VANNA", "CHARM", "EXPIRY_DAY", "ROLLOVER",
+    "ROLLOVER_STRONG_POSITIVE_BASIS", "FUTURES_BASIS", "FUTURES_BASIS_POSITIVE",
+    "FUTURES_BASIS_NEGATIVE", "GIFT_GAP_EXTREME", "INDEX_GAP_EXTREME",
+    "FII_INDEX_FUTURES", "FII_SHORT_EXTREME", "FII_SHORT_LIGHT",
+})
+
+_RISK_CAPABILITY_NAMES = frozenset({
+    "RISK_CONTEXT", "RESULT_DAY", "RBI_MPC_WINDOW", "MACRO_EVENT_DAY", "EX_DIVIDEND",
+    "EX_DIVIDEND_ADJUSTED", "EX_DIVIDEND_UNADJUSTED", "NEWS_SHOCK", "CIRCUIT_LOCK",
+    "SURVEILLANCE_RESTRICTED", "ILLIQUID_OR_SLIPPAGE", "FNO_BAN", "FEED_LAG",
+    "BAD_TICK", "ORDER_REJECTED", "BROKER_SQUAREOFF_RISK", "PIT_VIOLATION",
+    "BACKTEST_LIVE_MISMATCH", "OI_WALL_REJECTION", "GAMMA_SQUEEZE",
+    "ROLLOVER_DISTORTION", "EDGE_DECAY", "OVERFIT_RISK", "SMALL_SAMPLE",
+    "SECTOR_DIVERGENCE", "INDEX_ALIGNED_LONG", "INDEX_ALIGNED_SHORT",
+    "BREADTH_SUPPORTS_LONG", "BREADTH_SUPPORTS_SHORT",
+})
+
+
 class EventBatch(Frozen):
     event_id: Identifier
     available_ns: Annotated[int, Field(strict=True, gt=0)]
@@ -122,33 +146,44 @@ def pending_invalidation(position: Position, decision: Decision) -> str | None:
 
 
 def _merge_context_capabilities(state: SessionState, event: EventBatch, quarantine: list[str]) -> dict[str, tuple[Capability, ...]]:
-    """Calculate raw context snapshots before the normal capability reducer."""
-    merged: dict[str, list[Capability]] = {symbol: list(rows) for symbol, rows in event.capabilities.items()}
+    """Merge independently refreshed context families without stale cross-loss.
 
-    for symbol, snap in event.derivatives.items():
-        if symbol not in state.universe or snap.session_date.isoformat() != state.session_date:
-            quarantine.append("DERIVATIVES_CONTEXT_OUTSIDE_FROZEN_SESSION_OR_UNIVERSE")
-            continue
-        try:
-            rows = derivatives_capabilities(calculate_derivatives(snap))
-        except (ValueError, ArithmeticError, OverflowError):
-            quarantine.append("DERIVATIVES_CONTEXT_CALCULATION_FAILED")
-            continue
-        merged.setdefault(symbol, []).extend(rows)
-
-    for symbol, snap in event.risk_contexts.items():
-        if symbol not in state.universe or snap.session_date.isoformat() != state.session_date:
-            quarantine.append("RISK_CONTEXT_OUTSIDE_FROZEN_SESSION_OR_UNIVERSE")
-            continue
-        try:
-            rows = risk_capabilities(snap)
-        except ValueError:
-            quarantine.append("RISK_CONTEXT_CALCULATION_FAILED")
-            continue
-        merged.setdefault(symbol, []).extend(rows)
-
+    Explicit `event.capabilities[symbol]` keeps the historical replace-all
+    semantics. When only a raw derivatives or risk snapshot is refreshed, the
+    other family's still-present expiring records are preserved and the
+    refreshed family's records are atomically replaced.
+    """
+    symbols = set(event.capabilities) | set(event.derivatives) | set(event.risk_contexts)
     result: dict[str, tuple[Capability, ...]] = {}
-    for symbol, rows in merged.items():
+    for symbol in symbols:
+        rows = list(event.capabilities[symbol]) if symbol in event.capabilities else list(state.capabilities.get(symbol, ()))
+
+        if symbol in event.derivatives:
+            snap = event.derivatives[symbol]
+            if symbol not in state.universe or snap.session_date.isoformat() != state.session_date:
+                quarantine.append("DERIVATIVES_CONTEXT_OUTSIDE_FROZEN_SESSION_OR_UNIVERSE")
+                continue
+            try:
+                new_rows = derivatives_capabilities(calculate_derivatives(snap))
+            except (ValueError, ArithmeticError, OverflowError):
+                quarantine.append("DERIVATIVES_CONTEXT_CALCULATION_FAILED")
+                continue
+            rows = [x for x in rows if x.name not in _DERIVATIVE_CAPABILITY_NAMES]
+            rows.extend(new_rows)
+
+        if symbol in event.risk_contexts:
+            snap = event.risk_contexts[symbol]
+            if symbol not in state.universe or snap.session_date.isoformat() != state.session_date:
+                quarantine.append("RISK_CONTEXT_OUTSIDE_FROZEN_SESSION_OR_UNIVERSE")
+                continue
+            try:
+                new_rows = risk_capabilities(snap)
+            except ValueError:
+                quarantine.append("RISK_CONTEXT_CALCULATION_FAILED")
+                continue
+            rows = [x for x in rows if x.name not in _RISK_CAPABILITY_NAMES]
+            rows.extend(new_rows)
+
         names = [x.name for x in rows]
         if len(names) != len(set(names)):
             quarantine.append("DUPLICATE_CAPABILITY_NAME")
@@ -237,8 +272,6 @@ def advance_session(state: SessionState, event: EventBatch, controller: Controll
         prefixes[b.symbol] = old + (b,)
         changed = True
 
-    # Canonical raw contexts are reduced to the same Capability contract used
-    # by manually supplied verified references. No second decision path exists.
     incoming_capabilities = _merge_context_capabilities(state, event, quarantine)
     caps = dict(state.capabilities)
     for symbol, records in incoming_capabilities.items():
