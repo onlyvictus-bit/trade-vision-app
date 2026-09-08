@@ -1,93 +1,357 @@
 # Next Build Target
 
-Last reviewed: 2026-09-06
+Last reviewed: 2026-09-08
 
-## Latest Completed Functional Build
+## Latest Completed Engineering Milestone
 
 ```text
-v2.01 - ORB Opening Scenarios + day-type validation + options readiness audit
+AFRE v4 production hardening — MERGED to main
+merge commit: 83070628bf153557ac6f5f54a025866bd484f76d
+PR #1: merged 2026-09-08
 ```
 
-Primary delivered purpose:
+AFRE v4 now provides the adaptive ORB evidence/risk layer that was previously
+only planned in the old v2.00 context-native roadmap:
 
-- the full D1-D8 flow is verified end-to-end on REAL HSTRY market data
-  (RELIANCE 5000 bars: D1 9/9 -> snapshot -> 8/9 receipts -> WATCH);
-- data quality is session-aware: overnight/weekend/holiday closures are
-  info-level, only intraday gaps are warnings (real history can now pass D1);
-- snapshot indicator evidence computes on a bounded 400-bar window
-  (latency guard satisfied on any snapshot size, window disclosed);
-- 49/94 indicators compute at runtime; registry 86 validated / 7 proxy /
-  1 blocked; PTA marker stack fixed (was silently dead v1.86-v1.98).
+- all 18 registered ORB variants are assessed from the same causal snapshot;
+- all 30 source A-G failure scenarios are detected with explicit
+  `OBSERVED`, `RISK_ARMED`, `NOT_OBSERVED`, and `UNOBSERVABLE` semantics;
+- deterministic derivatives calculations cover VIX/IV/PCR/OI/max-pain/GEX/
+  basis/rollover/GIFT/FII evidence;
+- `DerivativesSnapshot` and `RiskContextSnapshot` enter the existing reducer
+  and become `Capability[]` rather than creating a separate BUY/SELL engine;
+- strict large-gap semantics remain `gap > 1.5 x prior ATR`;
+- dealer-signed GEX remains unavailable unless dealer-position sign is
+  explicitly supplied;
+- hard controller vetoes survive runtime/public-ticket projection;
+- paper promotion remains proof + authority + synchronized-universe + safety
+  + human-approval gated;
+- no live broker route was introduced.
 
 ## Verification Snapshot
 
 ```text
-Full backend regression (2026-09-06): 891 passed, 0 failed (chunked)
-v2.01 scenario gates: 8 passed (incl. day-type predictor branches + boundaries)
-v1.96 catalog gates: 9 passed | v1.97 timing gates: 10 passed
-v1.89-v1.94 ORB suites: 36 passed | spine+orb paper suites: 74 passed
-Flow re-audit baseline: scripts/flow_reaudit.py (runbook: docs/runbooks/flow-reaudit.md)
-Real-run artifacts: data/orb_research/ (BEL +60.2R @ 09:15-09:20, PF 1.30)
-Day-type validation: delete/daytype_validation.json (2685 sessions: TREND 0.30 = chance, RANGE 0.248 < chance)
-Options audit: request-field plugs + wall math present; Black-Scholes / chain fetcher / D-1 store missing
+AFRE CI run #18 (2026-09-08): SUCCESS
+AFRE targeted: 144 passed, 4 skipped, 0 failed
+
+Dynamic full-suite regression gate:
+  base main d5d7e8b1: 5 failed, 887 passed, 4 skipped
+  AFRE PR candidate: 5 failed, 899 passed, 4 skipped
+  new PR failure IDs: 0
+
+The five remaining failures are inherited baseline failures:
+  1. 9C real-runtime computed-count mismatch
+  2. PTA marker output-count mismatch
+  3. IndicatorFeatureBlock synthetic_fallback literal mismatch
+  4. missing HSTRY RELIANCE_NSE_5m.csv fixture in CI
+  5. Windows PowerShell parser test on Ubuntu
 ```
 
-## Recommended Next Work
+The CI gate compares the PR's complete pytest failure set with the exact base
+revision. It does not hide failures through a permanent hard-coded deselect
+list.
+
+### Proof/fingerprint status
+
+The AFRE code fingerprint now recursively includes decision-relevant
+`.py/.json/.toml/.yaml/.yml` files beneath `app/orb/adaptive`, including future
+nested subpackages. This is intentionally fail-closed:
 
 ```text
-BEL prove DONE (2026-08-26): VERDICT=ELIGIBLE, proof ab7b3163,
-holdout PF 1.271 (+12.08R / 126 unseen trades), walk-forward 4/4 folds passed.
-BEL PROMOTED (2026-08-26): playbook a1c78a28 active (BEL 5m, breakout,
-09:15-09:20, RR 3.0, close confirmation); verified matched by the v1.92
-guidance on real bars (orb_ticket present).
-
-Candidate queue (in value order):
-
-1. Gap-morning focused test (gap days + first 30-60 min + CPR vote) - the
-   trader's actual game, still untested (broad V1 test covered all trades)
-2. Daily ORB timing ritual on TrendForge picks (operational, no build)
-   - paste symbols or use symbols_source=trendforge_latest
-2. Accumulate 30 completed paper outcomes -> PERSISTED_INDICATOR_MEMORY
-   receipt turns completed on its own (operational, no build)
-3. v1.95 (still proposed, not built) - Active Evidence Loading And API Fast-Lane
-4. pta_entropy latency fix (14.5s scipy rolling histogram) -> then validate
-5. Latency optimization for si_curve / si_rev_radar / si_ctz_gann / si_sfb_hybrid
-   -> then promote (runtime 49 -> 53)
-6. 6 remaining self-proxy indicators: external-path hardening or trigger samples
-7. v2.00 ORB Context-Native Upgrade (PROPOSED 2026-08-31; v2.1 2026-09-01;
-   v2.2 2026-09-02 first Kimi review; v2.3 2026-09-02 second Kimi submission;
-   v2.4 2026-09-03 third Kimi submission (consolidated): STOP-01 + REENTRY-01
-   + ENTRY-04 + top-10 now TRIPLE-confirmed, 10 new rules (CHASE-01,
-   ORPDC-01, EXIT-07, IDX-02...), VIX 5-band + ORW 1.0-skip majority priors -
-   plan only, awaiting milestone approval, no code yet)
-   - gap bias-lock (incl. large-gap trap protocol) + CPR wide/narrow filter +
-     PDH/PDL breakout family + execution realism (1R-half/trail exits,
-     capital-risk size_hint, daily circuit breaker) + raised proof thresholds
-   - plan: docs/plans/ORB_CONTEXT_NATIVE_PLAN_V2.md (milestones M1-M6 + §7/§8/
-     §9/§10 addenda: policy split, migration, staged grid, review mappings)
-   - rule spec: docs/plans/ORB_STRATEGY_MEMORANDUM.md v2.4 (rule IDs
-     GAP/TRAP/CPR/ZONE/EXIT/CTX + EVENT/UNIV/IDX/VIX/DERIV/EXP/AFT/VWAP
-     layers + §7A.7/§7A.9 calibration register; worked examples 1A/1B/2/3/4)
-   - verification: docs/plans/ORB_V2_JUDGE_FINDINGS.md (five passes) +
-     docs/plans/ORB_V201_VERIFIED_ANSWER.md (three submissions: 1 wrong/
-     13 missed/11 right · 4 corrections/11 misses/13 conflicts · 0 contra/
-     10 new/6 triple-confirmed)
-   - reviews archived verbatim (all four submissions, byte-exact):
-     docs/plans/ORB_V201_PRECODE_REVIEW_KIMI.md (sub 1, retro)
-     + ORB_V201_NSE_REVIEW_KIMI.md (sub 2) +
-     ORB_V201B_NSE_REVIEW_KIMI_PART2.md (sub 3) +
-     ORB_V201C_NSE_REVIEW_KIMI_PART3.md (sub 4)
-   - cheapest pre-test before any code: pre-registered (H1/H2/H3 incl.
-     CPR-vs-close-location redundancy), per-layer go/no-go
+AFRE code changed
+    -> old reviewed code fingerprint no longer matches
+    -> old reviewed proof cannot authorize paper promotion
+    -> fresh real-data proof + review is required
 ```
 
-## Standing Operational Ritual (no build required)
+Do not treat the merge itself as a new proven trading edge or paper authority.
+
+---
+
+## Current Highest-Value Engineering Target
+
+# Canonical Decision Spine / Brain Orchestration
+
+The project has enough specialist intelligence. The next architecture problem
+is authority and wiring: several modules can look like they produce a final
+decision even though the product requirement calls for one organized pipeline,
+one boss arbiter, one decision language, and one `PaperTradeGuidance` result.
+
+Build this on a **new branch / PR**, not by reopening AFRE PR #1.
+
+Recommended branch name:
 
 ```text
-Daily: send TrendForge picks -> ORB timing run (60-90s per stock, 5m)
-       -> per-stock best-window table -> optionally 1m refine top-20
-       per-stock full check: python scripts/stock_verify.py SYMBOL
-Weekly: review data/orb_research/ leaderboards; promote nothing without
-        walk-forward proof + explicit approval
-Anytime flow looks wrong: python scripts/flow_reaudit.py (runbook first)
+decision-spine-orchestration-v1
 ```
+
+Target flow:
+
+```text
+ALL VERIFIED DATA
+        |
+        v
+CANONICAL MARKET SNAPSHOT
+        |
+        v
+CALCULATORS / FEATURES
+        |
+   +----+----+
+   |    |    |
+   v    v    v
+Price Context Memory
+   |    |    |
+   +----+----+
+        |
+        v
+HYPOTHESES
+        |
+        v
+STRATEGY / ORB / AFRE
+        |
+        v
+DERIVATIVES / EVENTS
+        |
+        v
+FAILURE ENGINE
+        |
+        v
+EXECUTION + RISK REALITY
+        |
+        v
+FINAL CONFLUENCE
+ONE FINAL-BAND AUTHORITY
+        |
+        v
+PROOF / SAFETY GATE
+        |
+        v
+FINAL DECISION
+        |
+        v
+JARVIS READ-ONLY PRESENTATION
+```
+
+## Ordered Build Sequence
+
+### 1. Engine Authority Registry
+
+Classify every engine before changing wiring.
+
+Minimum fields:
+
+```text
+engine_id
+module
+classification
+may_propose
+may_veto
+may_downgrade
+may_set_final_band
+may_execute
+authority_rank
+canonical_consumer
+legacy_or_current
+```
+
+Target authority model:
+
+| Engine | Role | Propose? | Veto? | Final band? |
+|---|---|---:|---:|---:|
+| Candle Anatomy | calculator | No | No | No |
+| Condition Classifier | evidence | No | limited | No |
+| Session / Pattern Memory | memory evidence | No | No | No |
+| Hypothesis Engine | scenario evidence | No | No | No |
+| ORB / AFRE | strategy/scenario | Yes | Yes | No |
+| Derivatives / RiskContext | evidence/risk | No | Yes | No |
+| Failure Detector | risk/veto | No | Yes | No |
+| Execution/Event/OI Risk | execution-risk gate | No | Yes | No |
+| Risk Engine | risk gate | No | Yes | No |
+| Kronos | reviewer/prior | No | No | No |
+| Gemini / Grok | reviewer | No | No | No |
+| Twin Arbiter | conflict/downgrade evidence | No | downgrade | No |
+| Jarvis Arbiter/Fusion | compatibility/aggregation during migration | No | no upgrade | No |
+| Jarvis Master Panel | presenter | No | No | No |
+| **Final Confluence Arbiter / D6** | **final authority** | **Yes** | **Yes** | **YES** |
+| Jarvis Trading Decision Output | presenter | No | No | No |
+
+### 2. Canonical `DecisionContext`
+
+One point-in-time evidence contract should contain:
+
+```text
+identity: symbol / timeframe / decision_time / snapshot_hash / watermark
+input_integrity: data_quality / PIT / freshness / quarantine
+price_structure / candle_anatomy / levels / regime / session
+index / sector / relative_strength
+indicators
+memory / historical_analogs
+hypotheses
+strategy_candidates / orb_variants / afre_scenarios
+derivatives / events / failure_scenarios
+execution_quality / portfolio_risk
+blockers / warnings
+proof_status / paper_authority
+provenance / engines_run / evidence_versions / capability_sources
+```
+
+No final arbiter or reviewer should secretly fetch and reconstruct a different
+market worldview while deciding.
+
+### 3. Canonical `FinalDecision` / `PaperTradeGuidance`
+
+One product result should contain at least:
+
+```text
+action: WAIT | WATCH | AVOID | PAPER-CANDIDATE
+bias: LONG | SHORT | NEUTRAL
+market_story
+primary_setup + state
+alternative_scenarios[]
+derivatives_summary
+failure_check[]
+historical_evidence
+entry_plan: side / zone / trigger / stop / targets / invalidation / RR
+wait_for[]
+avoid_if[]
+main_blocker
+evidence_confidence
+data_quality / PIT / proof_status / paper_authority
+reason_for[] / reason_against[] / warnings[] / hard_blockers[]
+engines_run[]
+live_trading_blocked = true
+order_routing_enabled = false
+```
+
+### 4. Sole final authority
+
+Make Final Confluence / D6 the only component that sets the product final band.
+During migration, preserve old outputs as read-only comparison evidence until
+replay tests prove safe equivalence/downgrades.
+
+### 5. Real derivatives/risk providers
+
+The AFRE calculators are implemented, but real upstream population remains a
+separate integration task.
+
+Correct flow:
+
+```text
+OpenAlgo / verified NSE sources
+        -> provider adapters
+        -> canonical option/futures/VIX/FII/event snapshots
+        -> DerivativesSnapshot / RiskContextSnapshot
+        -> existing calculators
+        -> Capability[]
+        -> same DecisionContext
+```
+
+Do not create a second derivatives BUY/SELL engine.
+
+Every provider must preserve source identity, exchange/instrument identity,
+observation/receive timestamps, expiry/session identity, freshness/TTL,
+completeness, normalization version, provenance/hash where practical, and
+fail-closed missing/invalid behavior.
+
+### 6. Integration tests
+
+Before retiring duplicate authority paths, test:
+
+- contradictory bullish indicators vs hard structure/risk veto;
+- external AI disagreement cannot upgrade hard WAIT/NO_TRADE;
+- Kronos cannot override risk;
+- AFRE confirmed variant cannot bypass proof;
+- `UNOBSERVABLE` derivative/event input stays unobservable;
+- stale/future capability cannot influence a decision;
+- identical `DecisionContext` hash replays deterministically;
+- hard veto survives every API/UI projection;
+- no code path can set `order_routing_enabled=true` or enable live broker use.
+
+---
+
+## Proof Milestone After Wiring
+
+Only after the decision spine and real evidence wiring are stable, run the
+**gap-morning focused historical experiment**.
+
+Factor grid:
+
+```text
+Gap size
+x CPR width/location
+x OR width
+x ORB variant
+x VWAP
+x Nifty alignment
+x sector alignment
+x volume
+x VIX
+x PCR/OI
+x expiry state
+x failure scenarios
+```
+
+Minimum measurements:
+
+```text
+Win rate
+Expectancy
+Profit factor
+Max drawdown
+False-break rate
+Stop-out rate
+MFE
+MAE
+Time-to-target
+Failure type
+Regime dependency
+Sample count
+OOS consistency
+Walk-forward consistency
+transaction-cost sensitivity
+slippage sensitivity
+```
+
+Selection remains train-only, followed by unseen holdout and expanding/repeated
+walk-forward proof. Do not promote an in-sample winner directly.
+
+Then:
+
+```text
+historical replay
+ -> unseen holdout
+ -> walk-forward
+ -> approved playbook
+ -> real-market observation
+ -> WAIT / WATCH / PAPER-CANDIDATE
+ -> human approve
+ -> paper result
+ -> outcome memory
+ -> edge-decay monitoring
+```
+
+No automatic live trading.
+
+---
+
+## Standing Operational Work (Does Not Block The Architecture Milestone)
+
+- Continue daily ORB timing runs on TrendForge picks when useful.
+- Continue accumulating completed paper outcomes for memory maturity.
+- Keep latency/proxy-indicator cleanup as bounded maintenance work.
+- Keep baseline 9C/PTA, HSTRY-fixture and PowerShell/Linux failures visible;
+  fix them in their owning milestones rather than changing AFRE trading logic.
+
+## Source Documents
+
+Read in this order for the next architecture build:
+
+1. `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`
+2. `docs/plans/FINAL_REQUIRED_FLOW.md`
+3. `docs/plans/PROJECT_GOD_VIEW_FOR_AI.md`
+4. `docs/SAFETY_INVARIANTS.md`
+5. this file
+
+Current dated AFRE merge/status evidence:
+
+- `docs/AFRE_V4_MERGE_STATUS_2026-09-08.md`
