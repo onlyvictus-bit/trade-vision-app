@@ -4,59 +4,73 @@ Last reviewed: 2026-09-08
 
 > **Canonical status source:** `docs/CANONICAL_BUILD_STATUS.md`
 >
-> Do not advance milestone state in this file. Every coding/audit session must start from the canonical status document and update milestone truth there after verified commits/tests.
+> Do not advance milestone state in this file independently. Every coding/audit session starts from the canonical status document.
 
-## Current milestone
+## Current truth
 
-**M2 — Canonical DecisionContext real-pipeline construction**
+**M2 — Canonical DecisionContext: GREEN / LOCKED**
 
-Active branch: `decision-spine-orchestration-v1`
+Verified source head:
+`105561fc4908db6c18c32f9fd1a81ae5570f680f`
 
-M0 is GREEN/LOCKED. M1 authority-registry foundation is GREEN/scope-locked. M2 contract foundation is green, but the M2 milestone is still **IN BUILD**.
-
-## Immediate scope
+Verification workflow:
+`M2 DecisionContext` run `34233061074` — **SUCCESS**
 
 ```text
-D2 approved snapshot
-        ↓
-Stage-2 engine receipts
-        ↓
-Stage2IntegrityReport
-        ↓
-Canonical DecisionContext
-        ↓
-context_hash / provenance
-        ↓
-existing D6 unchanged
+DecisionContext contract                    34 passed
+Paper Guidance DecisionContext adapter      13 passed
+M2 real-pipeline integration + D6 parity    10 passed
+M0 Stage2 integrity regression              15 passed
+Paper Guidance v1.88 regression             29 passed
+full apps/api/tests/test_api.py             556 passed
+authority / sole-D6 / zero-execution        PASS
 ```
 
-Before M2 may be marked GREEN, close every gate in `docs/CANONICAL_BUILD_STATUS.md` §5, including:
+M2 now constructs a deterministic D2-causal DecisionContext inside the real Paper Guidance route before the unchanged D6 request. Missing specialists remain explicit `UNAVAILABLE/SKIPPED`; no neutral substitution, paper authority, trade authority or parallel final decision was introduced.
 
-- exact `EvidenceBlock.source_engine` membership in the supplied `Stage2IntegrityReport`;
-- Stage2 availability/source-mode compatibility;
-- `freshness == BLOCK` rejection;
-- explicit reasons for degraded/unknown/blocking input-integrity state;
-- real Paper Guidance -> DecisionContext adapter with no refetch or neutral substitution;
-- inactive ORB/AFRE/9C/PTA kept explicit `SKIPPED/UNAVAILABLE`;
-- deterministic D2 -> Stage2 -> DecisionContext replay identity;
-- changed closed candle -> changed snapshot/context hash;
-- Stage2 BLOCK -> no DecisionContext;
-- `context_hash` and provenance recorded without changing D6 behavior;
-- targeted + Paper Guidance + full API regression + safety/authority checks;
-- commit and audit before changing M2 to `GREEN / LOCKED`.
+## Next eligible milestone
 
-## Do not start M3 yet
+**M3 — Brain migration**
 
-M3 specialist migration starts only after M2 is fully GREEN/LOCKED in the canonical tracker.
+State: **NOT STARTED**
 
-Do not remove legacy D6 neutral placeholders inside M2 in a way that changes current D6 behavior. M2 first makes missing evidence explicit in the canonical context; M3 migrates the real specialist evidence and removes corresponding legacy placeholders with replay parity.
+Do not begin M3 in the M2 lock/docs patch. The next coding session should start by re-reading `docs/CANONICAL_BUILD_STATUS.md`, verifying the branch/head, and opening M3 deliberately.
 
-## Core rule
+Recorded M3 order:
+
+```text
+M3.1 price / candle / levels / indicators / MTF
+M3.2 regime / session / index / sector / relative strength
+M3.3 memory / historical analogs / 9C / PTA
+M3.4 hypotheses / strategy candidates / ORB / AFRE
+M3.5 derivatives / events / failure scenarios
+M3.6 execution quality / behavior risk / portfolio/cooldown
+M3.7 reviewer evidence: Kronos / Gemini / Grok / OpenAlgo / Twin
+```
+
+For every migrated family:
+- use the same D2-causal DecisionContext identity;
+- emit explicit availability/provenance;
+- remove only the matching legacy placeholder after replay parity;
+- add contradiction/adversarial tests;
+- never create another public final decision;
+- preserve D6 as sole final-band authority.
+
+## Still intentionally deferred
+
+Legacy D6 compatibility placeholders remain for M3 migration:
+
+```python
+relative_strength_score = 0.5
+indicator_signal_score  = 0.0
+external_ai_score       = 0.0
+weak_sector             = False
+```
+
+Real canonical freshness/quarantine assessors are also not fabricated; M2 reports them as `UNKNOWN` with reasons until verified providers/assessors are wired.
+
+## Core rules
 
 > **One milestone -> implement -> test -> audit -> commit -> GREEN -> lock.**
 
-And:
-
 > **Many brains may disagree internally. Only one decision may leave the brain.**
-
-Full M0-M12 roadmap, exit gates, safety/proof separation, current code-audit findings and future-session procedure are in `docs/CANONICAL_BUILD_STATUS.md`.
