@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import json
+import time
 
 from app.behavior.decision_spine.price_structure_evidence import (
     PRICE_STRUCTURE_EVIDENCE_VERSION,
     build_price_structure_evidence,
 )
+from app.behavior.paper_guidance_spine_m3_1_impl import validate_zero_authority_price_evidence
 
 
 SNAPSHOT = "a" * 64
+DECISION = 1_800_000_000_000_000_000
 
 
 def _receipt(engine: str, hash_char: str, summary: dict, status: str = "completed"):
@@ -61,7 +64,7 @@ def _mtf(records=None, status="AVAILABLE"):
 def test_m31f_001_builds_bounded_zero_authority_price_world():
     result = build_price_structure_evidence(
         snapshot_hash=SNAPSHOT,
-        decision_time_ns=1_800_000_000_000_000_000,
+        decision_time_ns=DECISION,
         local_receipts=_locals(),
         mtf_receipt=_mtf([{"timeframe": "15m", "availability": "AVAILABLE", "bias": "bullish", "confirmed": True}]),
     )
@@ -71,6 +74,7 @@ def test_m31f_001_builds_bounded_zero_authority_price_world():
     assert payload["source_snapshot_hash"] == SNAPSHOT
     assert payload["local"]["structure_hash"]
     assert payload["mtf"]["mtf_hash"] == "f" * 64
+    validate_zero_authority_price_evidence(payload)
     assert payload["may_propose"] is False
     assert payload["may_veto"] is False
     assert payload["may_downgrade"] is False
@@ -85,7 +89,7 @@ def test_m31f_001_builds_bounded_zero_authority_price_world():
 def test_m31f_002_preserves_mtf_internal_contradiction_instead_of_scoring_it():
     result = build_price_structure_evidence(
         snapshot_hash=SNAPSHOT,
-        decision_time_ns=1_800_000_000_000_000_000,
+        decision_time_ns=DECISION,
         local_receipts=_locals(),
         mtf_receipt=_mtf(
             [
@@ -104,7 +108,7 @@ def test_m31f_003_unavailable_mtf_never_becomes_neutral_alignment():
     mtf = _mtf([], status="UNAVAILABLE")
     result = build_price_structure_evidence(
         snapshot_hash=SNAPSHOT,
-        decision_time_ns=1_800_000_000_000_000_000,
+        decision_time_ns=DECISION,
         local_receipts=_locals(),
         mtf_receipt=mtf,
     )
@@ -116,7 +120,7 @@ def test_m31f_003_unavailable_mtf_never_becomes_neutral_alignment():
 def test_m31f_004_upstream_hashes_are_explicit_and_traceable():
     result = build_price_structure_evidence(
         snapshot_hash=SNAPSHOT,
-        decision_time_ns=1_800_000_000_000_000_000,
+        decision_time_ns=DECISION,
         local_receipts=_locals(),
         mtf_receipt=_mtf(),
     )
@@ -130,3 +134,21 @@ def test_m31f_004_upstream_hashes_are_explicit_and_traceable():
     assert result.dag["valid"] is True
     assert result.dag["cycle_count"] == 0
     assert result.dag["future_node_count"] == 0
+
+
+def test_m31f_005_fusion_latency_and_payload_are_bounded():
+    started = time.perf_counter()
+    last = None
+    for _ in range(100):
+        last = build_price_structure_evidence(
+            snapshot_hash=SNAPSHOT,
+            decision_time_ns=DECISION,
+            local_receipts=_locals(),
+            mtf_receipt=_mtf([{"timeframe": "15m", "availability": "AVAILABLE", "bias": "bullish", "confirmed": True}]),
+        )
+    elapsed_ms = (time.perf_counter() - started) * 1000.0
+    assert last is not None
+    payload_bytes = len(json.dumps(last.as_dict(), sort_keys=True).encode("utf-8"))
+    # Loose anti-pathology threshold, not a production SLO or trading-edge claim.
+    assert elapsed_ms < 2000.0
+    assert payload_bytes < 24_000
