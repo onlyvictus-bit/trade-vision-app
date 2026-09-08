@@ -8,6 +8,7 @@ on:
     paths:
       - apps/api/app/behavior/decision_spine/snapshot_feature_kernel.py
       - apps/api/app/behavior/decision_spine/canonical_level_intelligence.py
+      - apps/api/app/behavior/decision_spine/canonical_mtf_intelligence.py
       - apps/api/app/behavior/decision_spine/price_structure_evidence.py
       - apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py
       - apps/api/app/behavior/decision_spine/__init__.py
@@ -65,6 +66,7 @@ jobs:
             apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py \
             apps/api/app/behavior/decision_spine/snapshot_feature_kernel.py \
             apps/api/app/behavior/decision_spine/canonical_level_intelligence.py \
+            apps/api/app/behavior/decision_spine/canonical_mtf_intelligence.py \
             apps/api/app/behavior/candle_anatomy.py \
             apps/api/app/behavior/condition_classifier.py \
             apps/api/app/behavior/chart_reasoning_volatility.py \
@@ -88,6 +90,10 @@ jobs:
       - name: M3.1-D canonical indicator intelligence tests
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_m3_1_indicator_pipeline.py
+
+      - name: M3.1-E PIT-safe MTF intelligence tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_1_mtf_pipeline.py
 
       - name: Locked M2 DecisionContext regression
         working-directory: apps/api
