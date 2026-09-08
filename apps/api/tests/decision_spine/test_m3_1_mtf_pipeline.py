@@ -95,7 +95,6 @@ def test_m31e_001_partial_15m_bar_never_gets_authority():
 
 
 def test_m31e_002_no_closed_htf_bar_is_typed_unavailable():
-    duration = timeframe_duration_ns("30m")
     decision = BASE_NS + 7 * 60 * 1_000_000_000
     result = _build([_series("30m", 1)], decision_time_ns=decision, required=["30m"])
     record = result.records[0]
@@ -148,7 +147,7 @@ def test_m31e_005_symbol_identity_mismatch_is_unavailable():
     assert record.reason_code == "SYMBOL_IDENTITY_MISMATCH"
 
 
-def test_m31e_006_non_monotonic_clock_is_fail_closed():
+def test_m31e_006_non_monotonic_closed_clock_is_fail_closed():
     duration = timeframe_duration_ns("15m")
     decision = BASE_NS + 5 * duration
     series = _series("15m", 3)
@@ -210,3 +209,18 @@ def test_m31e_010_no_authority_and_epistemic_limits_are_explicit():
     assert result.epistemic["official_exchange_calendar_verified"] is False
     assert result.epistemic["corporate_action_adjustment_verified"] is False
     assert result.epistemic["freshness_verified"] is False
+
+
+def test_m31e_011_incomplete_future_bar_cannot_perturb_causal_mtf_hash():
+    duration = timeframe_duration_ns("15m")
+    decision = BASE_NS + 3 * duration + 7 * 60 * 1_000_000_000
+    closed_only = _series("15m", 3)
+    with_incomplete = _series("15m", 4)
+    first = _build([closed_only], decision_time_ns=decision, required=["15m"])
+    second = _build([with_incomplete], decision_time_ns=decision, required=["15m"])
+    assert first.mtf_hash == second.mtf_hash
+    assert first.records[0].source_snapshot_hash == second.records[0].source_snapshot_hash
+    assert first.records[0].source_series_hash == second.records[0].source_series_hash
+    assert first.records[0].bias == second.records[0].bias
+    assert first.records[0].confirmed == second.records[0].confirmed
+    assert second.records[0].excluded_incomplete_bars == 1
