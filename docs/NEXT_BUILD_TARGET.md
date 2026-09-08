@@ -4,7 +4,7 @@ Last reviewed: 2026-09-08
 
 > **Canonical status source:** `docs/CANONICAL_BUILD_STATUS.md`
 >
-> Do not infer milestone state from chat history or implementation presence. Advance only from verified repository lock evidence.
+> Repository code/tests are the temporary truth when status documentation lags. Do not infer GREEN/LOCKED from implementation presence alone.
 
 ## Current truth
 
@@ -20,93 +20,116 @@ M3.1-C  Canonical Level Intelligence         GREEN / LOCKED
 M3.1-D  Canonical Indicator Intelligence     GREEN / LOCKED
 M3.1-E  PIT-safe MTF Intelligence            GREEN / LOCKED
 M3.1-F  Price Evidence Fusion / DAG / parity GREEN / LOCKED
-M3.2+   Later brain-family migration         NEXT / NOT STARTED
+M3.2    Canonical Context Intelligence       IN BUILD
+M3.2-A  Context source contract              IMPLEMENTED / CI-GATED
+M3.2-B  Canonical Session Intelligence       IMPLEMENTED / VERIFICATION IN PROGRESS
+M3.2-C  Canonical Index/Sector Context       NEXT ACTIVE SUB-MILESTONE
+M3.2-D  Canonical Relative Strength          NOT STARTED
+M3.2-E  Canonical Market Regime              NOT STARTED
+M3.2-F  Context fusion / receipts / lock     NOT STARTED
+M3.3    Canonical Memory Intelligence        DESIGN STAGED / RUNTIME NOT ACTIVE
 M4      D6 orchestration redesign            NOT STARTED / D6 EXISTS
 ```
 
-## M3.1 lock evidence
+## M3.1 locked predecessor
 
-Pre-documentation exact source head:
-
-`a346ca62ddc960e0402b7df661bb3215cfa45a7b`
-
-Workflow:
-
-`M3.1 Canonical Price Intelligence`
-
-Run:
-
-`34254621808` — **SUCCESS**
-
-Observed gate summary:
+M3.1 is already GREEN / LOCKED. Its exact pre-documentation verification remains:
 
 ```text
-A snapshot kernel                              15 passed
-B candle pipeline                              13 passed
-C level intelligence                           15 passed
-D indicator intelligence                       12 passed
-E PIT-safe MTF                                 11 passed
-F price evidence                                5 passed
-F replay/metamorphic                            4 passed
-F adversarial DAG                               8 passed
-M2 DecisionContext                             34 passed
-M2 standalone adapter                         13 passed
-M2 Paper Guidance / D6 parity                 10 passed
-M0 Stage2                                      15 passed
-v1.88                                          29 passed
-historical API                                556 passed
-entire API test tree                         1060 passed, 5 environment/resource skips
-sole-D6 / zero-execution authority             PASS
-exact triggering-commit checkout               PASS
+source head: a346ca62ddc960e0402b7df661bb3215cfa45a7b
+workflow:    M3.1 Canonical Price Intelligence
+run:         34254621808 — SUCCESS
 ```
 
-Locked D6 parity remains zero for `snapshot_hash`, `final_band`, `confidence_cap`, `next_action`, and `arbiter_summary` against the preserved legacy route.
-
-## M3.1 completion boundary
-
-M3.1 established one D2-causal price world without creating another decision authority:
+M3.2 branch was created from the locked M3.1 final head:
 
 ```text
-D2
- -> calculate-once SnapshotFeatureKernel
- -> canonical Candle Intelligence
- -> canonical Level Intelligence
- -> canonical Indicator Intelligence
- -> closed-only PIT-safe MTF
- -> contradiction-preserving Price Structure Evidence / DAG
- -> Stage2IntegrityReport
- -> DecisionContext
- -> CURRENT D6 UNCHANGED
+20d2d7b5889b09cd593401e8f70ec53cc299c51e
 ```
 
-The following remain invariant:
+## Active branch
+
+```text
+m3-2-context-intelligence
+```
+
+M3.2-A production boundary:
+
+```text
+apps/api/app/behavior/decision_spine/canonical_context_intelligence.py
+apps/api/tests/decision_spine/test_m3_2_context_contract.py
+```
+
+M3.2-B production boundary:
+
+```text
+apps/api/app/behavior/decision_spine/canonical_session_intelligence.py
+apps/api/tests/decision_spine/test_m3_2_session.py
+```
+
+Controlling plans/reference:
+
+```text
+docs/M3_2_CANONICAL_CONTEXT_INTELLIGENCE_ANALYSIS_AND_BUILD_PLAN_2026-09-08.md
+docs/M3_3_CANONICAL_MEMORY_INTELLIGENCE_ANALYSIS_AND_BUILD_PLAN_2026-09-08.md
+docs/M3_INTELLIGENCE_UPGRADE_REFERENCE_2026-09-08.md
+```
+
+## M3.2 engineering law
 
 ```text
 missing != neutral
 unknown != false
 unavailable != safe
+synthetic != real
 error != zero
-no_signal != unavailable
-no_output != neutral
-D1 outranks all
 no incomplete-bar authority
-FINAL_CONFLUENCE_ARBITER is sole final-band authority
+D1 outranks all specialists
+all active evidence is causal to D2
+FINAL_CONFLUENCE_ARBITER / D6 remains sole final-band authority
 zero execution authority
 ```
 
-## NEXT — M3.2+ later brain-family migration
+M3.2 does not redesign D6. It creates a canonical context world with explicit source identity, session state, index/sector facts, relative strength, regime evidence, contradictions and provenance.
 
-M3.2+ is now the next eligible program boundary, but it is **NOT STARTED** by the M3.1 lock.
+## NEXT ACTIVE BUILD — M3.2-C
 
-Before any M3.2 implementation:
+After M3.2-B exact-head verification is green, build Canonical Index/Sector Context.
 
-1. reread `docs/CANONICAL_BUILD_STATUS.md` and the controlling staged plan;
-2. inventory the exact next specialist family and its current runtime authority/data dependencies;
-3. preserve D1/D2 causality and explicit missingness;
-4. migrate evidence into DecisionContext without changing D6 semantics unless a later milestone explicitly authorizes that change;
-5. keep ORB redesign, derivatives migration, M4/D6 redesign and execution authority outside scope unless that next milestone specifically selects them;
-6. retain full replay/parity/adversarial/authority gates.
+Required properties:
 
-Known M3.1 provider caveats stay explicit: official exchange calendar authority, corporate-action provenance and external feed freshness/clock-skew proof are not fabricated by the M3.1 lock.
+1. independently frozen index and sector snapshots;
+2. exact provider/symbol/source-contract identity;
+3. source close-time and `available_at` proof;
+4. versioned freshness / clock-skew state;
+5. versioned benchmark mapping (`stock -> sector -> broad index`);
+6. explicit adjusted/raw lineage where comparative returns depend on it;
+7. no missing source converted to `0`, `neutral`, `false` or `0.5`;
+8. bounded deterministic receipt/hash;
+9. contradictions preserved;
+10. zero final-band and zero execution authority;
+11. replay/adversarial/parity coverage;
+12. locked M3.1/M2/M0/full-tree regressions remain green.
 
-Software verification is not market-edge proof. Walk-forward validation, costs/slippage, paper observation and promotion gates remain separate later work.
+## Intelligence upgrade direction
+
+The approved architecture reference adds these later requirements without prematurely activating them:
+
+- versioned NSE calendar authority;
+- benchmark mapping history;
+- corporate-action lineage;
+- real cross-market/breadth providers or explicit absent state;
+- regime hysteresis + confidence;
+- provider-specific freshness/skew SLOs;
+- memory label migration, retention/decay and quarantine;
+- multi-hypothesis reasoning with falsifiers;
+- calibrated self-model / OOD uncertainty;
+- offline information-value/curiosity queue;
+- explanation receipts;
+- failure-prediction receipts.
+
+These are engineering goals for broad, adaptive, contradiction-aware intelligence. They do not constitute a claim of literal AGI, guaranteed prediction correctness, or trading edge.
+
+## Current verification caveat
+
+The local execution environment used during this continuation could not resolve `github.com`, so independent local pytest execution was not available. The repository workflow has been extended to compile and run M3.2-A/M3.2-B plus locked regressions at the exact pushed commit. Do not mark M3.2-B GREEN / LOCKED until that workflow result is actually verified.
