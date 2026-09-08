@@ -85,17 +85,55 @@ Important: this foundation is **not yet wired into the production Paper Guidance
 
 ## Inherited Stage-2 defects assigned to M0
 
-### M0-A — 9C real-runtime provenance/count ambiguity
+### M0-C — `synthetic_fallback` contract drift — FIRST
 
-Current failure expected `real_runtime_computed_count=2`, observed 0. Runtime computation and real-market-data provenance are conflated. Fix the contract; never rename synthetic fallback as real to make the counter green.
+Sequence records accept it while `IndicatorFeatureBlock` does not. Align the model while forcing explanation-only, probability-disabled semantics. `synthetic_fallback` is explicit provenance and must never become real, probability authority, proof authority, or trade authority.
 
-### M0-B — PTA 23-selected versus actual-output ambiguity
+### M0-A — 9C runtime provenance/accounting — SECOND
 
-The registry has 23 marker slots, but optional dependency availability affects output. Track selected, probed, computed/no-signal, dependency-unavailable and errors separately. Never fabricate outputs. PTA remains non-authoritative for trade/probability.
+Separate the runtime accounting into:
 
-### M0-C — `synthetic_fallback` contract drift
+```text
+real computed
+synthetic fallback computed
+unavailable
+failed
+```
 
-Sequence records accept it while `IndicatorFeatureBlock` does not. Align the model while forcing explanation-only, probability-disabled semantics.
+Never count synthetic fallback as real. The accounting must reconcile to the promoted runtime indicator count and must preserve explicit unavailable/error states.
+
+### M0-B — PTA probe accounting — THIRD
+
+Replace misleading single-count interpretation with:
+
+```text
+selected_count
+probe_count
+computed_count
+no_signal_count
+dependency_unavailable_count
+error_count
+```
+
+Never fabricate a PTA result merely because a marker was selected/probed. PTA remains explanation/availability evidence only, with no probability or trading authority.
+
+## M0 real-pipeline wiring — FOURTH
+
+After M0-C/A/B are stabilized, wire the Stage-2 Evidence Integrity Gate into the actual Paper Guidance path:
+
+```text
+D2 Snapshot
+   ↓
+Stage-2 engine receipts / explicit migration observations
+   ↓
+Stage2IntegrityReport
+   ↓
+canonical evidence allowed forward
+   ↓
+D6 only if no hard integrity blocker
+```
+
+9C, PTA, ORB and AFRE must be explicit `SKIPPED/UNAVAILABLE` observations until their own D2-snapshot-native wiring exists. They must not be represented as neutral defaults or silently fetched through independent current-state paths.
 
 ## Milestone status
 
@@ -111,14 +149,28 @@ M7  Contradiction / veto / replay / safety integration    NOT STARTED
 M8  Real providers + historical/paper proof               NOT STARTED
 ```
 
+## Required M0 regression gate
+
+M0 is not complete until all affected tests are run and the result is recorded:
+
+1. 9C runtime/contract tests.
+2. PTA runtime/probe tests.
+3. Paper Guidance v1.88 Stage-2 tests.
+4. Decision Spine Stage-2 integrity tests.
+5. Relevant API regressions.
+6. Compile/import checks for every changed module.
+
+Only after this gate is green may M2 `DecisionContext` begin.
+
 ## Next code steps
 
-1. Wire `Stage2IntegrityReport` after Stage-2 receipts and before canonical context promotion.
-2. Add integration tests using real `PaperGuidanceEngineReceipt` objects.
-3. Repair M0-A/B/C without converting synthetic/unavailable evidence into fake real/clean evidence.
-4. Run existing Paper Guidance tests plus new Decision Spine tests.
-5. Build `DecisionContext` only after M0 contracts are stable.
-6. Replace neutral arbiter placeholders with availability-bearing evidence.
+1. Repair M0-C `synthetic_fallback` model and authority semantics.
+2. Repair M0-A 9C provenance accounting.
+3. Repair M0-B PTA probe accounting.
+4. Wire `Stage2IntegrityReport` after Stage-2 receipts and before D6/canonical-context promotion.
+5. Run the full affected regression set and repair any new regression without weakening safety semantics.
+6. Build `DecisionContext` only after M0 is green.
+7. Replace neutral arbiter placeholders with availability-bearing evidence during M2/M3, not by inventing values in M0.
 
 ## Safety invariants
 
@@ -135,3 +187,7 @@ synthetic != real
 external_ai != safety_authority
 ORB_or_AFRE_confirmation != proof_authority
 ```
+
+## CI note
+
+A guarded M0 branch workflow has been added to apply exact-scoped stabilization patches, compile the affected modules, run the focused regression gate, and commit source changes only after those checks pass. A workflow run—not the presence of the workflow file—is the evidence required before marking M0 green.
