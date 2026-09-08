@@ -7,6 +7,7 @@ on:
       - decision-spine-orchestration-v1
     paths:
       - scripts/m0_stage2_stabilization_patch.py
+      - scripts/m0_stage2_stabilization_fixup.py
       - .github/workflows/m0-stage2-stabilization.yml
       - apps/api/app/behavior/decision_spine/**
       - apps/api/tests/decision_spine/**
@@ -39,7 +40,9 @@ jobs:
           python -m pip install -r apps/api/requirements.txt
 
       - name: Apply exact-scoped M0 patch
-        run: python scripts/m0_stage2_stabilization_patch.py
+        run: |
+          python scripts/m0_stage2_stabilization_patch.py
+          python scripts/m0_stage2_stabilization_fixup.py
 
       - name: Compile affected modules
         run: |
