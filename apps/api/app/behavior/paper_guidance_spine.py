@@ -9,6 +9,7 @@ a time. This facade keeps the historical public import/monkeypatch surface
 stable.
 """
 
+import inspect
 from contextvars import ContextVar
 
 from ..models import CandleAnatomyRequest
@@ -30,6 +31,11 @@ from .decision_spine.stage2_integrity import (
     EvidenceObservation,
     SourceMode,
     build_stage2_integrity_report,
+)
+from .real_indicator_adapter import (
+    INDICATOR_EVIDENCE_VERSION,
+    REAL_RUNTIME_PROMOTED_INDICATORS,
+    build_indicator_evidence_summary,
 )
 
 # M3.1-B keeps the legacy module byte-preserved while allowing the migrated
@@ -61,6 +67,7 @@ _bound_feature_kernel: ContextVar[object | None] = ContextVar(
 )
 _legacy_level_context = _legacy.analyze_level_context
 _legacy_run_engine = _legacy._run_engine
+_legacy_snapshot_indicator_evidence = _legacy._snapshot_indicator_evidence
 
 
 def __getattr__(name: str):
@@ -136,6 +143,23 @@ def _build_m31_guarded_decision_context(**kwargs):
     if levels_receipt is None or not canonical_level_present:
         incomplete.append("LEVEL_CONTEXT")
 
+    # M3.1-D: a degraded indicator receipt may be truthful (for example
+    # insufficient warmup, dependency unavailable or slow-blocked). The block
+    # is required only when the canonical normalization layer did not run at all
+    # or did not bind its evidence to this D2 snapshot.
+    indicator_receipt = receipts.get("SNAPSHOT_INDICATOR_RUNTIME")
+    indicator_summary = (
+        getattr(indicator_receipt, "output_summary", {}) if indicator_receipt else {}
+    )
+    canonical_indicator_present = bool(
+        isinstance(indicator_summary, dict)
+        and indicator_summary.get("canonical_indicator_intelligence") is True
+        and indicator_summary.get("source_snapshot_hash")
+        == getattr(indicator_receipt, "source_snapshot_hash", None)
+    )
+    if indicator_receipt is None or not canonical_indicator_present:
+        incomplete.append("SNAPSHOT_INDICATOR_RUNTIME")
+
     if incomplete:
         detail = ", ".join(
             f"{engine_id}={getattr(receipts.get(engine_id), 'status', 'missing')}"
@@ -204,6 +228,149 @@ def _canonical_run_engine(engine_id, stage, snapshot, runner, summarizer):
         )
 
 
+def _runtime_accepts_provenance(runtime) -> bool:
+    try:
+        params = inspect.signature(runtime).parameters.values()
+    except (TypeError, ValueError):
+        return False
+    return any(param.kind is inspect.Parameter.VAR_KEYWORD for param in params) or {
+        "source_snapshot_hash",
+        "source_timeframe",
+    }.issubset({param.name for param in params})
+
+
+def _canonical_snapshot_indicator_evidence(request, snapshot):
+    """Build bounded D2-bound canonical indicator evidence without D6 changes."""
+
+    selected = sorted(
+        set(request.indicator_ids)
+        if request.indicator_ids
+        else REAL_RUNTIME_PROMOTED_INDICATORS
+    )
+    unsupported = [item for item in selected if item not in REAL_RUNTIME_PROMOTED_INDICATORS]
+    runnable = [item for item in selected if item in REAL_RUNTIME_PROMOTED_INDICATORS]
+    snapshot_bars = snapshot.closed_ohlcv_bars
+    compute_bars = snapshot_bars[-_legacy.SNAPSHOT_INDICATOR_WINDOW_BARS :]
+    candles = [
+        {
+            "event_time": _legacy._iso_from_ns(bar.timestamp_ns),
+            "open": bar.open,
+            "high": bar.high,
+            "low": bar.low,
+            "close": bar.close,
+            # Preserve missingness. M3.1-D must not silently turn None into 0.0.
+            "volume": bar.volume,
+        }
+        for bar in compute_bars
+    ]
+    warnings = (
+        [f"Indicators are not promoted for real snapshot runtime: {', '.join(unsupported)}."]
+        if unsupported
+        else []
+    )
+
+    try:
+        runtime = compute_real_indicator_outputs_with_telemetry
+        if _runtime_accepts_provenance(runtime):
+            outputs, telemetry = runtime(
+                candles,
+                runnable,
+                source_snapshot_hash=snapshot.snapshot_hash,
+                source_timeframe=snapshot.timeframe,
+            )
+        else:
+            # Existing tests and public monkeypatch hooks may still expose the
+            # historical two-argument callable. Keep that surface working, but
+            # classify the canonical normalization as degraded because those
+            # test doubles do not provide per-indicator D2 provenance.
+            outputs, telemetry = runtime(candles, runnable)
+
+        canonical = build_indicator_evidence_summary(telemetry)
+        canonical_accounting_complete = int(canonical.get("accounted_count", 0)) == len(runnable)
+        degraded_ids = [
+            str(item.get("indicator_id"))
+            for item in telemetry
+            if str(item.get("canonical_status") or item.get("status", "")).upper()
+            not in {"COMPUTED", "SLOW_WARN"}
+        ]
+        if degraded_ids:
+            warnings.append(
+                f"Indicators without usable snapshot output: {', '.join(degraded_ids)}."
+            )
+        if not canonical_accounting_complete:
+            warnings.append(
+                "Canonical indicator accounting is incomplete because one or more runtime rows "
+                "did not expose indicator-evidence.v1 observations."
+            )
+
+        summary = {
+            "indicator_ids": selected,
+            "promoted_indicator_ids": runnable,
+            "computed_count": len(outputs),
+            "telemetry": telemetry,
+            "source_timeframe": snapshot.timeframe,
+            "source_snapshot_hash": snapshot.snapshot_hash,
+            "source_bar_count": snapshot.bar_count,
+            "compute_window_bars": len(compute_bars),
+            "canonical_indicator_intelligence": True,
+            "canonical_status": (
+                "AVAILABLE"
+                if canonical_accounting_complete and not degraded_ids and not unsupported
+                else "DEGRADED"
+            ),
+            "canonical": canonical,
+            "used_for_final_vote": False,
+            "used_for_probability": False,
+            "trade_allowed": False,
+            "order_routing_enabled": False,
+            "live_trading_blocked": True,
+        }
+        status = (
+            "completed"
+            if summary["canonical_status"] == "AVAILABLE"
+            else "degraded"
+        )
+    except Exception as exc:
+        summary = {
+            "indicator_ids": selected,
+            "promoted_indicator_ids": runnable,
+            "computed_count": 0,
+            "telemetry": [],
+            "source_timeframe": snapshot.timeframe,
+            "source_snapshot_hash": snapshot.snapshot_hash,
+            "source_bar_count": snapshot.bar_count,
+            "compute_window_bars": len(compute_bars),
+            "canonical_indicator_intelligence": False,
+            "canonical_status": "ERROR",
+            "canonical": {
+                "calculation_version": INDICATOR_EVIDENCE_VERSION,
+                "requested_count": len(selected),
+                "accounted_count": 0,
+                "status_counts": {"ERROR": len(selected)},
+                "used_for_probability": False,
+                "may_set_final_band": False,
+                "may_execute": False,
+            },
+            "used_for_final_vote": False,
+            "used_for_probability": False,
+            "trade_allowed": False,
+            "order_routing_enabled": False,
+            "live_trading_blocked": True,
+        }
+        status = "degraded"
+        warnings.append(f"Snapshot indicator runtime degraded safely: {type(exc).__name__}: {exc}")
+
+    return summary, _legacy._receipt(
+        engine_id="SNAPSHOT_INDICATOR_RUNTIME",
+        stage="D3A_SETUP",
+        engine_version=INDICATOR_EVIDENCE_VERSION,
+        snapshot=snapshot,
+        status=status,
+        output_summary=summary,
+        warnings=warnings,
+    )
+
+
 def _sync_patchable_dependencies():
     """Honor public monkeypatch/test hooks without changing runtime semantics."""
 
@@ -215,6 +382,7 @@ def _sync_patchable_dependencies():
         if name in globals():
             setattr(_legacy, name, globals()[name])
 
+    _legacy._snapshot_indicator_evidence = _canonical_snapshot_indicator_evidence
     _m2.build_stage2_integrity_report = build_stage2_integrity_report
     _m2.build_canonical_stage2_observations = build_canonical_stage2_observations
     _m2.build_paper_guidance_decision_context = _build_m31_guarded_decision_context
@@ -237,6 +405,7 @@ def run_paper_guidance_p1(request, *, mode, kill_switch, config=None):
     _m2.build_snapshot_feature_kernel = build_and_bind_kernel
     _legacy.analyze_level_context = _canonical_level_context
     _legacy._run_engine = _canonical_run_engine
+    _legacy._snapshot_indicator_evidence = _canonical_snapshot_indicator_evidence
     _bound_feature_kernel.set(None)
     try:
         return _m2.run_paper_guidance_p1(
@@ -248,3 +417,4 @@ def run_paper_guidance_p1(request, *, mode, kill_switch, config=None):
     finally:
         _bound_feature_kernel.set(None)
         _m2.build_snapshot_feature_kernel = delegated_kernel_builder
+        _legacy._snapshot_indicator_evidence = _legacy_snapshot_indicator_evidence
