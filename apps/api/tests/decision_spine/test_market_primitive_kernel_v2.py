@@ -102,7 +102,6 @@ def test_m311_primitive_002_same_source_replays_same_hash_and_vectors():
 def test_m311_primitive_003_true_range_includes_gap_from_previous_close():
     closes = [100.0, 100.1, 104.0, 104.1, 104.2, 104.3, 104.4, 104.5, 104.6, 104.7, 104.8, 104.9, 105.0, 105.1, 105.2]
     snapshot = _snapshot(closes=closes)
-    # Force a true opening gap on bar 3 while preserving valid OHLC geometry.
     bar = snapshot.closed_ohlcv_bars[2].model_copy(update={"open": 103.8, "high": 104.1, "low": 103.7})
     snapshot = snapshot.model_copy(update={"closed_ohlcv_bars": [*snapshot.closed_ohlcv_bars[:2], bar, *snapshot.closed_ohlcv_bars[3:]]})
     source = build_snapshot_feature_kernel(snapshot)
@@ -115,7 +114,6 @@ def test_m311_primitive_003_true_range_includes_gap_from_previous_close():
 def test_m311_primitive_004_wilder_atr_is_distinct_from_legacy_average_range():
     closes = [100.0 + index * 0.05 for index in range(30)]
     snapshot = _snapshot(closes=closes)
-    # Introduce a gap so true range differs from candle range.
     changed = snapshot.closed_ohlcv_bars[14].model_copy(update={"open": 103.0, "high": 103.2, "low": 102.9, "close": 103.1})
     rows = list(snapshot.closed_ohlcv_bars)
     rows[14] = changed
@@ -191,9 +189,15 @@ def test_m311_primitive_011_price_scale_preserves_dimensionless_morphology_and_l
     base = build_market_primitive_kernel_v2(build_snapshot_feature_kernel(base_snapshot))
     scaled = build_market_primitive_kernel_v2(build_snapshot_feature_kernel(scaled_snapshot))
     for left, right in zip(base.vectors.body_ratios, scaled.vectors.body_ratios, strict=True):
-        assert left == pytest.approx(right) if left is not None else right is None
+        if left is None:
+            assert right is None
+        else:
+            assert right == pytest.approx(left)
     for left, right in zip(base.vectors.log_returns, scaled.vectors.log_returns, strict=True):
-        assert left == pytest.approx(right) if left is not None else right is None
+        if left is None:
+            assert right is None
+        else:
+            assert right == pytest.approx(left)
 
 
 def test_m311_primitive_012_rejects_corrupt_source_price_vector():
@@ -233,13 +237,15 @@ def test_m311_primitive_012_rejects_corrupt_source_price_vector():
         build_market_primitive_kernel_v2(broken)
 
 
-def test_m311_primitive_013_receipt_is_bounded_and_contains_no_decision_or_probability():
+def test_m311_primitive_013_receipt_is_bounded_and_contains_no_decision_output():
     kernel = _build()
     summary = kernel.receipt_summary()
     encoded = str(summary)
-    assert "final_band" not in encoded
-    assert "probability" in encoded  # only the explicit false authority field
+    assert "decision_band" not in encoded
+    assert "final_decision" not in encoded
     assert summary["authority"]["used_for_probability"] is False
+    assert summary["authority"]["may_set_final_band"] is False
+    assert summary["authority"]["may_execute"] is False
     assert len(encoded) < 12_000
 
 
