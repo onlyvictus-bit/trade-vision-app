@@ -3,14 +3,19 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from dataclasses import asdict, dataclass, fields
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
 from types import MappingProxyType
 from typing import Any, Mapping, Sequence
 
 from .authority_registry import get_engine_authority
-from .stage2_integrity import Availability, SourceMode, Stage2IntegrityReport
+from .stage2_integrity import (
+    Availability,
+    EngineIntegrityState,
+    SourceMode,
+    Stage2IntegrityReport,
+)
 
 
 DECISION_CONTEXT_VERSION = "decision-context.v1"
@@ -64,8 +69,18 @@ class InputIntegrity:
     def __post_init__(self) -> None:
         if not 0.0 <= float(self.data_quality) <= 1.0:
             raise DecisionContextError("data_quality must be within [0, 1]")
+        reasons = tuple(sorted({str(item).strip() for item in self.reasons if str(item).strip()}))
+        non_pass = (
+            self.pit_status is not IntegrityState.PASS
+            or self.freshness is not IntegrityState.PASS
+            or self.quarantine_status is not IntegrityState.PASS
+        )
+        if non_pass and not reasons:
+            raise DecisionContextError(
+                "DEGRADED, UNKNOWN, or BLOCK input integrity requires an explicit reason"
+            )
         object.__setattr__(self, "data_quality", float(self.data_quality))
-        object.__setattr__(self, "reasons", tuple(sorted({str(item) for item in self.reasons if str(item)})))
+        object.__setattr__(self, "reasons", reasons)
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,6 +93,7 @@ class EvidenceBlock:
     source_mode: SourceMode = SourceMode.VERIFIED_SNAPSHOT
     evidence_version: str = "v1"
     capability_source: str = ""
+    source_output_hash: str | None = None
     reasons: tuple[str, ...] = ()
     warnings: tuple[str, ...] = ()
     used_for_probability: bool = False
@@ -93,14 +109,26 @@ class EvidenceBlock:
             raise DecisionContextError("source_engine must be non-empty")
         if not _HASH_RE.fullmatch(self.source_snapshot_hash):
             raise DecisionContextError(f"{engine_id}: source_snapshot_hash must be SHA-256 hex")
+        if self.source_output_hash is not None and not _HASH_RE.fullmatch(self.source_output_hash):
+            raise DecisionContextError(f"{engine_id}: source_output_hash must be SHA-256 hex when present")
         if self.observed_at is not None and not _is_timezone_aware(self.observed_at):
             raise DecisionContextError(f"{engine_id}: observed_at must be timezone-aware")
-        reasons = tuple(sorted({str(item) for item in self.reasons if str(item)}))
-        warnings = tuple(sorted({str(item) for item in self.warnings if str(item)}))
-        if self.status in {Availability.UNAVAILABLE, Availability.SKIPPED, Availability.ERROR} and not reasons:
+        reasons = tuple(sorted({str(item).strip() for item in self.reasons if str(item).strip()}))
+        warnings = tuple(sorted({str(item).strip() for item in self.warnings if str(item).strip()}))
+        if self.status in {
+            Availability.DEGRADED,
+            Availability.UNAVAILABLE,
+            Availability.SKIPPED,
+            Availability.ERROR,
+        } and not reasons:
             raise DecisionContextError(f"{engine_id}: {self.status.value} evidence requires an explicit reason")
         object.__setattr__(self, "source_engine", engine_id)
         object.__setattr__(self, "source_snapshot_hash", self.source_snapshot_hash.lower())
+        object.__setattr__(
+            self,
+            "source_output_hash",
+            self.source_output_hash.lower() if self.source_output_hash is not None else None,
+        )
         object.__setattr__(self, "observed_at", self.observed_at.astimezone(timezone.utc) if self.observed_at else None)
         object.__setattr__(self, "evidence_version", self.evidence_version.strip() or "v1")
         object.__setattr__(self, "capability_source", self.capability_source.strip())
@@ -112,6 +140,7 @@ class EvidenceBlock:
         return {
             "source_engine": self.source_engine,
             "source_snapshot_hash": self.source_snapshot_hash,
+            "source_output_hash": self.source_output_hash,
             "status": self.status.value,
             "payload": _thaw(self.payload),
             "observed_at": _iso(self.observed_at),
@@ -135,6 +164,7 @@ class DecisionProvenance:
     engines_run: tuple[str, ...]
     evidence_versions: tuple[str, ...]
     capability_sources: tuple[str, ...]
+    source_output_hashes: tuple[str, ...]
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -142,6 +172,7 @@ class DecisionProvenance:
             "engines_run": list(self.engines_run),
             "evidence_versions": list(self.evidence_versions),
             "capability_sources": list(self.capability_sources),
+            "source_output_hashes": list(self.source_output_hashes),
         }
 
 
@@ -245,6 +276,21 @@ _NON_AUTHORITATIVE_PROBABILITY_MODES = {
     SourceMode.UNKNOWN,
 }
 
+_ALLOWED_STATUS_TRANSITIONS: dict[Availability, frozenset[Availability]] = {
+    Availability.AVAILABLE: frozenset(Availability),
+    Availability.DEGRADED: frozenset(
+        {
+            Availability.DEGRADED,
+            Availability.UNAVAILABLE,
+            Availability.SKIPPED,
+            Availability.ERROR,
+        }
+    ),
+    Availability.UNAVAILABLE: frozenset({Availability.UNAVAILABLE}),
+    Availability.SKIPPED: frozenset({Availability.SKIPPED}),
+    Availability.ERROR: frozenset({Availability.ERROR}),
+}
+
 
 def build_decision_context(
     *,
@@ -268,6 +314,8 @@ def build_decision_context(
         raise DecisionContextError("Stage2IntegrityReport is not eligible for canonical context construction")
     if input_integrity.pit_status is not IntegrityState.PASS:
         raise DecisionContextError("PIT status must PASS before DecisionContext construction")
+    if input_integrity.freshness is IntegrityState.BLOCK:
+        raise DecisionContextError("blocked freshness cannot enter DecisionContext")
     if input_integrity.quarantine_status is IntegrityState.BLOCK:
         raise DecisionContextError("quarantined input cannot enter DecisionContext")
 
@@ -280,28 +328,38 @@ def build_decision_context(
     if extra:
         raise DecisionContextError(f"unknown evidence blocks: {', '.join(extra)}")
 
+    stage2_by_engine = _stage2_state_index(stage2_integrity)
     normalized: dict[str, EvidenceBlock] = {}
     provenance_engines: set[str] = set()
     evidence_versions: set[str] = set()
     capability_sources: set[str] = set()
+    source_output_hashes: set[str] = set()
 
     for name in CANONICAL_EVIDENCE_FIELDS:
         block = evidence[name]
-        _validate_evidence_block(name=name, block=block, identity=identity)
+        _validate_evidence_block(
+            name=name,
+            block=block,
+            identity=identity,
+            stage2_by_engine=stage2_by_engine,
+        )
         normalized[name] = block
         provenance_engines.add(block.source_engine)
         evidence_versions.add(f"{name}:{block.evidence_version}")
         if block.capability_source:
             capability_sources.add(f"{name}:{block.capability_source}")
+        if block.source_output_hash:
+            source_output_hashes.add(f"{name}:{block.source_engine}:{block.source_output_hash}")
 
     provenance = DecisionProvenance(
         stage2_integrity_hash=stage2_integrity.output_hash,
         engines_run=tuple(sorted(provenance_engines)),
         evidence_versions=tuple(sorted(evidence_versions)),
         capability_sources=tuple(sorted(capability_sources)),
+        source_output_hashes=tuple(sorted(source_output_hashes)),
     )
-    canonical_blockers = tuple(sorted({str(item) for item in blockers if str(item)}))
-    canonical_warnings = tuple(sorted({str(item) for item in warnings if str(item)}))
+    canonical_blockers = tuple(sorted({str(item).strip() for item in blockers if str(item).strip()}))
+    canonical_warnings = tuple(sorted({str(item).strip() for item in warnings if str(item).strip()}))
     init_payload: dict[str, Any] = {
         "context_version": DECISION_CONTEXT_VERSION,
         "identity": identity,
@@ -343,11 +401,45 @@ def unavailable_evidence(
     )
 
 
-def _validate_evidence_block(*, name: str, block: EvidenceBlock, identity: DecisionIdentity) -> None:
+def _stage2_state_index(stage2_integrity: Stage2IntegrityReport) -> dict[str, EngineIntegrityState]:
+    index: dict[str, EngineIntegrityState] = {}
+    for state in stage2_integrity.engine_states:
+        engine_id = state.engine_id.upper()
+        if engine_id in index:
+            raise DecisionContextError(f"duplicate Stage2 engine state: {engine_id}")
+        index[engine_id] = state
+    return index
+
+
+def _validate_evidence_block(
+    *,
+    name: str,
+    block: EvidenceBlock,
+    identity: DecisionIdentity,
+    stage2_by_engine: Mapping[str, EngineIntegrityState],
+) -> None:
     if block.source_snapshot_hash != identity.snapshot_hash:
         raise DecisionContextError(f"{name}: snapshot hash mismatch")
     if get_engine_authority(block.source_engine) is None:
         raise DecisionContextError(f"{name}: unregistered source engine {block.source_engine}")
+    stage2_state = stage2_by_engine.get(block.source_engine)
+    if stage2_state is None:
+        raise DecisionContextError(
+            f"{name}: source engine {block.source_engine} is absent from the exact Stage2IntegrityReport"
+        )
+    if not stage2_state.registered or not stage2_state.snapshot_match or not stage2_state.identity_match:
+        raise DecisionContextError(f"{name}: Stage2 engine state is not causally valid")
+    allowed_statuses = _ALLOWED_STATUS_TRANSITIONS[stage2_state.availability]
+    if block.status not in allowed_statuses:
+        raise DecisionContextError(
+            f"{name}: evidence status {block.status.value} upgrades Stage2 status "
+            f"{stage2_state.availability.value}"
+        )
+    if block.source_mode is not stage2_state.source_mode:
+        raise DecisionContextError(
+            f"{name}: source_mode {block.source_mode.value} does not match Stage2 source_mode "
+            f"{stage2_state.source_mode.value}"
+        )
     if block.observed_at is not None and block.observed_at > identity.decision_time:
         raise DecisionContextError(f"{name}: future evidence detected")
     if block.neutral_default_substituted:
@@ -365,7 +457,9 @@ def _validate_evidence_block(*, name: str, block: EvidenceBlock, identity: Decis
 
 
 def _freeze_mapping(value: Mapping[str, Any]) -> Mapping[str, Any]:
-    return MappingProxyType({str(key): _freeze(item) for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))})
+    return MappingProxyType(
+        {str(key): _freeze(item) for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))}
+    )
 
 
 def _freeze(value: Any) -> Any:
