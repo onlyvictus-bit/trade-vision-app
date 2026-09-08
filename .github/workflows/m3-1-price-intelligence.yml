@@ -29,8 +29,13 @@ on:
       - apps/api/tests/decision_spine/test_m3_1_replay.py
       - apps/api/tests/decision_spine/test_m3_1_adversarial.py
       - apps/api/tests/decision_spine/test_decision_context.py
+      - apps/api/tests/decision_spine/test_paper_guidance_decision_context_adapter.py
       - apps/api/tests/decision_spine/test_paper_guidance_m2_context_integration.py
+      - apps/api/tests/test_orb_opening_scenarios_v201.py
+      - apps/api/tests/test_research_stack_verifier.py
       - apps/api/tests/test_paper_guidance_v188.py
+      - docs/CANONICAL_BUILD_STATUS.md
+      - docs/NEXT_BUILD_TARGET.md
       - .github/workflows/m3-1-price-intelligence.yml
 
 permissions:
@@ -40,11 +45,16 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout M3.1 branch
+      - name: Checkout exact triggering commit
         uses: actions/checkout@v4
         with:
-          ref: m3-1-canonical-price-intelligence
+          ref: ${{ github.sha }}
           fetch-depth: 0
+
+      - name: Verify exact checkout identity
+        run: |
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+          echo "Verified exact M3.1 head: ${GITHUB_SHA}"
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -112,6 +122,10 @@ jobs:
       - name: Locked M2 DecisionContext regression
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_decision_context.py
+
+      - name: Locked M2 standalone adapter regression
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_paper_guidance_decision_context_adapter.py
 
       - name: Locked M2 Paper Guidance integration regression
         working-directory: apps/api
