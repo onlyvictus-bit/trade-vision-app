@@ -62,6 +62,7 @@ def extract(s: MarketSnapshot, p: Policy) -> dict:
     prior = s.prior
     opening = bars[0].open
     gap = (opening - prior.close) / prior.close * 100
+    gap_atr = abs(opening - prior.close) / prior.atr14
     direction = Side.LONG if gap > 0 else Side.SHORT
     sign = direction.sign
     pivot = (prior.high + prior.low + prior.close) / 3
@@ -72,13 +73,15 @@ def extract(s: MarketSnapshot, p: Policy) -> dict:
     gap_touched = any(b.low <= prior.close if sign > 0 else b.high >= prior.close for b in bars)
     volume = sum(b.volume for b in bars)
     vwap = sum((b.high + b.low + b.close) / 3 * b.volume for b in bars) / volume if volume > 0 else None
-    large_cut = max(1.0, 1.4 * prior.atr14 / prior.close * 100)
-    gap_class = "FLAT" if abs(gap) <= p.gap_flat_pct + 1e-12 else ("LARGE_" if abs(gap) >= large_cut else "") + ("GAP_UP" if sign > 0 else "GAP_DOWN")
+    # Exact source-plan definition: large gap is strictly greater than 1.5x
+    # prior ATR. No hidden percentage floor is allowed across symbols.
+    large_cut = 1.5 * prior.atr14 / prior.close * 100
+    gap_class = "FLAT" if abs(gap) <= p.gap_flat_pct + 1e-12 else ("LARGE_" if gap_atr > 1.5 else "") + ("GAP_UP" if sign > 0 else "GAP_DOWN")
     count = p.range_minutes // p.feature_minutes
     locked = len(bars) >= count and bars[count - 1].close_ns == clock_ns(s.session_date, 555 + p.range_minutes)
     result = {
         "first_bar_range_atr": (bars[0].high-bars[0].low)/prior.atr14,
-        "range_locked": locked, "gap_pct": gap, "gap_class": gap_class,
+        "range_locked": locked, "gap_pct": gap, "gap_atr": gap_atr, "large_gap_threshold_pct": large_cut, "gap_class": gap_class,
         "gap_direction": direction.value, "gap_ever_touched_pdc": gap_touched,
         "elapsed_minutes": (s.as_of_ns-clock_ns(s.session_date,555))//MINUTE,
         "session_open": opening, "latest_close": bars[-1].close, "session_vwap": vwap, "cpr_pivot": pivot,
@@ -106,7 +109,6 @@ def extract(s: MarketSnapshot, p: Policy) -> dict:
     excursion = high if sign > 0 else low
     episode_start = post[0].event_id
     had_break = False
-    previous_outside = False
     episode_active = False
     for i, b in enumerate(post):
         outside = (b.close - trigger) * sign > 0
@@ -115,20 +117,16 @@ def extract(s: MarketSnapshot, p: Policy) -> dict:
         if outside:
             episode_active = True
         excursion = max(excursion, b.high) if sign > 0 else min(excursion, b.low)
-        # A close crossing back is observable even though high/low order isn't.
         if episode_active and (b.close - boundary) * sign <= 0:
             failures += 1
             episode_active = False
             last_failure = i
             last_failed_bar = b
-        # A wick rejection creates a rejection-watch, NOT an accepted-break
-        # failure count. A later independent close is still required for fade.
         swept = b.high > trigger if sign > 0 else b.low < trigger
         if not outside and swept and last_failed_bar is None:
             last_failure, last_failed_bar = i, b
         outside_count = outside_count + 1 if outside else 0
         had_break = had_break or outside
-        previous_outside = outside
     latest = post[-1]
     previous = post[-2] if len(post) > 1 else None
     outside = (latest.close - trigger) * sign > 0

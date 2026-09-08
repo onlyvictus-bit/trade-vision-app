@@ -15,6 +15,32 @@ from .contracts import (
 )
 from .controller import Controller
 from .execution import advance_position, cancel_pending, mark_unknown, start_position
+from .derivatives import DerivativesSnapshot, calculate as calculate_derivatives, capabilities as derivatives_capabilities
+from .risk_context import RiskContextSnapshot, capabilities as risk_capabilities
+
+
+_DERIVATIVE_CAPABILITY_NAMES = frozenset({
+    "DERIVATIVES_CONTEXT", "VIX", "VIX_COMA", "VIX_HIGH", "VIX_SPIKE",
+    "IV_RANK", "IV_RANK_HIGH", "IV_TERM_INVERSION", "IV_CRUSH", "SKEW_25D",
+    "PCR", "PCR_EXTREME_HIGH", "PCR_EXTREME_LOW", "OI_BUILDUP",
+    "OI_LONG_BUILDUP", "OI_SHORT_BUILDUP", "OI_SHORT_COVERING", "OI_LONG_UNWINDING",
+    "OI_FLAT_OR_AMBIGUOUS", "MAX_PAIN_NEAR", "DEALER_GEX", "POSITIVE_DEALER_GAMMA",
+    "NEGATIVE_DEALER_GAMMA", "VANNA", "CHARM", "EXPIRY_DAY", "ROLLOVER",
+    "ROLLOVER_STRONG_POSITIVE_BASIS", "FUTURES_BASIS", "FUTURES_BASIS_POSITIVE",
+    "FUTURES_BASIS_NEGATIVE", "GIFT_GAP_EXTREME", "INDEX_GAP_EXTREME",
+    "FII_INDEX_FUTURES", "FII_SHORT_EXTREME", "FII_SHORT_LIGHT",
+})
+
+_RISK_CAPABILITY_NAMES = frozenset({
+    "RISK_CONTEXT", "RESULT_DAY", "RBI_MPC_WINDOW", "MACRO_EVENT_DAY", "EX_DIVIDEND",
+    "EX_DIVIDEND_ADJUSTED", "EX_DIVIDEND_UNADJUSTED", "NEWS_SHOCK", "CIRCUIT_LOCK",
+    "SURVEILLANCE_RESTRICTED", "ILLIQUID_OR_SLIPPAGE", "FNO_BAN", "FEED_LAG",
+    "BAD_TICK", "ORDER_REJECTED", "BROKER_SQUAREOFF_RISK", "PIT_VIOLATION",
+    "BACKTEST_LIVE_MISMATCH", "OI_WALL_REJECTION", "GAMMA_SQUEEZE",
+    "ROLLOVER_DISTORTION", "EDGE_DECAY", "OVERFIT_RISK", "SMALL_SAMPLE",
+    "SECTOR_DIVERGENCE", "INDEX_ALIGNED_LONG", "INDEX_ALIGNED_SHORT",
+    "BREADTH_SUPPORTS_LONG", "BREADTH_SUPPORTS_SHORT",
+})
 
 
 class EventBatch(Frozen):
@@ -23,6 +49,8 @@ class EventBatch(Frozen):
     feature_bars: Annotated[tuple[Bar, ...], Field(max_length=100)] = ()
     execution_bars: Annotated[tuple[Bar, ...], Field(max_length=500)] = ()
     capabilities: dict[str, tuple[Capability, ...]] = Field(default_factory=dict)
+    derivatives: dict[str, DerivativesSnapshot] = Field(default_factory=dict)
+    risk_contexts: dict[str, RiskContextSnapshot] = Field(default_factory=dict)
     integrity_faults: tuple[str, ...] = ()
 
     @model_validator(mode="after")
@@ -35,6 +63,12 @@ class EventBatch(Frozen):
             raise ValueError("ONE_NEW_FEATURE_BAR_PER_SYMBOL_PER_BATCH")
         if any(c.available_ns > self.available_ns for cs in self.capabilities.values() for c in cs):
             raise ValueError("REFERENCE_FROM_FUTURE")
+        for symbol, snap in self.derivatives.items():
+            if symbol != snap.symbol or snap.available_ns > self.available_ns:
+                raise ValueError("DERIVATIVES_CONTEXT_IDENTITY_OR_FUTURE_MISMATCH")
+        for symbol, snap in self.risk_contexts.items():
+            if symbol != snap.symbol or snap.available_ns > self.available_ns:
+                raise ValueError("RISK_CONTEXT_IDENTITY_OR_FUTURE_MISMATCH")
         return self
 
 
@@ -111,6 +145,72 @@ def pending_invalidation(position: Position, decision: Decision) -> str | None:
     return None
 
 
+def _merge_context_capabilities(state: SessionState, event: EventBatch, quarantine: list[str]) -> dict[str, tuple[Capability, ...]]:
+    """Merge independently refreshed context families without stale cross-loss.
+
+    Explicit `event.capabilities[symbol]` keeps the historical replace-all
+    semantics. When only a raw derivatives or risk snapshot is refreshed, the
+    other family's still-present expiring records are preserved and the
+    refreshed family's records are atomically replaced.
+    """
+    symbols = set(event.capabilities) | set(event.derivatives) | set(event.risk_contexts)
+    result: dict[str, tuple[Capability, ...]] = {}
+    for symbol in symbols:
+        rows = list(event.capabilities[symbol]) if symbol in event.capabilities else list(state.capabilities.get(symbol, ()))
+
+        if symbol in event.derivatives:
+            snap = event.derivatives[symbol]
+            if symbol not in state.universe or snap.session_date.isoformat() != state.session_date:
+                quarantine.append("DERIVATIVES_CONTEXT_OUTSIDE_FROZEN_SESSION_OR_UNIVERSE")
+                continue
+            try:
+                new_rows = derivatives_capabilities(calculate_derivatives(snap))
+            except (ValueError, ArithmeticError, OverflowError):
+                quarantine.append("DERIVATIVES_CONTEXT_CALCULATION_FAILED")
+                continue
+            rows = [x for x in rows if x.name not in _DERIVATIVE_CAPABILITY_NAMES]
+            rows.extend(new_rows)
+
+        if symbol in event.risk_contexts:
+            snap = event.risk_contexts[symbol]
+            if symbol not in state.universe or snap.session_date.isoformat() != state.session_date:
+                quarantine.append("RISK_CONTEXT_OUTSIDE_FROZEN_SESSION_OR_UNIVERSE")
+                continue
+            try:
+                new_rows = risk_capabilities(snap)
+            except ValueError:
+                quarantine.append("RISK_CONTEXT_CALCULATION_FAILED")
+                continue
+            rows = [x for x in rows if x.name not in _RISK_CAPABILITY_NAMES]
+            rows.extend(new_rows)
+
+        names = [x.name for x in rows]
+        if len(names) != len(set(names)):
+            quarantine.append("DUPLICATE_CAPABILITY_NAME")
+            continue
+        result[symbol] = tuple(rows)
+    return result
+
+
+def _decision_hard_block(decision: Decision) -> bool:
+    """Keep a controller veto a veto when runtime projects public tickets."""
+    if decision.internal_action == "HALT_AFFECTED_DECISIONS_FOR_DATA":
+        return True
+    return any(
+        code.startswith("REQUIRED_CAPABILITY_UNAVAILABLE:")
+        or code.startswith("VERIFIED_REFERENCE_BLOCK:")
+        or code in {
+            "REGISTERED_HOST_D1_DATA_GATE_FAILED",
+            "MISSING_DUPLICATE_OR_REORDERED_FEATURE_INTERVAL",
+            "NATIVE_FEATURE_RESOLUTION_MISMATCH",
+            "REVISION_REQUIRES_SEPARATE_RECONCILIATION_RUN",
+            "UNVERIFIED_MIXED_FEATURE_SOURCES",
+            "STALE_FEATURE_PREFIX",
+        }
+        for code in decision.reason_codes
+    )
+
+
 def advance_session(state: SessionState, event: EventBatch, controller: Controller,
                     safety: SafetyState, *, paper_authority: bool = False,
                     proof_hash: str | None = None) -> SessionState:
@@ -171,8 +271,10 @@ def advance_session(state: SessionState, event: EventBatch, controller: Controll
             continue
         prefixes[b.symbol] = old + (b,)
         changed = True
+
+    incoming_capabilities = _merge_context_capabilities(state, event, quarantine)
     caps = dict(state.capabilities)
-    for symbol, records in event.capabilities.items():
+    for symbol, records in incoming_capabilities.items():
         if symbol not in state.universe:
             quarantine.append("CAPABILITY_SYMBOL_OUTSIDE_UNIVERSE")
             continue
@@ -197,23 +299,25 @@ def advance_session(state: SessionState, event: EventBatch, controller: Controll
                     decisions[symbol] = evolve(decisions[symbol], gap_ever_touched_pdc=True)
             except ValueError:
                 quarantine.append("SNAPSHOT_VALIDATION_FAILED:" + symbol)
-        # All declared symbols must have equally closed prefixes. This avoids
-        # falsely calling a partial local watchlist a synchronized universe.
         last_closes = {xs[-1].close_ns if xs else None for xs in prefixes.values()}
         aligned = len(last_closes) == 1 and None not in last_closes
         proposal = select_global(decisions, p, event.available_ns) if aligned else None
         if not aligned:
-            decisions = {s: evolve(d, public_ticket="WATCH", internal_action="WAIT_FOR_UNIVERSE_WATERMARK",
-                                    reason_codes=d.reason_codes + ("UNIVERSE_NOT_SYNCHRONIZED",))
-                         for s, d in decisions.items()}
+            decisions = {
+                s: evolve(
+                    d,
+                    public_ticket="WAIT" if _decision_hard_block(d) else "WATCH",
+                    internal_action=d.internal_action if _decision_hard_block(d) else "WAIT_FOR_UNIVERSE_WATERMARK",
+                    reason_codes=d.reason_codes + ("UNIVERSE_NOT_SYNCHRONIZED",),
+                )
+                for s, d in decisions.items()
+            }
     if position and position.status == "PENDING" and (not safety.allows_analysis or (position.origin == "HUMAN_APPROVED_PAPER" and not paper_authority)):
         position = cancel_pending(position, "AUTHORITY_REVOKED_BEFORE_FILL")
     if position and position.status == "PENDING" and position.plan.symbol in decisions:
         reason = pending_invalidation(position, decisions[position.plan.symbol])
         if reason:
             position = cancel_pending(position, reason)
-    # Once an interval should have been available, missing prices do not become
-    # a benign no-fill. UNKNOWN keeps the consumed attempt reserved.
     if position and position.status in {"PENDING", "OPEN"}:
         due = position.expected_open_ns + p.execution_minutes * MINUTE + p.max_feature_lag_seconds * NS
         if event.available_ns > due:
@@ -231,7 +335,8 @@ def advance_session(state: SessionState, event: EventBatch, controller: Controll
     if blocked:
         proposal = None
     for symbol, decision in list(decisions.items()):
-        can_offer = bool(proposal and decision.selected_plan and
+        decision_blocked = blocked or _decision_hard_block(decision)
+        can_offer = bool(not decision_blocked and proposal and decision.selected_plan and
                          decision.selected_plan.proposal_id == proposal.proposal_id and paper_authority and proof_hash)
         action = "REQUEST_PAPER_APPROVAL" if can_offer else decision.internal_action
         if filled:
@@ -244,9 +349,8 @@ def advance_session(state: SessionState, event: EventBatch, controller: Controll
             action = "SKIP_SESSION_ENTRY_WINDOW_EXPIRED"
         elif quarantine:
             action = "HALT_AFFECTED_DECISIONS_FOR_DATA"
-        # Never leave an earlier PAPER-CANDIDATE badge alive after revocation.
         decisions[symbol] = evolve(decision, public_ticket="PAPER-CANDIDATE" if can_offer else
-                                   "WAIT" if blocked else "WATCH", internal_action=action,
+                                   "WAIT" if decision_blocked else "WATCH", internal_action=action,
                                    proof_hash=proof_hash if can_offer else None)
     return evolve(state, feature_prefixes=prefixes, execution_seen=seen, capabilities=caps,
                   decisions=decisions, active_proposal=proposal, position=position,

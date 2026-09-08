@@ -14,6 +14,7 @@ from .contracts import (
 from .execution import build_plan, estimated_cost_r
 from .features import extract, validate_prefix
 from .registry import coverage
+from .variants import feature_map as variant_feature_map
 
 
 class ForecastProvider(Protocol):
@@ -47,6 +48,10 @@ class Controller:
         if self.data_guard is not None and not self.data_guard(snapshot):
             errors += ("REGISTERED_HOST_D1_DATA_GATE_FAILED",)
         f = extract(snapshot, p) if not errors else {"range_locked": False, "failure_count": 0, "gap_ever_touched_pdc": None}
+        if not errors:
+            # All 18 catalogue variants are evaluated as research observations
+            # from the same causal snapshot. They do not bypass TradePlan proof.
+            f.update(variant_feature_map(snapshot, f, p))
         cutoff = clock_ns(snapshot.session_date, p.last_entry_minute)
         expired = snapshot.as_of_ns >= cutoff
         branches = self._branches(snapshot, f, bool(errors), expired)
@@ -64,7 +69,6 @@ class Controller:
         feasible = [c for c in candidates if c.status == "FEASIBLE"]
         if self.values:
             candidates = tuple(self.values.annotate(c, snapshot, f) for c in candidates)
-            # SKIP has zero trade value. Unsupported estimates do not vote.
             feasible = sorted((c for c in candidates if c.status == "FEASIBLE" and c.lower_bound is not None and c.lower_bound > 0),
                               key=lambda c: (-c.lower_bound, p.templates.index(c.template)))
             if not feasible:
@@ -100,7 +104,7 @@ class Controller:
             forecasts=forecasts, candidates=candidates, selected_plan=chosen,
             gap_ever_touched_pdc=f.get("gap_ever_touched_pdc"),
             observed_failure_episodes=int(f.get("failure_count", 0)), features=f,
-            scenario_status=coverage(f, errors, snapshot.as_of_ns, cutoff),
+            scenario_status=coverage(f, errors, snapshot.as_of_ns, cutoff, snapshot.capabilities),
             next_triggers=("NEXT_AVAILABLE_CLOSED_FEATURE_BAR", "VERIFIED_REFERENCE_UPDATE", "PROPOSAL_OR_ENTRY_TIMER"),
         )
 
@@ -135,8 +139,6 @@ class Controller:
 
     def _evidence(self, s: MarketSnapshot, f: dict) -> tuple[Evidence, ...]:
         rows = []
-        # One bar event, one geometry family. Engulfing/body/wicks are not
-        # independent likelihood observations and never multiplied together.
         selected = {b.event_id: b for b in s.bars[:self.policy.range_minutes//self.policy.feature_minutes] + s.bars[-6:]}
         for b in s.bars:
             if b.event_id == f.get("last_failure_event"):
