@@ -180,18 +180,35 @@ def test_m2_adapter_008_stage2_must_contain_every_canonical_source():
 
 def test_m2_adapter_009_stage2_block_cannot_construct_context():
     receipts = _active_receipts()
+    complete_inventory = list(
+        build_canonical_stage2_observations(
+            snapshot_hash=SNAPSHOT,
+            active_engine_ids=[item.engine_id for item in receipts],
+        )
+    )
+    complete_inventory = [
+        EvidenceObservation(
+            engine_id=item.engine_id,
+            source_snapshot_hash="b" * 64,
+            availability=item.availability,
+            source_mode=item.source_mode,
+            identity_match=item.identity_match,
+            used_for_probability=item.used_for_probability,
+            neutral_default_substituted=item.neutral_default_substituted,
+            final_band_claimed=item.final_band_claimed,
+            future_leakage_detected=item.future_leakage_detected,
+            explanation_only=item.explanation_only,
+            unavailable_reasons=("wrong snapshot",),
+            notes=item.notes,
+        )
+        if item.engine_id == "SECTOR_CONTEXT"
+        else item
+        for item in complete_inventory
+    ]
     blocked = build_stage2_integrity_report(
         canonical_snapshot_hash=SNAPSHOT,
         engine_receipts=receipts,
-        evidence_observations=[
-            EvidenceObservation(
-                engine_id="SECTOR_CONTEXT",
-                source_snapshot_hash="b" * 64,
-                availability=Availability.UNAVAILABLE,
-                source_mode=SourceMode.UNKNOWN,
-                unavailable_reasons=("wrong snapshot",),
-            )
-        ],
+        evidence_observations=complete_inventory,
     )
     assert blocked.canonical_context_eligible is False
     with pytest.raises(DecisionContextError, match="not eligible"):
