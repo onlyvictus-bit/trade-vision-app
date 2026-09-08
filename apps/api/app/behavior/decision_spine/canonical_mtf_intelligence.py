@@ -33,15 +33,13 @@ class CanonicalMtfRecord(BaseModel):
     source_series_hash: str | None = None
     last_closed_ts: int | None = None
     last_closed_sequence: int | None = None
-    bars_used: int = Field(ge=0)
+    bars_used: int = Field(default=0, ge=0)
     availability: MtfAvailability
     bias: MtfBias = "unavailable"
     confirmed: bool = False
     quality: MtfQuality
     reason_code: str
     reason: str
-    # Audit-only. These fields describe rejected caller input and are excluded
-    # from mtf_hash, so a future/incomplete bar can never become a causal fact.
     excluded_incomplete_bars: int = Field(default=0, ge=0)
     future_bar_blocked: bool = False
     duplicate_timeframe: bool = False
@@ -87,13 +85,6 @@ def build_canonical_mtf_intelligence(
     indicator_runtime: IndicatorRuntime | None = None,
     default_indicator_ids: list[str] | None = None,
 ) -> CanonicalMtfIntelligence:
-    """Build one bounded, PIT-safe MTF world-state from D2-closed bars only.
-
-    The compatibility fields inherited from ``PaperGuidanceMtfEvidence`` keep
-    locked D6 semantics stable. Canonical records add explicit causality and
-    missingness; the composer does not vote or set a band.
-    """
-
     supplied_timeframes = sorted({series.timeframe for series in request.higher_timeframe_series})
     duplicate_counts = Counter(series.timeframe for series in request.higher_timeframe_series)
     duplicate_timeframes = {tf for tf, count in duplicate_counts.items() if count > 1}
@@ -232,8 +223,6 @@ def build_canonical_mtf_intelligence(
         "source_snapshot_hash": primary_snapshot.snapshot_hash,
         "decision_time_ns": primary_snapshot.decision_time_ns,
         "required_timeframes": sorted(request.required_higher_timeframes),
-        # Only D2-causal fields participate. Rejected future/incomplete caller
-        # bars remain auditable on the record but cannot perturb this hash.
         "records": [_causal_record_payload(record) for record in records],
     }
     mtf_hash = _stable_hash(deterministic)
@@ -343,8 +332,6 @@ def _build_record(
             None,
         )
 
-    # Only eligible closed bars may decide source validity. A malformed future
-    # bar is audit input, never authority over the already-known closed state.
     if not _bars_strictly_increasing(eligible):
         return (
             CanonicalMtfRecord(
