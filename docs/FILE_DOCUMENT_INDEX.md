@@ -4,7 +4,7 @@
 > 1) **Question → which file?** (former `CONTEXT_INDEX.md`)  
 > 2) **Which code/doc owns what?** (former `FILE_OWNERSHIP_MAP.md`)  
 > 3) **Full library catalog** of docs/folders, read order, plans, audit  
-> **Last updated: 2026-09-06 (v2.01 day-type verdict + options readiness audit; ORB_SIMPLE_FLOW map indexed)
+> **Last updated: 2026-09-08 (application brain/skeleton/wiring reference indexed; AFRE v4 architecture understanding captured)**  
 > **Monorepo root:** `D:\Projects\trading-platforms\stock-app`  
 > **Trade Vision root:** `...\stock-app\trade-vision-app`  
 > **Do not treat this as code source of truth** — code truth is implementation; this is the **map to all maps**.  
@@ -41,6 +41,7 @@ Deep onboarding / every doc named?  → §0 then §12 (do not read whole file if
 | Latest version + full ship log | `docs/IMPLEMENTATION_STATUS.md` (tip at top) |
 | What to build next | `docs/NEXT_BUILD_TARGET.md` |
 | Product spine requirement | `docs/plans/FINAL_REQUIRED_FLOW.md` |
+| **Application brain / skeleton / engine authority / future wiring reference** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** |
 | Safety never break | `docs/SAFETY_INVARIANTS.md` |
 | Screen → API architecture | `ARCHITECTURE.md` |
 | Plan vs code build audit | `docs/BUILD_AUDIT.md` |
@@ -55,6 +56,7 @@ Deep onboarding / every doc named?  → §0 then §12 (do not read whole file if
 |----------|------|----------|
 | **1 · open first** | **`docs/TV_COMPLETE_FLOW_MAP.html`** | Tabs 1–5: process · network · block details · fit · **code-truth + audit + work log** |
 | **2 · 10-min brain** | **`docs/PROJECT_BRAIN.html`** | Caveman cards for every major block (new teammate) |
+| **3 · architecture brain reference** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** | Plain-English specialist brains, authority hierarchy, AFRE/ORB/Jarvis wiring, final-output contract, and future-upgrade rules |
 | Support | `docs/REMAINING_PY_INVENTORY.md` | Other `.py` lanes not on the paper spine line |
 | Support | `docs/ENGINE_BLOCK_ACTION_INVENTORY.md` | Named engine/block/action families |
 | Support | `docs/BUILD_AUDIT.md` | Earlier multi-brain / FINAL-vs-code product audit |
@@ -64,6 +66,7 @@ Deep onboarding / every doc named?  → §0 then §12 (do not read whole file if
 ```text
 D:\Projects\trading-platforms\stock-app\trade-vision-app\docs\TV_COMPLETE_FLOW_MAP.html
 D:\Projects\trading-platforms\stock-app\trade-vision-app\docs\PROJECT_BRAIN.html
+D:\Projects\trading-platforms\stock-app\trade-vision-app\docs\APPLICATION_BRAIN_SKELETON_AND_WIRING.md
 ```
 
 Also linked from: `TRADE_VISION_README.md` (short) · `ARCHITECTURE.md` MASTER GUIDE (see also).
@@ -74,6 +77,7 @@ Also linked from: `TRADE_VISION_README.md` (short) · `ARCHITECTURE.md` MASTER G
 |--------------|----------|
 | “I have a question — which file?” | **§0.6** Question → file router |
 | “Which module owns X?” | **§7.4** File ownership map (code + docs) |
+| **“What brains exist, how do they connect, and who has final authority?”** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** |
 | First-time orientation | §0 Read order |
 | Product requirement (paper guidance spine) | `docs/plans/FINAL_REQUIRED_FLOW.md` |
 | Flow map / how blocks connect | **§ Flow map pack** (above) |
@@ -111,27 +115,29 @@ FLOW_REAUDIT (scripts/flow_reaudit.py + docs/runbooks/flow-reaudit.md)  - first 
 ORDER  PATH
 -----  ----
   1    THIS FILE  (docs/FILE_DOCUMENT_INDEX.md)
-  2    docs/plans/FINAL_REQUIRED_FLOW.md          ← your required product spine
-  3    docs/plans/PROJECT_GOD_VIEW_FOR_AI.md      ← full skeleton: indicators + engines
-  4    docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)   ← short multi-AI plan pack
-  5    TRADE_VISION_README.md  § MASTER GUIDE  (or ARCHITECTURE.md § MASTER GUIDE)
-  6    docs/IMPLEMENTATION_STATUS.md            ← latest tip + full ship log
-  7    docs/SAFETY_INVARIANTS.md                  ← never break
-  8    docs/NEXT_BUILD_TARGET.md                  ← what to build next
-  9    ARCHITECTURE.md  § OPERATOR MAP            ← screen → API
- 10    docs/context.md                            ← domain + invariants
- 11    docs/graph.md                              ← structure picture
- 12    Only then: §7.4 ownership map + exact code
+  2    docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  ← plain-English application brain + authority + wiring
+  3    docs/plans/FINAL_REQUIRED_FLOW.md          ← your required product spine
+  4    docs/plans/PROJECT_GOD_VIEW_FOR_AI.md      ← full skeleton: indicators + engines
+  5    docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)   ← short multi-AI plan pack
+  6    TRADE_VISION_README.md  § MASTER GUIDE  (or ARCHITECTURE.md § MASTER GUIDE)
+  7    docs/IMPLEMENTATION_STATUS.md            ← latest tip + full ship log
+  8    docs/SAFETY_INVARIANTS.md                  ← never break
+  9    docs/NEXT_BUILD_TARGET.md                  ← what to build next
+ 10    ARCHITECTURE.md  § OPERATOR MAP            ← screen → API
+ 11    docs/context.md                            ← domain + invariants
+ 12    docs/graph.md                              ← structure picture
+ 13    Only then: §7.4 ownership map + exact code
 ```
 
 ### 0.1b Token-saving read order for new chat (from former CONTEXT_INDEX)
 
 ```text
 1. TRADE_VISION_README.md (§ AI Handoff)
-2. docs/IMPLEMENTATION_STATUS.md   ← tip at top; one version section if needed
-3. docs/NEXT_BUILD_TARGET.md
-4. docs/SAFETY_INVARIANTS.md
-5. only then open exact source files needed for the requested change
+2. docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  ← when task touches engine behavior/wiring/authority
+3. docs/IMPLEMENTATION_STATUS.md   ← tip at top; one version section if needed
+4. docs/NEXT_BUILD_TARGET.md
+5. docs/SAFETY_INVARIANTS.md
+6. only then open exact source files needed for the requested change
 ```
 
 ### 0.5 External AI send pack (token-conscious)
@@ -139,11 +145,12 @@ ORDER  PATH
 ```text
 DEFAULT (zero-context AI that must understand the whole product):
   1) docs/plans/PROJECT_GOD_VIEW_FOR_AI.md     ← god skeleton (indicators, engines, flows)
-  2) docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)  ← what to build (one-touch paper spine)
+  2) docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  ← how specialist brains are meant to behave/connect
+  3) docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)  ← what to build (one-touch paper spine)
 
 OPTIONAL ADD:
-  3) docs/plans/FINAL_REQUIRED_FLOW.md
-  4) docs/SAFETY_INVARIANTS.md
+  4) docs/plans/FINAL_REQUIRED_FLOW.md
+  5) docs/SAFETY_INVARIANTS.md
 
 DO NOT SEND FIRST:
   IMPLEMENTATION_STATUS.md (whole)
@@ -155,14 +162,16 @@ DO NOT SEND FIRST:
 
 ```text
  1  docs/NEXT_BUILD_TARGET.md
- 2  docs/plans/FINAL_REQUIRED_FLOW.md  (if paper-guidance related)
- 3  Matching plan under docs/plans/ (if subsystem work)
- 4  SPEC.md + ARCHITECTURE.md (contracts)
- 5  this file §7.4 ownership map → open listed modules
- 6  docs/API_ENDPOINT_INDEX.md / FRONTEND_PANEL_MAP.md
- 7  Implement + tests (TEST_PLAN.md / TEST_ID_INDEX.md)
- 8  Update docs/IMPLEMENTATION_STATUS.md (latest tip block + append version section)
- 9  Refresh context/graph/MASTER GUIDE / this index if structure changed
+ 2  docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  (if engine/wiring/authority changes)
+ 3  docs/plans/FINAL_REQUIRED_FLOW.md  (if paper-guidance related)
+ 4  Matching plan under docs/plans/ (if subsystem work)
+ 5  SPEC.md + ARCHITECTURE.md (contracts)
+ 6  this file §7.4 ownership map → open listed modules
+ 7  docs/API_ENDPOINT_INDEX.md / FRONTEND_PANEL_MAP.md
+ 8  Implement + tests (TEST_PLAN.md / TEST_ID_INDEX.md)
+ 9  Update docs/IMPLEMENTATION_STATUS.md (latest tip block + append version section)
+10  Refresh context/graph/MASTER GUIDE / this index if structure changed
+11  Refresh APPLICATION_BRAIN_SKELETON_AND_WIRING if engine role, authority, data contract, or decision wiring changed
 ```
 
 ### 0.3 When only running Stock App chart/sim
@@ -189,7 +198,7 @@ docs/plans/TRADE_VISION_FULL_INDICATOR_MEMORY_PLAN.md  (slice only)
 ### 0.6 Question → file router (former CONTEXT_INDEX — full table)
 
 > **Purpose:** reduce token usage — answer “Need X → read Y” without grepping all docs.  
-> **Last reviewed with merge:** 2026-07-25  
+> **Last reviewed with merge:** 2026-09-08  
 > **Update when:** new key docs appear or ownership moves.
 
 | Need | Read This First | Then Read |
@@ -197,7 +206,8 @@ docs/plans/TRADE_VISION_FULL_INDICATOR_MEMORY_PLAN.md  (slice only)
 | What is already built? / latest version tip? | `docs/IMPLEMENTATION_STATUS.md` (tip at top, full log below) | `docs/NEXT_BUILD_TARGET.md` |
 | Build-as-planned audit (gaps / doc drift)? | `docs/BUILD_AUDIT.md` | code + graph + FINAL_REQUIRED_FLOW |
 | **How does data move Start→End (visual)?** | **`docs/TV_COMPLETE_FLOW_MAP.html`** Tabs 1–2 | `docs/PROJECT_BRAIN.html` |
-| **Explain every block in plain English?** | **`docs/PROJECT_BRAIN.html`** | HTML **Tab 3** |
+| **What brains exist / how are they wired / who can overrule whom?** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** | `docs/TV_COMPLETE_FLOW_MAP.html` + exact code |
+| **Explain every block in plain English?** | **`docs/PROJECT_BRAIN.html`** | `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` + HTML **Tab 3** |
 | **Exact paper code path from Python?** | **`docs/TV_COMPLETE_FLOW_MAP.html` Tab 5** | `paper_guidance_spine.py` + ORB modules |
 | **Was the flow map audited vs code?** | **`docs/TV_COMPLETE_FLOW_MAP.html` Tab 5** | audit score 86/100 + fixes applied |
 | **Graph work history / which file best?** | **`docs/TV_COMPLETE_FLOW_MAP.html` Tab 5** | this index § Flow map pack |
@@ -220,9 +230,9 @@ docs/plans/TRADE_VISION_FULL_INDICATOR_MEMORY_PLAN.md  (slice only)
 | Current Paper Guidance P0 code/contract/tests? | `docs/IMPLEMENTATION_STATUS.md` § v1.87 | `paper_guidance_spine.py` + `test_paper_guidance_spine.py` |
 | Full doc/folder index? | **this file** | §0.6 + §7.4 + §12 |
 | Token-light brief for external AIs? | `docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)` | `docs/plans/FINAL_REQUIRED_FLOW.md` |
-| Full god-view for external AIs? | `docs/plans/PROJECT_GOD_VIEW_FOR_AI.md` | `docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)` |
+| Full god-view for external AIs? | `docs/plans/PROJECT_GOD_VIEW_FOR_AI.md` | `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` + `docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)` |
 | ORB strategy/TF/candle-count research? | `docs/plans/ORB_RESEARCH_ENGINE_PLAN.md` | `research/` engine + ORR in `self_indc` |
-| Best think-engine order? | `docs/plans/FINAL_REQUIRED_FLOW.md (Appendix B — Think Engine)` | FINAL_REQUIRED_FLOW + ORB plan §0.8 |
+| Best think-engine order? | `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` | `docs/plans/FINAL_REQUIRED_FLOW.md (Appendix B — Think Engine)` |
 | Combined multi-AI design + implement charter? | `docs/plans/TRADE_VISION_ARCHITECTURE_DESIGN.md` (§0 = OLD + 3 patches) | PAPER_TRADE_SPINE brief + ORB plan |
 | How do Gemini/Grok credentials work? | `docs/runbooks/EXTERNAL_AI_CREDENTIALS_RUNBOOK.md` | `apps/api/app/behavior/ai_credentials_vault.py` |
 
@@ -256,7 +266,18 @@ Each entry below uses:
 | **Use when** | Lost, onboarding, “where is X?”, “who owns Y?” |
 | **Authority** | Map only; not runtime |
 
-### 2.2 `docs/plans/FINAL_REQUIRED_FLOW.md`
+### 2.2 `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`
+
+| Field | Detail |
+|-------|--------|
+| **Purpose** | Durable plain-English reference for the application's thinking/calculation/decision skeleton |
+| **Function** | Maps specialist brains, inputs/outputs, ORB/AFRE/Jarvis relationships, authority hierarchy, desired final output, and future-evolution rules |
+| **Action** | Read before adding/replacing/rewiring a major engine; update when engine ownership, authority, contracts, data path, ORB/AFRE behavior, or final decision wiring changes |
+| **Requirement** | Preserve one canonical decision authority, fail-closed missing data, PIT/proof/safety boundaries, no external-AI override, and no parallel hidden decision path |
+| **Use when** | Future upgrades/patches, brain evolution, wiring changes, “why are there multiple decision engines?”, ORB/AFRE architecture work |
+| **Authority** | Architecture/reference map; implementation code remains source of truth |
+
+### 2.3 `docs/plans/FINAL_REQUIRED_FLOW.md`
 
 | Field | Detail |
 |-------|--------|
@@ -267,7 +288,7 @@ Each entry below uses:
 | **Use when** | Any “paper decision” / organization / missing-flow discussion |
 | **Authority** | **Highest for product intent** (target); not yet fully implemented |
 
-### 2.3 `TRADE_VISION_README.md` (trade-vision-app)
+### 2.4 `TRADE_VISION_README.md` (trade-vision-app)
 
 | Field | Detail |
 |-------|--------|
@@ -278,7 +299,7 @@ Each entry below uses:
 | **Use when** | First clone / “what is this app?” |
 | **Authority** | High for mode; version tip may lag pointer by a few lines — trust IMPLEMENTATION_STATUS |
 
-### 2.4 `ARCHITECTURE.md` (trade-vision-app)
+### 2.5 `ARCHITECTURE.md` (trade-vision-app)
 
 | Field | Detail |
 |-------|--------|
@@ -289,7 +310,7 @@ Each entry below uses:
 | **Use when** | Designing features, explaining flow, AI handoff deep dive |
 | **Authority** | High for design; ship completion = IMPLEMENTATION_STATUS |
 
-### 2.5 Root `../STOCK_APP_README.md` and `../STOCK_APP_ARCHITECTURE.md`
+### 2.6 Root `../STOCK_APP_README.md` and `../STOCK_APP_ARCHITECTURE.md`
 
 | Field | Detail |
 |-------|--------|
@@ -455,6 +476,17 @@ Each entry below uses:
 | **Use when** | Indicator / voting / reliability / panel work; before trusting any indicator output |
 | **Authority** | Catalog of record for indicator semantics; vendor copy is code authority |
 
+### 3.15 `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`
+
+| Field | Detail |
+|-------|--------|
+| **Purpose** | Code-grounded easy-English map of Trade Vision's specialist brains and application skeleton |
+| **Function** | Explains data→calculation→context/memory→strategy→failure/derivatives→risk→arbiter→Jarvis flow; records overlapping decision layers and preferred future authority model |
+| **Action** | Use as the first architecture reference before future brain upgrades/patches; update only when major roles, authority or wiring change |
+| **Requirement** | Keep specialist evidence separate from final authority; preserve fail-closed/PIT/proof/safety semantics |
+| **Use when** | Future system evolution, refactor planning, adding an engine, consolidating duplicate decision layers, AFRE/ORB/Jarvis work |
+| **Authority** | Architecture understanding/reference; code wins on runtime truth |
+
 ---
 
 ## 4. Spec / test / TV product root docs
@@ -593,7 +625,7 @@ Read plans in this **meaning order** (not file date):
 | **Requirement** | Reuse engines; do not invent parallel indicator zoo; family-cap + lag-aware votes |
 | **Use when** | Multi-AI (Gemini/Claude/Kimi/GLM/…) design sessions; onboarding architects |
 | **Authority** | Inventory + roles ground truth for planning (not runtime code) |
-| **Pairs with** | `FINAL_REQUIRED_FLOW.md Appendix A (AI Brief)` (what to build) + `FINAL_REQUIRED_FLOW.md` (requirement) |
+| **Pairs with** | `APPLICATION_BRAIN_SKELETON_AND_WIRING.md` (how brains are intended to connect) + `FINAL_REQUIRED_FLOW.md Appendix A (AI Brief)` (what to build) + `FINAL_REQUIRED_FLOW.md` (requirement) |
 
 ### 5.6 `FINAL_REQUIRED_FLOW.md` **Appendix A** (AI Brief — merged)
 
@@ -632,7 +664,7 @@ Read plans in this **meaning order** (not file date):
 | **Requirement** | Two cadences; single arbiter; no discover-on-click; no auto paper |
 | **Use when** | “How should engines be ordered?” / multi-AI architecture design |
 | **Authority** | Flow design under product spine; coding lock remains ARCHITECTURE_DESIGN §0 |
-| **Pairs with** | FINAL_REQUIRED_FLOW body, ORB plan §0–0.8, GOD_VIEW |
+| **Pairs with** | APPLICATION_BRAIN_SKELETON_AND_WIRING + FINAL_REQUIRED_FLOW body + ORB plan §0–0.8 + GOD_VIEW |
 
 ---
 
@@ -692,6 +724,7 @@ Read plans in this **meaning order** (not file date):
 |--------|---------|----------|--------------|
 | `apps/api/app/` | FastAPI app package | Routes, models, storage | Primary backend work |
 | `apps/api/app/behavior/` | Decision/evidence engines | Jarvis, arbiter, indicators, OA, Kronos bridges | **Most TV brain code** |
+| `apps/api/app/orb/` | ORB core/discovery/proof/adaptive controller | ORB research + causal adaptive decision support | Read with APPLICATION_BRAIN_SKELETON_AND_WIRING for authority/wiring |
 | `apps/api/tests/` | Backend tests | Regression | Run before claiming ship |
 | `apps/web/src/` | React UI | Workspaces/panels | Frontend |
 | `apps/kronos-service/` | Isolated Kronos inference | Forecast service | Do not import heavy model into API process |
@@ -731,7 +764,7 @@ Read plans in this **meaning order** (not file date):
 ### 7.4 File ownership map (former FILE_OWNERSHIP_MAP — full tables)
 
 > **Purpose:** help agents open the right files first.  
-> **Last reviewed with merge:** 2026-07-24  
+> **Last reviewed with merge:** 2026-09-08  
 > **Rule:** high-signal only — not every tiny module.  
 > **Legacy/external:** reference only unless migrated behind safety tests.
 
@@ -742,6 +775,7 @@ Read plans in this **meaning order** (not file date):
 | `docs/context.md` | domain invariants, policies, known unknowns (Fable context) |
 | `docs/graph.md` | human system graph + data-flow Mermaid |
 | `docs/graph/project_graph.json` | machine knowledge graph |
+| **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** | **plain-English application skeleton, specialist-brain roles, authority hierarchy, ORB/AFRE/Jarvis wiring, desired final output, future evolution/patch rules** |
 | `docs/INDICATOR_INTELLIGENCE_CATALOG.md` | v1.96 per-indicator contracts of record (formula evidence, lag, repaint, families); machine truth in `data/indicator-intelligence/` |
 | `TRADE_VISION_README.md` § AI Handoff | compact new-chat handoff (merged; keep aligned with IMPLEMENTATION_STATUS tip) |
 | **`docs/FILE_DOCUMENT_INDEX.md` (this file)** | full doc/folder index + **§0.6 Q→file router** + **§7.4 ownership** |
@@ -773,11 +807,35 @@ Read plans in this **meaning order** (not file date):
 
 | File | Owner/Purpose |
 |------|----------------|
-| `apps/api/app/main.py` | FastAPI route surface |
+| `apps/api/app/main.py` | FastAPI route surface / active engine imports and pipeline wiring |
 | `apps/api/app/models.py` | Pydantic contracts |
 | `apps/api/app/state.py` | capability manifest and graph path |
 | `apps/api/app/storage.py` | persistence helpers |
 | `apps/api/app/responses.py` | response/envelope helpers |
+| `apps/api/app/behavior/candle_anatomy.py` | candle structure calculations |
+| `apps/api/app/behavior/condition_classifier.py` | deterministic behavior/market condition classification |
+| `apps/api/app/behavior/context_engines.py` | VWAP/ORB/CPR/PDH/PDL, HTF, gap, index/sector context |
+| `apps/api/app/behavior/session_memory.py` | session/day-of-week/Stock-DNA behavior memory |
+| `apps/api/app/behavior/hypothesis_engine.py` | continuation vs reversal vs fakeout hypothesis comparison |
+| `apps/api/app/behavior/decision_engine.py` | universal-agreement behavior decision and safety gates |
+| `apps/api/app/behavior/risk_engine.py` | risk sizing, daily loss, cooldown, portfolio heat |
+| `apps/api/app/behavior/execution_event_oi_risk.py` | execution/liquidity/event/OI reality layer |
+| `apps/api/app/behavior/final_confluence_arbiter.py` | priority-weighted conflict resolver / reduce-only authority |
+| `apps/api/app/behavior/twin_arbiter.py` | Behavior vs Kronos comparison; conflict reduces action |
+| `apps/api/app/behavior/jarvis_decision_room.py` | assembles chart/indicator/history/reviewer/safety evidence room |
+| `apps/api/app/behavior/jarvis_decision_arbiter.py` | Jarvis hard gates and external-review conflict handling |
+| `apps/api/app/behavior/jarvis_decision_fusion.py` | read-only fusion of TV/Gemini/Kronos/OpenAlgo/paper evidence |
+| `apps/api/app/behavior/jarvis_master_panel.py` | all-evidence presentation/master panel; older paths preserved |
+| `apps/api/app/behavior/jarvis_trading_decision_output.py` | trader-readable final plan/evidence/blocker output |
+| `apps/api/app/orb/core.py` | ORB/ORR opening range and signal construction |
+| `apps/api/app/orb/discovery.py` | historical ORB combination discovery |
+| `apps/api/app/orb/proof.py` | train-only selection + OOS/holdout/walk-forward proof + playbook promotion |
+| `apps/api/app/orb/adaptive/controller.py` | bounded causal AFRE scenario/contingency controller |
+| `apps/api/app/orb/adaptive/runtime.py` | synchronized event reducer, quarantine, capability merge, paper gating |
+| `apps/api/app/orb/adaptive/variants.py` | 18 original ORB variant research assessments |
+| `apps/api/app/orb/adaptive/scenario_detection.py` | complete A-G failure scenario detector |
+| `apps/api/app/orb/adaptive/derivatives.py` | deterministic Task-3 derivatives calculations/capabilities |
+| `apps/api/app/orb/adaptive/risk_context.py` | structured external factual risk/event capabilities |
 | `apps/api/app/behavior/indicator_registry.py` | indicator registry and metadata |
 | `apps/api/app/behavior/indicator_lag_voting.py` | v1.80 lag-aware voting |
 | `apps/api/app/behavior/indicator_reliability_memory.py` | v1.81 reliability rollups |
@@ -789,7 +847,6 @@ Read plans in this **meaning order** (not file date):
 | `apps/api/app/behavior/indicator_signal_history_completion.py` | v1.85 complete-pending |
 | `apps/api/app/behavior/trendforge_bridge.py` | v1.86 signed TrendForge intake |
 | `apps/api/app/behavior/real_mtf_pullback.py` | v1.63 closed-candle MTF pullback/opposition classifier |
-| `apps/api/app/behavior/final_confluence_arbiter.py` | v1.75 reduce-only resolver |
 | `apps/api/app/behavior/release_control.py` | benchmark/release evidence and v1.66 scenario coverage families |
 | `apps/api/app/behavior/operational_safety.py` | golden replay fixture contracts and deterministic verification |
 | `apps/api/app/behavior/ai_credentials_vault.py` | Gemini/Grok credential slots (not broker) |
@@ -825,7 +882,7 @@ Read plans in this **meaning order** (not file date):
 ### 8.1 Product / flow
 
 1. **Two products, one monorepo** — Stock App ≠ Trade Vision authority.  
-2. **Many engines ≠ one spine** — organization gap is real; see FINAL_REQUIRED_FLOW.  
+2. **Many engines ≠ one spine** — organization gap is real; see FINAL_REQUIRED_FLOW and APPLICATION_BRAIN_SKELETON_AND_WIRING.  
 3. **PAPER-CANDIDATE ≠ paper fill** — label/review only in TV.  
 4. **Stock App paper requires human/API trade POST** — indicators do not auto-trade.  
 5. **No one-click** symbol → all calc → paper → result (not built).  
@@ -834,40 +891,44 @@ Read plans in this **meaning order** (not file date):
 8. **OpenAlgo adapter is a simulator** — not completed paper→live product.  
 9. **Live trading is blocked by design** in TV; enabling it is a separate safety program, not a small flag.  
 10. **Port confusion** — Stock App often **8014** here; older docs may say 8000.
+11. **Multiple decision-like modules are intentionally preserved historical layers** — do not assume every file named `decision`, `arbiter`, `fusion`, or `master` has equal authority; consult `APPLICATION_BRAIN_SKELETON_AND_WIRING.md` before adding another final-decision path.
 
 ### 8.2 Data / correctness
 
-11. **yfinance** — fine for research, not exchange co-location quality.  
-12. **Closed bars only** for decision features — incomplete HTF must not vote as closed.  
-13. **Missing context** (breadth/OI) must be **unavailable**, not invented clean.  
-14. **Proxy indicators** may still exist in matrices — not all “validated.”  
-15. **Verified trade signal** is **narrow** (e.g. INFY 5m style gates) — not universal.  
-16. **Cache is speed, not authority** — stale model risk.  
-17. **Same-bar target+stop** → conservative stop-first / ambiguous rules (do not assume win).
+12. **yfinance** — fine for research, not exchange co-location quality.  
+13. **Closed bars only** for decision features — incomplete HTF must not vote as closed.  
+14. **Missing context** (breadth/OI) must be **unavailable**, not invented clean.  
+15. **Proxy indicators** may still exist in matrices — not all “validated.”  
+16. **Verified trade signal** is **narrow** (e.g. INFY 5m style gates) — not universal.  
+17. **Cache is speed, not authority** — stale model risk.  
+18. **Same-bar target+stop** → conservative stop-first / ambiguous rules (do not assume win).
+19. **AFRE v4 strict large-gap rule is `gap > 1.5 x prior ATR`** — exactly 1.5x is not large; do not silently reintroduce the older 1.4x/1% floor.
+20. **Dealer-signed GEX requires real dealer-position sign** — never infer dealer side from OI alone.
+21. **UNOBSERVABLE is not SAFE** — missing external facts must remain unavailable/fail-closed.
 
 ### 8.3 Docs / process
 
-18. **IMPLEMENTATION_STATUS** is huge — never “read all”; open one version.  
-19. **Legacy plans** (chart / memory / OpenAlgo) are layers; **spine** is FINAL_REQUIRED_FLOW (includes AI Brief App. A + Think Engine App. B); **god inventory** is PROJECT_GOD_VIEW_FOR_AI.  
-20. **MASTER GUIDE** lives *inside* ARCHITECTURE/TRADE_VISION_README bottoms; dedicated packs live under `docs/plans/` (index, FINAL_REQUIRED_FLOW, GOD_VIEW, AI_BRIEF).  
-21. **Version renames** happened (plan titles vs status titles for some v1.68/69).  
-22. **Ship hygiene** — after code: status + version pointer + safety still true + optional graph.  
-23. **AI credentials ≠ broker credentials** — vault is Gemini/Grok only.  
-24. **Kronos cannot override NO_TRADE** — research prior only.  
-25. **TrendForge v1.86** — signed research intake only; does not unlock trading.  
-26. **Root research engine** (`research/`) is separate from TV Behavior memory — don’t assume shared state.  
-27. **Discord alerts** are optional ops — not the decision spine.  
-28. **PWA offline** does not mean offline trading authority.  
-29. **Tests may pass while product spine missing** — unit engines ≠ connected flow.  
-30. **Next preferred build** — FINAL_REQUIRED_FLOW Phase 0+1 (one guidance endpoint/card), then Phase 2 approve→sim.
+22. **IMPLEMENTATION_STATUS** is huge — never “read all”; open one version.  
+23. **Legacy plans** (chart / memory / OpenAlgo) are layers; **spine** is FINAL_REQUIRED_FLOW (includes AI Brief App. A + Think Engine App. B); **god inventory** is PROJECT_GOD_VIEW_FOR_AI; **brain/wiring reference** is APPLICATION_BRAIN_SKELETON_AND_WIRING.  
+24. **MASTER GUIDE** lives *inside* ARCHITECTURE/TRADE_VISION_README bottoms; dedicated packs live under `docs/plans/` plus the new brain/wiring reference under `docs/`.  
+25. **Version renames** happened (plan titles vs status titles for some v1.68/69).  
+26. **Ship hygiene** — after code: status + version pointer + safety still true + optional graph; update brain/wiring reference only if authority/roles/contracts/wiring changed.  
+27. **AI credentials ≠ broker credentials** — vault is Gemini/Grok only.  
+28. **Kronos cannot override NO_TRADE** — research prior only.  
+29. **TrendForge v1.86** — signed research intake only; does not unlock trading.  
+30. **Root research engine** (`research/`) is separate from TV Behavior memory — don’t assume shared state.  
+31. **Discord alerts** are optional ops — not the decision spine.  
+32. **PWA offline** does not mean offline trading authority.  
+33. **Tests may pass while product spine missing** — unit engines ≠ connected flow.  
+34. **Next preferred build** — FINAL_REQUIRED_FLOW Phase 0+1 (one guidance endpoint/card), then Phase 2 approve→sim.
 
 ### 8.4 Security / ops (often forgotten)
 
-31. No browser session harvesting / hidden login tokens for brokers.  
-32. Kill switch must block order-path simulation too.  
-33. HMAC secrets for OA/TrendForge are separate; loopback defaults matter.  
-34. Rate limits / nonce / timestamp skew on adapter are security features, not noise.  
-35. Logs must not store secrets, cookies, full order credentials.
+35. No browser session harvesting / hidden login tokens for brokers.  
+36. Kill switch must block order-path simulation too.  
+37. HMAC secrets for OA/TrendForge are separate; loopback defaults matter.  
+38. Rate limits / nonce / timestamp skew on adapter are security features, not noise.  
+39. Logs must not store secrets, cookies, full order credentials.
 
 ---
 
@@ -875,6 +936,7 @@ Read plans in this **meaning order** (not file date):
 
 | Action you want | Open |
 |-----------------|------|
+| **Understand application brains / skeleton / authority / future wiring** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** |
 | Understand required paper flow | `docs/plans/FINAL_REQUIRED_FLOW.md` |
 | Full project god skeleton (indicators+engines) | `docs/plans/PROJECT_GOD_VIEW_FOR_AI.md` |
 | Short multi-AI one-touch plan pack | `docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)` |
@@ -910,7 +972,10 @@ Update **this file** when:
 - major folder ownership changes (§7.4)
 - new “Need X → read Y” question (§0.6)
 - a “missed detail” becomes a new invariant
+- APPLICATION_BRAIN_SKELETON_AND_WIRING is created/moved/renamed or its ownership/use changes
 ```
+
+Also update `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` when a major engine is added/removed, authority moves, a canonical data path changes, ORB/AFRE/Jarvis wiring changes, or a presentation-only module gains decision authority.
 
 Do **not** recreate `CONTEXT_INDEX.md` or `FILE_OWNERSHIP_MAP.md`.  
 Do **not** duplicate full IMPLEMENTATION_STATUS here — only point to it.
@@ -920,20 +985,21 @@ Do **not** duplicate full IMPLEMENTATION_STATUS here — only point to it.
 ## 11. Bottom line
 
 ```text
-INDEX (this file)           → library catalog + §0.6 Q→file + §7.4 ownership
-FINAL_REQUIRED_FLOW         → what product must become (spine)
-PROJECT_GOD_VIEW_FOR_AI     → full indicators + engines skeleton for external AIs
-FINAL_REQUIRED_FLOW App. A  → short multi-AI one-touch plan pack (former PAPER_TRADE_SPINE_AI_BRIEF)
-FINAL_REQUIRED_FLOW App. B  → think-engine order why/when (former THINK_ENGINE_BEST_FLOW)
-ORB_RESEARCH_ENGINE_PLAN    → ORB strategy×TF×bars/window research lab
-ORB_CONTEXT_NATIVE_PLAN_V2  → v2.00 ORB upgrade plan (gap+CPR+PDH/PDL+realism; PROPOSED)
-ORB_STRATEGY_MEMORANDUM     → v2.00 rule-level trade spec (entry/stop/target + examples)
-ORB_V2_JUDGE_FINDINGS       → adversarial verification of the v2 plan
-MASTER GUIDE sections       → condensed findings in ARCHITECTURE/TRADE_VISION_README
-IMPLEMENTATION_STATUS       → latest tip + full ship log
-SAFETY_INVARIANTS           → what must never break
-CODE folders + §7.4         → where to implement / who owns module
-§12 AUDIT                   → full inventory + what was previously skipped
+INDEX (this file)                    → library catalog + §0.6 Q→file + §7.4 ownership
+APPLICATION_BRAIN_SKELETON_AND_WIRING → how the application brains behave/connect + who has authority + future patch rules
+FINAL_REQUIRED_FLOW                  → what product must become (spine)
+PROJECT_GOD_VIEW_FOR_AI              → full indicators + engines skeleton for external AIs
+FINAL_REQUIRED_FLOW App. A           → short multi-AI one-touch plan pack (former PAPER_TRADE_SPINE_AI_BRIEF)
+FINAL_REQUIRED_FLOW App. B           → think-engine order why/when (former THINK_ENGINE_BEST_FLOW)
+ORB_RESEARCH_ENGINE_PLAN             → ORB strategy×TF×bars/window research lab
+ORB_CONTEXT_NATIVE_PLAN_V2           → v2.00 ORB upgrade plan (gap+CPR+PDH/PDL+realism; PROPOSED)
+ORB_STRATEGY_MEMORANDUM              → v2.00 rule-level trade spec (entry/stop/target + examples)
+ORB_V2_JUDGE_FINDINGS                → adversarial verification of the v2 plan
+MASTER GUIDE sections                → condensed findings in ARCHITECTURE/TRADE_VISION_README
+IMPLEMENTATION_STATUS                → latest tip + full ship log
+SAFETY_INVARIANTS                    → what must never break
+CODE folders + §7.4                  → where to implement / who owns module
+§12 AUDIT                            → full inventory + what was previously skipped
 
 Missing product reality:
   organized single paper-guidance action not fully connected yet.
@@ -943,7 +1009,7 @@ Missing product reality:
 
 ---
 
-## 12. FULL FILESYSTEM AUDIT (2026-07-22)
+## 12. FULL FILESYSTEM AUDIT (2026-07-22; index delta 2026-09-08)
 
 ### 12.1 Audit method
 
@@ -961,7 +1027,7 @@ This section closes that gap with explicit inventory.
 
 | Category | Prior index | After §12 | Notes |
 |----------|-------------|-----------|-------|
-| TV `docs/*.md` core handoff | Covered | Covered | Complete |
+| TV `docs/*.md` core handoff | Covered | Covered | Complete; +APPLICATION_BRAIN_SKELETON_AND_WIRING indexed 2026-09-08 |
 | TV `docs/plans/*` (17) | Covered | Covered | Complete |
 | TV `docs/runbooks/*` (7) | Named | Named | Complete |
 | TV `docs/test-reports/*` (4) | Wildcard only | **Named fully** | Fixed |
@@ -1011,11 +1077,12 @@ Paths relative to monorepo root unless marked `(TV)`.
 | `trade-vision-app/SPEC.md` | Requirements/spec |
 | `trade-vision-app/TEST_PLAN.md` | Test strategy |
 
-#### C. Trade Vision `docs/` core (16 markdown + graph json)
+#### C. Trade Vision `docs/` core (17 markdown + graph json)
 
 | Path | In prior index? |
 |------|-----------------|
 | `docs/FILE_DOCUMENT_INDEX.md` | Yes (this file; **also holds** former CONTEXT_INDEX + FILE_OWNERSHIP_MAP) |
+| **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** | **NEW 2026-09-08:** code-grounded plain-English application brain/skeleton/authority/wiring reference for future upgrades/patches |
 | `docs/context.md` | Yes |
 | `TRADE_VISION_README.md A AI / New-Chat Handoff` | Yes |
 | `TRADE_VISION_README.md` A context maintenance (former CONTEXT_MAINTENANCE_RUNBOOK) | Yes |
@@ -1191,6 +1258,7 @@ Also non-md under audit (CSVs/JSON/etc.) — operational artifacts, not docs.
 | Folder | Purpose | Prior? |
 |--------|---------|--------|
 | `apps/api/` | FastAPI + `app/behavior/` (~143 py modules) | Yes |
+| `apps/api/app/orb/` | ORB research/proof + adaptive AFRE stack | **Indexed 2026-09-08** |
 | `apps/api/tests/` | Backend tests | Yes |
 | `apps/web/` | React/Vite UI | Yes |
 | `apps/kronos-service/` | Kronos inference service | Yes |
@@ -1287,7 +1355,7 @@ Also non-md under audit (CSVs/JSON/etc.) — operational artifacts, not docs.
 | Item | Count (approx, audit day) |
 |------|---------------------------|
 | Product-relevant `.md` files (noise excluded) | ~70+ |
-| TV `docs/` markdown files | 16 core + 4 plans + 7 runbooks + 4 test-reports = **31** |
+| TV `docs/` markdown files | **17 core** + plans + runbooks + test-reports (updated 2026-09-08 for brain/wiring reference) |
 | Root `reports/**/*.md` | **19** |
 | `behavior/*.py` modules | **~143** |
 | `indicators/self_indc/*.py` | **~48** |
@@ -1298,7 +1366,9 @@ Also non-md under audit (CSVs/JSON/etc.) — operational artifacts, not docs.
 
 ```text
 docs/FILE_DOCUMENT_INDEX.md §7.4  (high-signal modules)
+docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  (brain/authority/wiring map)
 apps/api/app/behavior/*.py  (glob)
+apps/api/app/orb/*.py + apps/api/app/orb/adaptive/*.py
 indicators/self_indc/*.py   (glob)
 tests/ + apps/api/tests/    (glob)
 docs/IMPLEMENTATION_STATUS.md (version → files when shipped)
@@ -1327,7 +1397,8 @@ docs/IMPLEMENTATION_STATUS.md (version → files when shipped)
 
 | Item | Why not listed name-by-name |
 |------|-----------------------------|
-| All 143 `behavior/*.py` | Index would be unreadable; ownership map + status ship notes |
+| All 143 `behavior/*.py` | Index would be unreadable; ownership map + status ship notes + APPLICATION_BRAIN_SKELETON_AND_WIRING for roles |
+| All adaptive ORB functions | Use §7.4 high-signal owners + APPLICATION_BRAIN_SKELETON_AND_WIRING + exact code |
 | All 48 self_indc modules | Same; indicator registry is runtime authority in TV |
 | All test function IDs | `TEST_ID_INDEX.md` + pytest collection |
 | All API routes | `API_ENDPOINT_INDEX.md` + OpenAPI `/docs` |
@@ -1343,17 +1414,19 @@ If you need a **generated** full `behavior` filename dump later, produce it by s
 
 ```text
 [ ] All TV docs/*.md appear in §12.3 C
-[ ] All docs/plans/* (17) appear in §12.3 D
-[ ] All runbooks (7) appear in §12.3 E
-[ ] All test-reports (4) appear in §12.3 F
+[ ] APPLICATION_BRAIN_SKELETON_AND_WIRING is present and indexed when engine/wiring authority reference is needed
+[ ] All docs/plans/* appear in §12.3 D
+[ ] All runbooks appear in §12.3 E
+[ ] All test-reports appear in §12.3 F
 [ ] All reports/**/*.md appear in §12.3 G
 [ ] Kronos/service/external READMEs appear in §12.3 H
-[ ] Root product md (5) appear in §12.3 A
-[ ] TV product root md (4) appear in §12.3 B
+[ ] Root product md appear in §12.3 A
+[ ] TV product root md appear in §12.3 B
 [ ] Product folders appear in §12.4
 [ ] Noise exclusions declared in §12.3 J
 [ ] FINAL_REQUIRED_FLOW still top requirement in §0
 [ ] MASTER GUIDE pointers still valid in ARCHITECTURE/TRADE_VISION_README
+[ ] If a major brain/arbiter/data path changed, APPLICATION_BRAIN_SKELETON_AND_WIRING was refreshed
 ```
 
 Re-run command sketch:
@@ -1369,6 +1442,7 @@ Get-ChildItem -Recurse -Filter *.md |
 
 | Need after audit | Open |
 |------------------|------|
+| **Application brain / authority / wiring** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** |
 | Product spine | `docs/plans/FINAL_REQUIRED_FLOW.md` |
 | God-view for external AIs | `docs/plans/PROJECT_GOD_VIEW_FOR_AI.md` |
 | Multi-AI short plan pack | `docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)` |
@@ -1379,4 +1453,4 @@ Get-ChildItem -Recurse -Filter *.md |
 | Code ownership | `docs/FILE_DOCUMENT_INDEX.md` §7.4 |
 | What shipped | `docs/IMPLEMENTATION_STATUS.md` |
 
-**Audit conclusion:** First index was useful but incomplete. §12 names essentially all product documentation paths and product folders; code modules remain intentionally summarized by folder/count + ownership map.
+**Audit conclusion:** First index was useful but incomplete. §12 names essentially all product documentation paths and product folders; code modules remain intentionally summarized by folder/count + ownership map. The 2026-09-08 update adds the application-brain/skeleton/wiring reference so future architecture work has a durable, code-grounded mental model before modifying the system.
