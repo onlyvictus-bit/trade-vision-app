@@ -12,13 +12,17 @@ stable.
 import inspect
 from contextvars import ContextVar
 
-from ..models import CandleAnatomyRequest
+from ..models import CandleAnatomyRequest, PaperGuidanceMtfEvidence
 from . import paper_guidance_spine_legacy as _legacy
 from . import paper_guidance_spine_m2_impl as _m2
 from .paper_guidance_spine_legacy import *  # noqa: F401,F403
 from .decision_spine.canonical_level_intelligence import (
     CanonicalLevelIntelligenceResult,
     build_canonical_level_intelligence,
+)
+from .decision_spine.canonical_mtf_intelligence import (
+    MTF_CONFIRMATION_VERSION,
+    build_canonical_mtf_intelligence,
 )
 from .decision_spine.decision_context import DecisionContextError
 from .decision_spine.paper_guidance_decision_context_adapter import (
@@ -67,7 +71,9 @@ _bound_feature_kernel: ContextVar[object | None] = ContextVar(
 )
 _legacy_level_context = _legacy.analyze_level_context
 _legacy_run_engine = _legacy._run_engine
+_legacy_receipt = _legacy._receipt
 _legacy_snapshot_indicator_evidence = _legacy._snapshot_indicator_evidence
+_legacy_build_mtf_evidence = _legacy._build_mtf_evidence
 
 
 def __getattr__(name: str):
@@ -159,6 +165,21 @@ def _build_m31_guarded_decision_context(**kwargs):
     )
     if indicator_receipt is None or not canonical_indicator_present:
         incomplete.append("SNAPSHOT_INDICATOR_RUNTIME")
+
+    # M3.1-E: partial or missing required HTF facts may be truthful degradation,
+    # but the canonical MTF layer itself must have run and be causally bound to
+    # the primary D2 snapshot. A builder exception returns no canonical marker
+    # and therefore fails closed before D6.
+    mtf_receipt = receipts.get("MTF_CONFIRMATION")
+    mtf_summary = getattr(mtf_receipt, "output_summary", {}) if mtf_receipt else {}
+    canonical_mtf_present = bool(
+        isinstance(mtf_summary, dict)
+        and mtf_summary.get("canonical_mtf_intelligence") is True
+        and mtf_summary.get("source_snapshot_hash")
+        == getattr(mtf_receipt, "source_snapshot_hash", None)
+    )
+    if mtf_receipt is None or not canonical_mtf_present:
+        incomplete.append("MTF_CONFIRMATION")
 
     if incomplete:
         detail = ", ".join(
@@ -371,6 +392,66 @@ def _canonical_snapshot_indicator_evidence(request, snapshot):
     )
 
 
+def _canonical_mtf_indicator_runtime(candles, indicator_ids, **kwargs):
+    runnable = [item for item in indicator_ids if item in REAL_RUNTIME_PROMOTED_INDICATORS]
+    runtime = compute_real_indicator_outputs_with_telemetry
+    if _runtime_accepts_provenance(runtime):
+        return runtime(candles, runnable, **kwargs)
+    return runtime(candles, runnable)
+
+
+def _canonical_build_mtf_evidence(request, snapshot):
+    """Build MTF confirmation from per-timeframe D2 snapshots only."""
+
+    try:
+        return build_canonical_mtf_intelligence(
+            request,
+            snapshot,
+            freeze_snapshot=lambda mtf_request: _legacy.freeze_d2_closed_candle_snapshot(
+                mtf_request,
+                decision_time_ns=snapshot.decision_time_ns,
+            ),
+            indicator_runtime=_canonical_mtf_indicator_runtime,
+        )
+    except Exception as exc:
+        # Return the old compatible shell without a canonical marker. The M3.1
+        # DecisionContext guard will block before D6 rather than letting a hard
+        # MTF engine error masquerade as missing/neutral evidence.
+        return PaperGuidanceMtfEvidence(
+            required_timeframes=request.required_higher_timeframes,
+            supplied_timeframes=sorted(
+                {series.timeframe for series in request.higher_timeframe_series}
+            ),
+            usable_timeframes=[],
+            missing_required_timeframes=sorted(set(request.required_higher_timeframes)),
+            snapshot_hashes={},
+            indicator_runtime_by_timeframe={},
+            confirmed=False,
+            blocks_promotion=True,
+            reasons=[f"Canonical MTF engine failed: {type(exc).__name__}: {exc}"],
+        )
+
+
+def _canonical_receipt(**kwargs):
+    """Version/status adapter for canonical MTF receipts only."""
+
+    if kwargs.get("engine_id") != "MTF_CONFIRMATION":
+        return _legacy_receipt(**kwargs)
+    summary = kwargs.get("output_summary") or {}
+    if not isinstance(summary, dict) or summary.get("canonical_mtf_intelligence") is not True:
+        return _legacy_receipt(**kwargs)
+    kwargs = dict(kwargs)
+    kwargs["engine_version"] = MTF_CONFIRMATION_VERSION
+    kwargs["status"] = "completed" if summary.get("canonical_status") == "AVAILABLE" else "degraded"
+    warnings = list(kwargs.get("warnings") or [])
+    if summary.get("canonical_status") != "AVAILABLE":
+        warnings.append(
+            f"Canonical MTF availability is {summary.get('canonical_status')}; unavailable facts were not neutralized."
+        )
+    kwargs["warnings"] = list(dict.fromkeys(warnings))
+    return _legacy_receipt(**kwargs)
+
+
 def _sync_patchable_dependencies():
     """Honor public monkeypatch/test hooks without changing runtime semantics."""
 
@@ -383,6 +464,8 @@ def _sync_patchable_dependencies():
             setattr(_legacy, name, globals()[name])
 
     _legacy._snapshot_indicator_evidence = _canonical_snapshot_indicator_evidence
+    _legacy._build_mtf_evidence = _canonical_build_mtf_evidence
+    _legacy._receipt = _canonical_receipt
     _m2.build_stage2_integrity_report = build_stage2_integrity_report
     _m2.build_canonical_stage2_observations = build_canonical_stage2_observations
     _m2.build_paper_guidance_decision_context = _build_m31_guarded_decision_context
@@ -406,6 +489,8 @@ def run_paper_guidance_p1(request, *, mode, kill_switch, config=None):
     _legacy.analyze_level_context = _canonical_level_context
     _legacy._run_engine = _canonical_run_engine
     _legacy._snapshot_indicator_evidence = _canonical_snapshot_indicator_evidence
+    _legacy._build_mtf_evidence = _canonical_build_mtf_evidence
+    _legacy._receipt = _canonical_receipt
     _bound_feature_kernel.set(None)
     try:
         return _m2.run_paper_guidance_p1(
@@ -418,3 +503,5 @@ def run_paper_guidance_p1(request, *, mode, kill_switch, config=None):
         _bound_feature_kernel.set(None)
         _m2.build_snapshot_feature_kernel = delegated_kernel_builder
         _legacy._snapshot_indicator_evidence = _legacy_snapshot_indicator_evidence
+        _legacy._build_mtf_evidence = _legacy_build_mtf_evidence
+        _legacy._receipt = _legacy_receipt
