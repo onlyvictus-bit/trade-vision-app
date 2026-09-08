@@ -4,7 +4,7 @@
 > 1) **Question → which file?** (former `CONTEXT_INDEX.md`)  
 > 2) **Which code/doc owns what?** (former `FILE_OWNERSHIP_MAP.md`)  
 > 3) **Full library catalog** of docs/folders, read order, plans, audit  
-> **Last updated: 2026-09-08 (application brain/skeleton/wiring reference indexed; AFRE v4 architecture understanding captured)**  
+> **Last updated: 2026-09-08 (application brain/skeleton/wiring reference + Canonical Decision Spine evolution roadmap indexed; AFRE v4 stabilization checkpoint recorded)**  
 > **Monorepo root:** `D:\Projects\trading-platforms\stock-app`  
 > **Trade Vision root:** `...\stock-app\trade-vision-app`  
 > **Do not treat this as code source of truth** — code truth is implementation; this is the **map to all maps**.  
@@ -31,6 +31,7 @@ Do **not** look for `CONTEXT_INDEX.md` or `FILE_OWNERSHIP_MAP.md` (merged here).
 ```text
 Lost / new chat / "where is X?"     → §0.6 first
 Coding / "who owns reliability?"    → §7.4 first
+Brain/wiring evolution               → APPLICATION_BRAIN_SKELETON_AND_WIRING Part II
 Deep onboarding / every doc named?  → §0 then §12 (do not read whole file if you only need one answer)
 ```
 
@@ -41,7 +42,7 @@ Deep onboarding / every doc named?  → §0 then §12 (do not read whole file if
 | Latest version + full ship log | `docs/IMPLEMENTATION_STATUS.md` (tip at top) |
 | What to build next | `docs/NEXT_BUILD_TARGET.md` |
 | Product spine requirement | `docs/plans/FINAL_REQUIRED_FLOW.md` |
-| **Application brain / skeleton / engine authority / future wiring reference** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** |
+| **Application brain / skeleton / engine authority / Canonical Decision Spine roadmap** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** |
 | Safety never break | `docs/SAFETY_INVARIANTS.md` |
 | Screen → API architecture | `ARCHITECTURE.md` |
 | Plan vs code build audit | `docs/BUILD_AUDIT.md` |
@@ -56,7 +57,7 @@ Deep onboarding / every doc named?  → §0 then §12 (do not read whole file if
 |----------|------|----------|
 | **1 · open first** | **`docs/TV_COMPLETE_FLOW_MAP.html`** | Tabs 1–5: process · network · block details · fit · **code-truth + audit + work log** |
 | **2 · 10-min brain** | **`docs/PROJECT_BRAIN.html`** | Caveman cards for every major block (new teammate) |
-| **3 · architecture brain reference** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** | Plain-English specialist brains, authority hierarchy, AFRE/ORB/Jarvis wiring, final-output contract, and future-upgrade rules |
+| **3 · architecture brain + roadmap** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** | Plain-English specialist brains, authority hierarchy, AFRE/ORB/Jarvis wiring, final-output contract, **Part II Canonical Decision Spine roadmap**, future-upgrade rules |
 | Support | `docs/REMAINING_PY_INVENTORY.md` | Other `.py` lanes not on the paper spine line |
 | Support | `docs/ENGINE_BLOCK_ACTION_INVENTORY.md` | Named engine/block/action families |
 | Support | `docs/BUILD_AUDIT.md` | Earlier multi-brain / FINAL-vs-code product audit |
@@ -77,7 +78,8 @@ Also linked from: `TRADE_VISION_README.md` (short) · `ARCHITECTURE.md` MASTER G
 |--------------|----------|
 | “I have a question — which file?” | **§0.6** Question → file router |
 | “Which module owns X?” | **§7.4** File ownership map (code + docs) |
-| **“What brains exist, how do they connect, and who has final authority?”** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** |
+| **“What brains exist, how do they connect, and who has final authority?”** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` Part I** |
+| **“What is the next architecture milestone / how do we turn many brains into one?”** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` Part II (§30–§41)** |
 | First-time orientation | §0 Read order |
 | Product requirement (paper guidance spine) | `docs/plans/FINAL_REQUIRED_FLOW.md` |
 | Flow map / how blocks connect | **§ Flow map pack** (above) |
@@ -115,7 +117,7 @@ FLOW_REAUDIT (scripts/flow_reaudit.py + docs/runbooks/flow-reaudit.md)  - first 
 ORDER  PATH
 -----  ----
   1    THIS FILE  (docs/FILE_DOCUMENT_INDEX.md)
-  2    docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  ← plain-English application brain + authority + wiring
+  2    docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  ← plain-English application brain + authority + wiring + evolution roadmap
   3    docs/plans/FINAL_REQUIRED_FLOW.md          ← your required product spine
   4    docs/plans/PROJECT_GOD_VIEW_FOR_AI.md      ← full skeleton: indicators + engines
   5    docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)   ← short multi-AI plan pack
@@ -133,7 +135,7 @@ ORDER  PATH
 
 ```text
 1. TRADE_VISION_README.md (§ AI Handoff)
-2. docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  ← when task touches engine behavior/wiring/authority
+2. docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  ← when task touches engine behavior/wiring/authority or next architecture milestone
 3. docs/IMPLEMENTATION_STATUS.md   ← tip at top; one version section if needed
 4. docs/NEXT_BUILD_TARGET.md
 5. docs/SAFETY_INVARIANTS.md
@@ -145,7 +147,7 @@ ORDER  PATH
 ```text
 DEFAULT (zero-context AI that must understand the whole product):
   1) docs/plans/PROJECT_GOD_VIEW_FOR_AI.md     ← god skeleton (indicators, engines, flows)
-  2) docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  ← how specialist brains are meant to behave/connect
+  2) docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  ← how specialist brains are meant to behave/connect + Canonical Decision Spine roadmap
   3) docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)  ← what to build (one-touch paper spine)
 
 OPTIONAL ADD:
@@ -162,7 +164,7 @@ DO NOT SEND FIRST:
 
 ```text
  1  docs/NEXT_BUILD_TARGET.md
- 2  docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  (if engine/wiring/authority changes)
+ 2  docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  (if engine/wiring/authority changes; Part II for Canonical Decision Spine work)
  3  docs/plans/FINAL_REQUIRED_FLOW.md  (if paper-guidance related)
  4  Matching plan under docs/plans/ (if subsystem work)
  5  SPEC.md + ARCHITECTURE.md (contracts)
@@ -171,7 +173,7 @@ DO NOT SEND FIRST:
  8  Implement + tests (TEST_PLAN.md / TEST_ID_INDEX.md)
  9  Update docs/IMPLEMENTATION_STATUS.md (latest tip block + append version section)
 10  Refresh context/graph/MASTER GUIDE / this index if structure changed
-11  Refresh APPLICATION_BRAIN_SKELETON_AND_WIRING if engine role, authority, data contract, or decision wiring changed
+11  Refresh APPLICATION_BRAIN_SKELETON_AND_WIRING if engine role, authority, data contract, decision wiring, or roadmap state changed
 ```
 
 ### 0.3 When only running Stock App chart/sim
@@ -206,12 +208,15 @@ docs/plans/TRADE_VISION_FULL_INDICATOR_MEMORY_PLAN.md  (slice only)
 | What is already built? / latest version tip? | `docs/IMPLEMENTATION_STATUS.md` (tip at top, full log below) | `docs/NEXT_BUILD_TARGET.md` |
 | Build-as-planned audit (gaps / doc drift)? | `docs/BUILD_AUDIT.md` | code + graph + FINAL_REQUIRED_FLOW |
 | **How does data move Start→End (visual)?** | **`docs/TV_COMPLETE_FLOW_MAP.html`** Tabs 1–2 | `docs/PROJECT_BRAIN.html` |
-| **What brains exist / how are they wired / who can overrule whom?** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** | `docs/TV_COMPLETE_FLOW_MAP.html` + exact code |
+| **What brains exist / how are they wired / who can overrule whom?** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` Part I** | `docs/TV_COMPLETE_FLOW_MAP.html` + exact code |
+| **What is next after AFRE v4 / how do we consolidate the brains?** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` Part II (§30–§41)** | `docs/NEXT_BUILD_TARGET.md` + `docs/IMPLEMENTATION_STATUS.md` + current PR/CI |
+| **What is the Canonical Decision Spine contract?** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` §§31–36** | `docs/plans/FINAL_REQUIRED_FLOW.md` + exact decision/arbiter code |
+| **What should be tested after wiring?** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` §§37–40** | ORB proof/replay code + TEST_PLAN |
 | **Explain every block in plain English?** | **`docs/PROJECT_BRAIN.html`** | `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` + HTML **Tab 3** |
 | **Exact paper code path from Python?** | **`docs/TV_COMPLETE_FLOW_MAP.html` Tab 5** | `paper_guidance_spine.py` + ORB modules |
 | **Was the flow map audited vs code?** | **`docs/TV_COMPLETE_FLOW_MAP.html` Tab 5** | audit score 86/100 + fixes applied |
 | **Graph work history / which file best?** | **`docs/TV_COMPLETE_FLOW_MAP.html` Tab 5** | this index § Flow map pack |
-| What should be built next? | `docs/NEXT_BUILD_TARGET.md` | plans only if needed for that target |
+| What should be built next? | `docs/NEXT_BUILD_TARGET.md` | `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` Part II when the target is engine orchestration |
 | What is the system? | `docs/context.md` | `ARCHITECTURE.md` |
 | 2-min operator map (screen→button→API)? | `ARCHITECTURE.md` § OPERATOR MAP | `../STOCK_APP_ARCHITECTURE.md` § OPERATOR MAP (Stock App) |
 | Paper trade full flow (symbol→calc→paper)? | `ARCHITECTURE.md` § PAPER TRADE FULL FLOW | `docs/TV_COMPLETE_FLOW_MAP.html` Tabs 1+5 |
@@ -226,7 +231,7 @@ docs/plans/TRADE_VISION_FULL_INDICATOR_MEMORY_PLAN.md  (slice only)
 | Root monorepo constraints | `../STOCK_APP_ARCHITECTURE.md` + TV `ARCHITECTURE.md` §6 | `docs/context.md` § monorepo |
 | How does indicator intelligence work? | `docs/plans/TRADE_VISION_MAX_CHART_REASONING_V1_70_TO_V1_79_PLAN.md` | `docs/plans/TRADE_VISION_FULL_INDICATOR_MEMORY_PLAN.md` |
 | How does OpenAlgo fit? | `docs/plans/OPENALGO_PAPER_TO_LIVE_REMAINING_BUILD_PLAN.md` | `docs/SAFETY_INVARIANTS.md` |
-| Required final paper-guidance spine? | `docs/plans/FINAL_REQUIRED_FLOW.md` | `ARCHITECTURE.md` § MASTER GUIDE |
+| Required final paper-guidance spine? | `docs/plans/FINAL_REQUIRED_FLOW.md` | `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` Part II |
 | Current Paper Guidance P0 code/contract/tests? | `docs/IMPLEMENTATION_STATUS.md` § v1.87 | `paper_guidance_spine.py` + `test_paper_guidance_spine.py` |
 | Full doc/folder index? | **this file** | §0.6 + §7.4 + §12 |
 | Token-light brief for external AIs? | `docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)` | `docs/plans/FINAL_REQUIRED_FLOW.md` |
@@ -270,12 +275,12 @@ Each entry below uses:
 
 | Field | Detail |
 |-------|--------|
-| **Purpose** | Durable plain-English reference for the application's thinking/calculation/decision skeleton |
-| **Function** | Maps specialist brains, inputs/outputs, ORB/AFRE/Jarvis relationships, authority hierarchy, desired final output, and future-evolution rules |
-| **Action** | Read before adding/replacing/rewiring a major engine; update when engine ownership, authority, contracts, data path, ORB/AFRE behavior, or final decision wiring changes |
-| **Requirement** | Preserve one canonical decision authority, fail-closed missing data, PIT/proof/safety boundaries, no external-AI override, and no parallel hidden decision path |
-| **Use when** | Future upgrades/patches, brain evolution, wiring changes, “why are there multiple decision engines?”, ORB/AFRE architecture work |
-| **Authority** | Architecture/reference map; implementation code remains source of truth |
+| **Purpose** | Durable plain-English reference for the application's thinking/calculation/decision skeleton **and the staged path to one Canonical Decision Spine** |
+| **Function** | Maps specialist brains, inputs/outputs, ORB/AFRE/Jarvis relationships, authority hierarchy, desired final output, future-evolution rules; Part II records AFRE stabilization → engine registry → DecisionContext → FinalDecision → provider wiring → proof/paper sequence |
+| **Action** | Read before adding/replacing/rewiring a major engine; read Part II before starting the next architecture milestone; update when engine ownership, authority, contracts, data path, ORB/AFRE behavior, final decision wiring, or roadmap state changes |
+| **Requirement** | Preserve one canonical decision authority, fail-closed missing data, PIT/proof/safety boundaries, no external-AI override, no parallel hidden decision path; re-check time-sensitive PR/CI checkpoint before acting |
+| **Use when** | Future upgrades/patches, brain evolution, Canonical Decision Spine work, wiring changes, “why are there multiple decision engines?”, ORB/AFRE architecture work |
+| **Authority** | Architecture/reference + roadmap map; implementation code/current CI remains source of runtime truth |
 
 ### 2.3 `docs/plans/FINAL_REQUIRED_FLOW.md`
 
@@ -342,10 +347,10 @@ Each entry below uses:
 |-------|--------|
 | **Purpose** | What to build next (candidates / lock) |
 | **Function** | Prevent random feature sprawl |
-| **Action** | Lock target before coding; prefer FINAL_REQUIRED_FLOW Phase 0+1 |
-| **Requirement** | Don’t start version without status/context/graph/tests/safety |
+| **Action** | Lock target before coding; after AFRE v4 merge decision, align it with `APPLICATION_BRAIN_SKELETON_AND_WIRING.md` Part II if Canonical Decision Spine is next |
+| **Requirement** | Don’t start version without status/context/graph/tests/safety; do not leave “plan-only” claims stale after code lands |
 | **Use when** | Planning next PR / session |
-| **Authority** | Process gate |
+| **Authority** | Process gate; current code/PR state must be rechecked |
 
 ### 3.3 `docs/SAFETY_INVARIANTS.md`
 
@@ -480,12 +485,12 @@ Each entry below uses:
 
 | Field | Detail |
 |-------|--------|
-| **Purpose** | Code-grounded easy-English map of Trade Vision's specialist brains and application skeleton |
-| **Function** | Explains data→calculation→context/memory→strategy→failure/derivatives→risk→arbiter→Jarvis flow; records overlapping decision layers and preferred future authority model |
-| **Action** | Use as the first architecture reference before future brain upgrades/patches; update only when major roles, authority or wiring change |
-| **Requirement** | Keep specialist evidence separate from final authority; preserve fail-closed/PIT/proof/safety semantics |
-| **Use when** | Future system evolution, refactor planning, adding an engine, consolidating duplicate decision layers, AFRE/ORB/Jarvis work |
-| **Authority** | Architecture understanding/reference; code wins on runtime truth |
+| **Purpose** | Code-grounded easy-English map of Trade Vision's specialist brains and application skeleton + **the migration plan to one correctly wired trading brain** |
+| **Function** | Part I explains data→calculation→context/memory→strategy→failure/derivatives→risk→arbiter→Jarvis; Part II (§30–§41) defines AFRE stabilization, engine authority registry, `DecisionContext`, `FinalDecision`, real provider wiring, gap-morning proof, paper observation and exact 16-step execution order |
+| **Action** | Use as the first architecture reference before future brain upgrades/patches; update when major roles, authority, contracts, wiring, or roadmap state change |
+| **Requirement** | Keep specialist evidence separate from final authority; preserve fail-closed/PIT/proof/safety semantics; Final Confluence target = sole final-band authority; time-sensitive checkpoint must be reverified |
+| **Use when** | Future system evolution, refactor planning, adding an engine, consolidating duplicate decision layers, AFRE/ORB/Jarvis work, deciding what comes next |
+| **Authority** | Architecture understanding/reference + migration roadmap; code/current GitHub status wins on runtime truth |
 
 ---
 
@@ -577,7 +582,7 @@ Read plans in this **meaning order** (not file date):
 |-------|--------|
 | **Purpose** | Required final flow: organized guidance for paper trade |
 | **Function** | Present / final / gaps / phases / acceptance |
-| **Action** | Build Phase 0→1→2 first |
+| **Action** | Build Phase 0→1→2 first; use `APPLICATION_BRAIN_SKELETON_AND_WIRING.md` Part II for the current one-brain orchestration migration |
 | **Requirement** | One boss arbiter; approve→sim fill; no live v1 |
 | **Use when** | Always for product direction |
 | **Authority** | Product requirement |
@@ -625,7 +630,7 @@ Read plans in this **meaning order** (not file date):
 | **Requirement** | Reuse engines; do not invent parallel indicator zoo; family-cap + lag-aware votes |
 | **Use when** | Multi-AI (Gemini/Claude/Kimi/GLM/…) design sessions; onboarding architects |
 | **Authority** | Inventory + roles ground truth for planning (not runtime code) |
-| **Pairs with** | `APPLICATION_BRAIN_SKELETON_AND_WIRING.md` (how brains are intended to connect) + `FINAL_REQUIRED_FLOW.md Appendix A (AI Brief)` (what to build) + `FINAL_REQUIRED_FLOW.md` (requirement) |
+| **Pairs with** | `APPLICATION_BRAIN_SKELETON_AND_WIRING.md` (how brains connect + next migration) + `FINAL_REQUIRED_FLOW.md Appendix A (AI Brief)` (what to build) + `FINAL_REQUIRED_FLOW.md` (requirement) |
 
 ### 5.6 `FINAL_REQUIRED_FLOW.md` **Appendix A** (AI Brief — merged)
 
@@ -663,7 +668,7 @@ Read plans in this **meaning order** (not file date):
 | **Action** | Read Appendix B before wiring spine/ORB; use PART E checklist on every PR |
 | **Requirement** | Two cadences; single arbiter; no discover-on-click; no auto paper |
 | **Use when** | “How should engines be ordered?” / multi-AI architecture design |
-| **Authority** | Flow design under product spine; coding lock remains ARCHITECTURE_DESIGN §0 |
+| **Authority** | Flow design under product spine; current migration sequence is `APPLICATION_BRAIN_SKELETON_AND_WIRING.md` Part II; coding lock remains ARCHITECTURE_DESIGN §0 unless superseded by reviewed design |
 | **Pairs with** | APPLICATION_BRAIN_SKELETON_AND_WIRING + FINAL_REQUIRED_FLOW body + ORB plan §0–0.8 + GOD_VIEW |
 
 ---
@@ -775,12 +780,12 @@ Read plans in this **meaning order** (not file date):
 | `docs/context.md` | domain invariants, policies, known unknowns (Fable context) |
 | `docs/graph.md` | human system graph + data-flow Mermaid |
 | `docs/graph/project_graph.json` | machine knowledge graph |
-| **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** | **plain-English application skeleton, specialist-brain roles, authority hierarchy, ORB/AFRE/Jarvis wiring, desired final output, future evolution/patch rules** |
+| **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** | **plain-English application skeleton, specialist-brain roles, authority hierarchy, ORB/AFRE/Jarvis wiring, desired final output, Canonical Decision Spine roadmap (§30–§41), future evolution/patch rules** |
 | `docs/INDICATOR_INTELLIGENCE_CATALOG.md` | v1.96 per-indicator contracts of record (formula evidence, lag, repaint, families); machine truth in `data/indicator-intelligence/` |
 | `TRADE_VISION_README.md` § AI Handoff | compact new-chat handoff (merged; keep aligned with IMPLEMENTATION_STATUS tip) |
 | **`docs/FILE_DOCUMENT_INDEX.md` (this file)** | full doc/folder index + **§0.6 Q→file router** + **§7.4 ownership** |
 | `docs/IMPLEMENTATION_STATUS.md` | latest completed tip + full ship log |
-| `docs/NEXT_BUILD_TARGET.md` | next build candidates |
+| `docs/NEXT_BUILD_TARGET.md` | next build candidates; must be refreshed after AFRE merge decision so it does not call implemented AFRE work “plan only” |
 | `docs/plans/TRADE_VISION_FULL_INDICATOR_MEMORY_PLAN.md` | full indicator/9C future roadmap |
 | `docs/plans/TRADE_VISION_MAX_CHART_REASONING_V1_70_TO_V1_79_PLAN.md` | v1.70-v1.79 chart/indicator reasoning expansion |
 | `docs/plans/FINAL_REQUIRED_FLOW.md` | **product requirement spine** + App. A AI Brief + App. B Think Engine |
@@ -817,20 +822,20 @@ Read plans in this **meaning order** (not file date):
 | `apps/api/app/behavior/context_engines.py` | VWAP/ORB/CPR/PDH/PDL, HTF, gap, index/sector context |
 | `apps/api/app/behavior/session_memory.py` | session/day-of-week/Stock-DNA behavior memory |
 | `apps/api/app/behavior/hypothesis_engine.py` | continuation vs reversal vs fakeout hypothesis comparison |
-| `apps/api/app/behavior/decision_engine.py` | universal-agreement behavior decision and safety gates |
+| `apps/api/app/behavior/decision_engine.py` | universal-agreement behavior decision and safety gates; **target future role = specialist decision evidence, not separate product final** |
 | `apps/api/app/behavior/risk_engine.py` | risk sizing, daily loss, cooldown, portfolio heat |
 | `apps/api/app/behavior/execution_event_oi_risk.py` | execution/liquidity/event/OI reality layer |
-| `apps/api/app/behavior/final_confluence_arbiter.py` | priority-weighted conflict resolver / reduce-only authority |
-| `apps/api/app/behavior/twin_arbiter.py` | Behavior vs Kronos comparison; conflict reduces action |
+| `apps/api/app/behavior/final_confluence_arbiter.py` | priority-weighted conflict resolver; **target future role = sole product final-band authority** |
+| `apps/api/app/behavior/twin_arbiter.py` | Behavior vs Kronos comparison; conflict reduces action; **target = downgrade/conflict evidence only** |
 | `apps/api/app/behavior/jarvis_decision_room.py` | assembles chart/indicator/history/reviewer/safety evidence room |
-| `apps/api/app/behavior/jarvis_decision_arbiter.py` | Jarvis hard gates and external-review conflict handling |
+| `apps/api/app/behavior/jarvis_decision_arbiter.py` | Jarvis hard gates and external-review conflict handling; target = compatibility/downgrade wrapper, no final-band upgrade |
 | `apps/api/app/behavior/jarvis_decision_fusion.py` | read-only fusion of TV/Gemini/Kronos/OpenAlgo/paper evidence |
-| `apps/api/app/behavior/jarvis_master_panel.py` | all-evidence presentation/master panel; older paths preserved |
-| `apps/api/app/behavior/jarvis_trading_decision_output.py` | trader-readable final plan/evidence/blocker output |
+| `apps/api/app/behavior/jarvis_master_panel.py` | all-evidence presentation/master panel; older paths preserved; target = presentation only |
+| `apps/api/app/behavior/jarvis_trading_decision_output.py` | trader-readable final plan/evidence/blocker output; target = presenter of canonical FinalDecision |
 | `apps/api/app/orb/core.py` | ORB/ORR opening range and signal construction |
 | `apps/api/app/orb/discovery.py` | historical ORB combination discovery |
 | `apps/api/app/orb/proof.py` | train-only selection + OOS/holdout/walk-forward proof + playbook promotion |
-| `apps/api/app/orb/adaptive/controller.py` | bounded causal AFRE scenario/contingency controller |
+| `apps/api/app/orb/adaptive/controller.py` | bounded causal AFRE scenario/contingency controller; proposes/vetoes, not canonical final authority |
 | `apps/api/app/orb/adaptive/runtime.py` | synchronized event reducer, quarantine, capability merge, paper gating |
 | `apps/api/app/orb/adaptive/variants.py` | 18 original ORB variant research assessments |
 | `apps/api/app/orb/adaptive/scenario_detection.py` | complete A-G failure scenario detector |
@@ -841,7 +846,7 @@ Read plans in this **meaning order** (not file date):
 | `apps/api/app/behavior/indicator_reliability_memory.py` | v1.81 reliability rollups |
 | `apps/api/app/behavior/indicator_signal_history_ingestion.py` | v1.84 pending ingest |
 | `apps/api/app/behavior/paper_guidance_config.py` | v1.87 config-driven P0 thresholds |
-| `apps/api/app/behavior/paper_guidance_spine.py` | v1.87 D1 safety gate + D2 strict snapshot/hash |
+| `apps/api/app/behavior/paper_guidance_spine.py` | v1.87 D1 safety gate + D2 strict snapshot/hash; candidate foundation for canonical DecisionContext/FinalDecision integration |
 | `apps/api/app/behavior/shared_snapshot.py` | Kronos/Twin immutable snapshot; strict close-time sibling |
 | `apps/api/tests/test_paper_guidance_spine.py` | v1.87 focused safety/determinism/MTF tests |
 | `apps/api/app/behavior/indicator_signal_history_completion.py` | v1.85 complete-pending |
@@ -887,48 +892,51 @@ Read plans in this **meaning order** (not file date):
 4. **Stock App paper requires human/API trade POST** — indicators do not auto-trade.  
 5. **No one-click** symbol → all calc → paper → result (not built).  
 6. **Dual decision language** — BUY/SELL/HOLD vs WAIT/WATCH/PAPER-CANDIDATE.  
-7. **Best existing “boss” idea** — TV final confluence arbiter v1.75 — still not a full product spine UX.  
+7. **Best existing “boss” idea** — TV final confluence arbiter v1.75 — still not a full product spine UX; **Canonical Decision Spine target makes it the sole final-band authority**.  
 8. **OpenAlgo adapter is a simulator** — not completed paper→live product.  
 9. **Live trading is blocked by design** in TV; enabling it is a separate safety program, not a small flag.  
-10. **Port confusion** — Stock App often **8014** here; older docs may say 8000.
-11. **Multiple decision-like modules are intentionally preserved historical layers** — do not assume every file named `decision`, `arbiter`, `fusion`, or `master` has equal authority; consult `APPLICATION_BRAIN_SKELETON_AND_WIRING.md` before adding another final-decision path.
+10. **Port confusion** — Stock App often **8014** here; older docs may say 8000.  
+11. **Multiple decision-like modules are intentionally preserved historical layers** — do not assume every file named `decision`, `arbiter`, `fusion`, or `master` has equal authority; consult `APPLICATION_BRAIN_SKELETON_AND_WIRING.md` before adding another final-decision path.  
+12. **Next major architecture goal after AFRE stabilization is consolidation, not another engine** — Engine Authority Registry → DecisionContext → FinalDecision → one Final Confluence authority → Jarvis presentation.
 
 ### 8.2 Data / correctness
 
-12. **yfinance** — fine for research, not exchange co-location quality.  
-13. **Closed bars only** for decision features — incomplete HTF must not vote as closed.  
-14. **Missing context** (breadth/OI) must be **unavailable**, not invented clean.  
-15. **Proxy indicators** may still exist in matrices — not all “validated.”  
-16. **Verified trade signal** is **narrow** (e.g. INFY 5m style gates) — not universal.  
-17. **Cache is speed, not authority** — stale model risk.  
-18. **Same-bar target+stop** → conservative stop-first / ambiguous rules (do not assume win).
-19. **AFRE v4 strict large-gap rule is `gap > 1.5 x prior ATR`** — exactly 1.5x is not large; do not silently reintroduce the older 1.4x/1% floor.
-20. **Dealer-signed GEX requires real dealer-position sign** — never infer dealer side from OI alone.
-21. **UNOBSERVABLE is not SAFE** — missing external facts must remain unavailable/fail-closed.
+13. **yfinance** — fine for research, not exchange co-location quality.  
+14. **Closed bars only** for decision features — incomplete HTF must not vote as closed.  
+15. **Missing context** (breadth/OI) must be **unavailable**, not invented clean.  
+16. **Proxy indicators** may still exist in matrices — not all “validated.”  
+17. **Verified trade signal** is **narrow** (e.g. INFY 5m style gates) — not universal.  
+18. **Cache is speed, not authority** — stale model risk.  
+19. **Same-bar target+stop** → conservative stop-first / ambiguous rules (do not assume win).  
+20. **AFRE v4 strict large-gap rule is `gap > 1.5 x prior ATR`** — exactly 1.5x is not large; do not silently reintroduce the older 1.4x/1% floor.  
+21. **Dealer-signed GEX requires real dealer-position sign** — never infer dealer side from OI alone.  
+22. **UNOBSERVABLE is not SAFE** — missing external facts must remain unavailable/fail-closed.  
+23. **Real derivatives/risk inputs must join the same DecisionContext** — do not create a parallel derivatives BUY/SELL engine.
 
 ### 8.3 Docs / process
 
-22. **IMPLEMENTATION_STATUS** is huge — never “read all”; open one version.  
-23. **Legacy plans** (chart / memory / OpenAlgo) are layers; **spine** is FINAL_REQUIRED_FLOW (includes AI Brief App. A + Think Engine App. B); **god inventory** is PROJECT_GOD_VIEW_FOR_AI; **brain/wiring reference** is APPLICATION_BRAIN_SKELETON_AND_WIRING.  
-24. **MASTER GUIDE** lives *inside* ARCHITECTURE/TRADE_VISION_README bottoms; dedicated packs live under `docs/plans/` plus the new brain/wiring reference under `docs/`.  
-25. **Version renames** happened (plan titles vs status titles for some v1.68/69).  
-26. **Ship hygiene** — after code: status + version pointer + safety still true + optional graph; update brain/wiring reference only if authority/roles/contracts/wiring changed.  
-27. **AI credentials ≠ broker credentials** — vault is Gemini/Grok only.  
-28. **Kronos cannot override NO_TRADE** — research prior only.  
-29. **TrendForge v1.86** — signed research intake only; does not unlock trading.  
-30. **Root research engine** (`research/`) is separate from TV Behavior memory — don’t assume shared state.  
-31. **Discord alerts** are optional ops — not the decision spine.  
-32. **PWA offline** does not mean offline trading authority.  
-33. **Tests may pass while product spine missing** — unit engines ≠ connected flow.  
-34. **Next preferred build** — FINAL_REQUIRED_FLOW Phase 0+1 (one guidance endpoint/card), then Phase 2 approve→sim.
+24. **IMPLEMENTATION_STATUS** is huge — never “read all”; open one version.  
+25. **Legacy plans** (chart / memory / OpenAlgo) are layers; **spine** is FINAL_REQUIRED_FLOW; **god inventory** is PROJECT_GOD_VIEW_FOR_AI; **brain/wiring + current migration roadmap** is APPLICATION_BRAIN_SKELETON_AND_WIRING.  
+26. **MASTER GUIDE** lives *inside* ARCHITECTURE/TRADE_VISION_README bottoms; dedicated packs live under `docs/plans/` plus the brain/wiring reference under `docs/`.  
+27. **Version renames** happened (plan titles vs status titles for some v1.68/69).  
+28. **Ship hygiene** — after code: status + version pointer + safety still true + optional graph; update brain/wiring reference if authority/roles/contracts/wiring/roadmap state changed.  
+29. **AI credentials ≠ broker credentials** — vault is Gemini/Grok only.  
+30. **Kronos cannot override NO_TRADE** — research prior only.  
+31. **TrendForge v1.86** — signed research intake only; does not unlock trading.  
+32. **Root research engine** (`research/`) is separate from TV Behavior memory — don’t assume shared state.  
+33. **Discord alerts** are optional ops — not the decision spine.  
+34. **PWA offline** does not mean offline trading authority.  
+35. **Tests may pass while product spine missing** — unit engines ≠ connected flow.  
+36. **Time-sensitive roadmap checkpoints must be reverified** — Part II §30 records 2026-09-08 PR/CI facts, not permanent truth.  
+37. **After AFRE merge decision, refresh NEXT_BUILD_TARGET / IMPLEMENTATION_STATUS** so old “no code yet” claims do not mislead future work.
 
 ### 8.4 Security / ops (often forgotten)
 
-35. No browser session harvesting / hidden login tokens for brokers.  
-36. Kill switch must block order-path simulation too.  
-37. HMAC secrets for OA/TrendForge are separate; loopback defaults matter.  
-38. Rate limits / nonce / timestamp skew on adapter are security features, not noise.  
-39. Logs must not store secrets, cookies, full order credentials.
+38. No browser session harvesting / hidden login tokens for brokers.  
+39. Kill switch must block order-path simulation too.  
+40. HMAC secrets for OA/TrendForge are separate; loopback defaults matter.  
+41. Rate limits / nonce / timestamp skew on adapter are security features, not noise.  
+42. Logs must not store secrets, cookies, full order credentials.
 
 ---
 
@@ -936,7 +944,13 @@ Read plans in this **meaning order** (not file date):
 
 | Action you want | Open |
 |-----------------|------|
-| **Understand application brains / skeleton / authority / future wiring** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** |
+| **Understand application brains / skeleton / authority / future wiring** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` Part I** |
+| **Execute next one-brain architecture sequence** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` Part II (§30–§41)** |
+| **Classify every engine’s authority** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` §32** |
+| **Design `DecisionContext`** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` §33** |
+| **Design canonical `FinalDecision` / `PaperTradeGuidance`** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` §34** |
+| **Wire real derivatives/risk providers** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` §36** |
+| **Run gap-morning proof / paper observation sequence** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` §§37–40** |
 | Understand required paper flow | `docs/plans/FINAL_REQUIRED_FLOW.md` |
 | Full project god skeleton (indicators+engines) | `docs/plans/PROJECT_GOD_VIEW_FOR_AI.md` |
 | Short multi-AI one-touch plan pack | `docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)` |
@@ -973,9 +987,10 @@ Update **this file** when:
 - new “Need X → read Y” question (§0.6)
 - a “missed detail” becomes a new invariant
 - APPLICATION_BRAIN_SKELETON_AND_WIRING is created/moved/renamed or its ownership/use changes
+- Canonical Decision Spine roadmap state materially changes (AFRE merged, registry completed, DecisionContext adopted, final authority migrated, provider wiring completed)
 ```
 
-Also update `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` when a major engine is added/removed, authority moves, a canonical data path changes, ORB/AFRE/Jarvis wiring changes, or a presentation-only module gains decision authority.
+Also update `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` when a major engine is added/removed, authority moves, a canonical data path changes, ORB/AFRE/Jarvis wiring changes, a presentation-only module gains decision authority, or a Part II roadmap milestone is completed/superseded.
 
 Do **not** recreate `CONTEXT_INDEX.md` or `FILE_OWNERSHIP_MAP.md`.  
 Do **not** duplicate full IMPLEMENTATION_STATUS here — only point to it.
@@ -986,13 +1001,16 @@ Do **not** duplicate full IMPLEMENTATION_STATUS here — only point to it.
 
 ```text
 INDEX (this file)                    → library catalog + §0.6 Q→file + §7.4 ownership
-APPLICATION_BRAIN_SKELETON_AND_WIRING → how the application brains behave/connect + who has authority + future patch rules
+APPLICATION_BRAIN_SKELETON_AND_WIRING Part I
+                                    → how the application brains behave/connect + who has authority
+APPLICATION_BRAIN_SKELETON_AND_WIRING Part II (§30–§41)
+                                    → AFRE stabilization → Canonical Decision Spine → real provider wiring → gap proof → paper observation
 FINAL_REQUIRED_FLOW                  → what product must become (spine)
 PROJECT_GOD_VIEW_FOR_AI              → full indicators + engines skeleton for external AIs
 FINAL_REQUIRED_FLOW App. A           → short multi-AI one-touch plan pack (former PAPER_TRADE_SPINE_AI_BRIEF)
 FINAL_REQUIRED_FLOW App. B           → think-engine order why/when (former THINK_ENGINE_BEST_FLOW)
 ORB_RESEARCH_ENGINE_PLAN             → ORB strategy×TF×bars/window research lab
-ORB_CONTEXT_NATIVE_PLAN_V2           → v2.00 ORB upgrade plan (gap+CPR+PDH/PDL+realism; PROPOSED)
+ORB_CONTEXT_NATIVE_PLAN_V2           → v2.00 ORB upgrade plan (gap+CPR+PDH/PDL+realism; historical plan status must be checked against AFRE branch)
 ORB_STRATEGY_MEMORANDUM              → v2.00 rule-level trade spec (entry/stop/target + examples)
 ORB_V2_JUDGE_FINDINGS                → adversarial verification of the v2 plan
 MASTER GUIDE sections                → condensed findings in ARCHITECTURE/TRADE_VISION_README
@@ -1001,8 +1019,9 @@ SAFETY_INVARIANTS                    → what must never break
 CODE folders + §7.4                  → where to implement / who owns module
 §12 AUDIT                            → full inventory + what was previously skipped
 
-Missing product reality:
-  organized single paper-guidance action not fully connected yet.
+Current architectural priority after AFRE stabilization:
+  consolidate existing intelligence into one canonical DecisionContext + one FinalDecision authority;
+  do not add another independent final-decision brain.
 ```
 
 **Path:** `trade-vision-app/docs/FILE_DOCUMENT_INDEX.md`
@@ -1027,7 +1046,7 @@ This section closes that gap with explicit inventory.
 
 | Category | Prior index | After §12 | Notes |
 |----------|-------------|-----------|-------|
-| TV `docs/*.md` core handoff | Covered | Covered | Complete; +APPLICATION_BRAIN_SKELETON_AND_WIRING indexed 2026-09-08 |
+| TV `docs/*.md` core handoff | Covered | Covered | Complete; +APPLICATION_BRAIN_SKELETON_AND_WIRING indexed 2026-09-08; Part II Canonical Decision Spine roadmap indexed same day |
 | TV `docs/plans/*` (17) | Covered | Covered | Complete |
 | TV `docs/runbooks/*` (7) | Named | Named | Complete |
 | TV `docs/test-reports/*` (4) | Wildcard only | **Named fully** | Fixed |
@@ -1082,7 +1101,7 @@ Paths relative to monorepo root unless marked `(TV)`.
 | Path | In prior index? |
 |------|-----------------|
 | `docs/FILE_DOCUMENT_INDEX.md` | Yes (this file; **also holds** former CONTEXT_INDEX + FILE_OWNERSHIP_MAP) |
-| **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** | **NEW 2026-09-08:** code-grounded plain-English application brain/skeleton/authority/wiring reference for future upgrades/patches |
+| **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** | **NEW 2026-09-08:** code-grounded plain-English application brain/skeleton/authority/wiring reference; **Part II added same day for AFRE stabilization + Canonical Decision Spine + provider/proof/paper evolution sequence** |
 | `docs/context.md` | Yes |
 | `TRADE_VISION_README.md A AI / New-Chat Handoff` | Yes |
 | `TRADE_VISION_README.md` A context maintenance (former CONTEXT_MAINTENANCE_RUNBOOK) | Yes |
@@ -1122,7 +1141,7 @@ Paths relative to monorepo root unless marked `(TV)`.
 | `docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)` | **Token-light multi-AI plan pack** (one-touch paper) |
 | `docs/plans/ORB_RESEARCH_ENGINE_PLAN.md` | **ORB lab:** TF × orb bars/window × strategy combo research |
 | `docs/plans/ORB_TIMING_RESEARCH_V197.md` | **v1.97 build spec:** per-stock ORB clock-window timing research |
-| `docs/plans/ORB_CONTEXT_NATIVE_PLAN_V2.md` | **NEW 2026-08-31, PROPOSED:** v2.00 ORB upgrade plan (gap+CPR+PDH/PDL+realism; M1-M6) |
+| `docs/plans/ORB_CONTEXT_NATIVE_PLAN_V2.md` | **NEW 2026-08-31, originally PROPOSED:** v2.00 ORB upgrade plan (gap+CPR+PDH/PDL+realism; M1-M6); verify current implementation against AFRE v4 branch rather than relying on stale plan-only wording |
 | `docs/plans/ORB_STRATEGY_MEMORANDUM.md` | **NEW 2026-08-31:** v2.00 rule-level trade spec (entry/stop/target + worked examples) |
 | `docs/plans/ORB_V2_JUDGE_FINDINGS.md` | **NEW 2026-08-31:** adversarial verification of the v2 plan (E1-E3, G1-G5) |
 | `docs/plans/ORB_V201_PRECODE_REVIEW_KIMI.md` | **NEW 2026-09-03 (retro):** verbatim archive of submission 1 |
@@ -1355,7 +1374,7 @@ Also non-md under audit (CSVs/JSON/etc.) — operational artifacts, not docs.
 | Item | Count (approx, audit day) |
 |------|---------------------------|
 | Product-relevant `.md` files (noise excluded) | ~70+ |
-| TV `docs/` markdown files | **17 core** + plans + runbooks + test-reports (updated 2026-09-08 for brain/wiring reference) |
+| TV `docs/` markdown files | **17 core** + plans + runbooks + test-reports (updated 2026-09-08 for brain/wiring reference + embedded Canonical Decision Spine roadmap) |
 | Root `reports/**/*.md` | **19** |
 | `behavior/*.py` modules | **~143** |
 | `indicators/self_indc/*.py` | **~48** |
@@ -1366,7 +1385,8 @@ Also non-md under audit (CSVs/JSON/etc.) — operational artifacts, not docs.
 
 ```text
 docs/FILE_DOCUMENT_INDEX.md §7.4  (high-signal modules)
-docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md  (brain/authority/wiring map)
+docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md Part I  (brain/authority/wiring map)
+docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md Part II (next migration / Canonical Decision Spine roadmap)
 apps/api/app/behavior/*.py  (glob)
 apps/api/app/orb/*.py + apps/api/app/orb/adaptive/*.py
 indicators/self_indc/*.py   (glob)
@@ -1415,6 +1435,7 @@ If you need a **generated** full `behavior` filename dump later, produce it by s
 ```text
 [ ] All TV docs/*.md appear in §12.3 C
 [ ] APPLICATION_BRAIN_SKELETON_AND_WIRING is present and indexed when engine/wiring authority reference is needed
+[ ] APPLICATION_BRAIN_SKELETON_AND_WIRING Part II roadmap is refreshed when a Canonical Decision Spine milestone completes/supersedes
 [ ] All docs/plans/* appear in §12.3 D
 [ ] All runbooks appear in §12.3 E
 [ ] All test-reports appear in §12.3 F
@@ -1427,6 +1448,7 @@ If you need a **generated** full `behavior` filename dump later, produce it by s
 [ ] FINAL_REQUIRED_FLOW still top requirement in §0
 [ ] MASTER GUIDE pointers still valid in ARCHITECTURE/TRADE_VISION_README
 [ ] If a major brain/arbiter/data path changed, APPLICATION_BRAIN_SKELETON_AND_WIRING was refreshed
+[ ] If AFRE PR status changed, re-check §30 checkpoint + update NEXT_BUILD_TARGET/IMPLEMENTATION_STATUS
 ```
 
 Re-run command sketch:
@@ -1442,7 +1464,8 @@ Get-ChildItem -Recurse -Filter *.md |
 
 | Need after audit | Open |
 |------------------|------|
-| **Application brain / authority / wiring** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md`** |
+| **Application brain / authority / wiring** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` Part I** |
+| **Next architecture / Canonical Decision Spine migration** | **`docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` Part II (§30–§41)** |
 | Product spine | `docs/plans/FINAL_REQUIRED_FLOW.md` |
 | God-view for external AIs | `docs/plans/PROJECT_GOD_VIEW_FOR_AI.md` |
 | Multi-AI short plan pack | `docs/plans/FINAL_REQUIRED_FLOW.md (Appendix A — AI Brief)` |
@@ -1453,4 +1476,4 @@ Get-ChildItem -Recurse -Filter *.md |
 | Code ownership | `docs/FILE_DOCUMENT_INDEX.md` §7.4 |
 | What shipped | `docs/IMPLEMENTATION_STATUS.md` |
 
-**Audit conclusion:** First index was useful but incomplete. §12 names essentially all product documentation paths and product folders; code modules remain intentionally summarized by folder/count + ownership map. The 2026-09-08 update adds the application-brain/skeleton/wiring reference so future architecture work has a durable, code-grounded mental model before modifying the system.
+**Audit conclusion:** First index was useful but incomplete. §12 names essentially all product documentation paths and product folders; code modules remain intentionally summarized by folder/count + ownership map. The 2026-09-08 update adds the application-brain/skeleton/wiring reference and its Part II roadmap so future architecture work has both a durable mental model and an explicit sequence for consolidating the system into one correctly wired trading brain before adding new decision authority.
