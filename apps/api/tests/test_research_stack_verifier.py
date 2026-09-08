@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import importlib.util
+import shutil
 import subprocess
 from pathlib import Path
 from typing import Any
+
+import pytest
 
 
 SCRIPT_PATH = Path(__file__).resolve().parents[3] / "scripts" / "verify_research_stack.py"
@@ -111,13 +114,17 @@ def test_research_stack_wrapper_reuses_existing_scripts_and_cleanup_guard():
 
 
 def test_research_stack_wrapper_powershell_parser_has_no_errors():
+    powershell = shutil.which("powershell") or shutil.which("pwsh")
+    if not powershell:
+        pytest.skip("PowerShell executable is not installed in this test environment")
+
     command = (
         "$errors=$null; "
         f"[System.Management.Automation.Language.Parser]::ParseFile('{WRAPPER_PATH}', [ref]$null, [ref]$errors) > $null; "
         "if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Output $_.Message }; exit 1 }"
     )
     result = subprocess.run(
-        ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command],
+        [powershell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command],
         text=True,
         capture_output=True,
         timeout=20,
