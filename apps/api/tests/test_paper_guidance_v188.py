@@ -28,6 +28,7 @@ from app.models import (
 client = TestClient(app)
 BASE_NS = 1_714_815_600_000_000_000
 ENGINE_ORDER = [
+    "CANDLE_ANATOMY",
     "CHART_REASONING",
     "CANDLE_CONDITION",
     "LEVEL_CONTEXT",

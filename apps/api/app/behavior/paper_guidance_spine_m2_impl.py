@@ -1,29 +1,31 @@
 from __future__ import annotations
 
-"""M2 Paper Guidance orchestration.
+"""M2 Paper Guidance orchestration with M3.1-B candle migration.
 
-The pre-M2 implementation is preserved byte-for-byte in
-``paper_guidance_spine_legacy.py``. Public helpers/constants remain re-exported
-from that module. Only ``run_paper_guidance_p1`` is overridden here so M2 can
-insert canonical Stage2 inventory + DecisionContext construction before the
-existing D6 request without rewriting the validated D1/D2 and specialist code.
+The pre-M2 implementation remains preserved byte-for-byte in
+``paper_guidance_spine_legacy.py``. M3.1-B adds one deterministic D2 feature
+kernel, one Candle Anatomy calculation, a real CANDLE_ANATOMY receipt, and
+reuses that same Anatomy result in Candle Condition and Chart Reasoning while
+keeping the locked legacy D6 inputs unchanged.
 """
 
 from uuid import NAMESPACE_URL, uuid5
 
 from . import paper_guidance_spine_legacy as _legacy
 from .paper_guidance_spine_legacy import *  # noqa: F401,F403
+from .candle_anatomy import analyze_candles
 from .decision_spine.decision_context import DecisionContextError
 from .decision_spine.paper_guidance_decision_context_adapter import (
     build_canonical_stage2_observations,
     build_paper_guidance_decision_context,
     decision_context_audit_summary,
 )
+from .decision_spine.snapshot_feature_kernel import build_snapshot_feature_kernel
 from .decision_spine.stage2_integrity import build_stage2_integrity_report
 
 
 def __getattr__(name: str):
-    """Delegate private legacy helpers for compatibility during M2 migration."""
+    """Delegate private legacy helpers for compatibility during migration."""
 
     return getattr(_legacy, name)
 
@@ -35,11 +37,7 @@ def run_paper_guidance_p1(
     kill_switch,
     config=None,
 ):
-    """Run Paper Guidance with M2 canonical context before the unchanged D6.
-
-    The M2 layer performs orchestration/integrity work only. It does not run new
-    market calculations, fetch data, grant paper authority, or alter D6 inputs.
-    """
+    """Run Paper Guidance with canonical M3.1-B candle evidence before unchanged D6."""
 
     settings = config or _legacy.load_paper_guidance_config()
     base = _legacy.run_paper_guidance_p0(
@@ -58,32 +56,92 @@ def run_paper_guidance_p1(
     engines_run = ["D1_SAFETY_GATE", "D2_CLOSED_CANDLE_SNAPSHOT"]
     engines_skipped = []
 
-    chart, chart_receipt = _legacy._run_engine(
-        "CHART_REASONING",
-        "D3A_SETUP",
-        snapshot,
-        lambda: _legacy.build_chart_reasoning_report(_legacy.ChartReasoningRequest(series=series)),
-        lambda value: {
-            "trend_health": value.trend_health,
-            "chop_risk": value.chop_risk,
-            "volatility_regime": value.volatility_regime,
-            "trend_persistence_score": value.trend_persistence_score,
-        },
-    )
+    # M3.1-A/B: build the D2 feature substrate exactly once and compute Anatomy
+    # exactly once. Failure is explicit and dependent specialists do not fall
+    # back to independent Anatomy recomputation in the canonical route.
+    try:
+        feature_kernel = build_snapshot_feature_kernel(snapshot)
+        anatomy, anatomy_receipt = _legacy._run_engine(
+            "CANDLE_ANATOMY",
+            "D3A_SETUP",
+            snapshot,
+            lambda: analyze_candles(
+                _legacy.CandleAnatomyRequest(series=series),
+                feature_kernel=feature_kernel,
+            ),
+            lambda value: _bounded_anatomy_summary(value, feature_kernel),
+        )
+    except Exception as exc:
+        feature_kernel = None
+        anatomy = None
+        warning = f"CANDLE_ANATOMY degraded safely: {type(exc).__name__}: {exc}"
+        anatomy_receipt = _legacy._receipt(
+            engine_id="CANDLE_ANATOMY",
+            stage="D3A_SETUP",
+            engine_version="unavailable",
+            snapshot=snapshot,
+            status="degraded",
+            output_summary={
+                "available": False,
+                "calculation_audit": {
+                    "feature_kernel_build_count": 0,
+                    "candle_anatomy_compute_count": 0,
+                },
+            },
+            warnings=[warning],
+        )
+    receipts.append(anatomy_receipt)
+    _legacy._record_engine_state(anatomy_receipt, engines_run, engines_skipped, warnings)
+
+    if anatomy is None:
+        chart = None
+        chart_receipt = _dependency_unavailable_receipt(
+            engine_id="CHART_REASONING",
+            snapshot=snapshot,
+            anatomy_receipt=anatomy_receipt,
+        )
+    else:
+        chart, chart_receipt = _legacy._run_engine(
+            "CHART_REASONING",
+            "D3A_SETUP",
+            snapshot,
+            lambda: _legacy.build_chart_reasoning_report(
+                _legacy.ChartReasoningRequest(series=series),
+                anatomy=anatomy,
+            ),
+            lambda value: {
+                "trend_health": value.trend_health,
+                "chop_risk": value.chop_risk,
+                "volatility_regime": value.volatility_regime,
+                "trend_persistence_score": value.trend_persistence_score,
+                "upstream_candle_anatomy_hash": anatomy_receipt.output_hash,
+            },
+        )
     receipts.append(chart_receipt)
     _legacy._record_engine_state(chart_receipt, engines_run, engines_skipped, warnings)
 
-    condition, condition_receipt = _legacy._run_engine(
-        "CANDLE_CONDITION",
-        "D3A_SETUP",
-        snapshot,
-        lambda: _legacy.classify_conditions(_legacy.ConditionClassifierRequest(series=series)),
-        lambda value: {
-            "market_state": value.market_state,
-            "signal_bias": value.final_signal_bias,
-            "blocks_trade": value.blocks_trade,
-        },
-    )
+    if anatomy is None:
+        condition = None
+        condition_receipt = _dependency_unavailable_receipt(
+            engine_id="CANDLE_CONDITION",
+            snapshot=snapshot,
+            anatomy_receipt=anatomy_receipt,
+        )
+    else:
+        condition, condition_receipt = _legacy._run_engine(
+            "CANDLE_CONDITION",
+            "D3A_SETUP",
+            snapshot,
+            lambda: _legacy.classify_conditions(
+                _legacy.ConditionClassifierRequest(series=series, anatomy=anatomy)
+            ),
+            lambda value: {
+                "market_state": value.market_state,
+                "signal_bias": value.final_signal_bias,
+                "blocks_trade": value.blocks_trade,
+                "upstream_candle_anatomy_hash": anatomy_receipt.output_hash,
+            },
+        )
     receipts.append(condition_receipt)
     _legacy._record_engine_state(condition_receipt, engines_run, engines_skipped, warnings)
 
@@ -195,9 +253,6 @@ def run_paper_guidance_p1(
     low_evidence = authoritative_count < settings.minimum_evidence_count
     required_mtf_complete = not mtf_evidence.missing_required_timeframes
 
-    # M2: complete the canonical inventory *before* the Stage2 report. Engines
-    # that are implemented elsewhere but not D2-native here are explicit
-    # UNAVAILABLE/SKIPPED facts; they are never silently neutralized.
     stage2_observations = build_canonical_stage2_observations(
         snapshot_hash=snapshot.snapshot_hash,
         active_engine_ids=[receipt.engine_id for receipt in receipts],
@@ -248,9 +303,19 @@ def run_paper_guidance_p1(
             warnings=warnings,
         )
     context_audit = decision_context_audit_summary(decision_context)
+    context_audit["calculation_audit"] = {
+        "feature_kernel_build_count": (
+            feature_kernel.audit.feature_kernel_build_count if feature_kernel is not None else 0
+        ),
+        "candle_anatomy_compute_count": (
+            int(anatomy.summary.get("calculation_audit", {}).get("candle_anatomy_compute_count", 0))
+            if anatomy is not None
+            else 0
+        ),
+        "decision_context_build_count": 1,
+    }
 
-    # D6 inputs below are intentionally byte-for-byte equivalent in meaning to
-    # the pre-M2 route. M2 records truthful context but does not alter scoring.
+    # D6 inputs remain intentionally equivalent to the locked pre-M3.1 route.
     arbiter_request = _legacy.FinalConfluenceArbiterRequest(
         symbol=snapshot.symbol,
         timeframe=snapshot.timeframe,
@@ -383,6 +448,77 @@ def run_paper_guidance_p1(
         low_evidence_flag=low_evidence,
         historical_match_count=authoritative_count,
         minimum_evidence_count=settings.minimum_evidence_count,
+    )
+
+
+def _bounded_anatomy_summary(anatomy, feature_kernel) -> dict:
+    latest = anatomy.latest
+    recent = anatomy.features[-20:]
+    structure_types = [item for feature in recent for item in feature.candle_structure_types]
+    return {
+        "latest": {
+            "direction": latest.direction if latest else None,
+            "body_pct": latest.body_pct if latest else None,
+            "upper_wick_pct": latest.upper_wick_pct if latest else None,
+            "lower_wick_pct": latest.lower_wick_pct if latest else None,
+            "close_location": latest.close_location_value if latest else None,
+            "range_atr": latest.range_atr if latest else None,
+            "volume_z": latest.volume_z if latest else None,
+            "follow_through_count": latest.follow_through_count if latest else 0,
+            "failed_follow_through": latest.failed_follow_through if latest else False,
+            "structure_types": list(latest.candle_structure_types) if latest else [],
+        },
+        "recent_window": {
+            "window_size": len(recent),
+            "bullish_count": sum(feature.direction == "bullish" for feature in recent),
+            "bearish_count": sum(feature.direction == "bearish" for feature in recent),
+            "doji_count": sum(feature.direction == "doji" for feature in recent),
+            "rejection_count": structure_types.count("rejection_candle"),
+            "compression_count": structure_types.count("compression_candle"),
+            "expansion_count": structure_types.count("expansion_candle"),
+            "inside_count": structure_types.count("inside_bar"),
+            "outside_count": structure_types.count("outside_bar"),
+        },
+        "quality": {
+            "available": latest is not None,
+            "source_bar_count": anatomy.total_candles,
+            "calculation_version": anatomy.calculation_version,
+            "missing_volume_count": sum(feature.volume is None for feature in anatomy.features),
+        },
+        "provenance": {
+            "feature_kernel_version": feature_kernel.kernel_version,
+            "feature_kernel_hash": feature_kernel.feature_hash,
+            "source_snapshot_hash": feature_kernel.source_snapshot_hash,
+        },
+        "calculation_audit": {
+            "feature_kernel_build_count": feature_kernel.audit.feature_kernel_build_count,
+            "candle_anatomy_compute_count": int(
+                anatomy.summary.get("calculation_audit", {}).get("candle_anatomy_compute_count", 0)
+            ),
+        },
+        "used_for_probability": False,
+        "trade_allowed": False,
+        "order_routing_enabled": False,
+        "live_trading_blocked": True,
+    }
+
+
+def _dependency_unavailable_receipt(*, engine_id, snapshot, anatomy_receipt):
+    reason = (
+        f"{engine_id} dependency unavailable: CANDLE_ANATOMY did not produce usable canonical evidence."
+    )
+    return _legacy._receipt(
+        engine_id=engine_id,
+        stage="D3A_SETUP",
+        engine_version="dependency-unavailable",
+        snapshot=snapshot,
+        status="degraded",
+        output_summary={
+            "available": False,
+            "dependency": "CANDLE_ANATOMY",
+            "upstream_candle_anatomy_hash": anatomy_receipt.output_hash,
+        },
+        warnings=[reason],
     )
 
 

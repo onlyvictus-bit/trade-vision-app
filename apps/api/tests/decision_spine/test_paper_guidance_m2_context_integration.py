@@ -163,13 +163,15 @@ def test_m2_pg_003_changed_closed_candle_changes_d2_and_context_hash():
     assert first.risk_summary["decision_context"]["context_hash"] != second.risk_summary["decision_context"]["context_hash"]
 
 
-def test_m2_pg_004_stage2_inventory_contains_inactive_canonical_sources_explicitly():
+def test_m2_pg_004_stage2_inventory_activates_m31_candle_anatomy_only():
     result = _run(_request())
     states = {
         item["engine_id"]: item
         for item in result.risk_summary["stage2_integrity"]["engine_states"]
     }
-    assert states["CANDLE_ANATOMY"]["availability"] == "UNAVAILABLE"
+    assert states["CANDLE_ANATOMY"]["availability"] == "AVAILABLE"
+    assert states["CANDLE_ANATOMY"]["source_mode"] == "VERIFIED_SNAPSHOT"
+    assert states["CANDLE_ANATOMY"]["used_for_probability"] is False
     assert states["SECTOR_CONTEXT"]["availability"] == "UNAVAILABLE"
     assert states["RELATIVE_STRENGTH"]["availability"] == "UNAVAILABLE"
     assert states["DERIVATIVES"]["availability"] == "UNAVAILABLE"
@@ -177,7 +179,6 @@ def test_m2_pg_004_stage2_inventory_contains_inactive_canonical_sources_explicit
     assert states["ORB_CORE"]["availability"] == "SKIPPED"
     assert states["AFRE"]["availability"] == "SKIPPED"
     for engine_id in (
-        "CANDLE_ANATOMY",
         "SECTOR_CONTEXT",
         "RELATIVE_STRENGTH",
         "DERIVATIVES",
@@ -205,9 +206,6 @@ def test_m2_pg_006_context_failure_stops_before_d6(monkeypatch):
         "app.behavior.paper_guidance_spine.build_paper_guidance_decision_context",
         lambda **_: (_ for _ in ()).throw(RuntimeError("forced-context-failure")),
     )
-    # RuntimeError is intentionally outside the typed fail-closed boundary. The
-    # production adapter is expected to raise DecisionContextError for contract
-    # failures; unexpected programmer faults must remain visible during tests.
     with pytest.raises(RuntimeError, match="forced-context-failure"):
         _run(_request())
 
@@ -236,7 +234,7 @@ def test_m2_pg_008_d6_remains_the_only_final_band_engine():
     assert result.risk_summary["decision_context"]["safety"]["trade_allowed"] is False
 
 
-def test_m2_pg_009_context_audit_does_not_duplicate_full_world_state():
+def test_m2_pg_009_context_audit_stays_bounded_during_m31_migration():
     result = _run(_request())
     audit = deepcopy(result.risk_summary["decision_context"])
     assert "price_structure" not in audit
@@ -251,16 +249,22 @@ def test_m2_pg_009_context_audit_does_not_duplicate_full_world_state():
         "integrity",
         "evidence",
         "safety",
+        "calculation_audit",
+    }
+    assert audit["calculation_audit"] == {
+        "feature_kernel_build_count": 1,
+        "candle_anatomy_compute_count": 1,
+        "decision_context_build_count": 1,
     }
 
 
-def test_m2_pg_010_d6_output_matches_preserved_pre_m2_route():
+def test_m2_pg_010_d6_semantics_match_preserved_pre_m2_route():
     request = _request()
 
-    # Run the public M2 facade first. This also synchronizes the historical
-    # public monkeypatch surface into the byte-preserved legacy implementation,
-    # ensuring both paths use exactly the same deterministic fixture inputs.
-    m2_result = _run(request)
+    # M3.1 adds receipts/provenance, so guidance identity and receipt lists are
+    # expected to change. The locked parity requirement is D6 input/output
+    # behavior: no migration-stage candle plumbing may change the final arbiter.
+    migrated_result = _run(request)
     legacy_result = legacy_spine.run_paper_guidance_p1(
         request,
         mode=_mode(),
@@ -268,10 +272,23 @@ def test_m2_pg_010_d6_output_matches_preserved_pre_m2_route():
         config=PaperGuidanceConfig(),
     )
 
-    assert m2_result.snapshot_hash == legacy_result.snapshot_hash
-    assert m2_result.guidance_id == legacy_result.guidance_id
-    assert m2_result.final_band == legacy_result.final_band
-    assert m2_result.confidence_cap == legacy_result.confidence_cap
-    assert m2_result.next_action == legacy_result.next_action
-    assert m2_result.arbiter_summary == legacy_result.arbiter_summary
-    assert m2_result.engine_receipts == legacy_result.engine_receipts
+    assert migrated_result.snapshot_hash == legacy_result.snapshot_hash
+    assert migrated_result.final_band == legacy_result.final_band
+    assert migrated_result.confidence_cap == legacy_result.confidence_cap
+    assert migrated_result.next_action == legacy_result.next_action
+    assert migrated_result.arbiter_summary == legacy_result.arbiter_summary
+
+    migrated_receipts = {item.engine_id: item for item in migrated_result.engine_receipts}
+    legacy_receipts = {item.engine_id: item for item in legacy_result.engine_receipts}
+    for engine_id in (
+        "CHART_REASONING",
+        "CANDLE_CONDITION",
+        "LEVEL_CONTEXT",
+        "SNAPSHOT_INDICATOR_RUNTIME",
+        "MTF_CONFIRMATION",
+        "PERSISTED_INDICATOR_MEMORY",
+        "MARKET_STRUCTURE_LIQUIDITY",
+        "EXECUTION_EVENT_OI_RISK",
+        "FINAL_CONFLUENCE_ARBITER",
+    ):
+        assert migrated_receipts[engine_id].status == legacy_receipts[engine_id].status

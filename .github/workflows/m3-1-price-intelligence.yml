@@ -16,6 +16,7 @@ on:
       - apps/api/app/behavior/context_engines.py
       - apps/api/app/behavior/real_indicator_adapter.py
       - apps/api/app/behavior/paper_guidance_spine.py
+      - apps/api/app/behavior/paper_guidance_spine_m2_impl.py
       - apps/api/app/behavior/paper_guidance_spine_m3_1_impl.py
       - apps/api/tests/decision_spine/test_snapshot_feature_kernel.py
       - apps/api/tests/decision_spine/test_m3_1_candle_pipeline.py
@@ -62,6 +63,9 @@ jobs:
             apps/api/app/behavior/decision_spine/decision_context.py \
             apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py \
             apps/api/app/behavior/decision_spine/snapshot_feature_kernel.py \
+            apps/api/app/behavior/candle_anatomy.py \
+            apps/api/app/behavior/condition_classifier.py \
+            apps/api/app/behavior/chart_reasoning_volatility.py \
             apps/api/app/behavior/paper_guidance_spine.py \
             apps/api/app/behavior/paper_guidance_spine_m2_impl.py \
             apps/api/app/behavior/paper_guidance_spine_legacy.py
@@ -69,6 +73,10 @@ jobs:
       - name: M3.1-A snapshot feature kernel tests
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_snapshot_feature_kernel.py
+
+      - name: M3.1-B canonical candle pipeline tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_1_candle_pipeline.py
 
       - name: Locked M2 DecisionContext regression
         working-directory: apps/api

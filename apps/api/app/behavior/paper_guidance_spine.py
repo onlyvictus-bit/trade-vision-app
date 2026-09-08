@@ -1,16 +1,19 @@
 from __future__ import annotations
 
-"""Public Paper Guidance facade for the M2 Decision Spine migration.
+"""Public Paper Guidance facade for the Decision Spine migration.
 
 The original implementation is preserved in ``paper_guidance_spine_legacy`` and
-the M2 orchestration implementation is preserved in ``paper_guidance_spine_m2_impl``.
-This facade keeps the historical public import/monkeypatch surface stable while
-routing ``run_paper_guidance_p1`` through the M2 implementation.
+the canonical orchestration implementation is preserved in
+``paper_guidance_spine_m2_impl`` while M3.1 migrates specialist families one at
+a time. This facade keeps the historical public import/monkeypatch surface
+stable.
 """
 
+from ..models import CandleAnatomyRequest
 from . import paper_guidance_spine_legacy as _legacy
 from . import paper_guidance_spine_m2_impl as _m2
 from .paper_guidance_spine_legacy import *  # noqa: F401,F403
+from .decision_spine.decision_context import DecisionContextError
 from .decision_spine.paper_guidance_decision_context_adapter import (
     build_canonical_stage2_observations as _build_canonical_stage2_observations,
     build_paper_guidance_decision_context,
@@ -23,18 +26,34 @@ from .decision_spine.stage2_integrity import (
     build_stage2_integrity_report,
 )
 
+# M3.1-B keeps the legacy module byte-preserved while allowing the migrated
+# orchestration to construct the request contract through the compatibility
+# namespace it already uses for all other Paper Guidance models.
+_legacy.CandleAnatomyRequest = CandleAnatomyRequest
+
+# The v1.88 helper predates calculator-style outputs and therefore does not
+# recognize ``calculation_version``. Extend only the compatibility lookup so a
+# CANDLE_ANATOMY receipt records candle-anatomy.v0.15 truthfully while every
+# existing specialist keeps its exact historical version resolution.
+_legacy_engine_version = _legacy._engine_version
+
+
+def _canonical_engine_version(value) -> str:
+    calculation_version = getattr(value, "calculation_version", None)
+    if calculation_version:
+        return str(calculation_version)
+    return _legacy_engine_version(value)
+
+
+_legacy._engine_version = _canonical_engine_version
+
 
 def __getattr__(name: str):
     return getattr(_legacy, name)
 
 
 def build_canonical_stage2_observations(*, snapshot_hash: str, active_engine_ids):
-    """Complete M2 canonical inventory while preserving locked M0 migration facts.
-
-    9C and PTA are not DecisionContext fields, but M0 intentionally exposed them
-    as SKIPPED evidence in this route. M2 must not make those explicit absences
-    disappear merely because its canonical world-state has a different field set.
-    """
+    """Complete canonical inventory while preserving locked M0 migration facts."""
 
     observations = list(
         _build_canonical_stage2_observations(
@@ -69,10 +88,35 @@ def build_canonical_stage2_observations(*, snapshot_hash: str, active_engine_ids
                 future_leakage_detected=False,
                 explanation_only=True,
                 unavailable_reasons=(reason,),
-                notes=("Locked M0 migration observation preserved by M2.",),
+                notes=("Locked M0 migration observation preserved by canonical Paper Guidance.",),
             )
         )
     return tuple(sorted(observations, key=lambda item: item.engine_id))
+
+
+def _build_m31_guarded_decision_context(**kwargs):
+    """Reject failed canonical candle dependencies before D6 can neutralize them."""
+
+    receipts = {
+        receipt.engine_id: receipt
+        for receipt in kwargs.get("receipts", ())
+        if getattr(receipt, "engine_id", None)
+    }
+    incomplete = [
+        engine_id
+        for engine_id in ("CANDLE_ANATOMY", "CANDLE_CONDITION", "CHART_REASONING")
+        if engine_id not in receipts or receipts[engine_id].status != "completed"
+    ]
+    if incomplete:
+        detail = ", ".join(
+            f"{engine_id}={getattr(receipts.get(engine_id), 'status', 'missing')}"
+            for engine_id in incomplete
+        )
+        raise DecisionContextError(
+            "M3.1 canonical candle dependency did not complete; D6 neutral substitution is forbidden: "
+            + detail
+        )
+    return build_paper_guidance_decision_context(**kwargs)
 
 
 def _sync_patchable_dependencies() -> None:
@@ -86,11 +130,9 @@ def _sync_patchable_dependencies() -> None:
         if name in globals():
             setattr(_legacy, name, globals()[name])
 
-    # These M2 boundaries are intentionally patchable for fail-closed tests and
-    # future fault-injection/replay harnesses.
     _m2.build_stage2_integrity_report = build_stage2_integrity_report
     _m2.build_canonical_stage2_observations = build_canonical_stage2_observations
-    _m2.build_paper_guidance_decision_context = build_paper_guidance_decision_context
+    _m2.build_paper_guidance_decision_context = _build_m31_guarded_decision_context
     _m2.decision_context_audit_summary = decision_context_audit_summary
 
 

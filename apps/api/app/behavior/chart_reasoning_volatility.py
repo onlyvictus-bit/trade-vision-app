@@ -3,16 +3,36 @@ from __future__ import annotations
 import math
 from statistics import mean, pstdev
 
-from ..models import ChartReasoningGate, ChartReasoningReport, ChartReasoningRequest, CandleAnatomyRequest, CandleBar
+from ..models import (
+    CandleAnatomyRequest,
+    CandleAnatomyResult,
+    CandleBar,
+    ChartReasoningGate,
+    ChartReasoningReport,
+    ChartReasoningRequest,
+)
 from .candle_anatomy import analyze_candles
 
 
 CHART_REASONING_VERSION = "behavior-chart-reasoning-volatility.v1.70"
 
 
-def build_chart_reasoning_report(request: ChartReasoningRequest) -> ChartReasoningReport:
+def build_chart_reasoning_report(
+    request: ChartReasoningRequest,
+    *,
+    anatomy: CandleAnatomyResult | None = None,
+) -> ChartReasoningReport:
+    """Build chart reasoning from closed candles and optional precomputed anatomy.
+
+    Standalone callers preserve the legacy fallback. Canonical M3.1 orchestration
+    passes the already-computed CandleAnatomyResult so Anatomy is not recomputed.
+    """
+
     bars = sorted(request.series.bars, key=lambda bar: (bar.timestamp_ns, bar.sequence_number))
-    anatomy = analyze_candles(CandleAnatomyRequest(series=request.series, atr_period=request.atr_period))
+    anatomy = anatomy or analyze_candles(
+        CandleAnatomyRequest(series=request.series, atr_period=request.atr_period)
+    )
+    _validate_anatomy_identity(request, bars, anatomy)
     latest = anatomy.latest
     latest_bar = bars[-1] if bars else None
     closes = [bar.close for bar in bars]
@@ -121,6 +141,20 @@ def build_chart_reasoning_report(request: ChartReasoningRequest) -> ChartReasoni
         failure_questions=_failure_questions(len(bars), current_atr, hv_series, bb_widths),
         gates=gates,
     )
+
+
+def _validate_anatomy_identity(
+    request: ChartReasoningRequest,
+    bars: list[CandleBar],
+    anatomy: CandleAnatomyResult,
+) -> None:
+    if anatomy.symbol != request.series.symbol.upper() or anatomy.timeframe != request.series.timeframe:
+        raise ValueError("Chart Reasoning Candle Anatomy identity mismatch")
+    if anatomy.total_candles != len(bars) or len(anatomy.features) != len(bars):
+        raise ValueError("Chart Reasoning Candle Anatomy bar-count mismatch")
+    for bar, feature in zip(bars, anatomy.features, strict=True):
+        if (feature.timestamp_ns, feature.sequence_number) != (bar.timestamp_ns, bar.sequence_number):
+            raise ValueError("Chart Reasoning Candle Anatomy causal sequence mismatch")
 
 
 def _mean(values: list[float]) -> float:
