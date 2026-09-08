@@ -5,6 +5,7 @@
 > Use this file before changing decision logic, adding a new engine, rewiring an existing engine, changing ORB/AFRE behavior, or adding a new final-output surface.
 >
 > **Created:** 2026-09-08  
+> **Last roadmap update:** 2026-09-08 — added the Canonical Decision Spine / Brain Orchestration evolution sequence.  
 > **Code scope reviewed:** active API wiring plus major Behavior, ORB, adaptive AFRE, Jarvis, risk, memory, hypothesis, derivatives, replay/proof and external-review paths.  
 > **Important branch note:** the AFRE v4 failure/derivatives/18-variant work described here is present on `afre-v4-production-hardening`; it is not assumed to be merged into `main` until the PR is merged.  
 > **Source-of-truth rule:** this document explains the architecture. Implementation code remains the executable source of truth.
@@ -1075,3 +1076,719 @@ observe facts
 The canonical final question remains:
 
 > **Given everything currently known, what is the best action now — WAIT, WATCH, AVOID/NO_TRADE, or PAPER-CANDIDATE — why, what can prove the idea wrong, and what exact evidence must happen next?**
+
+---
+
+# PART II — EVOLUTION ROADMAP: TURN THE EXISTING ENGINES INTO ONE CORRECTLY WIRED TRADING BRAIN
+
+> **Roadmap purpose:** The next phase is not to add more independent intelligence. It is to turn the engines already built into **one correctly wired trading brain**.
+>
+> The repository product requirement already defines the destination: **one organized analysis pipeline, one boss arbiter, one decision language, and one `PaperTradeGuidance`/final-decision result**.
+>
+> **Time-sensitive checkpoint rule:** Section 30 records facts verified on **2026-09-08**. Re-check GitHub PR/CI state before executing those steps in a later session. Sections 31–38 are the durable architectural sequence unless a reviewed design decision changes them.
+
+---
+
+## 30. Immediate checkpoint — stabilize AFRE v4 PR #1 first
+
+### Verified checkpoint: 2026-09-08
+
+At this checkpoint:
+
+- AFRE targeted tests are green;
+- PR #1 is still Draft;
+- PR #1 is mergeable;
+- the latest CI run is red because `api-no-new-regressions` is still running the five known baseline failures that its command is intended to deselect;
+- that failure set includes:
+  - pre-existing 9C real-runtime normalization/telemetry failures;
+  - pre-existing PTA marker/runtime behavior failures;
+  - missing HSTRY CSV fixture in Linux CI;
+  - PowerShell parser test running on Ubuntu without `powershell`;
+- therefore the first repair target is the **CI baseline/exclusion mechanism**, not trading behavior.
+
+### Do not “fix” trading code to make baseline infrastructure failures disappear
+
+The immediate task is:
+
+```text
+AFRE v4 PR
+    |
+    v
+repair no-new-regression CI
+    |
+    v
+prove branch adds zero new failures
+    |
+    v
+review AFRE safety / proof-fingerprint behavior
+    |
+    v
+keep paper promotion fail-closed
+    |
+    v
+merge AFRE v4
+```
+
+### PR-scope rule
+
+Do **not** put the next major orchestration refactor into PR #1.
+
+PR #1 already contains a large cohesive change set:
+
+- 18 ORB variants;
+- derivatives calculations;
+- failure-scenario detection;
+- risk-context wiring;
+- adaptive runtime changes;
+- regression tests;
+- documentation.
+
+Finish, verify, review and merge that unit first. Start brain orchestration on a separate branch/PR.
+
+### Acceptance before moving on
+
+Do not start the major orchestration migration until all of the following are true:
+
+```text
+[ ] AFRE targeted suite passes
+[ ] no-new-regression job correctly distinguishes branch failures from baseline failures
+[ ] branch introduces zero unexplained regressions
+[ ] strict gap / dealer-GEX / UNOBSERVABLE semantics remain intact
+[ ] code/proof fingerprint behavior is reviewed after material source changes
+[ ] PAPER-CANDIDATE remains proof + authority + safety + human gated
+[ ] no live broker route was introduced
+[ ] PR #1 is merged or explicitly abandoned/replaced
+[ ] NEXT_BUILD_TARGET / IMPLEMENTATION_STATUS are refreshed after the merge decision
+```
+
+---
+
+## 31. Next major milestone — Canonical Decision Spine / Brain Orchestration
+
+### Why this is the next major build
+
+The project already has strong specialist intelligence. The architectural problem is that several components can appear to produce a decision:
+
+```text
+Behavior Decision
+Final Confluence Arbiter
+Twin Arbiter
+Jarvis Arbiter
+Jarvis Fusion
+Jarvis Master Panel
+ORB / AFRE decision
+Kronos opinion
+Gemini / Grok review
+```
+
+That makes authority harder to reason about, test and evolve.
+
+The next milestone should therefore be named:
+
+> **Canonical Decision Spine / Brain Orchestration**
+
+### Target architecture
+
+```text
+                    ALL VERIFIED DATA
+                           |
+                           v
+                 CANONICAL MARKET SNAPSHOT
+                           |
+                           v
+                 CALCULATORS / FEATURES
+                           |
+        +------------------+------------------+
+        |                  |                  |
+        v                  v                  v
+ Price / Structure       Context            Memory
+        |                  |                  |
+        +------------------+------------------+
+                           |
+                           v
+                       HYPOTHESES
+                           |
+                           v
+                  STRATEGY / ORB / AFRE
+                           |
+                           v
+                  DERIVATIVES / EVENTS
+                           |
+                           v
+                     FAILURE ENGINE
+                           |
+                           v
+                EXECUTION + RISK REALITY
+                           |
+                           v
+                    FINAL CONFLUENCE
+                   ONE FINAL AUTHORITY
+                           |
+                           v
+                    PROOF / SAFETY GATE
+                           |
+                           v
+                     FINAL DECISION
+                           |
+                           v
+                         JARVIS
+                           |
+                           v
+                  HUMAN-READABLE VIEW
+```
+
+### Architectural invariant
+
+There may be many evidence producers and many specialist vetoes, but there must be **one canonical owner of the final band/action**.
+
+---
+
+## 32. Milestone task 1 — create an authoritative Engine Authority Registry
+
+Before rewiring code, classify every meaningful engine by role and authority.
+
+Minimum registry columns:
+
+```text
+engine_id
+module
+classification
+input_contract
+output_contract
+may_propose
+may_veto
+may_downgrade
+may_set_final_band
+may_execute
+authority_rank
+canonical_consumer
+legacy_or_current
+notes
+```
+
+### Initial authority model
+
+| Engine | Classification | May propose? | May veto? | May set final band? |
+|---|---|---:|---:|---:|
+| Candle Anatomy | Calculator | No | No | No |
+| Condition Classifier | Evidence | No | Limited | No |
+| Context Engines | Evidence / context | No | Limited | No |
+| Session Memory | Memory evidence | No | No | No |
+| Pattern / Analog Memory | Memory evidence | No | No | No |
+| Hypothesis Engine | Scenario evidence | No | No | No |
+| ORB / AFRE | Strategy / scenario | Yes | Yes | No |
+| Derivatives | Evidence / risk | No | Yes | No |
+| RiskContext | Factual risk evidence | No | Yes | No |
+| Failure Detector | Risk / veto | No | Yes | No |
+| Execution/Event/OI Risk | Execution-risk gate | No | Yes | No |
+| Risk Engine | Risk gate | No | Yes | No |
+| Behavior Decision | Specialist decision evidence during migration | Yes | Yes | No after consolidation |
+| Kronos | Reviewer / prior | No | No | No |
+| Gemini / Grok | Reviewer | No | No | No |
+| Twin Arbiter | Conflict evidence | No | Downgrade only | No |
+| Jarvis Arbiter | Migration compatibility / safety wrapper | No | No upgrade; downgrade only | No after consolidation |
+| Jarvis Fusion | Aggregation / presentation evidence | No | No upgrade | No |
+| Jarvis Master Panel | Presentation | No | No | No |
+| **Final Confluence Arbiter** | **Canonical final authority** | **Yes** | **Yes** | **YES** |
+| Jarvis Trading Decision Output | Presenter | No | No | No |
+
+### Why do this first
+
+This registry exposes:
+
+- duplicated authority;
+- ambiguous ownership;
+- hidden final-band writers;
+- legacy paths that should become read-only;
+- engines that recalculate data instead of consuming canonical evidence;
+- safety gates that must remain above strategy confidence.
+
+Do not delete old paths yet. First classify and wrap them, then migrate with regression proof.
+
+---
+
+## 33. Milestone task 2 — create one canonical evidence contract: `DecisionContext`
+
+All specialist engines should contribute to, or consume from, one point-in-time evidence object rather than independently constructing separate worldviews.
+
+Conceptual contract:
+
+```text
+DecisionContext
+
+identity
+  symbol
+  timeframe
+  decision_time
+  snapshot_hash
+  universe_watermark
+
+input_integrity
+  data_quality
+  PIT_status
+  freshness
+  quarantine_status
+
+price_structure
+candle_anatomy
+levels
+market_regime
+session_context
+index_context
+sector_context
+relative_strength
+
+indicators
+memory
+historical_analogs
+
+hypotheses
+
+strategy_candidates
+orb_variants
+afre_scenarios
+
+derivatives
+events
+failure_scenarios
+
+execution_quality
+portfolio_risk
+
+blockers
+warnings
+
+proof_status
+paper_authority
+
+provenance
+  engines_run[]
+  evidence_versions[]
+  capability_sources[]
+```
+
+### Contract rules
+
+1. Same symbol/timeframe/decision timestamp/snapshot hash across the decision.
+2. Closed-bar/PIT-safe evidence only.
+3. Missing evidence has an explicit state; it is never converted to zero/neutral automatically.
+4. Each evidence field has provenance and freshness.
+5. Engines do not secretly fetch/recalculate an independent conflicting snapshot during arbitration.
+6. Expensive/reusable calculations happen upstream and are shared.
+7. Final arbiter consumes the context; it should not be a hidden data-provider layer.
+8. A material contract/code change participates in proof/fingerprint governance where applicable.
+
+---
+
+## 34. Milestone task 3 — create one canonical final decision contract
+
+The existing `PaperTradeGuidance` requirement is close to the desired product output. Consolidate it into one canonical final decision contract instead of exposing multiple competing final answers.
+
+Conceptual contract:
+
+```text
+FinalDecision
+
+identity
+  symbol
+  time
+  timeframe
+  decision_context_hash
+
+action
+  WAIT
+  WATCH
+  AVOID
+  PAPER-CANDIDATE
+
+bias
+  LONG
+  SHORT
+  NEUTRAL
+
+market_story
+
+primary_setup
+primary_setup_state
+
+alternative_scenarios[]
+
+derivatives_summary
+
+failure_check[]
+  OBSERVED
+  ARMED
+  NOT_OBSERVED
+  UNOBSERVABLE
+
+historical_evidence
+
+entry_plan
+  side
+  entry_zone
+  trigger
+  stop
+  targets
+  invalidation
+  RR
+  size_hint
+
+wait_for[]
+avoid_if[]
+
+main_blocker
+
+evidence_confidence
+
+data_quality
+PIT_status
+proof_status
+paper_authority
+
+reason_for[]
+reason_against[]
+warnings[]
+hard_blockers[]
+
+engines_run[]
+
+next_action
+  DO_NOTHING
+  OFFER_PAPER_TICKET
+
+live_trading_blocked = true
+order_routing_enabled = false
+```
+
+### Final-decision rule
+
+The user receives **one action** and one plan. Every specialist result remains inspectable as evidence underneath it, but is not shown as an equal competing final answer.
+
+---
+
+## 35. Milestone task 4 — make Final Confluence the sole final-band authority
+
+The migration target is:
+
+```text
+specialist evidence
+      |
+      v
+strategy / scenario proposals
+      |
+      v
+risk / execution / failure vetoes
+      |
+      v
+FINAL CONFLUENCE ARBITER
+      |
+      v
+one FinalDecision
+```
+
+### Intended roles after consolidation
+
+- **Behavior Decision:** specialist behavior opinion/evidence; not a second product final.
+- **ORB/AFRE:** strategy/scenario proposal + veto evidence; never final paper authority.
+- **Twin Arbiter:** conflict/downgrade evidence only.
+- **Kronos:** research prior/reviewer only.
+- **Gemini/Grok:** review/explanation only.
+- **Jarvis Arbiter/Fusion:** migration compatibility and read-only aggregation; cannot upgrade final authority.
+- **Jarvis Master Panel:** display only.
+- **Final Confluence Arbiter:** sole final-band/action owner.
+- **Proof/Safety/Human:** still gate promotion after strategy evidence; nothing can bypass them.
+
+### Migration safety rule
+
+Do not delete legacy outputs in the first refactor. Run old and new projections side-by-side in replay, compare them, prove deterministic compatibility/safe downgrades, then retire duplicate authority gradually.
+
+---
+
+## 36. Milestone task 5 — connect real derivatives and risk data to the same spine
+
+AFRE Task-3 math is built, but the real-market system still needs verified upstream sources to populate:
+
+```text
+DerivativesSnapshot
+RiskContextSnapshot
+```
+
+### Correct provider architecture
+
+```text
+OpenAlgo / verified NSE sources
+            |
+            v
+OpenAlgoDataProvider / official adapters
+            |
+            +-----------------------------+
+            |                             |
+            v                             v
+Canonical option-chain snapshot    Canonical futures snapshot
+            |                             |
+            +-------------+---------------+
+                          |
+              +-----------+-----------+
+              |           |           |
+              v           v           v
+         VIX snapshot  FII/participant  Event/restriction
+                          snapshot          snapshot
+              |           |           |
+              +-----------+-----------+
+                          |
+                          v
+                 DerivativesSnapshot
+                 RiskContextSnapshot
+                          |
+                          v
+                 existing calculators
+                          |
+                          v
+                      Capability[]
+                          |
+                          v
+                 same DecisionContext
+```
+
+### Explicit anti-pattern
+
+Do **not** build:
+
+```text
+OpenAlgo
+   |
+   v
+separate derivatives decision engine
+   |
+   v
+another BUY / SELL answer
+```
+
+Derivatives and external risk are **evidence and veto context inside the same brain**.
+
+### Provider requirements
+
+Every real provider should expose:
+
+- source identity;
+- exchange/instrument identity;
+- observation timestamp;
+- received timestamp;
+- expiry/session identity;
+- freshness/TTL;
+- completeness flags;
+- normalization version;
+- raw-source reference/hash where practical;
+- fail-closed behavior on missing/invalid data.
+
+---
+
+## 37. After wiring — run the trader-specific gap-morning proof
+
+The important unfinished experiment remains the user's real trading problem:
+
+> Gap days + first 30–60 minutes + CPR/context vote.
+
+Do this **after the evidence wiring and authority model are stable**, so the experiment tests the intended final brain rather than a temporary parallel path.
+
+### Factor grid
+
+Test interaction among:
+
+```text
+Gap size
+x
+CPR width / location
+x
+OR width
+x
+ORB variant
+x
+VWAP
+x
+Nifty alignment
+x
+sector alignment
+x
+volume
+x
+VIX
+x
+PCR / OI
+x
+expiry state
+x
+failure scenarios
+```
+
+Use causal values available at each decision timestamp.
+
+### Measure more than profit
+
+Minimum metrics:
+
+```text
+Win rate
+Expectancy
+Profit factor
+Max drawdown
+False-break rate
+Stop-out rate
+MFE
+MAE
+Time-to-target
+Failure type
+Regime dependency
+Sample count
+OOS consistency
+Walk-forward consistency
+```
+
+Also report:
+
+- transaction-cost sensitivity;
+- slippage sensitivity;
+- result/event-day split;
+- expiry/non-expiry split;
+- gap bucket split;
+- OR-width bucket split;
+- time-window split;
+- stock-specific vs pooled performance;
+- low-sample/unobservable cells.
+
+### Promotion rule
+
+Do not promote the best in-sample combination just because it has the highest R/PF. Selection must remain train-only, followed by unseen holdout and repeated walk-forward proof.
+
+---
+
+## 38. Then real paper observation and outcome feedback
+
+Only after historical proof:
+
+```text
+historical replay
+      |
+      v
+unseen holdout
+      |
+      v
+walk-forward
+      |
+      v
+approved playbook
+      |
+      v
+real-market observation
+      |
+      v
+WAIT / WATCH / PAPER-CANDIDATE
+      |
+      v
+human approve
+      |
+      v
+paper result
+      |
+      v
+outcome memory
+      |
+      v
+edge-decay monitoring
+```
+
+No automatic live trading is added by this roadmap.
+
+### Paper-observation goals
+
+The live-market paper phase should verify:
+
+- real feed freshness and PIT behavior;
+- expected vs actual entry/slippage;
+- real false-break frequency;
+- whether historical filters still fire with the same causal timing;
+- whether external facts arrive before the decision deadline;
+- discrepancy between replay and observed paper behavior;
+- drift/edge decay;
+- whether any engine creates unexplained decision instability.
+
+---
+
+## 39. Exact next sequence — project execution order
+
+```text
+NOW
+|
++-- 1. Repair PR #1 CI gate
++-- 2. Verify AFRE v4 adds zero new regressions
++-- 3. Review + merge AFRE v4
++-- 4. Update stale NEXT_BUILD_TARGET / IMPLEMENTATION_STATUS after merge decision
+|
+v
+NEW BRANCH / PR
+Canonical Decision Spine / Brain Orchestration
+|
++-- 5. Inventory every engine and authority
++-- 6. Define canonical DecisionContext
++-- 7. Define single FinalDecision / PaperTradeGuidance
++-- 8. Make Final Confluence the sole final-band authority
++-- 9. Convert Jarvis / Twin / AI layers into evidence/review/presentation roles
++--10. Wire AFRE + derivatives + failure evidence into that spine
++--11. Build verified real DerivativesSnapshot / RiskContext providers
++--12. Add conflict / veto / PIT / determinism integration tests
+|
+v
+PROOF
++--13. Gap-morning focused historical experiment
++--14. OOS + walk-forward
++--15. Real paper observation
++--16. Outcome feedback / edge-decay monitoring
+```
+
+### Branching rule
+
+The orchestration work belongs on a **new branch after AFRE v4 is stabilized/merged**. This keeps failure attribution clear and prevents PR #1 from becoming an unreviewable mixture of derivatives/failure work plus system-wide authority migration.
+
+---
+
+## 40. Acceptance criteria for the Canonical Decision Spine milestone
+
+The milestone is not complete merely because a new class named `DecisionContext` exists.
+
+It is complete only when:
+
+```text
+[ ] every major engine has a documented authority classification
+[ ] one canonical PIT snapshot/context feeds the decision
+[ ] one canonical object owns the final action/band
+[ ] only Final Confluence can set that product final band
+[ ] ORB/AFRE can propose/veto but cannot bypass proof/safety
+[ ] Kronos/Gemini/Grok cannot upgrade a hard block
+[ ] Jarvis presents the final decision instead of generating a competing one
+[ ] hard vetoes survive every projection/API/UI layer
+[ ] missing derivatives/event facts remain UNOBSERVABLE, not safe
+[ ] real provider evidence carries timestamp/freshness/provenance
+[ ] replay is deterministic for identical DecisionContext hashes
+[ ] legacy parallel outputs are either wrapped read-only or explicitly deprecated
+[ ] integration tests cover contradictory evidence and authority conflicts
+[ ] live_trading_blocked=true remains true
+[ ] order_routing_enabled=false remains true
+[ ] historical proof is rerun when material strategy/decision fingerprints change
+```
+
+---
+
+## 41. Roadmap maintenance rule
+
+When resuming this work in a future session:
+
+1. Re-check PR #1 / current main / latest CI; do not assume the 2026-09-08 checkpoint is still current.
+2. Read `docs/IMPLEMENTATION_STATUS.md` latest tip and `docs/NEXT_BUILD_TARGET.md`.
+3. Read this Part II before adding another decision-like engine.
+4. If AFRE v4 is already merged, mark Section 30 historical and continue from the first incomplete numbered milestone.
+5. If authority or contracts changed, refresh the Engine Authority Registry and `DecisionContext`/`FinalDecision` definitions here.
+6. Keep `docs/FILE_DOCUMENT_INDEX.md` aligned with this roadmap.
+
+The durable priority remains:
+
+> **Consolidate and correctly wire existing intelligence before adding another independent final-decision brain.**
