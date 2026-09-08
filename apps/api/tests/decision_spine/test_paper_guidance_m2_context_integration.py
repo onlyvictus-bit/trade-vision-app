@@ -4,6 +4,7 @@ from copy import deepcopy
 
 import pytest
 
+from app.behavior import paper_guidance_spine_legacy as legacy_spine
 from app.behavior.paper_guidance_config import PaperGuidanceConfig
 from app.behavior.paper_guidance_spine import run_paper_guidance_p1
 from app.behavior.point_in_time_guard import timeframe_duration_ns
@@ -251,3 +252,26 @@ def test_m2_pg_009_context_audit_does_not_duplicate_full_world_state():
         "evidence",
         "safety",
     }
+
+
+def test_m2_pg_010_d6_output_matches_preserved_pre_m2_route():
+    request = _request()
+
+    # Run the public M2 facade first. This also synchronizes the historical
+    # public monkeypatch surface into the byte-preserved legacy implementation,
+    # ensuring both paths use exactly the same deterministic fixture inputs.
+    m2_result = _run(request)
+    legacy_result = legacy_spine.run_paper_guidance_p1(
+        request,
+        mode=_mode(),
+        kill_switch=_kill_switch(),
+        config=PaperGuidanceConfig(),
+    )
+
+    assert m2_result.snapshot_hash == legacy_result.snapshot_hash
+    assert m2_result.guidance_id == legacy_result.guidance_id
+    assert m2_result.final_band == legacy_result.final_band
+    assert m2_result.confidence_cap == legacy_result.confidence_cap
+    assert m2_result.next_action == legacy_result.next_action
+    assert m2_result.arbiter_summary == legacy_result.arbiter_summary
+    assert m2_result.engine_receipts == legacy_result.engine_receipts
