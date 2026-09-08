@@ -27,22 +27,29 @@ Evidence / Proposal / Warning / Downgrade / Veto
 
 No engine receives live execution authority.
 
-## M0 completion evidence
+## Verified foundations
 
-Tested source commit:
-`728d81d40ec8cdfe136e765ff0378118a8c1e759`
-
-Committed-tree verification:
+### M0
 
 ```text
-workflow run                              34213835837
-Stage-2 integrity                         15 passed
-Paper Guidance v1.88                      29 passed
-full apps/api/tests/test_api.py           556 passed
-authority registry invariants             PASS
+source commit: 728d81d40ec8cdfe136e765ff0378118a8c1e759
+verify run:    34213835837
+Stage2:       15 passed
+PaperGuide:   29 passed
+test_api:     556 passed
 ```
 
-M0-C/A/B are no longer open repair items. Their next work is canonical wrapping/wiring in M2/M3.
+### M2 DecisionContext contract
+
+```text
+verify run:    34214606289
+verified head: 90edc5c516324817c0e59bf56f072a63c2044e66
+DecisionContext: 25 passed
+Stage2:          15 passed
+PaperGuide:      29 passed
+test_api:        556 passed
+authority:       PASS
+```
 
 ## Engine matrix
 
@@ -50,95 +57,63 @@ M0-C/A/B are no longer open repair items. Their next work is canonical wrapping/
 |---|---|---|---|---|
 | D1 Data Quality / PIT / Kill Switch | hard input safety | architecturally sound | KEEP | veto before D2 |
 | D2 Closed-Candle Snapshot | immutable causal root | architecturally sound | KEEP | identity root only |
-| Stage-2 Evidence Integrity | pre-context causal/provenance gate | built and wired before D6 in Paper Guidance | **COMPLETE M0; KEEP + make M2 entry gate** | block/degrade evidence only |
-| Chart Reasoning | trend/chop/volatility evidence | only current Paper Guidance path is canonical | WRAP + WIRE M3 | evidence/downgrade |
-| Candle Anatomy | body/wick/effort/result | outside complete canonical spine | WRAP + WIRE M3 | calculator only |
-| Candle Condition | fakeout/chop/manipulation/continuation | not repository-wide canonical | WRAP + WIRE M3 | evidence + bounded veto |
-| Level Context | VWAP/ORB/CPR/PDH/PDL/SR | duplicated across paths | WRAP + deduplicate + WIRE M3 | evidence + bounded veto |
-| Snapshot Indicator Runtime | causal indicators from D2 | needs DecisionContext evidence block | WRAP + WIRE M2/M3 | evidence only |
-| 9C Real Runtime | sequence/indicator memory | M0 provenance/counting repaired | **COMPLETE M0-A; WRAP + WIRE M3** | evidence/memory only |
-| PTA Signal Markers | optional signal probes | M0 accounting repaired; optional deps can remain unavailable | **COMPLETE M0-B; WIRE availability evidence M3** | explanation evidence only |
-| IndicatorFeatureBlock | normalized indicator block | `synthetic_fallback` contract aligned | **COMPLETE M0-C; KEEP provenance rules** | evidence only |
-| MTF Confirmation | closed HTF alignment | separate worldviews possible outside P1 | WRAP + WIRE M3 | evidence/downgrade |
-| Market Regime | trend/range/volatility | not consistently P1-routed | WIRE M3 | evidence/downgrade |
-| Relative Strength | stock vs index/sector | neutral `0.5` placeholder remains in legacy arbitration | WIRE M3; remove neutral fallback | evidence/downgrade |
-| Sector Context | sector alignment | `weak_sector=False` placeholder remains in legacy arbitration | WIRE M3; explicit availability | evidence/downgrade |
-| Index Context | Nifty/index alignment | spread across paths | WRAP + WIRE M3 | evidence / bounded veto |
-| Session Memory | phase/rhythm/stock DNA | separate path | WRAP + WIRE M3 | memory evidence |
-| Pattern Memory | learned pattern outcomes | separate path | WRAP + WIRE M3 | memory evidence |
-| Analog / Similar History | historical analogs | PIT + snapshot identity required | WRAP + WIRE M3 | memory evidence |
-| 9-Candle Hybrid | sequence analog evidence | runtime stabilized; still decision-like/legacy surface | DEMOTE + WIRE M3 | memory/reviewer evidence |
-| Hypothesis Engine | continuation/reversal/fakeout | needs canonical input | WIRE M3 | scenario proposal; no final |
-| ORB Core | opening-range strategy | same-snapshot behavior exists but not canonical app-wide | KEEP + DEMOTE + WIRE M3 | propose/veto; no final |
-| AFRE | variants + failure adaptation | merged and deterministic; provider population partial; not yet canonical app-wide | KEEP + WIRE M3 | propose/veto/downgrade; no final |
-| Derivatives | VIX/IV/PCR/OI/max pain/GEX/basis/rollover/FII | calculators exist; upstream real data partial | KEEP + PROVIDER + WIRE M3/M8 | evidence/risk; no final |
-| RiskContext | event/restriction/data/execution facts | real sources incomplete | KEEP + PROVIDER + WIRE M3/M8 | factual risk/veto |
-| Failure Detector | observed/armed/unobservable failures | preserve unknown and same-context identity | KEEP + WIRE M3 | veto/downgrade |
-| Market Structure / Liquidity | auction/trap/liquidity | currently P1-path evidence | WRAP + WIRE M3 | evidence/veto |
-| Execution / Event / OI Risk | fill/slippage/event/options/depth | provider gaps remain explicit | KEEP + PROVIDER + WIRE M3/M8 | risk/veto |
-| Behavior Risk | sizing/heat/loss/correlation/R:R | separate decision-era path | KEEP + WIRE M3 | hard risk gate; no final |
-| Portfolio / Cooldown | heat/correlation/cooldown | needs canonical context gate | WIRE M3 | veto/downgrade |
-| Behavior Decision | legacy specialist decision | overlaps future final authority | DEMOTE + WRAP M3 | specialist evidence only |
-| Kronos | independent reviewer/prior | can look like second decision | DEMOTE + WIRE M3 | reviewer/downgrade only |
+| Stage-2 Evidence Integrity | pre-context causal/provenance gate | M0 built and wired before D6 | COMPLETE M0; KEEP as DecisionContext entry gate | block/degrade evidence only |
+| DecisionContext | immutable canonical evidence object | contract + deterministic builder green; real Paper Guidance construction not yet wired | **FOUNDATION COMPLETE M2; WIRE REAL CONTEXT NEXT** | no decision authority |
+| Chart Reasoning | trend/chop/volatility evidence | current P1 receipt exists | WRAP into real DecisionContext | evidence/downgrade |
+| Candle Anatomy | body/wick/effort/result | no canonical P1 block yet | explicit unavailable first, then WIRE M3 | calculator only |
+| Candle Condition | fakeout/chop/manipulation/continuation | current P1 receipt exists | WRAP into DecisionContext | evidence + bounded veto |
+| Level Context | VWAP/ORB/CPR/PDH/PDL/SR | current P1 receipt exists; duplicated elsewhere | WRAP + deduplicate M3 | evidence + bounded veto |
+| Snapshot Indicator Runtime | causal indicators from D2 | current P1 receipt exists | WRAP into DecisionContext | evidence only |
+| 9C Real Runtime | sequence/indicator memory | M0 provenance/counting repaired; not D2-native in P1 | COMPLETE M0-A; explicit SKIPPED now; WIRE M3 | evidence/memory only |
+| PTA Signal Markers | optional probes | M0 accounting repaired; optional deps may be unavailable; not D2-native in P1 | COMPLETE M0-B; explicit SKIPPED; WIRE availability M3 | explanation evidence only |
+| IndicatorFeatureBlock | normalized indicator block | synthetic contract aligned | COMPLETE M0-C; KEEP provenance | evidence only |
+| MTF Confirmation | closed HTF alignment | current P1 receipt exists | WRAP into DecisionContext | evidence/downgrade |
+| Market Regime | trend/range/volatility | not current canonical P1 receipt | explicit unavailable first; WIRE M3 | evidence/downgrade |
+| Relative Strength | stock vs index/sector | legacy neutral `0.5` placeholder | explicit unavailable in M2; remove neutral in M3 | evidence/downgrade |
+| Sector Context | sector alignment | legacy `weak_sector=False` placeholder | explicit unavailable in M2; remove neutral M3 | evidence/downgrade |
+| Index Context | Nifty/index alignment | separate paths | explicit unavailable/current verified evidence only; WIRE M3 | evidence / bounded veto |
+| Session Memory | phase/rhythm/stock DNA | separate path | explicit unavailable first; WIRE M3 | memory evidence |
+| Persisted Indicator Memory | PIT-valid indicator memory | current P1 receipt exists | WRAP into DecisionContext | memory evidence |
+| Pattern Memory | learned outcomes | separate path | explicit unavailable first; WIRE M3 | memory evidence |
+| Analog / Similar History | historical analogs | separate path; PIT required | explicit unavailable first; WIRE M3 | memory evidence |
+| 9-Candle Hybrid | sequence analog evidence | runtime stable but legacy surface | DEMOTE + WIRE M3 | memory/reviewer evidence |
+| Hypothesis Engine | continuation/reversal/fakeout | not current P1 canonical input | explicit unavailable first; WIRE M3 | proposal; no final |
+| ORB Core | opening-range strategy | same-snapshot support exists elsewhere; intentionally skipped in P1 | KEEP + explicit SKIPPED; WIRE M3 | propose/veto; no final |
+| AFRE | variants/failure adaptation | merged/deterministic but not P1 canonical | KEEP + explicit SKIPPED; WIRE M3 | propose/veto/downgrade; no final |
+| Derivatives | VIX/IV/PCR/OI/max pain/GEX/basis/rollover/FII | calculators exist; upstream real data partial | explicit unavailable/current capability only; PROVIDER M8 | evidence/risk; no final |
+| RiskContext | events/restrictions/data/execution facts | sources incomplete | WRAP available facts + explicit unknowns | factual risk/veto |
+| Failure Detector | observed/armed/unobservable failures | needs canonical same-context input | explicit unavailable first; WIRE M3 | veto/downgrade |
+| Market Structure / Liquidity | auction/trap/liquidity | current P1 receipt exists | WRAP into DecisionContext | evidence/veto |
+| Execution / Event / OI Risk | fill/slippage/event/options/depth | current P1 receipt exists with explicit missing evidence | WRAP into DecisionContext | risk/veto |
+| Behavior Risk | sizing/heat/loss/correlation/R:R | separate decision-era path | explicit unavailable first; WIRE M3 | hard risk gate; no final |
+| Portfolio / Cooldown | heat/correlation/cooldown | separate path | explicit unavailable first; WIRE M3 | veto/downgrade |
+| Behavior Decision | legacy specialist decision | overlaps future final authority | DEMOTE + use only if explicitly wrapped | specialist evidence only |
+| Kronos | reviewer/prior | can resemble second decision | DEMOTE + WIRE M3 | reviewer/downgrade only |
 | Gemini | external AI | must never override safety | DEMOTE + WIRE M3 | reviewer only |
 | Grok | external AI | must never override safety | DEMOTE + WIRE M3 | reviewer only |
-| OpenAlgo Report | imported advisory evidence | must not imply handoff authority | DEMOTE + WIRE M3 | reviewer only |
-| Twin Arbiter | Behavior vs Kronos conflict | duplicate arbitration | DEMOTE + WIRE M3 | conflict/downgrade evidence |
-| Jarvis Arbiter | compatibility safety wrapper | arbitration overlap | DEMOTE M4/M6 | downgrade only |
-| Jarvis Fusion | aggregation | can look like final answer | DEMOTE M4/M6 | aggregation evidence only |
+| OpenAlgo Report | advisory evidence | must not imply execution | DEMOTE + WIRE M3 | reviewer only |
+| Twin Arbiter | Behavior vs Kronos conflict | duplicate arbitration | DEMOTE + WIRE M3 | conflict/downgrade only |
+| Jarvis Arbiter | compatibility wrapper | arbitration overlap | DEMOTE M4/M6 | downgrade only |
+| Jarvis Fusion | aggregation | can resemble final | DEMOTE M4/M6 | aggregation evidence only |
 | Jarvis Master Panel | combined panel | authority ambiguity | PRESENTER M6 | no decision authority |
-| Final Confluence / D6 | conflict/risk finalization | sole authority invariant exists; not all brains routed through one context | KEEP + EXPAND CANONICAL INPUT M4 | **SOLE FINAL BAND** |
-| DecisionContext | canonical shared evidence object | not yet built | **BUILD M2 NEXT** | no decision authority |
-| FinalDecision / PaperTradeGuidance | one product decision | canonical object incomplete | BUILD M5 | canonical output only |
-| Jarvis Trading Decision Output | trader-readable explanation | should not decide | PRESENTER M6 | display only |
+| Final Confluence / D6 | final conflict/risk authority | sole-finalizer invariant green; not yet canonical-context consumer | KEEP; M4 canonical consumer migration | **SOLE FINAL BAND** |
+| FinalDecision / PaperTradeGuidance | product decision | final canonical object incomplete | BUILD M5 | canonical output only |
+| Jarvis Trading Decision Output | trader explanation | should never decide | PRESENTER M6 | display only |
 | OpenAlgo / broker bridge | paper/transport infra | autonomous live route forbidden | KEEP BLOCKED | no live execution |
 
-## M2 priority: canonical evidence contract
+## DecisionContext contract now available
 
-Before broad M3 routing, build a shared immutable `DecisionContext` with explicit blocks for:
+`apps/api/app/behavior/decision_spine/decision_context.py` provides:
 
-```text
-identity + D2 snapshot
-input integrity
-price/candle/levels
-indicators
-market/session/index/sector/relative-strength
-memory/analogs
-hypotheses
-ORB/AFRE
-Derivatives/events/failure
-execution/portfolio risk
-blockers/warnings
-proof/paper status
-provenance
-```
+- `DecisionIdentity`
+- `InputIntegrity`
+- `EvidenceBlock`
+- `DecisionProvenance`
+- `DecisionContext`
+- `build_decision_context()`
+- `unavailable_evidence()`
 
-Every material evidence block must carry at least:
-
-```text
-status: AVAILABLE | DEGRADED | UNAVAILABLE | SKIPPED | ERROR
-source_engine
-source_snapshot_hash
-observed_at / freshness where applicable
-source_mode / provenance
-reason when unavailable/degraded
-payload
-```
-
-## Neutral placeholders to remove in M3
-
-Temporary legacy values such as:
-
-```text
-relative_strength_score = 0.5
-indicator_signal_score  = 0.0
-external_ai_score       = 0.0
-weak_sector             = False
-```
-
-must become explicit availability-bearing evidence with source, D2 snapshot identity and unavailability reason.
-
-Rules:
+Required evidence status/provenance prevents neutral fallback substitution.
 
 ```text
 missing != 0.0
@@ -148,11 +123,41 @@ unavailable != clean
 synthetic_fallback != real
 ```
 
-## Registry foundation
+The context cannot grant:
 
-`apps/api/app/behavior/decision_spine/authority_registry.py` records engine ID, module, classification, proposal/veto/downgrade/final/execute permissions, authority rank, consumer, lifecycle and notes.
+```text
+proof authority
+paper authority
+trade authority
+final band
+execution authority
+```
 
-Import/runtime verification enforces:
+## Immediate engine upgrade sequence
+
+### Finish M2
+
+Construct the real `DecisionContext` from the existing D2-linked Paper Guidance evidence without changing D6 behavior yet.
+
+Current receipt-backed blocks should be wrapped first. Missing specialists should be represented as explicit unavailable/skipped blocks.
+
+### M3
+
+Migrate active specialist engines one family at a time into real context evidence:
+
+1. price/candle/levels/indicators/MTF;
+2. regime/session/index/sector/relative strength;
+3. memory/analogs/9C/PTA;
+4. hypotheses/ORB/AFRE;
+5. derivatives/events/failures;
+6. execution/portfolio risk;
+7. reviewer evidence (Kronos/Gemini/Grok/OpenAlgo/Twin).
+
+Every migration needs replay parity and contradiction tests before legacy decision surfaces are demoted further.
+
+## Authority registry
+
+`apps/api/app/behavior/decision_spine/authority_registry.py` remains the authority source of truth.
 
 ```text
 exactly one finalizer = FINAL_CONFLUENCE_ARBITER
@@ -161,19 +166,11 @@ presenters cannot decide
 reviewers cannot finalize
 ```
 
-Registration is not activation: migration-listed engines remain dormant until wired and integration-tested.
-
-## Stage-2 integrity status
-
-`apps/api/app/behavior/decision_spine/stage2_integrity.py` is now a real pre-D6 Paper Guidance guard and the required M2 entry gate. It blocks wrong/malformed snapshot identity, duplicate/unregistered engines, future leakage, identity mismatch, neutral substitution for unavailable evidence, synthetic/mock/masked/unknown probability authority, and non-D6 final-band claims.
-
-Current safety state remains:
+## Safety state
 
 ```text
 trade_allowed = false
 order_routing_enabled = false
 live_trading_blocked = true
-paper_promotion_eligible = false
+paper_promotion_eligible = false at DecisionContext construction
 ```
-
-The next code target is the M2 `DecisionContext` contract, not another prediction engine.
