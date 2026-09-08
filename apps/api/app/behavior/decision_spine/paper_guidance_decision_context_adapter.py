@@ -29,6 +29,11 @@ from .stage2_integrity import (
 
 
 PAPER_GUIDANCE_CONTEXT_ADAPTER_VERSION = "paper-guidance-decision-context-adapter.v1"
+_M31_PRICE_FUSION_LOCAL_ENGINES = (
+    "CANDLE_ANATOMY",
+    "LEVEL_CONTEXT",
+    "MARKET_STRUCTURE_LIQUIDITY",
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -105,7 +110,13 @@ def build_paper_guidance_decision_context(
     receipts: Sequence[Any],
     stage2_integrity: Stage2IntegrityReport,
 ) -> DecisionContext:
-    """Assemble bounded already-computed evidence; never execute specialists or D6."""
+    """Assemble bounded already-computed evidence; never execute specialists or D6.
+
+    M3.1-F fusion activates only when its migrated C/E provenance markers and
+    local upstream receipts are actually present. Standalone M2 callers that do
+    not provide the later M3.1 receipts retain the locked M2 price-structure
+    binding rather than receiving fabricated upstream evidence.
+    """
 
     snapshot_hash = str(_get(snapshot, "snapshot_hash", "")).lower()
     decision_time_ns = int(_get(snapshot, "decision_time_ns", 0))
@@ -141,6 +152,7 @@ def build_paper_guidance_decision_context(
     receipt_by_engine = _receipt_index(receipts)
     stage2_by_engine = _stage2_index(stage2_integrity)
     evidence: dict[str, EvidenceBlock] = {}
+    m31_fusion_ready = _m31_price_fusion_ready(receipt_by_engine)
 
     for field_name in CANONICAL_EVIDENCE_FIELDS:
         binding = _BINDING_BY_FIELD[field_name]
@@ -149,7 +161,7 @@ def build_paper_guidance_decision_context(
             raise DecisionContextError(
                 f"{field_name}: canonical source {binding.source_engine} is absent from Stage2 integrity"
             )
-        if field_name == "price_structure":
+        if field_name == "price_structure" and m31_fusion_ready:
             evidence[field_name] = _build_price_structure_block(
                 snapshot_hash=snapshot_hash,
                 decision_time_ns=decision_time_ns,
@@ -208,6 +220,30 @@ def decision_context_audit_summary(context: DecisionContext) -> dict[str, Any]:
     }
 
 
+def _m31_price_fusion_ready(receipt_by_engine: Mapping[str, Any]) -> bool:
+    """Identify the migrated M3.1 route without upgrading older M2 callers.
+
+    Presence alone is not enough. The level and MTF receipts must explicitly
+    prove that their canonical M3.1 layers ran. This keeps a legacy/standalone
+    adapter fixture from being interpreted as migrated evidence while allowing
+    the production M3.1 facade to fail closed on malformed DAG/hash provenance.
+    """
+
+    if any(engine_id not in receipt_by_engine for engine_id in _M31_PRICE_FUSION_LOCAL_ENGINES):
+        return False
+    mtf_receipt = receipt_by_engine.get("MTF_CONFIRMATION")
+    if mtf_receipt is None:
+        return False
+    level_summary = _get(receipt_by_engine["LEVEL_CONTEXT"], "output_summary", {})
+    mtf_summary = _get(mtf_receipt, "output_summary", {})
+    return bool(
+        isinstance(level_summary, Mapping)
+        and level_summary.get("canonical_level_intelligence") is True
+        and isinstance(mtf_summary, Mapping)
+        and mtf_summary.get("canonical_mtf_intelligence") is True
+    )
+
+
 def _build_price_structure_block(
     *,
     snapshot_hash: str,
@@ -215,15 +251,18 @@ def _build_price_structure_block(
     receipt_by_engine: Mapping[str, Any],
     state: EngineIntegrityState,
 ) -> EvidenceBlock:
-    local_ids = ("CANDLE_ANATOMY", "LEVEL_CONTEXT", "MARKET_STRUCTURE_LIQUIDITY")
-    missing = [engine_id for engine_id in local_ids if engine_id not in receipt_by_engine]
+    missing = [
+        engine_id
+        for engine_id in _M31_PRICE_FUSION_LOCAL_ENGINES
+        if engine_id not in receipt_by_engine
+    ]
     if missing:
         raise DecisionContextError(
             "price_structure: required local upstream receipt missing: " + ", ".join(missing)
         )
     local = {
         engine_id: _receipt_mapping(receipt_by_engine[engine_id])
-        for engine_id in local_ids
+        for engine_id in _M31_PRICE_FUSION_LOCAL_ENGINES
     }
     mtf_receipt = receipt_by_engine.get("MTF_CONFIRMATION")
     try:
@@ -234,8 +273,6 @@ def _build_price_structure_block(
             mtf_receipt=_receipt_mapping(mtf_receipt) if mtf_receipt is not None else None,
         )
     except PriceStructureEvidenceError as exc:
-        # DAG/hash/future/unknown failures are structural integrity failures,
-        # not ordinary unavailable evidence. Block before D6.
         raise DecisionContextError(f"price_structure: canonical DAG blocked: {exc}") from exc
 
     payload = composed.as_dict()
@@ -248,10 +285,14 @@ def _build_price_structure_block(
         "ERROR": Availability.ERROR,
     }.get(canonical_availability, Availability.ERROR)
 
-    # Never upgrade the Stage2 classification of MARKET_STRUCTURE_LIQUIDITY.
     if state.availability is not Availability.AVAILABLE:
         allowed = {
-            Availability.DEGRADED: {Availability.DEGRADED, Availability.UNAVAILABLE, Availability.SKIPPED, Availability.ERROR},
+            Availability.DEGRADED: {
+                Availability.DEGRADED,
+                Availability.UNAVAILABLE,
+                Availability.SKIPPED,
+                Availability.ERROR,
+            },
             Availability.UNAVAILABLE: {Availability.UNAVAILABLE},
             Availability.SKIPPED: {Availability.SKIPPED},
             Availability.ERROR: {Availability.ERROR},
@@ -318,7 +359,10 @@ def _evidence_from_state(
     summary = _get(receipt, "output_summary", {})
     if not isinstance(summary, Mapping):
         raise DecisionContextError(f"{field_name}: receipt output_summary must be a mapping")
-    reasons = _state_reasons(state, f"Stage2 classified {binding.source_engine} as {state.availability.value}.")
+    reasons = _state_reasons(
+        state,
+        f"Stage2 classified {binding.source_engine} as {state.availability.value}.",
+    )
     return EvidenceBlock(
         source_engine=binding.source_engine,
         source_snapshot_hash=snapshot_hash,
