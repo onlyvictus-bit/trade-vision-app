@@ -1,28 +1,27 @@
 # Trade Vision — Canonical Build Status
 
-> **Purpose:** one durable repository source of truth for the controlled completion of Trade Vision.
+> **Purpose:** durable repository source of truth for controlled completion of Trade Vision.
 >
-> **Rule:** every future build/audit session starts here. Do not infer milestone state from old chats, old implementation percentages, or a subsystem's local tests.
->
-> **Last audited:** 2026-09-08  
-> **Active branch:** `decision-spine-orchestration-v1`  
-> **Pre-update audited head:** `d8723947b078951435afe083f21e643f40ef64aa`  
-> **Base main used for Decision Spine branch:** `f26546047a28df7deb3916ed0b4467d67fd9bb7b`  
-> **AFRE v4 merge:** PR #1 merge commit `83070628bf153557ac6f5f54a025866bd484f76d`
+> **Rule:** one milestone -> implement -> test -> audit -> commit -> GREEN -> lock. Do not infer milestone state from old chats, percentages, or subsystem-local tests.
+
+**Last audited:** 2026-09-08  
+**Active branch:** `decision-spine-orchestration-v1`  
+**M2 verified source head:** `105561fc4908db6c18c32f9fd1a81ae5570f680f`  
+**M2 verification workflow:** `M2 DecisionContext` run `34233061074` — **SUCCESS**  
+**Base main used for Decision Spine branch:** `f26546047a28df7deb3916ed0b4467d67fd9bb7b`  
+**AFRE v4 merge:** PR #1 merge commit `83070628bf153557ac6f5f54a025866bd484f76d`
 
 ---
 
-## 1. Program rule — finish, prove, lock
+## 1. Program rule
 
-The biggest current engineering risk is not lack of trading ideas. It is having many useful engines, adapters, memories, ORB/AFRE paths, reviewers, Jarvis layers, D6 logic and legacy decision surfaces that are partially connected, duplicated, or carrying neutral placeholders.
+The project already contains many useful engines, memories, ORB/AFRE paths, reviewers, Jarvis surfaces and legacy decision paths. The main engineering risk is orchestration inconsistency, duplicated authority, hidden neutral assumptions, and causal/provenance drift—not a lack of additional trading ideas.
 
-From this point onward, Trade Vision is completed as a controlled engineering program:
+Canonical principle:
 
-> **One milestone -> finish implementation -> test -> audit -> commit -> mark GREEN -> lock it. Do not reopen a locked milestone unless a later integration exposes a concrete defect.**
+> **Many brains may disagree internally. Only one decision may leave the brain.**
 
-No jumping ahead to add another brain merely because an interesting idea appears. New work must belong to the current milestone or be recorded for the correct future milestone.
-
-### Milestone state machine
+Milestone state machine:
 
 ```text
 NOT STARTED
@@ -44,19 +43,11 @@ COMMITTED
 MILESTONE GREEN / LOCKED
 ```
 
-A milestone is not GREEN merely because its new unit tests pass.
-
-### Reopen rule
-
-A locked milestone may be reopened only when a later integration produces a reproducible defect, safety regression, causal/provenance violation, contract incompatibility, or requirement contradiction. Record the reason before modifying the locked scope.
+A locked milestone is reopened only for a reproducible defect, safety regression, causal/provenance violation, contract incompatibility, or requirement contradiction exposed by later integration.
 
 ---
 
 ## 2. Canonical target architecture
-
-Core principle:
-
-> **Many brains may disagree internally. Only one decision may leave the brain.**
 
 ```text
 VERIFIED MARKET DATA
@@ -101,59 +92,51 @@ Price / Context / Memory     ORB / AFRE / Hypotheses
             DISPLAY ONLY
 ```
 
-The immediate M2 introduction is deliberately narrower:
+M2 intentionally stops short of migrating D6 inputs:
 
 ```text
 D2 approved snapshot
         ↓
-Stage-2 engine receipts
+current D2-native Stage-2 receipts
++ explicit inactive/unavailable inventory
         ↓
 Stage2IntegrityReport
         ↓
 Canonical DecisionContext
         ↓
-context_hash / provenance
+context_hash / provenance / compact audit
         ↓
-existing D6 unchanged
+existing D6 inputs unchanged
 ```
 
-D6 does **not** consume the canonical context as its sole input until the later migration milestone.
+---
+
+## 3. Milestone truth
+
+| Step | Milestone | State | Exit condition / next boundary |
+|---|---|---|---|
+| M0 | Stage-2 stabilization / evidence integrity | **GREEN / LOCKED** | truthful runtime accounting; Stage2 fail-closed gate before D6 |
+| M1 | Engine Authority Registry | **FOUNDATION GREEN / SCOPE LOCKED** | exactly one final-band authority; zero execution authority |
+| M2 | Canonical DecisionContext real-pipeline construction | **GREEN / LOCKED** | deterministic causal context is built in Paper Guidance before unchanged D6 |
+| M3 | Brain migration | **NOT STARTED — NEXT ELIGIBLE** | migrate specialist families through canonical context and remove corresponding legacy placeholders only after replay parity |
+| M4 | D6 orchestration | **NOT STARTED / D6 EXISTS** | D6 becomes repository-wide canonical consumer/finalizer; parallel public authority removed |
+| M5 | FinalDecision | **NOT STARTED** | one deterministic product decision contract |
+| M6 | Jarvis presentation | **NOT STARTED** | Jarvis read-only explanation/presentation |
+| M7 | Contradiction / replay attack matrix | **NOT STARTED** | adversarial disagreement, stale/missing/future/tampered evidence proven fail-closed |
+| M8 | Verified real providers | **NOT STARTED** | provider identity, PIT, freshness, normalization and provenance proven |
+| M9 | Historical / walk-forward validation | **NOT STARTED** | edge evidence independent of unit-test success |
+| M10 | Controlled paper validation | **NOT STARTED** | observed paper outcomes satisfy explicit promotion criteria |
+| M11 | Operational hardening | **NOT STARTED** | performance, observability, recovery, security, deployment and migration gates |
+| M12 | Independent production release gate | **NOT STARTED** | architecture + evidence + validation + operational gates independently verified |
+
+Do **not** start M3 in an M2 verification/docs patch.
 
 ---
 
-## 3. Current milestone truth
+## 4. M0 — locked foundation
 
-| Step | Milestone | Goal | Current state | Exit condition |
-|---|---|---|---|---|
-| M0 | Stage-2 integrity | Fix runtime/provenance accounting and pre-D6 evidence integrity | **GREEN / LOCKED** | Runtime provenance/accounting truthful; Stage2 fail-closed gate wired; regressions green |
-| M1 | Authority Registry | Define exactly what every brain may/cannot do | **FOUNDATION GREEN / SCOPE LOCKED** | Registry has one finalizer, zero execution authority, role classifications; repo-wide consumer migration is later M3/M4 |
-| M2 | Canonical DecisionContext | One immutable deterministic causal input/evidence container | **CURRENT — IN BUILD** | All M2 exit gates in §5 green; Paper Guidance constructs/reports context without changing D6 behavior |
-| M3 | Brain migration | Route specialist brains through canonical context | **NOT STARTED** | Active specialists consume/emit canonical evidence; legacy neutral placeholders removed; no independent causal paths |
-| M4 | D6 orchestration | Make D6 the actual single final decision authority everywhere | **NOT STARTED / D6 EXISTS** | No parallel/public decision authority; D6 is repository-wide canonical consumer/finalizer |
-| M5 | FinalDecision | Create the deterministic user-facing decision contract | **NOT STARTED** | Only `WAIT / WATCH / AVOID / PAPER-CANDIDATE` product action states; complete provenance/reasons/invalidation |
-| M6 | Jarvis | Presentation/explanation only | **NOT STARTED** | Jarvis cannot alter, upgrade, or independently decide beyond FinalDecision |
-| M7 | Contradiction & replay | Attack disagreement, stale/missing/future/bad/failure scenarios | **NOT STARTED** | Determinism and fail-closed behavior proven across contradiction/replay matrix |
-| M8 | Real providers | Replace synthetic/placeholder evidence with verified NSE/OpenAlgo/official inputs | **NOT STARTED** | Proven provider identity, timestamps, freshness, PIT, normalization, provenance and fail-closed missing-data behavior |
-| M9 | Historical validation | Walk-forward/regime/failure/robustness validation | **NOT STARTED** | Trading edge evidence exists independently of software unit-test success |
-| M10 | Paper validation | Controlled paper observations/outcome tracking | **NOT STARTED** | Explicit paper promotion criteria satisfied with observed outcomes |
-| M11 | Production hardening | Performance, observability, recovery, deployment, security, migrations | **NOT STARTED** | Operational production-readiness checks green |
-| M12 | Production release gate | Final independent audit | **NOT STARTED** | Only after architecture, evidence, paper validation and operational gates pass may the system be called production-ready |
-
-### Important interpretation
-
-M1's registry foundation being GREEN does **not** mean all old arbitration surfaces are already removed. Their migration/demotion is intentionally owned by M3/M4/M6. Do not reopen M1 to do those later milestones.
-
----
-
-## 4. Verified completed foundations
-
-### M0 Stage-2 stabilization — GREEN / LOCKED
-
-Tested source commit:
-`728d81d40ec8cdfe136e765ff0378118a8c1e759`
-
-Committed-tree verification run:
-`34213835837` — SUCCESS
+Tested source commit: `728d81d40ec8cdfe136e765ff0378118a8c1e759`  
+Committed-tree verification: run `34213835837` — SUCCESS
 
 ```text
 Stage-2 integrity                         15 passed
@@ -162,17 +145,18 @@ full apps/api/tests/test_api.py           556 passed
 authority invariants                      PASS
 ```
 
-Closed M0 work:
-- `synthetic_fallback` contract drift repaired;
-- 9C real/synthetic/unavailable/failed runtime accounting separated;
-- PTA selected/probed/computed/no-signal/dependency/error/materialized accounting separated;
-- Stage2IntegrityReport wired before D6;
-- hard integrity block stops before D6;
-- inactive 9C/PTA/ORB/AFRE are explicit SKIPPED observations rather than neutral values.
+Locked M0 semantics retained by M2:
+- `synthetic_fallback` is never relabeled real;
+- 9C real/synthetic/unavailable/failed accounting remains explicit;
+- PTA selected/probed/computed/no-signal/dependency/error/materialized accounting remains explicit;
+- Stage2 hard block stops before D6;
+- inactive `NINE_CANDLE_MEMORY`, `PTA_MARKER_RUNTIME`, `ORB_CORE`, and `AFRE` remain explicit `SKIPPED` observations in the Paper Guidance route.
 
-### M1 Authority Registry — foundation GREEN / scope locked
+---
 
-Current invariant:
+## 5. M1 — authority foundation locked
+
+Current authority invariants:
 
 ```text
 exactly one may_set_final_band = FINAL_CONFLUENCE_ARBITER
@@ -181,142 +165,150 @@ presenters cannot decide
 reviewers cannot finalize
 ```
 
-Registration defines authority; it does not activate a brain.
-
-### M2 contract foundation — GREEN but M2 milestone not complete
-
-Verification workflow:
-
-```text
-workflow: M2 DecisionContext
-run:      34214606289
-verified head: 90edc5c516324817c0e59bf56f072a63c2044e66
-result:   SUCCESS
-```
-
-```text
-DecisionContext suite                     25 passed
-M0 Stage-2 integrity regression           15 passed
-Paper Guidance v1.88 regression           29 passed
-full apps/api/tests/test_api.py           556 passed
-authority invariants                      PASS
-```
-
-The contract is immutable/deterministic and prohibits proof/paper/trade/final-band authority. This is only the M2 foundation; real pipeline construction remains open.
+Registration does not activate a brain.
 
 ---
 
-## 5. M2 — current scope and mandatory exit gates
+## 6. M2 — GREEN / LOCKED
 
-**Do not start M3 until every item below is implemented, tested, audited, committed and the M2 state is changed here to `GREEN / LOCKED`.**
+### 6.1 Canonical coding reference
 
-### 5.1 Code/contract hardening still required
+The M2 implementation reference is:
 
-- [ ] Every `EvidenceBlock.source_engine` must be present in the **exact** `Stage2IntegrityReport.engine_states` used to build that context, not merely registered globally.
-- [ ] Evidence status/source mode must be compatible with the exact Stage2 engine state; context assembly must not upgrade a Stage2 `SKIPPED/UNAVAILABLE/ERROR` engine into clean AVAILABLE evidence.
-- [ ] `InputIntegrity.freshness == BLOCK` must reject context construction.
-- [ ] `InputIntegrity` with `DEGRADED`, `UNKNOWN`, or `BLOCK` integrity states must carry explicit reasons appropriate to the degraded/unknown/blocking fact; no unexplained bad integrity state.
-- [ ] Keep PIT non-PASS fail-closed.
-- [ ] Keep quarantine BLOCK fail-closed.
-- [ ] Keep future evidence, snapshot mismatch, neutral substitution and non-authoritative probability use hard-rejected.
+`docs/M2_AUDIT_VERDICT_CODING_REFERENCE_2026-09-08.md`
 
-### 5.2 Real Paper Guidance -> DecisionContext adapter
+Core interpretation:
 
-Build a dedicated adapter/assembler from the existing D2-linked Paper Guidance evidence.
+> M2 is not another trading predictor. It is the immutable canonical world-state/evidence layer that records what is known, unknown, unavailable, skipped, degraded or erroneous at one exact D2 snapshot.
 
-Rules:
-- [ ] no independent refetch during context construction;
-- [ ] no specialist rerun merely to fill a context field;
-- [ ] use only evidence causally tied to the approved D2 snapshot;
-- [ ] map current receipt-backed evidence into canonical fields with truthful provenance;
-- [ ] inactive ORB/AFRE/9C/PTA remain explicit `SKIPPED` or `UNAVAILABLE` with reasons;
-- [ ] unimplemented regime/session/index/sector/relative-strength/etc. remain explicit unavailable where no valid current receipt exists;
-- [ ] missing evidence is never converted to `0.0`, `0.5`, `False`, empty-safe, or another neutral assumption;
-- [ ] DecisionContext itself grants no paper authority;
-- [ ] existing D6 decision behavior remains unchanged during M2.
+### 6.2 Contract hardening completed
 
-### 5.3 Determinism / causal identity gates
+`apps/api/app/behavior/decision_spine/decision_context.py` now enforces:
+- exact `EvidenceBlock.source_engine` membership in the supplied `Stage2IntegrityReport`;
+- exact D2 snapshot identity;
+- registered + snapshot-matched + identity-matched Stage2 source state;
+- monotonic evidence availability: DecisionContext may preserve/downgrade but never upgrade Stage2 evidence;
+- exact Stage2 source-mode provenance; no UNKNOWN/MOCK/MASKED/SYNTHETIC source may become REAL/VERIFIED inside context;
+- `freshness == BLOCK` rejects context construction;
+- non-PASS PIT/freshness/quarantine integrity requires an explicit reason;
+- PIT non-PASS remains fail-closed;
+- quarantine BLOCK remains fail-closed;
+- future evidence, neutral-default substitution and non-authoritative probability use remain rejected;
+- no evidence block may claim proof, paper, trade or final-band authority;
+- optional `source_output_hash` links receipt fingerprints into canonical evidence provenance;
+- context remains immutable and deterministically SHA-256 hashed.
 
-- [ ] same request + same approved D2 state -> same D2 snapshot hash;
-- [ ] same D2 evidence set -> same `Stage2IntegrityReport.output_hash`;
-- [ ] same Stage2 report + same evidence -> same `DecisionContext.context_hash`;
-- [ ] changed closed candle -> changed D2 snapshot hash and changed context hash;
-- [ ] unfinished/unapproved candle never enters D2/DecisionContext;
-- [ ] Stage2 BLOCK -> no DecisionContext object is constructed;
-- [ ] future evidence -> no DecisionContext;
-- [ ] evidence from another snapshot -> no DecisionContext.
+### 6.3 Real Paper Guidance adapter completed
 
-### 5.4 Audit/provenance output
+New module:
 
-- [ ] add `context_hash` to Paper Guidance audit/provenance/debug output;
-- [ ] include `stage2_integrity_hash` and context evidence/provenance identity needed for replay;
-- [ ] do not expose DecisionContext as a second user-facing decision;
-- [ ] do not let audit output imply paper/proof/trade authority.
+`apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py`
 
-### 5.5 Tests required before M2 can be GREEN
+Responsibilities are deliberately narrow:
+- no I/O;
+- no provider fetch;
+- no database/history read;
+- no specialist rerun;
+- no indicator recomputation;
+- no ORB/AFRE execution;
+- no AI call;
+- no probability computation;
+- no D6/final authority.
 
-At minimum add/retain tests for:
-- [ ] exact Stage2 engine-membership enforcement;
-- [ ] Stage2 availability/source-mode compatibility;
-- [ ] freshness BLOCK rejection;
-- [ ] degraded/unknown integrity requires reasons;
-- [ ] explicit skipped/unavailable specialist blocks;
-- [ ] no neutral fallback for missing specialist evidence;
-- [ ] same-request replay determinism through D2 -> Stage2 -> DecisionContext;
-- [ ] changed closed candle changes D2/context hash;
-- [ ] Stage2 BLOCK prevents adapter/context construction;
-- [ ] D6 output parity before vs after introducing context audit path;
-- [ ] existing sole-D6 and zero-execution authority invariants.
+It:
+1. builds O(1) receipt and Stage2 indexes;
+2. maps current D2-native receipts into 22 canonical fields;
+3. represents inactive specialists explicitly as `UNAVAILABLE`/`SKIPPED` with reasons;
+4. keeps freshness and quarantine `UNKNOWN` where no canonical assessor exists rather than fabricating PASS;
+5. carries receipt `output_hash` into evidence provenance;
+6. constructs the immutable DecisionContext;
+7. returns only a compact audit projection to normal Paper Guidance output.
 
-Then run:
+### 6.4 Canonical 22-field evidence inventory
+
+Current M2 truth is deliberately conservative:
 
 ```text
-1. compile affected Decision Spine / Paper Guidance modules
-2. DecisionContext targeted suite
-3. Stage-2 integrity suite
-4. Paper Guidance integration suite
-5. affected adapter tests
-6. full apps/api/tests/test_api.py
-7. authority/safety invariant checks
+receipt-backed now:
+  price_structure        <- MARKET_STRUCTURE_LIQUIDITY
+  levels                 <- LEVEL_CONTEXT
+  indicators             <- SNAPSHOT_INDICATOR_RUNTIME
+  memory                 <- PERSISTED_INDICATOR_MEMORY
+  events                 <- EXECUTION_EVENT_OI_RISK
+  execution_quality      <- EXECUTION_EVENT_OI_RISK
+
+explicit unavailable/skipped until M3 migration:
+  candle_anatomy
+  market_regime
+  session_context
+  index_context
+  sector_context
+  relative_strength
+  historical_analogs
+  hypotheses
+  strategy_candidates
+  orb_variants
+  afre_scenarios
+  derivatives
+  failure_scenarios
+  portfolio_risk
+  proof_status
+  paper_authority
 ```
 
-### 5.6 M2 commit/lock gate
+Locked semantic rule:
 
-Only after all tests and audits are green:
+```text
+missing != neutral
+unknown != false
+unavailable != safe
+synthetic != real
+```
 
-1. commit the M2 implementation;
-2. record commit SHA and CI run here;
-3. change M2 to `GREEN / LOCKED` here;
-4. change M3 to `CURRENT — IN BUILD` only when M3 actually begins;
-5. do not continue coding into M3 in the same unverified M2 patch.
+### 6.5 Paper Guidance runtime wiring completed
 
----
+Public compatibility facade:
+`apps/api/app/behavior/paper_guidance_spine.py`
 
-## 6. M2 code re-audit findings at 2026-09-08
+M2 implementation:
+`apps/api/app/behavior/paper_guidance_spine_m2_impl.py`
 
-These findings were reverified against repository code before creating this canonical tracker.
+Byte-preserved pre-M2 implementation for parity/rollback:
+`apps/api/app/behavior/paper_guidance_spine_legacy.py`
 
-### Finding A — exact Stage2 membership is not yet enforced
+Runtime:
 
-Current `build_decision_context()` checks that each evidence engine exists in the global authority registry. It does **not** currently require that the same engine appear in the supplied `Stage2IntegrityReport.engine_states`.
+```text
+D1
+ ↓
+D2
+ ↓
+current D2-native Stage2 engines
+ ↓
+receipts
+ + explicit canonical inactive inventory
+ + locked M0 9C/PTA/ORB/AFRE skipped inventory
+ ↓
+Stage2IntegrityReport
+ ↓
+if BLOCK -> WAIT / DO_NOTHING / no DecisionContext / no D6
+ ↓ eligible
+DecisionContext
+ ↓
+if contract failure -> WAIT / DO_NOTHING / no D6
+ ↓ valid
+compact context audit
+ ↓
+legacy D6 request UNCHANGED
+ ↓
+FINAL_CONFLUENCE_ARBITER
+```
 
-This means a registered engine can currently appear in DecisionContext even when that engine was never part of the exact Stage2 report used for this context. This must be closed in M2.
+The public facade preserves historical monkeypatch/fault-injection hooks used by the regression suite.
 
-### Finding B — freshness BLOCK is not yet rejected
+### 6.6 D6 parity explicitly proven
 
-Current construction explicitly rejects PIT non-PASS and quarantine BLOCK, but has no equivalent `freshness == BLOCK` rejection. This must be closed in M2.
-
-### Finding C — degraded/unknown integrity reason contract is incomplete
-
-`InputIntegrity` normalizes the `reasons` tuple but does not currently require reasons for degraded/unknown/blocking integrity states. M2 must make bad/unknown input state explainable and auditable.
-
-### Finding D — real Paper Guidance context assembly is not wired
-
-Paper Guidance currently builds Stage2 integrity and, when eligible, proceeds to the existing `FinalConfluenceArbiterRequest`. No real `DecisionContext` is assembled in that path yet.
-
-### Finding E — known legacy neutral placeholders still feed D6
-
-Current Paper Guidance still supplies legacy placeholders including:
+M2 does not reinterpret legacy D6 placeholders yet. These remain migration debt owned by M3:
 
 ```python
 relative_strength_score = 0.5
@@ -325,17 +317,104 @@ external_ai_score       = 0.0
 weak_sector             = False
 ```
 
-Do **not** remove or reinterpret them inside M2 in a way that changes D6 behavior. M2 must first represent the corresponding canonical evidence honestly as unavailable/skipped and prove D6 parity. Their actual removal/replacement belongs to M3 migration.
+Direct integration test compares M2 output against the byte-preserved pre-M2 implementation and asserts equality of:
+- snapshot hash;
+- guidance ID;
+- final band;
+- confidence cap;
+- next action;
+- arbiter summary;
+- engine receipts.
 
-### Finding F — M2 tests do not yet cover the open hardening gates
+Thus M2 adds canonical evidence truth/auditability without changing current D6 decision behavior.
 
-The current DecisionContext suite verifies deterministic hashing, required fields, snapshot identity, future rejection, unregistered engine rejection, neutral substitution rejection, synthetic probability rejection, downstream-authority prohibition, Stage2 hard-block rejection, PIT and quarantine rules, immutability and provenance. It does not yet test exact Stage2 membership, freshness BLOCK, or bad-integrity reason requirements.
+### 6.7 Determinism / causal identity proven
+
+Tests prove:
+- same request + same approved D2 state -> same snapshot hash;
+- same evidence set -> same Stage2 integrity hash;
+- same Stage2/evidence -> same DecisionContext hash;
+- same request -> same legacy guidance result;
+- changed legitimate closed candle -> changed D2 and context hashes;
+- typed context-integrity failure stops before D6;
+- Stage2 BLOCK stops before context/D6;
+- exact Stage2 source membership is mandatory;
+- missing specialist data stays explicit instead of becoming a neutral score.
+
+### 6.8 Compact audit output
+
+`risk_summary["decision_context"]` contains only replay/audit metadata:
+
+```text
+adapter_version
+context_version
+context_hash
+snapshot_hash
+stage2_integrity_hash
+integrity:
+  data_quality
+  pit_status
+  freshness
+  quarantine_status
+  reasons
+evidence:
+  available_count
+  degraded_count
+  unavailable_count
+  skipped_count
+  error_count
+  field_count
+safety:
+  paper_promotion_eligible = false
+  trade_allowed = false
+  order_routing_enabled = false
+  live_trading_blocked = true
+```
+
+The full world-state is not duplicated in normal API responses and DecisionContext is not exposed as a second product decision.
+
+### 6.9 Final M2 committed-tree verification
+
+Verified source head:
+`105561fc4908db6c18c32f9fd1a81ae5570f680f`
+
+Workflow:
+`M2 DecisionContext`
+
+Run:
+`34233061074`
+
+Result:
+**SUCCESS**
+
+```text
+compile affected M2 modules                    PASS
+DecisionContext contract                       34 passed
+Paper Guidance DecisionContext adapter         13 passed
+M2 real-pipeline integration + D6 parity       10 passed
+M0 Stage2 integrity regression                 15 passed
+Paper Guidance v1.88 regression                29 passed
+full apps/api/tests/test_api.py                556 passed
+authority registry / sole-D6 / zero-execution PASS
+```
+
+Warnings remain known dependency/deprecation warnings; no test failures were present.
+
+### 6.10 M2 lock decision
+
+All mandatory M2 exit gates are satisfied. M2 is therefore:
+
+> **GREEN / LOCKED**
+
+A later milestone may reopen M2 only under the formal reopen rule.
 
 ---
 
-## 7. M3 migration order — recorded now, not started
+## 7. M3 — next eligible milestone, NOT STARTED
 
-Once M2 is GREEN/LOCKED, migrate specialist families one at a time:
+Do not code M3 as part of the M2 lock commit.
+
+Recorded migration order:
 
 ```text
 M3.1 price / candle / levels / indicators / MTF
@@ -347,148 +426,54 @@ M3.6 execution quality / behavior risk / portfolio/cooldown
 M3.7 reviewer evidence: Kronos / Gemini / Grok / OpenAlgo / Twin
 ```
 
-For each family:
-1. use the same D2-causal context;
+For every family:
+1. consume the same D2-causal DecisionContext identity;
 2. emit explicit availability/provenance;
 3. remove only the corresponding legacy placeholder/path after replay parity;
-4. add contradiction tests;
-5. never create a new public final decision;
+4. add contradiction/adversarial tests;
+5. never create a parallel public final decision;
 6. preserve D6 as sole final-band authority.
 
 ---
 
-## 8. M4-M12 boundaries
+## 8. Later milestone boundaries
 
 ### M4 — D6 orchestration
-
-Make D6 the repository-wide canonical consumer/finalizer. Demote old Behavior/Twin/Jarvis arbitration surfaces to evidence, compatibility or presentation roles. No specialist may publish a competing product final.
+Make D6 the repository-wide canonical consumer/finalizer. Demote old Behavior/Twin/Jarvis arbitration surfaces to evidence, compatibility or presentation roles.
 
 ### M5 — FinalDecision
+Build one deterministic user-facing decision contract with `WAIT / WATCH / AVOID / PAPER-CANDIDATE`, bias, market story, alternatives, failure checks, evidence/proof state, entry plan when authorized, invalidation, blockers and replay provenance.
 
-Build one deterministic user-facing contract containing, at minimum:
+### M6 — Jarvis
+Presentation/explanation only. Jarvis may not independently upgrade/downgrade or change the final action.
 
-```text
-identity: symbol / time / timeframe / decision_context_hash
-action: WAIT / WATCH / AVOID / PAPER-CANDIDATE
-bias: LONG / SHORT / NEUTRAL
-market_story
-primary_setup + state
-alternative_scenarios
-derivatives_summary
-failure_check: OBSERVED / ARMED / NOT_OBSERVED / UNOBSERVABLE
-historical_evidence
-entry_plan: side / entry / trigger / stop / targets / invalidation / RR / size_hint
-wait_for
-avoid_if
-main_blocker
-evidence_confidence
-data_quality
-PIT_status
-proof_status
-paper_authority
-reason_for
-reason_against
-warnings
-hard_blockers
-engines_run
-next_action: DO_NOTHING / OFFER_PAPER_TICKET
-```
+### M7 — contradiction/replay attack matrix
+Test bullish specialist agreement against risk/failure/liquidity blocks; missing/stale/future/tampered evidence; malformed/unfinished candles; snapshot mismatch; duplicate receipts; synthetic authority attempts; engine exceptions; and same-input replay.
 
-Safety remains:
-
-```text
-live_trading_blocked = true
-order_routing_enabled = false
-```
-
-### M6 — Jarvis presentation only
-
-Jarvis may summarize/explain/compare evidence but cannot upgrade, downgrade independently, change the final action, or become another final authority. External AI remains reviewer evidence only.
-
-### M7 — contradiction/replay/safety attack matrix
-
-Deliberately test situations such as:
-- ORB/indicators/Kronos/Gemini bullish while risk/failure/liquidity block;
-- missing sector/index/derivatives/events;
-- stale/future/tampered evidence;
-- malformed/unfinished candles;
-- snapshot mismatches;
-- repeated engine receipt / duplicate identity;
-- non-authoritative synthetic evidence attempting probability/final authority;
-- engine exception/degradation;
-- unavailable data wrongly presented as neutral;
-- same-input replay determinism;
-- hard-veto projection through every public surface.
-
-Expected behavior remains fail-closed.
-
-### M8 — real providers
-
-Verified provider adapters must preserve:
-- provider/source identity;
-- exchange/instrument identity;
-- observation timestamp;
-- receive timestamp;
-- session/expiry;
-- freshness/TTL;
-- completeness;
-- normalization version;
-- provenance/content hash;
-- PIT compatibility;
-- explicit missing/invalid/fail-closed state.
-
-Target flow:
-
-```text
-OpenAlgo / official feeds / verified providers
-  -> provider adapters
-  -> canonical option/futures/VIX/FII/event/restriction snapshots
-  -> DerivativesSnapshot / RiskContextSnapshot
-  -> existing calculators
-  -> Capability[]
-  -> SAME DecisionContext / D6 path
-```
-
-Do not add a parallel derivatives decision engine.
+### M8 — verified real providers
+Provider adapters must preserve source identity, exchange/instrument identity, observation/receive timestamps, session/expiry, freshness/TTL, completeness, normalization version, provenance/content hash and PIT compatibility. Missing/invalid data stays fail-closed.
 
 ### M9 — historical validation
-
-Architecture/unit tests cannot prove market edge. Required validation includes train-only selection, unseen holdout, expanding/rolling walk-forward, regime splits, failure-scenario splits, sensitivity/robustness checks, transaction-cost/slippage realism, sample-size guards, multiple-testing/overfit controls and edge-decay monitoring.
+Train-only selection, unseen holdout, rolling/expanding walk-forward, regime/failure splits, cost/slippage realism, sensitivity, sample guards, multiple-testing controls and edge-decay monitoring.
 
 ### M10 — paper validation
+Controlled paper-only observations, outcome labeling, drift monitoring, replayable decision/evidence IDs and explicit promotion criteria. Human approval remains mandatory.
 
-Use controlled paper-only observations, outcome labeling, drift monitoring, replayable decision/evidence IDs and explicit promotion criteria. Human approval remains required.
+### M11 — operational hardening
+Performance/latency budgets, observability, provider outage recovery, persistence/replay recovery, idempotency, concurrency, schema/version migration, deployment, rollback, secrets/security, rate limits and disaster recovery.
 
-### M11 — operational production hardening
-
-Cover performance/latency budgets, observability, metrics/logging/tracing, data/provider outage recovery, persistence/replay recovery, idempotency, concurrency, schema/version migration, deployment, rollback, secrets/security, rate limits, dependency failure and disaster recovery.
-
-### M12 — production release gate
-
-Independent final audit must verify:
-- architecture/wiring matches canonical docs;
-- all milestone locks are supported by commits/tests;
-- no bypass/parallel public decision remains;
-- real-provider provenance/PIT/freshness is proven;
-- historical and paper evidence gates are satisfied;
-- operational hardening is complete;
-- research/paper/live safety boundary is explicit.
-
-Only then may Trade Vision be described as production-ready.
+### M12 — independent production release gate
+Only after architecture, provider provenance, historical/paper evidence and operational gates pass may the system be described as production-ready.
 
 ---
 
-## 9. Production-ready software != proven trading intelligence
+## 9. Production-ready code != proven trading edge
 
-This distinction is mandatory:
-
-> **Production-ready code** means the architecture, contracts, tests, operations, security and recovery are engineered to production standards.
+> **Production-ready software** means architecture, contracts, tests, operations, security and recovery are engineered to production standards.
 >
 > **Production-ready trading intelligence** additionally requires credible historical/walk-forward evidence, paper observations, robustness and explicit promotion gates.
 
-A beautiful, deterministic, fully tested architecture must still return `WAIT` when proof is insufficient.
-
-Unit-test success, merge success, or AFRE/ORB confirmation is never market-edge proof.
+M2 being GREEN does **not** prove a market edge and grants no paper/live authority.
 
 ---
 
@@ -517,26 +502,26 @@ unit_tests_green != trading_edge_proven
 Hard architecture rules:
 - D1 outranks every predictor/strategy/reviewer;
 - no unfinished candle receives decision authority;
-- all M2+ evidence must remain D2-causal;
+- all M2+ evidence remains D2-causal;
 - missing/unknown data remains explicit;
 - no external AI may override risk/data blocks;
 - no specialist may claim final-band authority;
 - no hidden live broker route may be introduced;
 - D6 is the sole final-band authority;
 - Jarvis becomes read-only presentation;
-- FinalDecision is the only product-facing decision contract after M5.
+- FinalDecision becomes the only product-facing decision contract after M5.
 
 ---
 
-## 11. Known remaining architecture debt — track, do not randomly patch
-
-These are not permission to leave M2 scope:
+## 11. Known remaining debt and ownership
 
 ```text
 legacy relative_strength_score = 0.5
 legacy indicator_signal_score  = 0.0
 legacy external_ai_score       = 0.0
 legacy weak_sector             = False
+canonical real freshness assessor not yet wired
+canonical quarantine assessor not yet wired
 multiple older decision/arbiter/fusion presentation surfaces
 partial verified real derivatives/event/OI/depth providers
 Linux CI/HSTRY fixture coverage including RELIANCE_NSE_5m.csv
@@ -544,45 +529,41 @@ PowerShell parser verification on Ubuntu
 ```
 
 Ownership:
-- neutral placeholder removal -> M3;
+- specialist evidence and neutral-placeholder removal -> M3;
 - parallel authority demotion -> M4/M6;
-- real provider completeness -> M8;
+- verified provider/freshness completeness -> M8;
 - edge proof -> M9/M10;
-- infrastructure/operational hardening -> M11 unless it blocks an earlier milestone's test truth.
+- infrastructure/operational hardening -> M11 unless it blocks an earlier milestone’s truth.
 
 ---
 
 ## 12. Future-session start procedure
 
-Every new coding/audit session should do this before editing:
-
 ```text
 1. Read docs/CANONICAL_BUILD_STATUS.md.
 2. Verify active branch and current head.
-3. Read only the source/tests for the CURRENT milestone.
-4. Confirm previously GREEN milestones still have no integration defect exposed by current work.
-5. Do not reopen locked milestones for cleanup/refactoring without a concrete defect.
-6. Implement only the CURRENT milestone exit gates.
+3. Read only source/tests for the CURRENT milestone.
+4. Confirm locked milestones have no integration defect exposed by current work.
+5. Do not reopen locked work for cleanup/refactoring without a concrete defect.
+6. Implement only the current milestone exit gates.
 7. Run targeted -> integration -> full regression -> safety/authority checks.
 8. Commit only after green verification.
-9. Update this file with commit/run/results and advance exactly one milestone state.
+9. Update this file with commit/run/results and advance exactly one milestone.
 10. Update architecture/engine docs only if ownership, authority, data contract or wiring materially changed.
 ```
 
-If repository truth conflicts with this document, **code/tests win temporarily**, and this document must be corrected in the same audit before continuing.
+If repository truth conflicts with this document, code/tests win temporarily and this document must be corrected before continuing.
 
 ---
 
-## 13. Supporting references — not competing status sources
+## 13. Supporting references
 
-Use these for detail/history, but advance milestone status only in this file:
-
-- `docs/NEXT_BUILD_TARGET.md` — short pointer to the current target;
-- `docs/DECISION_SPINE_BUILD_STATUS_2026-09-08.md` — dated historical Decision Spine snapshot;
+- `docs/M2_AUDIT_VERDICT_CODING_REFERENCE_2026-09-08.md` — controlling M2 implementation reference;
+- `docs/NEXT_BUILD_TARGET.md` — short next-milestone pointer;
+- `docs/DECISION_SPINE_BUILD_STATUS_2026-09-08.md` — dated Decision Spine snapshot;
 - `docs/ENGINE_AUTHORITY_UPGRADE_MATRIX_2026-09-08.md` — per-engine migration/authority matrix;
-- `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` — architecture/brain ownership and wiring reference;
+- `docs/APPLICATION_BRAIN_SKELETON_AND_WIRING.md` — architecture/wiring reference;
 - `docs/SAFETY_INVARIANTS.md` — safety rules;
-- `docs/plans/FINAL_REQUIRED_FLOW.md` — product-spine requirements;
-- `docs/IMPLEMENTATION_STATUS.md` — broader historical ship log.
+- `docs/plans/FINAL_REQUIRED_FLOW.md` — product-spine requirements.
 
-This file is the **canonical milestone/build-status source of truth** from 2026-09-08 onward.
+This file is the **canonical milestone/build-status source of truth**.
