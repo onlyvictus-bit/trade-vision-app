@@ -36,6 +36,12 @@ from .chart_reasoning_volatility import build_chart_reasoning_report
 from .condition_classifier import classify_conditions
 from .context_engines import analyze_htf_confirmation, analyze_level_context
 from .data_quality import scan_data_quality
+from .decision_spine.stage2_integrity import (
+    Availability,
+    EvidenceObservation,
+    SourceMode,
+    build_stage2_integrity_report,
+)
 from .execution_event_oi_risk import build_execution_event_oi_risk_report
 from .final_confluence_arbiter import build_final_confluence_arbiter_report
 from .market_structure_liquidity import build_market_structure_liquidity_report
@@ -220,6 +226,96 @@ def run_paper_guidance_p1(
     authoritative_count = int(memory_summary["historical_match_count"])
     low_evidence = authoritative_count < settings.minimum_evidence_count
     required_mtf_complete = not mtf_evidence.missing_required_timeframes
+
+    # M0 Decision-Spine stabilization: only D2-native receipts are admitted as
+    # active evidence. Legacy/current 9C, PTA, ORB and AFRE paths are recorded
+    # explicitly as skipped instead of being silently substituted with neutral
+    # values or independently re-fetching/recomputing outside the D2 snapshot.
+    stage2_observations = [
+        EvidenceObservation(
+            engine_id="NINE_CANDLE_MEMORY",
+            source_snapshot_hash=snapshot.snapshot_hash,
+            availability=Availability.SKIPPED,
+            source_mode=SourceMode.UNKNOWN,
+            unavailable_reasons=("9C current runtime is not yet D2-snapshot-native in paper guidance",),
+            notes=("M0 preserves 9C as explicit non-authoritative skipped evidence until canonical wiring",),
+        ),
+        EvidenceObservation(
+            engine_id="PTA_MARKER_RUNTIME",
+            source_snapshot_hash=snapshot.snapshot_hash,
+            availability=Availability.SKIPPED,
+            source_mode=SourceMode.UNKNOWN,
+            unavailable_reasons=("PTA marker probes are not yet D2-snapshot-native in paper guidance",),
+            notes=("PTA remains explanation/availability evidence only",),
+        ),
+        EvidenceObservation(
+            engine_id="ORB_CORE",
+            source_snapshot_hash=snapshot.snapshot_hash,
+            availability=Availability.SKIPPED,
+            source_mode=SourceMode.UNKNOWN,
+            unavailable_reasons=("ORB is intentionally not activated in v1.88 paper guidance",),
+        ),
+        EvidenceObservation(
+            engine_id="AFRE",
+            source_snapshot_hash=snapshot.snapshot_hash,
+            availability=Availability.SKIPPED,
+            source_mode=SourceMode.UNKNOWN,
+            unavailable_reasons=("AFRE canonical DecisionContext wiring is deferred until after M0",),
+        ),
+    ]
+    stage2_integrity = build_stage2_integrity_report(
+        canonical_snapshot_hash=snapshot.snapshot_hash,
+        engine_receipts=receipts,
+        evidence_observations=stage2_observations,
+    )
+    if not stage2_integrity.canonical_context_eligible:
+        stage2_blockers = [f"Stage-2 integrity: {item}" for item in stage2_integrity.hard_blockers]
+        blocked_guidance_id = str(
+            uuid5(
+                NAMESPACE_URL,
+                "tradevision:paper-guidance:stage2-block:"
+                + snapshot.snapshot_hash
+                + ":"
+                + stage2_integrity.output_hash,
+            )
+        )
+        return base.model_copy(
+            update={
+                "guidance_version": PAPER_GUIDANCE_P1_VERSION,
+                "guidance_id": blocked_guidance_id,
+                "final_band": "WAIT",
+                "confidence_cap": min(base.confidence_cap, settings.p0_confidence_cap),
+                "next_action": "DO_NOTHING",
+                "blockers": _unique(list(base.blockers) + stage2_blockers),
+                "warnings": _unique(warnings + list(stage2_integrity.warnings)),
+                "reason_for": _unique(list(base.reason_for) + ["D1 safety and D2 immutable snapshot checks passed."]),
+                "reason_against": _unique(
+                    list(base.reason_against)
+                    + ["Stage-2 evidence integrity blocked canonical evidence before D6 arbitration."]
+                ),
+                "entry_plan": None,
+                "evidence_votes": [],
+                "engine_receipts": receipts,
+                "mtf_evidence": mtf_evidence,
+                "arbiter_summary": {
+                    "arbiter_run": False,
+                    "blocked_before_d6": True,
+                    "stage2_integrity_hash": stage2_integrity.output_hash,
+                },
+                "engines_run": _unique(engines_run),
+                "engines_skipped": _unique(engines_skipped + ["D6_ARBITER:stage2_integrity_block"]),
+                "memory_summary": memory_summary,
+                "risk_summary": {
+                    **base.risk_summary,
+                    "paper_entry_authority": False,
+                    "stage2_integrity": stage2_integrity.as_dict(),
+                },
+                "low_evidence_flag": low_evidence,
+                "historical_match_count": authoritative_count,
+                "minimum_evidence_count": settings.minimum_evidence_count,
+            }
+        )
+
     arbiter_request = FinalConfluenceArbiterRequest(
         symbol=snapshot.symbol,
         timeframe=snapshot.timeframe,
@@ -343,6 +439,7 @@ def run_paper_guidance_p1(
             "event_context_status": getattr(execution_risk, "event_context_status", "unavailable"),
             "options_context_status": getattr(execution_risk, "options_context_status", "unavailable"),
             "paper_entry_authority": False,
+            "stage2_integrity": stage2_integrity.as_dict(),
         },
         data_quality=base.data_quality,
         point_in_time=base.point_in_time,

@@ -94,6 +94,7 @@ ENGINE_AUTHORITIES: tuple[EngineAuthority, ...] = (
     _engine("PATTERN_MEMORY", "app.behavior.pattern_memory", EngineClassification.MEMORY, downgrade=True, rank=25, lifecycle="migration"),
     _engine("ANALOG_MEMORY", "app.behavior.analog_research", EngineClassification.MEMORY, downgrade=True, rank=25, lifecycle="migration"),
     _engine("NINE_CANDLE_MEMORY", "app.behavior.nine_candle_hybrid", EngineClassification.MEMORY, downgrade=True, rank=25, lifecycle="migration", notes="9C/PTA runtime contract stabilization required before canonical authority use."),
+    _engine("PTA_MARKER_RUNTIME", "app.behavior.real_indicator_adapter", EngineClassification.EVIDENCE, rank=10, lifecycle="migration", notes="PTA marker probes are availability/explanation evidence only; never probability or trade authority."),
     _engine("HYPOTHESIS_ENGINE", "app.behavior.hypothesis_engine", EngineClassification.SCENARIO, propose=True, downgrade=True, rank=35, lifecycle="migration"),
     _engine("ORB_CORE", "app.orb.core", EngineClassification.STRATEGY, propose=True, veto=True, downgrade=True, rank=50, lifecycle="migration"),
     _engine("AFRE", "app.orb.adaptive", EngineClassification.STRATEGY, propose=True, veto=True, downgrade=True, rank=55, lifecycle="migration", notes="Confirmed variant never bypasses proof/paper gates."),

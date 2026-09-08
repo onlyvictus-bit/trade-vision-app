@@ -174,7 +174,7 @@ def build_stage2_integrity_report(
 
         if item.availability in {Availability.DEGRADED, Availability.UNAVAILABLE, Availability.SKIPPED, Availability.ERROR}:
             local_warnings.append(f"availability={item.availability.value}")
-        if item.availability in {Availability.UNAVAILABLE, Availability.ERROR] and not item.unavailable_reasons:
+        if item.availability in {Availability.UNAVAILABLE, Availability.ERROR} and not item.unavailable_reasons:
             local_warnings.append("unavailable/error evidence has no reason")
 
         states.append(

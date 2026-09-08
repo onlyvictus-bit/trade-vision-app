@@ -187,3 +187,24 @@ def test_ds_s2_014_malformed_canonical_snapshot_hash_fails_closed():
     )
     assert report.status == "BLOCK"
     assert "INVALID_CANONICAL_SNAPSHOT_HASH" in report.hard_blockers
+
+def test_ds_s2_015_explicit_skipped_migration_evidence_degrades_without_authority():
+    observation = EvidenceObservation(
+        engine_id="PTA_MARKER_RUNTIME",
+        source_snapshot_hash=SNAPSHOT,
+        availability=Availability.SKIPPED,
+        source_mode=SourceMode.UNKNOWN,
+        used_for_probability=False,
+        final_band_claimed=False,
+        unavailable_reasons=("not D2-native yet",),
+    )
+    report = build_stage2_integrity_report(
+        canonical_snapshot_hash=SNAPSHOT,
+        evidence_observations=[observation],
+    )
+    assert report.status == "DEGRADED"
+    assert report.canonical_context_eligible is True
+    assert report.paper_promotion_eligible is False
+    assert report.trade_allowed is False
+    assert report.order_routing_enabled is False
+    assert report.live_trading_blocked is True

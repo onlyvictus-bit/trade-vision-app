@@ -1189,6 +1189,7 @@ def test_9c_033_real_indicator_payload_is_normalized_without_changing_default(mo
         return outputs, telemetry
 
     monkeypatch.setattr(hybrid, "compute_real_indicator_outputs_with_telemetry", fake_outputs)
+    monkeypatch.setattr(hybrid, "_real_closed_candles", lambda *_: [])
     default_result = client.get("/api/v1/behavior/9c-dna/current/RELIANCE?timeframe=1m").json()["data"]
     real_result = client.get("/api/v1/behavior/9c-dna/current/RELIANCE?timeframe=1m&use_real_indicators=true").json()["data"]
     assert default_result["source_snapshot_id"] == "mock-closed-9c-current"
@@ -1204,7 +1205,11 @@ def test_9c_033_real_indicator_payload_is_normalized_without_changing_default(mo
     assert audit["normalized_range_pass"] is True
     assert audit["missing_mask_count"] == audit["vector_dimension"] - 2
     assert audit["promoted_runtime_indicator_count"] == len(promoted_ids)
-    assert audit["real_runtime_computed_count"] == 2
+    assert audit["real_runtime_computed_count"] == 0
+    assert audit["synthetic_fallback_computed_count"] == 2
+    assert audit["runtime_unavailable_count"] == len(promoted_ids) - 2
+    assert audit["runtime_failed_count"] == 0
+    assert audit["runtime_accounting_pass"] is True
     assert audit["real_runtime_masked_count"] == len(promoted_ids) - 2
     assert audit["non_promoted_masked_count"] == len(entries) - len(promoted_ids)
 
@@ -1214,8 +1219,12 @@ def test_9c_033_real_indicator_payload_is_normalized_without_changing_default(mo
     masked_row = next(row for row in alignment if row["indicator_id"] not in promoted_ids)
     assert first_row["manifest_slot"] == first_index
     assert second_row["manifest_slot"] == second_index
-    assert first_row["source_mode"] == "real"
-    assert second_row["source_mode"] == "real"
+    assert first_row["source_mode"] == "synthetic_fallback"
+    assert second_row["source_mode"] == "synthetic_fallback"
+    assert first_row["explanation_only"] is True
+    assert second_row["explanation_only"] is True
+    assert first_row["usable_for_probability"] is False
+    assert second_row["usable_for_probability"] is False
     assert first_row["runtime_status"] == "computed"
     assert second_row["runtime_status"] == "computed"
     assert first_row["normalized_from"] == "bounded_minmax"
@@ -1906,8 +1915,19 @@ def test_9c_runtime_008_real_runtime_probes_pta_markers_without_probability_or_t
     assert result["slow_indicator_count"] == len(result["slow_indicator_ids"])
     assert set(result["vector_promoted_not_level_selected_ids"]).isdisjoint(set(result["level_runtime_selected_ids"]))
     assert result["pta_marker_selected_count"] == 23
-    assert result["pta_marker_output_count"] == 23
+    accounting = result["pta_marker_accounting"]
+    assert accounting["selected_count"] == 23
+    assert accounting["probe_count"] == 23
     assert len(result["pta_marker_telemetry"]) == 23
+    assert (
+        accounting["computed_count"]
+        + accounting["no_signal_count"]
+        + accounting["dependency_unavailable_count"]
+        + accounting["error_count"]
+        == accounting["probe_count"]
+    )
+    assert result["pta_marker_output_count"] == accounting["computed_count"] + accounting["no_signal_count"]
+    assert accounting["accounting_pass"] is True
     assert result["pta_marker_dependency"]["dependency"] == "pandas_ta_classic"
     assert result["pta_marker_dependency"]["compute_source"] == "vendor.stock_app.shared.indicators.pta_signal_markers"
     assert result["pta_markers_used_for_probability"] is False
@@ -1955,9 +1975,11 @@ def test_9c_runtime_009_fmfm300_is_explanation_only_and_not_trade_authority():
         assert fmfm_alignment["raw_output_present"] is False
         assert "status=slow_blocked" in fmfm_alignment["missing_reason"]
     else:
-        assert fmfm_alignment["source_mode"] == "real"
+        assert fmfm_alignment["source_mode"] in {"real", "synthetic_fallback"}
         assert fmfm_alignment["raw_output_present"] is True
         assert fmfm_alignment["explanation_only"] is True
+        if fmfm_alignment["source_mode"] == "synthetic_fallback":
+            assert fmfm_alignment["usable_for_probability"] is False
     assert fmfm_alignment["usable_for_probability"] is False
     assert "excluded from calibrated probability" in fmfm_alignment["historical_effect"]
 
