@@ -1,9 +1,9 @@
 """Canonical Decision Spine contracts.
 
 The package contains authority, Stage-2 evidence-integrity, canonical
-DecisionContext, and deterministic Paper Guidance context-adapter contracts. It
-intentionally does not expose execution authority or create a second final
-trading decision path.
+DecisionContext, deterministic Paper Guidance context-adapter contracts, and
+M3.1's authority-free D2 feature substrate. It intentionally does not expose
+execution authority or create a second final trading decision path.
 """
 
 from .authority_registry import (
@@ -37,6 +37,19 @@ from .paper_guidance_decision_context_adapter import (
     build_canonical_stage2_observations,
     build_paper_guidance_decision_context,
     decision_context_audit_summary,
+)
+from .snapshot_feature_kernel import (
+    DEFAULT_AVERAGE_RANGE_WINDOWS,
+    DEFAULT_VOLUME_WINDOWS,
+    SNAPSHOT_FEATURE_KERNEL_VERSION,
+    AverageRangeWindow,
+    KernelBuildAudit,
+    KernelIdentity,
+    KernelVectors,
+    SnapshotFeatureKernel,
+    SnapshotFeatureKernelError,
+    VolumeWindow,
+    build_snapshot_feature_kernel,
 )
 from .stage2_integrity import (
     INTEGRITY_VERSION,
@@ -75,6 +88,17 @@ __all__ = [
     "build_canonical_stage2_observations",
     "build_paper_guidance_decision_context",
     "decision_context_audit_summary",
+    "DEFAULT_AVERAGE_RANGE_WINDOWS",
+    "DEFAULT_VOLUME_WINDOWS",
+    "SNAPSHOT_FEATURE_KERNEL_VERSION",
+    "AverageRangeWindow",
+    "KernelBuildAudit",
+    "KernelIdentity",
+    "KernelVectors",
+    "SnapshotFeatureKernel",
+    "SnapshotFeatureKernelError",
+    "VolumeWindow",
+    "build_snapshot_feature_kernel",
     "INTEGRITY_VERSION",
     "Availability",
     "EngineIntegrityState",
