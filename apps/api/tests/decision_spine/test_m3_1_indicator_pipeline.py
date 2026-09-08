@@ -96,7 +96,10 @@ def test_m31d_003_no_signal_is_distinct_from_no_output(monkeypatch):
 def test_m31d_004_missing_volume_dependency_is_unavailable_not_zero(monkeypatch):
     _patch_compute(monkeypatch, {"si_vwap_conf": {"direction": "bull"}})
     outputs, telemetry = compute_real_indicator_outputs_with_telemetry(
-        _candles(40, volume=None), ["si_vwap_conf"]
+        _candles(40, volume=None),
+        ["si_vwap_conf"],
+        source_snapshot_hash="f" * 64,
+        source_timeframe="5m",
     )
     assert outputs == {}
     evidence = telemetry[0]["evidence"]
