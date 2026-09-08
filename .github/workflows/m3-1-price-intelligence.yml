@@ -67,12 +67,14 @@ jobs:
             apps/api/app/behavior/decision_spine/snapshot_feature_kernel.py \
             apps/api/app/behavior/decision_spine/canonical_level_intelligence.py \
             apps/api/app/behavior/decision_spine/canonical_mtf_intelligence.py \
+            apps/api/app/behavior/decision_spine/price_structure_evidence.py \
             apps/api/app/behavior/candle_anatomy.py \
             apps/api/app/behavior/condition_classifier.py \
             apps/api/app/behavior/chart_reasoning_volatility.py \
             apps/api/app/behavior/real_indicator_adapter.py \
             apps/api/app/behavior/paper_guidance_spine.py \
             apps/api/app/behavior/paper_guidance_spine_m2_impl.py \
+            apps/api/app/behavior/paper_guidance_spine_m3_1_impl.py \
             apps/api/app/behavior/paper_guidance_spine_legacy.py
 
       - name: M3.1-A snapshot feature kernel tests
@@ -95,6 +97,18 @@ jobs:
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_m3_1_mtf_pipeline.py
 
+      - name: M3.1-F price evidence fusion tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_1_price_evidence.py
+
+      - name: M3.1-F replay and metamorphic tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_1_replay.py
+
+      - name: M3.1-F adversarial DAG tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_1_adversarial.py
+
       - name: Locked M2 DecisionContext regression
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_decision_context.py
@@ -111,9 +125,13 @@ jobs:
         working-directory: apps/api
         run: pytest -q tests/test_paper_guidance_v188.py
 
-      - name: Full API regression
+      - name: Historical API regression
         working-directory: apps/api
         run: pytest -q tests/test_api.py
+
+      - name: Full API test tree
+        working-directory: apps/api
+        run: python -m pytest tests -q
 
       - name: Verify Decision Spine safety and authority invariants
         working-directory: apps/api
