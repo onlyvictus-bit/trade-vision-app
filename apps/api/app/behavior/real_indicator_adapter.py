@@ -505,10 +505,22 @@ def _telemetry_row(
     dataframe_build_count: int,
 ) -> dict[str, object]:
     evidence_dict = asdict(evidence) if isinstance(evidence, IndicatorEvidence) else deepcopy(evidence)
+    canonical_runtime_status = status
+    legacy_status = _legacy_runtime_status(
+        status,
+        canonical_route=bool(
+            evidence_dict.get("source_snapshot_hash")
+            or evidence_dict.get("source_timeframe")
+        ),
+    )
     return {
         "indicator_id": indicator_id,
-        # Lowercase runtime status remains for the v1.88 compatibility path.
-        "status": status,
+        # ``status`` is a compatibility projection for pre-M3.1 callers. The
+        # canonical Decision Spine consumes ``canonical_status`` / ``evidence``.
+        # This prevents an old REST telemetry enum from forcing loss of the new
+        # epistemic distinctions.
+        "status": legacy_status,
+        "canonical_runtime_status": canonical_runtime_status,
         "canonical_status": evidence_dict.get("status"),
         "latency_ms": round(latency_ms, 3),
         "source_latency_ms": round(source_latency_ms, 3),
@@ -529,6 +541,22 @@ def _telemetry_row(
             "indicator_dataframe_build_count": dataframe_build_count,
         },
     }
+
+
+def _legacy_runtime_status(status: str, *, canonical_route: bool) -> str:
+    """Project new epistemic states onto the pre-M3.1 lowercase enum only.
+
+    Canonical callers always carry D2 provenance and therefore receive the
+    richer lowercase runtime state unchanged. Legacy callers without D2
+    provenance retain the old REST/runtime vocabulary while the nested
+    ``IndicatorEvidence.status`` remains fully typed and lossless.
+    """
+
+    if canonical_route:
+        return status
+    if status in {"no_signal", "insufficient_warmup", "dependency_unavailable", "unsupported"}:
+        return "no_output"
+    return status
 
 
 def _make_evidence(
