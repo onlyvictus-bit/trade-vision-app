@@ -9,10 +9,16 @@ a time. This facade keeps the historical public import/monkeypatch surface
 stable.
 """
 
+from contextvars import ContextVar
+
 from ..models import CandleAnatomyRequest
 from . import paper_guidance_spine_legacy as _legacy
 from . import paper_guidance_spine_m2_impl as _m2
 from .paper_guidance_spine_legacy import *  # noqa: F401,F403
+from .decision_spine.canonical_level_intelligence import (
+    CanonicalLevelIntelligenceResult,
+    build_canonical_level_intelligence,
+)
 from .decision_spine.decision_context import DecisionContextError
 from .decision_spine.paper_guidance_decision_context_adapter import (
     build_canonical_stage2_observations as _build_canonical_stage2_observations,
@@ -32,9 +38,8 @@ from .decision_spine.stage2_integrity import (
 _legacy.CandleAnatomyRequest = CandleAnatomyRequest
 
 # The v1.88 helper predates calculator-style outputs and therefore does not
-# recognize ``calculation_version``. Extend only the compatibility lookup so a
-# CANDLE_ANATOMY receipt records candle-anatomy.v0.15 truthfully while every
-# existing specialist keeps its exact historical version resolution.
+# recognize ``calculation_version``. Extend only the compatibility lookup so
+# migrated deterministic calculators record their own version truthfully.
 _legacy_engine_version = _legacy._engine_version
 
 
@@ -46,6 +51,16 @@ def _canonical_engine_version(value) -> str:
 
 
 _legacy._engine_version = _canonical_engine_version
+
+# M3.1-C reuses the exact feature-kernel object already built by M3.1-A/B. A
+# ContextVar keeps request-local identity isolated across concurrent executions;
+# it is cleared in ``finally`` so standalone legacy calls remain legacy calls.
+_bound_feature_kernel: ContextVar[object | None] = ContextVar(
+    "m31_bound_feature_kernel",
+    default=None,
+)
+_legacy_level_context = _legacy.analyze_level_context
+_legacy_run_engine = _legacy._run_engine
 
 
 def __getattr__(name: str):
@@ -95,7 +110,7 @@ def build_canonical_stage2_observations(*, snapshot_hash: str, active_engine_ids
 
 
 def _build_m31_guarded_decision_context(**kwargs):
-    """Reject failed canonical candle dependencies before D6 can neutralize them."""
+    """Reject failed canonical dependencies before D6 can neutralize them."""
 
     receipts = {
         receipt.engine_id: receipt
@@ -107,20 +122,90 @@ def _build_m31_guarded_decision_context(**kwargs):
         for engine_id in ("CANDLE_ANATOMY", "CANDLE_CONDITION", "CHART_REASONING")
         if engine_id not in receipts or receipts[engine_id].status != "completed"
     ]
+
+    # LEVEL_CONTEXT may be DEGRADED when canonical sub-facts are truthfully
+    # unavailable (for example no previous session in the bounded D2 lookback),
+    # while its compatibility projection remains deterministic. A true engine
+    # exception lacks the canonical marker and is blocked before D6.
+    levels_receipt = receipts.get("LEVEL_CONTEXT")
+    level_summary = getattr(levels_receipt, "output_summary", {}) if levels_receipt else {}
+    canonical_level_present = bool(
+        isinstance(level_summary, dict)
+        and level_summary.get("canonical_level_intelligence") is True
+    )
+    if levels_receipt is None or not canonical_level_present:
+        incomplete.append("LEVEL_CONTEXT")
+
     if incomplete:
         detail = ", ".join(
             f"{engine_id}={getattr(receipts.get(engine_id), 'status', 'missing')}"
             for engine_id in incomplete
         )
         raise DecisionContextError(
-            "M3.1 canonical candle dependency did not complete; D6 neutral substitution is forbidden: "
+            "M3.1 canonical dependency did not complete truthfully; D6 neutral substitution is forbidden: "
             + detail
         )
     return build_paper_guidance_decision_context(**kwargs)
 
 
-def _sync_patchable_dependencies() -> None:
-    """Honor existing public-module monkeypatch/test hooks without changing runtime semantics."""
+def _canonical_level_context(request):
+    kernel = _bound_feature_kernel.get()
+    if kernel is None:
+        return _legacy_level_context(request)
+    return build_canonical_level_intelligence(request, feature_kernel=kernel)
+
+
+def _canonical_run_engine(engine_id, stage, snapshot, runner, summarizer):
+    if engine_id != "LEVEL_CONTEXT":
+        return _legacy_run_engine(engine_id, stage, snapshot, runner, summarizer)
+
+    # Mint the receipt only after the final canonical summary/status are known.
+    # Mutating output_summary after _receipt() would break the output_hash ->
+    # payload causal identity that DecisionContext relies on.
+    try:
+        result = runner()
+        if not isinstance(result, CanonicalLevelIntelligenceResult):
+            summary = summarizer(result)
+            return result, _legacy._receipt(
+                engine_id=engine_id,
+                stage=stage,
+                engine_version=_legacy._engine_version(result),
+                snapshot=snapshot,
+                status="completed",
+                output_summary=summary,
+            )
+
+        summary = result.receipt_summary()
+        summary["canonical_level_intelligence"] = True
+        summary["canonical_status"] = (
+            "AVAILABLE" if not result.missing_reasons else "DEGRADED"
+        )
+        warnings = list(result.missing_reasons)
+        status = "completed" if not warnings else "degraded"
+        return result, _legacy._receipt(
+            engine_id=engine_id,
+            stage=stage,
+            engine_version=_legacy._engine_version(result),
+            snapshot=snapshot,
+            status=status,
+            output_summary=summary,
+            warnings=warnings,
+        )
+    except Exception as exc:
+        warning = f"{engine_id} degraded safely: {type(exc).__name__}: {exc}"
+        return None, _legacy._receipt(
+            engine_id=engine_id,
+            stage=stage,
+            engine_version="unavailable",
+            snapshot=snapshot,
+            status="degraded",
+            output_summary={"available": False},
+            warnings=[warning],
+        )
+
+
+def _sync_patchable_dependencies():
+    """Honor public monkeypatch/test hooks without changing runtime semantics."""
 
     for name in (
         "compute_real_indicator_outputs_with_telemetry",
@@ -138,9 +223,28 @@ def _sync_patchable_dependencies() -> None:
 
 def run_paper_guidance_p1(request, *, mode, kill_switch, config=None):
     _sync_patchable_dependencies()
-    return _m2.run_paper_guidance_p1(
-        request,
-        mode=mode,
-        kill_switch=kill_switch,
-        config=config,
-    )
+
+    # Preserve monkeypatchability of the M3.1-A kernel builder while adding one
+    # request-local binding operation. The delegated builder remains the sole
+    # calculation; canonical levels reuse its returned object.
+    delegated_kernel_builder = _m2.build_snapshot_feature_kernel
+
+    def build_and_bind_kernel(snapshot):
+        kernel = delegated_kernel_builder(snapshot)
+        _bound_feature_kernel.set(kernel)
+        return kernel
+
+    _m2.build_snapshot_feature_kernel = build_and_bind_kernel
+    _legacy.analyze_level_context = _canonical_level_context
+    _legacy._run_engine = _canonical_run_engine
+    _bound_feature_kernel.set(None)
+    try:
+        return _m2.run_paper_guidance_p1(
+            request,
+            mode=mode,
+            kill_switch=kill_switch,
+            config=config,
+        )
+    finally:
+        _bound_feature_kernel.set(None)
+        _m2.build_snapshot_feature_kernel = delegated_kernel_builder

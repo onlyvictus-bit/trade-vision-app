@@ -2,8 +2,9 @@
 
 The package contains authority, Stage-2 evidence-integrity, canonical
 DecisionContext, deterministic Paper Guidance context-adapter contracts, and
-M3.1's authority-free D2 feature substrate. It intentionally does not expose
-execution authority or create a second final trading decision path.
+M3.1's authority-free D2 feature/price-intelligence substrate. It intentionally
+does not expose execution authority or create a second final trading decision
+path.
 """
 
 from .authority_registry import (
@@ -16,6 +17,20 @@ from .authority_registry import (
     authority_manifest,
     get_engine_authority,
     validate_authority_registry,
+)
+from .canonical_level_intelligence import (
+    LEVEL_INTELLIGENCE_VERSION,
+    SESSION_SEMANTICS_VERSION,
+    CanonicalCpr,
+    CanonicalLevelCalculationAudit,
+    CanonicalLevelIntelligenceError,
+    CanonicalLevelIntelligenceResult,
+    CanonicalLevelProvenance,
+    CanonicalVwap,
+    OpeningRange,
+    PreviousSessionLevels,
+    SessionIdentity,
+    build_canonical_level_intelligence,
 )
 from .decision_context import (
     CANONICAL_EVIDENCE_FIELDS,
@@ -71,6 +86,18 @@ __all__ = [
     "authority_manifest",
     "get_engine_authority",
     "validate_authority_registry",
+    "LEVEL_INTELLIGENCE_VERSION",
+    "SESSION_SEMANTICS_VERSION",
+    "CanonicalCpr",
+    "CanonicalLevelCalculationAudit",
+    "CanonicalLevelIntelligenceError",
+    "CanonicalLevelIntelligenceResult",
+    "CanonicalLevelProvenance",
+    "CanonicalVwap",
+    "OpeningRange",
+    "PreviousSessionLevels",
+    "SessionIdentity",
+    "build_canonical_level_intelligence",
     "CANONICAL_EVIDENCE_FIELDS",
     "DECISION_CONTEXT_VERSION",
     "DecisionContext",

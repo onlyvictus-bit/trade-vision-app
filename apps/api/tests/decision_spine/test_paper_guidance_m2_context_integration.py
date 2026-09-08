@@ -263,7 +263,7 @@ def test_m2_pg_010_d6_semantics_match_preserved_pre_m2_route():
 
     # M3.1 adds receipts/provenance, so guidance identity and receipt lists are
     # expected to change. The locked parity requirement is D6 input/output
-    # behavior: no migration-stage candle plumbing may change the final arbiter.
+    # behavior: migration plumbing must not change the final arbiter semantics.
     migrated_result = _run(request)
     legacy_result = legacy_spine.run_paper_guidance_p1(
         request,
@@ -280,10 +280,21 @@ def test_m2_pg_010_d6_semantics_match_preserved_pre_m2_route():
 
     migrated_receipts = {item.engine_id: item for item in migrated_result.engine_receipts}
     legacy_receipts = {item.engine_id: item for item in legacy_result.engine_receipts}
+
+    # M3.1-C deliberately gives LEVEL_CONTEXT truthful canonical availability.
+    # This partial-session fixture cannot prove a complete 09:15 NSE session or
+    # previous session, so canonical level evidence is DEGRADED even though the
+    # isolated compatibility projection keeps the unchanged D6 inputs exactly
+    # equivalent to legacy.
+    level_receipt = migrated_receipts["LEVEL_CONTEXT"]
+    assert level_receipt.status == "degraded"
+    assert level_receipt.output_summary["canonical_level_intelligence"] is True
+    assert level_receipt.output_summary["canonical_status"] == "DEGRADED"
+    assert level_receipt.warnings
+
     for engine_id in (
         "CHART_REASONING",
         "CANDLE_CONDITION",
-        "LEVEL_CONTEXT",
         "SNAPSHOT_INDICATOR_RUNTIME",
         "MTF_CONFIRMATION",
         "PERSISTED_INDICATOR_MEMORY",

@@ -7,6 +7,7 @@ on:
       - m3-1-canonical-price-intelligence
     paths:
       - apps/api/app/behavior/decision_spine/snapshot_feature_kernel.py
+      - apps/api/app/behavior/decision_spine/canonical_level_intelligence.py
       - apps/api/app/behavior/decision_spine/price_structure_evidence.py
       - apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py
       - apps/api/app/behavior/decision_spine/__init__.py
@@ -63,6 +64,7 @@ jobs:
             apps/api/app/behavior/decision_spine/decision_context.py \
             apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py \
             apps/api/app/behavior/decision_spine/snapshot_feature_kernel.py \
+            apps/api/app/behavior/decision_spine/canonical_level_intelligence.py \
             apps/api/app/behavior/candle_anatomy.py \
             apps/api/app/behavior/condition_classifier.py \
             apps/api/app/behavior/chart_reasoning_volatility.py \
@@ -77,6 +79,10 @@ jobs:
       - name: M3.1-B canonical candle pipeline tests
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_m3_1_candle_pipeline.py
+
+      - name: M3.1-C canonical level intelligence tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_1_levels.py
 
       - name: Locked M2 DecisionContext regression
         working-directory: apps/api

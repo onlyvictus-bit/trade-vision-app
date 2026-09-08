@@ -6,8 +6,8 @@
 
 **Last audited:** 2026-09-08  
 **Active branch:** `m3-1-canonical-price-intelligence`  
-**M3.1-B verified source head:** `404098d0ba7033977dfa4999f915bde2387b8fbe`  
-**M3.1 verification workflow:** `M3.1 Canonical Price Intelligence` run `34242136190` — **SUCCESS**  
+**M3.1-C verified source head before documentation consolidation:** `98428df2fa20b9e2079f222a6ea7563b02fa17c1`  
+**M3.1-C verification workflow:** `M3.1 Canonical Price Intelligence` run `34246032835` — **SUCCESS**  
 **M3.1 controlling reference:** `docs/M3_1_CANONICAL_PRICE_INTELLIGENCE_MIGRATION_PLAN_2026-09-08.md`
 
 Historical lock references:
@@ -16,10 +16,12 @@ Historical lock references:
 - M2 verified source head: `105561fc4908db6c18c32f9fd1a81ae5570f680f`
 - M2 workflow: `M2 DecisionContext` run `34233061074` — **SUCCESS**
 - M3.1-A last verified committed head before M3.1-B: `bb7eb600af745d486157978b0d8daaa2b6f2df39`
+- M3.1-B lock commit: `a3223327df0c2e49456440c7f99ac2c3565bbf13`
+- M3.1-B final lock workflow: `M3.1 Canonical Price Intelligence` run `34242730545` — **SUCCESS**
 
 ---
 
-## 1. Program rule
+## 1. Program rules
 
 Trade Vision is being migrated into one causally traceable Decision Spine. Existing specialist engines may disagree, but no specialist may gain final-band or execution authority during migration.
 
@@ -49,6 +51,16 @@ specialists cannot set final band
 FINAL_CONFLUENCE_ARBITER / D6 remains sole final-band authority
 zero execution authority
 Jarvis presentation only when migrated
+```
+
+Locked safety boundary:
+
+```text
+research_only = true
+trade_allowed = false
+order_routing_enabled = false
+live_trading_blocked = true
+human_approval_required = true
 ```
 
 A locked milestone is reopened only for a reproducible defect, safety regression, causal/provenance violation, contract incompatibility, correctness defect, or requirement contradiction exposed by later integration.
@@ -122,9 +134,9 @@ NO SPECIALIST GETS FINAL AUTHORITY
 | M3 | Brain migration | **IN BUILD** | migrate specialist families through canonical evidence without authority drift |
 | M3.1 | Canonical Price Intelligence | **IN BUILD** | complete A-F before M3.2 |
 | M3.1-A | Snapshot Feature Kernel | **GREEN / LOCKED** | immutable D2 feature substrate; calculate-once foundation |
-| M3.1-B | Canonical Candle Intelligence | **GREEN / LOCKED** | Anatomy calculated once; shared into Condition + Chart; canonical receipt/context; parity/safety green |
-| M3.1-C | Level Intelligence | **NEXT CURRENT SUB-MILESTONE** | session-aware VWAP/OR/PDH/PDL/CPR with D2 identity |
-| M3.1-D | Indicator Intelligence | **NOT STARTED** | normalized typed indicator evidence and dependency metadata |
+| M3.1-B | Canonical Candle Intelligence | **GREEN / LOCKED** | Anatomy once; Condition + Chart consume same facts; canonical receipt/context; D6 parity |
+| M3.1-C | Canonical Level Intelligence | **GREEN / LOCKED** | session-aware VWAP/OR/PDH/PDL/CPR; explicit missingness; D2 provenance; D6 parity |
+| M3.1-D | Canonical Indicator Intelligence | **NEXT CURRENT SUB-MILESTONE** | normalized typed indicator evidence; dependency/family/correlation metadata; explicit missing/error states |
 | M3.1-E | PIT-safe MTF | **NOT STARTED** | only completed HTF candles with independent causal identities |
 | M3.1-F | Price Evidence Fusion / DAG / parity | **NOT STARTED** | composer, dependency DAG, contradiction preservation, parity/performance audit |
 | M3.2+ | Later brain migration families | **NOT STARTED** | not eligible until M3.1 A-F are GREEN / LOCKED |
@@ -135,9 +147,9 @@ Do **not** jump to M3.2. Finish M3.1 A-F first.
 
 ---
 
-## 4. M0 / M1 / M2 locked foundation
+## 4. Locked foundation retained
 
-M0, M1, and M2 remain locked. M3.1-B did not weaken their contracts.
+M0, M1 and M2 remain locked. M3.1-A/B/C did not weaken their contracts.
 
 Historical M2 verification:
 
@@ -147,18 +159,18 @@ Run:      34233061074
 Result:   SUCCESS
 ```
 
-M2 still provides:
+M2 still guarantees:
 
 - immutable canonical DecisionContext;
 - Stage2 evidence integrity before context/D6;
 - exact snapshot identity and receipt provenance;
-- explicit unavailable/skipped evidence rather than neutral fabrication;
+- explicit unavailable/skipped evidence instead of neutral fabrication;
 - deterministic context hashing;
 - fail-closed contract behavior;
 - sole D6 final-band authority;
 - zero execution authority.
 
-The pre-M2 implementation remains preserved in:
+The byte-preserved pre-M2 implementation remains in:
 
 `apps/api/app/behavior/paper_guidance_spine_legacy.py`
 
@@ -188,171 +200,294 @@ Important mathematical preservation:
 
 `candle-anatomy.v0.15` field `range_atr` historically uses a rolling arithmetic **mean candle range**, not Wilder true-range ATR. M3.1 preserves this existing behavior explicitly through the kernel's `average_range` feature.
 
-Any future true-ATR correction must be explicit, versioned, tested, parity-audited and impact-reviewed. It must never be hidden inside orchestration optimization.
+Any future true-ATR correction must be explicit, versioned, tested, parity-audited and impact-reviewed. It must never be hidden inside an orchestration refactor.
 
 ---
 
 ## 6. M3.1-B — Canonical Candle Intelligence — GREEN / LOCKED
 
-### 6.1 Problem removed
+M3.1-B removed duplicate Candle Anatomy computation from the normal Paper Guidance route.
 
-Before M3.1-B, the normal Paper Guidance route could calculate Candle Anatomy independently inside both Candle Condition and Chart Reasoning.
+```text
+D2
+ ↓
+SNAPSHOT FEATURE KERNEL       build_count = 1
+ ↓
+CANDLE_ANATOMY                compute_count = 1
+ ↓
+one CandleAnatomyResult
+ ↓
+CANDLE_ANATOMY receipt
+ ├─> CANDLE_CONDITION
+ └─> CHART_REASONING
+```
 
-M3.1-B now uses:
+Locked B guarantees:
+
+- Condition and Chart consume the same already-computed Anatomy facts;
+- successful `CANDLE_ANATOMY` receipt binds to the D2 snapshot and deterministic output hash;
+- Condition and Chart summaries carry the Anatomy upstream receipt hash;
+- `DecisionContext.candle_anatomy` is bounded receipt-backed evidence;
+- full candle history/DataFrames/large arrays are not copied into DecisionContext;
+- `feature_kernel_build_count == 1`;
+- `candle_anatomy_compute_count == 1`;
+- `decision_context_build_count == 1`;
+- Anatomy/Condition/Chart failure injection stops before D6;
+- error does not become a neutral score;
+- standalone legacy compatibility remains where existing public callers require it;
+- D6 semantic behavior remains unchanged;
+- no specialist gains final or execution authority.
+
+M3.1-B final lock commit:
+
+`a3223327df0c2e49456440c7f99ac2c3565bbf13`
+
+Final lock workflow:
+
+`M3.1 Canonical Price Intelligence` run `34242730545` — **SUCCESS**
+
+---
+
+## 7. M3.1-C — Canonical Level Intelligence — GREEN / LOCKED
+
+### 7.1 Migration strategy
+
+M3.1-C did **not** delete or broadly rewrite `behavior/context_engines.py`. That file also contains unrelated context/HTF/gap behavior and a giant rewrite would create unnecessary regression risk.
+
+A dedicated production module now owns canonical session/level truth:
+
+`apps/api/app/behavior/decision_spine/canonical_level_intelligence.py`
+
+Stable Decision Spine exports are provided through:
+
+`apps/api/app/behavior/decision_spine/__init__.py`
+
+Architecture:
 
 ```text
 D2 CLOSED-CANDLE SNAPSHOT
         |
         v
-SNAPSHOT FEATURE KERNEL          build_count = 1
+SNAPSHOT FEATURE KERNEL
+same object already built for M3.1-A/B
         |
         v
-CANDLE_ANATOMY                   compute_count = 1
+CANONICAL LEVEL INTELLIGENCE
+        |
+        +--> explicit regular-session identity
+        +--> session-aware VWAP
+        |      +1σ / -1σ
+        |      +2σ / -2σ
+        |      +3σ / -3σ
+        +--> OR5
+        +--> OR15
+        +--> OR30
+        +--> previous observed complete-session PDH
+        +--> previous observed complete-session PDL
+        +--> previous observed complete-session close
+        +--> CPR
+        +--> explicit missing / pending states
         |
         v
-one CandleAnatomyResult
+bounded LEVEL_CONTEXT receipt
         |
         v
-CANDLE_ANATOMY receipt
+Stage2IntegrityReport
         |
-   +----+-------------------+
-   |                        |
-   v                        v
-CANDLE_CONDITION       CHART_REASONING
-same anatomy facts     same anatomy facts
+        v
+DecisionContext.levels
+        |
+        v
+CURRENT D6 COMPATIBILITY PROJECTION
+UNCHANGED
 ```
 
-The canonical route does not permit Condition or Chart to independently recompute Anatomy.
+### 7.2 Explicit session identity
 
-Standalone compatibility remains: direct specialist callers may still construct Anatomy automatically where the historical public API requires it.
-
-### 6.2 Canonical Candle Anatomy receipt
-
-A real `CANDLE_ANATOMY` receipt now enters Stage2.
-
-Successful canonical identity:
+Canonical level calculation uses versioned session semantics:
 
 ```text
-engine_id             = CANDLE_ANATOMY
-engine_version        = candle-anatomy.v0.15
-source_snapshot_hash  = D2 snapshot hash
-output_hash           = deterministic receipt output hash
-identity_match        = true
-used_for_probability  = false
-final authority       = false
-execution authority   = false
+SESSION_SEMANTICS_VERSION = nse-cash-regular-session.v1
+timezone                  = Asia/Kolkata
+regular open              = 09:15
+regular close             = 15:30
 ```
 
-Dependent receipt summaries carry the exact Anatomy receipt hash as:
+The result records a typed immutable `SessionIdentity` including:
+
+- session id/date;
+- timezone;
+- local open/close semantics;
+- open/close timestamps;
+- first/last observed current-session bar;
+- source bar count;
+- whether the bounded history starts at the explicit session open;
+- whether bars are contiguous from session open.
+
+Canonical VWAP is withheld when the current observed session does not start at 09:15 or contains timestamp gaps. Partial data is not silently treated as a complete session.
+
+### 7.3 Session-aware VWAP
+
+Canonical VWAP no longer consumes every supplied bar across previous sessions.
+
+It reuses the exact already-built `SnapshotFeatureKernel` and its anchored VWAP primitive for the current explicit regular-session slice.
+
+Rules:
 
 ```text
-upstream_candle_anatomy_hash
+current session starts at 09:15         required
+session bars contiguous                 required
+all authoritative VWAP volumes present required
+zero denominator                        unavailable
+missing volume                          unavailable, not zero
 ```
 
-for both `CANDLE_CONDITION` and `CHART_REASONING`.
+The canonical result also records weighted standard deviation and deterministic ±1/±2/±3 bands.
 
-Full DAG validation remains owned by M3.1-F; M3.1-B introduces the smallest deterministic compatible upstream identity needed for this dependency.
+A test deliberately gives the previous session much larger volume and very different prices, proving canonical VWAP resets to the current session instead of leaking prior-session volume into the result.
 
-### 6.3 DecisionContext.candle_anatomy activated
+### 7.4 OR5 / OR15 / OR30 semantics
 
-`DecisionContext.candle_anatomy` is no longer the M2 explicit-unavailable placeholder on the normal successful M3.1 route.
+The pre-canonical engine used the global first three supplied bars. M3.1-C removes that assumption from canonical evidence.
 
-It is receipt-backed canonical evidence with:
+Opening ranges are now defined by explicit session time windows from 09:15:
 
 ```text
-source_engine       = CANDLE_ANATOMY
-source_snapshot_hash= D2 snapshot hash
-source_output_hash  = CANDLE_ANATOMY receipt output_hash
-status              = AVAILABLE on successful computation
-used_for_probability= false
-claims_trade_authority = false
+OR5   = closed bars tiling [09:15, 09:20)
+OR15  = closed bars tiling [09:15, 09:30)
+OR30  = closed bars tiling [09:15, 09:45)
 ```
 
-The payload is deliberately bounded. It contains only compact facts such as:
+Rules:
 
-- latest candle direction/body/wicks/close location/range ratio/volume z/follow-through/structure types;
-- recent-window bullish/bearish/doji/rejection/compression/expansion/inside/outside counts;
-- source bar count and calculation version;
-- explicit missing-volume count;
-- feature-kernel and snapshot provenance;
-- calculation audit counters.
+- the source timeframe must exactly tile the requested OR window;
+- OR is `PENDING` until its complete window has closed;
+- missing expected bars make that OR `UNAVAILABLE`;
+- partial opening ranges have no authority;
+- no future/incomplete candle may enter the feature kernel or level result.
 
-It does **not** place full candle history, DataFrames, large arrays, or 400-bar payloads into DecisionContext.
-
-### 6.4 Calculate-once proof
-
-Canonical audit/tests prove:
+Timeframe-aware tests prove the implementation is not hardcoded to three bars. For example, with 15-minute source bars:
 
 ```text
-feature_kernel_build_count   == 1
-candle_anatomy_compute_count == 1
-decision_context_build_count == 1
+OR5   = UNAVAILABLE (15m cannot exactly represent 5m)
+OR15  = 1 source bar
+OR30  = 2 source bars
 ```
 
-Tests also monkeypatch the specialist-local Anatomy builders to raise if Chart or Condition attempts a second Anatomy calculation while a canonical result is supplied.
+### 7.5 PIT-safe previous-session PDH / PDL / CPR
 
-### 6.5 Failure semantics
+Canonical previous-session levels are derived from the nearest earlier **observed complete regular session** present in the D2 snapshot.
 
-M3.1-B explicitly prevents specialist failures from becoming neutral D6 inputs.
-
-Current `PaperGuidanceEngineReceipt` compatibility contract supports `completed / degraded / skipped`; it does not yet expose an `error` receipt literal. Therefore a calculator exception is represented truthfully as degraded receipt evidence with the explicit exception warning, and the M3.1 candle dependency guard blocks canonical context/D6 when any of these required candle-chain specialists did not complete:
+The previous session must exactly cover its regular-hours timeline for the source timeframe with no gaps. Otherwise:
 
 ```text
-CANDLE_ANATOMY
-CANDLE_CONDITION
-CHART_REASONING
+previous_session.status = UNAVAILABLE
+PDH                      = unavailable
+PDL                      = unavailable
+previous close           = unavailable
+CPR                      = unavailable
+PDH/PDL states           = unknown
 ```
 
-Failure result:
+When complete, the previous session carries a deterministic source hash. CPR carries that same source-session identity/hash.
+
+CPR remains the existing correct arithmetic:
 
 ```text
-WAIT
-DO_NOTHING
-no D6 arbitration
-no neutral substitution
+pivot = (PDH + PDL + previous_close) / 3
+BC    = (PDH + PDL) / 2
+TC    = pivot + (pivot - BC)
 ```
+
+with the lower/upper ordering normalized deterministically.
+
+### 7.6 Explicit missingness and truthful degradation
+
+Canonical Level Intelligence distinguishes usable facts from missing or pending facts.
+
+Examples:
+
+- missing volume -> canonical session VWAP `UNAVAILABLE`, value `None`;
+- incomplete previous session -> PDH/PDL/CPR `UNAVAILABLE`;
+- not-yet-closed OR window -> `PENDING`;
+- source timeframe cannot tile an OR -> `UNAVAILABLE`;
+- timestamp gap -> affected canonical level withheld;
+- actual engine exception -> no canonical completion marker and context construction blocks before D6.
 
 This preserves:
 
 ```text
-error != zero
+missing != zero
+unknown != false
+unavailable != neutral
+pending != available
 error != neutral
-unavailable != safe
 ```
 
-without broad receipt-schema churn during the B migration. Any later receipt-status expansion must be separately versioned and tested.
+A `LEVEL_CONTEXT` receipt may therefore be `degraded` when the canonical engine ran correctly but some bounded source facts are unavailable. That truthful degradation does **not** mean the engine crashed.
 
-### 6.6 Edge and metamorphic coverage
+A real level-engine exception is different: it lacks the canonical completion marker, and the M3.1 dependency guard stops before D6 with `WAIT / DO_NOTHING` rather than letting an error become a neutral D6 input.
 
-Targeted M3.1-B tests cover:
+### 7.7 Provenance and calculate-once behavior
 
-- deterministic replay: same D2 -> same Anatomy hash;
-- legitimate changed closed candle -> changed Anatomy evidence/hash when relevant;
-- calculate once;
-- same Anatomy dependency for Condition and Chart;
-- canonical receipt identity;
-- bounded DecisionContext evidence;
-- missing volume remains explicit;
-- zero-range candle safety;
-- doji correctness;
-- trend candle;
-- rejection candle;
-- inside bar;
-- outside bar;
-- expansion;
-- compression;
-- failed follow-through;
-- Anatomy failure injection;
-- Condition failure injection;
-- Chart failure injection;
-- no error-to-neutral conversion;
-- no D6 authority drift;
-- no execution authority;
-- bounded fixture latency regression check.
+Canonical Level Intelligence records:
 
-### 6.7 D6 parity preserved
+```text
+calculation_version          = canonical-level-intelligence.v1
+source_snapshot_hash         = exact D2 snapshot hash
+source_feature_kernel_hash   = exact shared kernel feature hash
+source_feature_kernel_version
+canonical_level_hash         = deterministic canonical level facts hash
+```
 
-M3.1 is specialist migration, not D6 redesign. The current D6 placeholders remain unchanged:
+The Paper Guidance route reuses the exact feature-kernel object already built in M3.1-A/B. Request-local binding uses `ContextVar` and is cleared in `finally`, avoiding shared mutable per-request state.
+
+Targeted tests prove:
+
+```text
+feature_kernel build count       == 1
+canonical level compute count    == 1
+feature_kernel_reused            == true
+session partition pass count     == 1
+canonical VWAP compute count     == 1
+opening-range compute count      == 3
+previous-session compute count   == 1
+```
+
+The `LEVEL_CONTEXT` receipt is minted only **after** the final canonical summary/status/warnings are known. Its `output_hash` therefore fingerprints the exact final bounded payload that DecisionContext receives; no post-hash summary mutation is permitted.
+
+### 7.8 DecisionContext.levels activated as richer canonical evidence
+
+`DecisionContext.levels` remains compact and receipt-backed:
+
+```text
+source_engine        = LEVEL_CONTEXT
+source_snapshot_hash = D2 snapshot hash
+source_output_hash   = LEVEL_CONTEXT receipt output hash
+used_for_probability = false
+claims_trade_authority = false
+```
+
+The bounded payload contains only canonical level/session facts, quality, provenance, calculation audit and explicit compatibility metadata. It does **not** embed full candle histories, DataFrames or large arrays.
+
+### 7.9 D6 parity and compatibility isolation
+
+M3.1-C is sensory migration, not D6 redesign.
+
+The old `analyze_level_context()` behavior is preserved as an explicitly isolated compatibility projection for current D6 inputs:
+
+```text
+legacy all-supplied-bar VWAP
+legacy first-three-supplied-bars OR
+legacy optional numeric PDH/PDL/CPR inputs
+legacy flags / level respect score
+```
+
+Those legacy semantics are **not** presented as canonical level truth. They are compatibility debt retained only so current D6 semantics remain unchanged until the authorized D6 migration milestone.
+
+Integration tests compare the migrated Paper Guidance route with the byte-preserved legacy route and keep final D6 behavior equivalent where applicable.
+
+The existing D6 placeholders remain unchanged:
 
 ```python
 relative_strength_score = 0.5
@@ -361,15 +496,47 @@ external_ai_score       = 0.0
 weak_sector             = False
 ```
 
-The migration adds a new canonical Anatomy receipt/provenance, so the overall guidance receipt list/hash is expected to change. The locked parity requirement is semantic D6 input/output behavior, and the integration suite verifies the final arbiter behavior remains equivalent to the preserved legacy route where applicable.
+### 7.10 Adversarial / replay / performance coverage
 
-No test was weakened to permit a trading/safety regression. One old v1.88 fixed-engine-order assertion was updated because the new required `CANDLE_ANATOMY` receipt legitimately adds one engine to the canonical order.
+Dedicated M3.1-C tests cover:
 
-### 6.8 Final M3.1-B verification
+1. session VWAP reset at 09:15;
+2. OR5/OR15/OR30 explicit time windows;
+3. PIT-derived complete previous-session PDH/PDL/close/CPR;
+4. missing-volume explicit unavailability;
+5. incomplete previous session withholding PDH/PDL/CPR;
+6. OR pending until complete window closure;
+7. future/incomplete bar rejection;
+8. deterministic replay and changed-closed-candle metamorphic hash behavior;
+9. exact legacy compatibility projection parity;
+10. shared-kernel reuse and calculate-once proof;
+11. bounded receipt-backed `DecisionContext.levels` evidence;
+12. level-engine failure injection blocking before D6;
+13. deterministic receipt/provenance identity;
+14. timeframe-aware OR behavior that proves no three-bar assumption;
+15. bounded performance and zero authority.
 
-Verified source head:
+Performance guard:
 
-`404098d0ba7033977dfa4999f915bde2387b8fbe`
+- 50 canonical level builds on a representative bounded fixture must complete under a deliberately loose 2-second anti-pathology ceiling;
+- bounded receipt summary must remain under 20 KB in the fixture;
+- this is a regression guard, not a production latency SLO and not trading-edge evidence.
+
+### 7.11 Important bounded session-calendar limitation
+
+M3.1-C does **not** fabricate an official exchange trading calendar.
+
+Current session identity is deliberately versioned as observed-bar NSE cash regular-hours semantics (`Asia/Kolkata`, 09:15-15:30). It proves local session separation, regular-hours tiling, completeness and PIT causality from the bars present in D2.
+
+It does **not** yet prove from an official exchange calendar that a given civil date is a trading day, holiday, special session, or shortened/exception session. Official exchange-calendar/provider identity, holiday/special-session provenance and freshness belong to the verified-provider hardening path (M8 or an earlier explicitly versioned provider milestone if required).
+
+Until then the implementation fails closed on incomplete observed windows and must not claim official-calendar authority.
+
+### 7.12 Final M3.1-C verification
+
+Verified code head before documentation consolidation:
+
+`98428df2fa20b9e2079f222a6ea7563b02fa17c1`
 
 Workflow:
 
@@ -377,7 +544,7 @@ Workflow:
 
 Run:
 
-`34242136190`
+`34246032835`
 
 Result:
 
@@ -385,43 +552,43 @@ Result:
 
 ```text
 Compile M3.1 + locked Decision Spine modules          PASS
-M3.1-A Snapshot Feature Kernel                        15 passed in 0.98s
-M3.1-B Canonical Candle Pipeline                      13 passed in 1.09s
-Locked M2 DecisionContext                             34 passed in 0.88s
-Locked M2 Paper Guidance integration / D6 parity      10 passed in 1.12s
-Locked M0 Stage2 integrity                            15 passed in 0.81s
-Paper Guidance v1.88 regression                       29 passed in 4.22s
-Full API regression                                   556 passed in 67.00s
+M3.1-A Snapshot Feature Kernel                        15 passed
+M3.1-B Canonical Candle Pipeline                      13 passed
+M3.1-C Canonical Level Intelligence                   15 passed
+Locked M2 DecisionContext                             34 passed
+Locked M2 Paper Guidance integration / D6 parity      10 passed
+Locked M0 Stage2 integrity                            15 passed
+Paper Guidance v1.88 regression                       29 passed
+Full API regression                                   556 passed
 Authority registry / sole-D6 / zero-execution         PASS
 ```
 
-Known warnings were dependency/deprecation/vendor warnings already surfaced by the suite; there were no test failures.
+Known dependency/deprecation/vendor warnings remain surfaced by the regression suite; they did not cause test failures.
 
-Performance evidence at this milestone is deliberately modest:
+### 7.13 M3.1-C lock decision
 
-- the dedicated M3.1-B suite completes in about one second on hosted CI;
-- a canonical fixture has a loose `<500 ms` anti-pathology regression ceiling;
-- this is not a production latency SLO and is not evidence of trading edge.
-
-### 6.9 M3.1-B lock decision
-
-All required B gates passed:
+All required C gates passed:
 
 ```text
-implementation            GREEN
-calculate-once proof       GREEN
-causal/upstream identity   GREEN
-fault injection            GREEN
-replay/metamorphic         GREEN
-M2 semantic D6 parity      GREEN
-M0/M2 locked regressions   GREEN
-full API regression        GREEN
-authority/safety audit     GREEN
-bounded performance gate   GREEN
-documentation              GREEN
+implementation                       GREEN
+explicit session identity            GREEN
+session-aware VWAP                   GREEN
+OR5 / OR15 / OR30                    GREEN
+PDH / PDL / CPR PIT derivation       GREEN
+explicit missing/pending states      GREEN
+calculate-once / shared kernel       GREEN
+causal hashes / receipt identity     GREEN
+fault injection                      GREEN
+replay / metamorphic                 GREEN
+legacy D6 semantic parity            GREEN
+M0/M2 locked regressions              GREEN
+full API regression                   GREEN
+authority / safety audit              GREEN
+bounded performance gate              GREEN
+documentation                         GREEN
 ```
 
-M3.1-B is therefore:
+M3.1-C is therefore:
 
 > **GREEN / LOCKED**
 
@@ -429,55 +596,40 @@ Do not reopen it unless the formal reopen rule is met.
 
 ---
 
-## 7. Next eligible build — M3.1-C Level Intelligence
+## 8. Next eligible build — M3.1-D Canonical Indicator Intelligence
 
-M3.1-C is the next current sub-milestone. It has **not** been started by the M3.1-B lock work.
+M3.1-D is the next eligible sub-milestone. It is **NOT STARTED** by the M3.1-C lock work.
 
-Required boundary includes:
+Required boundary from the controlling M3.1 plan includes:
 
 ```text
-session-aware VWAP
-timeframe-aware opening range
-explicit session identity
-OR5 / OR15 / OR30 semantics
-no bars[:3] assumption
-PDH / PDL
-CPR
-missing != zero
+canonical normalized indicator evidence
+typed AVAILABLE / DEGRADED / UNAVAILABLE / ERROR semantics
+indicator family metadata
+dependency metadata
+correlation / redundancy metadata
+explicit missingness and no-error-to-zero behavior
 D2 causal identity
+calculate once / normalize once / map once / hash once
+bounded DecisionContext evidence
+D6 parity until its authorized migration point
+zero specialist final/execution authority
 ```
 
-M3.1-C must repeat the same discipline:
-
-```text
-READ
-UNDERSTAND
-DESIGN
-IMPLEMENT
-TEST
-ADVERSARIAL TEST
-REPLAY/PARITY
-FULL REGRESSION
-AUTHORITY AUDIT
-PERFORMANCE AUDIT
-COMMIT
-GREEN / LOCK
-```
-
-Do not start M3.1-D until C is locked. Do not start M3.2 until all M3.1 A-F gates are locked.
+Do not start M3.1-E until D is independently GREEN / LOCKED.
 
 ---
 
-## 8. Complete M3.1 order
+## 9. Complete M3.1 order
 
 ```text
 M3.1-A  Snapshot Feature Kernel                  GREEN / LOCKED
    ↓
 M3.1-B  Canonical Candle Intelligence            GREEN / LOCKED
    ↓
-M3.1-C  Session-aware Level Intelligence         NEXT / NOT STARTED
+M3.1-C  Session-aware Level Intelligence         GREEN / LOCKED
    ↓
-M3.1-D  Normalized Indicator Intelligence        NOT STARTED
+M3.1-D  Normalized Indicator Intelligence        NEXT / NOT STARTED
    ↓
 M3.1-E  PIT-safe MTF                             NOT STARTED
    ↓
@@ -490,20 +642,13 @@ PERFORMANCE AUDIT
 M3.1 GREEN / LOCKED
 ```
 
+Do not start M3.2 until A-F are all GREEN / LOCKED.
+
 ---
 
-## 9. Safety and trading-proof boundary
+## 10. Production-ready software != proven trading edge
 
-Every current route remains research-only:
-
-```text
-trade_allowed = false
-order_routing_enabled = false
-live_trading_blocked = true
-human approval remains required for any later paper workflow
-```
-
-A green software milestone does not prove a market edge.
+A green M3.1-C proves software contracts, causal behavior, replayability, compatibility and safety invariants for this migration stage. It does **not** prove a profitable market edge.
 
 ```text
 unit tests green != trading edge proven
@@ -512,4 +657,4 @@ ORB confirmation != proof authority
 AFRE confirmation != proof authority
 ```
 
-Production-ready trading intelligence additionally requires historical validation, walk-forward validation, regime/failure testing, realistic cost/slippage assumptions, paper observations, edge-decay monitoring and explicit promotion gates in later milestones M9/M10.
+Trading-intelligence promotion still requires later historical validation, walk-forward validation, regime/failure testing, realistic costs/slippage, controlled paper observations, edge-decay monitoring and explicit promotion gates.
