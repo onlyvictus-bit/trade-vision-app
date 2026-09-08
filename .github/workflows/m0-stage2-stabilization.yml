@@ -1,0 +1,96 @@
+name: M0 Stage2 Stabilization
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - decision-spine-orchestration-v1
+    paths:
+      - scripts/m0_stage2_stabilization_patch.py
+      - .github/workflows/m0-stage2-stabilization.yml
+      - apps/api/app/behavior/decision_spine/**
+      - apps/api/tests/decision_spine/**
+
+permissions:
+  contents: write
+
+jobs:
+  stabilize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: decision-spine-orchestration-v1
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install API test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r apps/api/requirements.txt
+
+      - name: Apply exact-scoped M0 patch
+        run: python scripts/m0_stage2_stabilization_patch.py
+
+      - name: Compile affected modules
+        run: |
+          python -m py_compile \
+            apps/api/app/models.py \
+            apps/api/app/behavior/nine_candle_hybrid.py \
+            apps/api/app/behavior/indicator_runtime_bridge.py \
+            apps/api/app/behavior/paper_guidance_spine.py \
+            apps/api/app/behavior/decision_spine/authority_registry.py \
+            apps/api/app/behavior/decision_spine/stage2_integrity.py
+
+      - name: Run Stage2 integrity tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_stage2_integrity.py
+
+      - name: Run Paper Guidance regressions
+        working-directory: apps/api
+        run: pytest -q tests/test_paper_guidance_v188.py
+
+      - name: Run focused 9C PTA API regressions
+        working-directory: apps/api
+        run: |
+          pytest -q tests/test_api.py \
+            -k 'test_9c_033_real_indicator_payload_is_normalized_without_changing_default or test_9c_runtime_001_default_mock_path_is_preserved_and_real_path_is_opt_in or test_9c_runtime_008_real_runtime_probes_pta_markers_without_probability_or_trading or test_9c_runtime_009_fmfm300_is_explanation_only_and_not_trade_authority or test_9c_runtime_010_real_indicator_adapter_cache_reuses_closed_candle_outputs'
+
+      - name: Verify safety invariants
+        working-directory: apps/api
+        run: |
+          python - <<'PY'
+          from app.behavior.decision_spine.authority_registry import validate_authority_registry
+          assert validate_authority_registry() == ()
+          print('authority registry safe')
+          PY
+
+      - name: Commit tested M0 source changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            apps/api/app/models.py \
+            apps/api/app/behavior/nine_candle_hybrid.py \
+            apps/api/app/behavior/indicator_runtime_bridge.py \
+            apps/api/app/behavior/paper_guidance_spine.py \
+            apps/api/app/behavior/decision_spine/authority_registry.py \
+            apps/api/app/behavior/decision_spine/stage2_integrity.py \
+            apps/api/tests/test_api.py \
+            apps/api/tests/test_paper_guidance_v188.py \
+            apps/api/tests/decision_spine/test_stage2_integrity.py
+          if git diff --cached --quiet; then
+            echo 'No M0 source changes to commit.'
+            exit 0
+          fi
+          git commit -m 'decision-spine: stabilize Stage2 runtime contracts'
+          git push origin HEAD:decision-spine-orchestration-v1
