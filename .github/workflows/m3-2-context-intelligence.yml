@@ -7,7 +7,9 @@ on:
       - m3-2-context-intelligence
     paths:
       - apps/api/app/behavior/decision_spine/canonical_context_intelligence.py
+      - apps/api/app/behavior/decision_spine/canonical_session_intelligence.py
       - apps/api/tests/decision_spine/test_m3_2_context_contract.py
+      - apps/api/tests/decision_spine/test_m3_2_session.py
       - apps/api/app/behavior/decision_spine/authority_registry.py
       - apps/api/app/behavior/decision_spine/stage2_integrity.py
       - apps/api/app/behavior/decision_spine/decision_context.py
@@ -16,6 +18,7 @@ on:
       - apps/api/app/behavior/paper_guidance_spine_m3_1_impl.py
       - docs/M3_2_CANONICAL_CONTEXT_INTELLIGENCE_ANALYSIS_AND_BUILD_PLAN_2026-09-08.md
       - docs/M3_3_CANONICAL_MEMORY_INTELLIGENCE_ANALYSIS_AND_BUILD_PLAN_2026-09-08.md
+      - docs/M3_INTELLIGENCE_UPGRADE_REFERENCE_2026-09-08.md
       - docs/CANONICAL_BUILD_STATUS.md
       - docs/NEXT_BUILD_TARGET.md
       - .github/workflows/m3-2-context-intelligence.yml
@@ -48,10 +51,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r apps/api/requirements.txt
 
-      - name: Compile M3.2-A and locked Decision Spine modules
+      - name: Compile M3.2 and locked Decision Spine modules
         run: |
           python -m py_compile \
             apps/api/app/behavior/decision_spine/canonical_context_intelligence.py \
+            apps/api/app/behavior/decision_spine/canonical_session_intelligence.py \
             apps/api/app/behavior/decision_spine/authority_registry.py \
             apps/api/app/behavior/decision_spine/stage2_integrity.py \
             apps/api/app/behavior/decision_spine/decision_context.py \
@@ -62,6 +66,10 @@ jobs:
       - name: M3.2-A canonical context source contract
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_m3_2_context_contract.py
+
+      - name: M3.2-B canonical session intelligence
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_2_session.py
 
       - name: Locked M3.1 price-intelligence regression
         working-directory: apps/api
