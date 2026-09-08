@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections import Counter
-from typing import Any, Callable, Literal, Mapping
+from typing import Any, Callable, Literal
 
 from pydantic import BaseModel, Field
 
@@ -40,6 +40,8 @@ class CanonicalMtfRecord(BaseModel):
     quality: MtfQuality
     reason_code: str
     reason: str
+    # Audit-only. These fields describe rejected caller input and are excluded
+    # from mtf_hash, so a future/incomplete bar can never become a causal fact.
     excluded_incomplete_bars: int = Field(default=0, ge=0)
     future_bar_blocked: bool = False
     duplicate_timeframe: bool = False
@@ -83,6 +85,7 @@ def build_canonical_mtf_intelligence(
     *,
     freeze_snapshot: FreezeSnapshot,
     indicator_runtime: IndicatorRuntime | None = None,
+    default_indicator_ids: list[str] | None = None,
 ) -> CanonicalMtfIntelligence:
     """Build one bounded, PIT-safe MTF world-state from D2-closed bars only.
 
@@ -106,8 +109,6 @@ def build_canonical_mtf_intelligence(
     ):
         timeframe = series.timeframe
         if timeframe in duplicate_timeframes:
-            # Do not select an arbitrary winner. Every duplicate occurrence is
-            # represented once later as one unavailable timeframe record.
             continue
         record, snapshot, safe_series = _build_record(
             request,
@@ -143,9 +144,6 @@ def build_canonical_mtf_intelligence(
     usable_timeframes = sorted(snapshots)
     missing_required = sorted(set(request.required_higher_timeframes) - set(usable_timeframes))
 
-    # Compatibility confirmation intentionally reuses the same existing HTF
-    # analyzer, but feeds only the already-frozen closed series. This preserves
-    # current D6 semantics while preventing an incomplete bar from entering it.
     confirmation = analyze_htf_confirmation(
         HTFConfirmationRequest(
             symbol=primary_snapshot.symbol,
@@ -180,7 +178,11 @@ def build_canonical_mtf_intelligence(
 
     indicator_runtime_by_timeframe: dict[str, dict[str, Any]] = {}
     if indicator_runtime is not None:
-        selected = sorted(set(request.indicator_ids)) if request.indicator_ids else []
+        selected = (
+            sorted(set(request.indicator_ids))
+            if request.indicator_ids
+            else sorted(set(default_indicator_ids or []))
+        )
         for timeframe in usable_timeframes:
             snapshot = snapshots[timeframe]
             candles = [
@@ -210,7 +212,7 @@ def build_canonical_mtf_intelligence(
                     "telemetry": telemetry,
                     "used_for_final_vote": False,
                 }
-            except Exception as exc:  # optional indicator dependencies differ by runtime
+            except Exception as exc:
                 indicator_runtime_by_timeframe[timeframe] = {
                     "source_snapshot_hash": snapshot.snapshot_hash,
                     "source_series_hash": _closed_series_hash(closed_series[timeframe]),
@@ -225,13 +227,14 @@ def build_canonical_mtf_intelligence(
                     f"{timeframe} indicator runtime degraded safely: {type(exc).__name__}: {exc}"
                 )
 
-    record_payload = [record.model_dump(mode="json") for record in records]
     deterministic = {
         "calculation_version": MTF_CONFIRMATION_VERSION,
         "source_snapshot_hash": primary_snapshot.snapshot_hash,
         "decision_time_ns": primary_snapshot.decision_time_ns,
         "required_timeframes": sorted(request.required_higher_timeframes),
-        "records": record_payload,
+        # Only D2-causal fields participate. Rejected future/incomplete caller
+        # bars remain auditable on the record but cannot perturb this hash.
+        "records": [_causal_record_payload(record) for record in records],
     }
     mtf_hash = _stable_hash(deterministic)
 
@@ -245,9 +248,6 @@ def build_canonical_mtf_intelligence(
     else:
         canonical_status = "AVAILABLE"
 
-    # These are explicit epistemic limits, not failures manufactured from price
-    # bars. Exchange-calendar, corporate-action and feed-freshness providers are
-    # not wired into M3.1-E; therefore they remain unverified.
     epistemic = {
         "availability": canonical_status,
         "quality": "GOOD" if canonical_status == "AVAILABLE" else "WARN",
@@ -336,21 +336,23 @@ def _build_record(
                 ),
                 excluded_incomplete_bars=excluded,
                 future_bar_blocked=future_blocked,
-                source_clock_monotonic=_strictly_increasing(series),
-                volume_quality=_volume_quality(eligible),
+                source_clock_monotonic=_bars_strictly_increasing(series.bars),
+                volume_quality="UNAVAILABLE",
             ),
             None,
             None,
         )
 
-    if not _strictly_increasing(series):
+    # Only eligible closed bars may decide source validity. A malformed future
+    # bar is audit input, never authority over the already-known closed state.
+    if not _bars_strictly_increasing(eligible):
         return (
             CanonicalMtfRecord(
                 timeframe=series.timeframe,
                 availability="UNAVAILABLE",
                 quality="UNAVAILABLE",
                 reason_code="NON_MONOTONIC_SOURCE_CLOCK",
-                reason="Higher-timeframe timestamps/sequence numbers are not strictly increasing.",
+                reason="Closed higher-timeframe timestamps/sequence numbers are not strictly increasing.",
                 excluded_incomplete_bars=excluded,
                 future_bar_blocked=future_blocked,
                 source_clock_monotonic=False,
@@ -394,10 +396,6 @@ def _build_record(
         )
 
     last = snapshot.closed_ohlcv_bars[-1]
-    reason = (
-        f"{snapshot.bar_count} fully closed {series.timeframe} bars are D2-safe; "
-        f"{excluded} supplied incomplete/future bars were excluded."
-    )
     return (
         CanonicalMtfRecord(
             timeframe=series.timeframe,
@@ -407,9 +405,14 @@ def _build_record(
             last_closed_sequence=last.sequence_number,
             bars_used=snapshot.bar_count,
             availability="AVAILABLE",
-            quality="GOOD" if excluded == 0 else "WARN",
-            reason_code="AVAILABLE_CLOSED_ONLY" if excluded == 0 else "PARTIAL_HTF_EXCLUDED",
-            reason=reason,
+            bias="unavailable",
+            confirmed=False,
+            quality="GOOD",
+            reason_code="AVAILABLE_CLOSED_ONLY",
+            reason=(
+                f"{snapshot.bar_count} fully closed {series.timeframe} bars are D2-safe; "
+                "incomplete/future supplied bars have zero authority."
+            ),
             excluded_incomplete_bars=excluded,
             future_bar_blocked=future_blocked,
             source_clock_monotonic=True,
@@ -420,11 +423,11 @@ def _build_record(
     )
 
 
-def _strictly_increasing(series: CandleSeries) -> bool:
+def _bars_strictly_increasing(bars) -> bool:
     return all(
         current.timestamp_ns > previous.timestamp_ns
         and current.sequence_number > previous.sequence_number
-        for previous, current in zip(series.bars, series.bars[1:])
+        for previous, current in zip(bars, bars[1:])
     )
 
 
@@ -449,6 +452,31 @@ def _closed_series_hash(series: CandleSeries) -> str:
             "bars": [bar.model_dump(mode="json") for bar in series.bars],
         }
     )
+
+
+def _causal_record_payload(record: CanonicalMtfRecord) -> dict[str, object]:
+    return {
+        "timeframe": record.timeframe,
+        "source_snapshot_hash": record.source_snapshot_hash,
+        "source_series_hash": record.source_series_hash,
+        "last_closed_ts": record.last_closed_ts,
+        "last_closed_sequence": record.last_closed_sequence,
+        "bars_used": record.bars_used,
+        "availability": record.availability,
+        "bias": record.bias,
+        "confirmed": record.confirmed,
+        "quality": record.quality,
+        "reason_code": record.reason_code,
+        "duplicate_timeframe": record.duplicate_timeframe,
+        "symbol_identity_match": record.symbol_identity_match,
+        "timeframe_identity_match": record.timeframe_identity_match,
+        "source_clock_monotonic": record.source_clock_monotonic,
+        "volume_quality": record.volume_quality,
+        "calculation_version": record.calculation_version,
+        "used_for_probability": False,
+        "may_set_final_band": False,
+        "may_execute": False,
+    }
 
 
 def _stable_hash(value: object) -> str:
