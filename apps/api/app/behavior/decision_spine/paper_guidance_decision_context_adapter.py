@@ -14,6 +14,11 @@ from .decision_context import (
     IntegrityState,
     build_decision_context,
 )
+from .price_structure_evidence import (
+    PRICE_STRUCTURE_EVIDENCE_VERSION,
+    PriceStructureEvidenceError,
+    build_price_structure_evidence,
+)
 from .stage2_integrity import (
     Availability,
     EngineIntegrityState,
@@ -34,9 +39,6 @@ class CanonicalFieldBinding:
     inactive_reason: str
 
 
-# This table is intentionally conservative. Registering or implementing an
-# engine elsewhere in the repository does not make it canonical evidence in the
-# Paper Guidance route. M3 will migrate specialists one by one.
 CANONICAL_FIELD_BINDINGS: tuple[CanonicalFieldBinding, ...] = (
     CanonicalFieldBinding("price_structure", "MARKET_STRUCTURE_LIQUIDITY", Availability.UNAVAILABLE, "Market-structure receipt is not available in this Paper Guidance run."),
     CanonicalFieldBinding("candle_anatomy", "CANDLE_ANATOMY", Availability.UNAVAILABLE, "Candle Anatomy is not yet D2-native in the canonical Paper Guidance route."),
@@ -72,15 +74,8 @@ def build_canonical_stage2_observations(
     snapshot_hash: str,
     active_engine_ids: Sequence[str],
 ) -> tuple[EvidenceObservation, ...]:
-    """Return explicit Stage2 observations for canonical engines that did not run.
-
-    This function performs no I/O and no market calculation. It only completes
-    the causal inventory so missing evidence cannot be silently interpreted as
-    neutral or safe.
-    """
-
-    active = {str(item).strip().upper() for item in active_engine_ids if str(item).strip()}
     observations: dict[str, EvidenceObservation] = {}
+    active = {str(item).strip().upper() for item in active_engine_ids if str(item).strip()}
     for binding in CANONICAL_FIELD_BINDINGS:
         engine_id = binding.source_engine
         if engine_id in active or engine_id in observations:
@@ -110,12 +105,7 @@ def build_paper_guidance_decision_context(
     receipts: Sequence[Any],
     stage2_integrity: Stage2IntegrityReport,
 ) -> DecisionContext:
-    """Assemble the canonical M2 world-state from already-computed evidence.
-
-    Strictly no fetching, persistence reads, specialist execution, indicator
-    calculation, probability calculation, ORB/AFRE execution, AI calls, or D6
-    arbitration are permitted here.
-    """
+    """Assemble bounded already-computed evidence; never execute specialists or D6."""
 
     snapshot_hash = str(_get(snapshot, "snapshot_hash", "")).lower()
     decision_time_ns = int(_get(snapshot, "decision_time_ns", 0))
@@ -127,8 +117,6 @@ def build_paper_guidance_decision_context(
         timeframe=str(_get(snapshot, "timeframe", "")),
         decision_time=datetime.fromtimestamp(decision_time_ns / 1_000_000_000, tz=timezone.utc),
         snapshot_hash=snapshot_hash,
-        # Paper Guidance currently has no canonical universe watermark contract.
-        # Empty means unknown, not a fabricated PASS.
         universe_watermark="",
     )
 
@@ -137,13 +125,8 @@ def build_paper_guidance_decision_context(
     pit_status = IntegrityState.PASS if pit_passed else IntegrityState.BLOCK
     if not pit_passed:
         input_reasons.append("Point-in-time guard did not pass for the canonical D2 snapshot.")
-
-    # PIT correctness and data freshness are different claims. Until a dedicated
-    # D2-native freshness assessor is wired, freshness must remain UNKNOWN.
     freshness = IntegrityState.UNKNOWN
     input_reasons.append("No canonical D2-native freshness assessor is wired in this Paper Guidance path.")
-
-    # D1 currently does not expose a canonical quarantine verdict for this path.
     quarantine_status = IntegrityState.UNKNOWN
     input_reasons.append("No canonical D1/D2 quarantine assessor is wired in this Paper Guidance path.")
 
@@ -166,6 +149,14 @@ def build_paper_guidance_decision_context(
             raise DecisionContextError(
                 f"{field_name}: canonical source {binding.source_engine} is absent from Stage2 integrity"
             )
+        if field_name == "price_structure":
+            evidence[field_name] = _build_price_structure_block(
+                snapshot_hash=snapshot_hash,
+                decision_time_ns=decision_time_ns,
+                receipt_by_engine=receipt_by_engine,
+                state=state,
+            )
+            continue
         receipt = receipt_by_engine.get(binding.source_engine)
         evidence[field_name] = _evidence_from_state(
             field_name=field_name,
@@ -215,6 +206,84 @@ def decision_context_audit_summary(context: DecisionContext) -> dict[str, Any]:
             "live_trading_blocked": context.live_trading_blocked,
         },
     }
+
+
+def _build_price_structure_block(
+    *,
+    snapshot_hash: str,
+    decision_time_ns: int,
+    receipt_by_engine: Mapping[str, Any],
+    state: EngineIntegrityState,
+) -> EvidenceBlock:
+    local_ids = ("CANDLE_ANATOMY", "LEVEL_CONTEXT", "MARKET_STRUCTURE_LIQUIDITY")
+    missing = [engine_id for engine_id in local_ids if engine_id not in receipt_by_engine]
+    if missing:
+        raise DecisionContextError(
+            "price_structure: required local upstream receipt missing: " + ", ".join(missing)
+        )
+    local = {
+        engine_id: _receipt_mapping(receipt_by_engine[engine_id])
+        for engine_id in local_ids
+    }
+    mtf_receipt = receipt_by_engine.get("MTF_CONFIRMATION")
+    try:
+        composed = build_price_structure_evidence(
+            snapshot_hash=snapshot_hash,
+            decision_time_ns=decision_time_ns,
+            local_receipts=local,
+            mtf_receipt=_receipt_mapping(mtf_receipt) if mtf_receipt is not None else None,
+        )
+    except PriceStructureEvidenceError as exc:
+        # DAG/hash/future/unknown failures are structural integrity failures,
+        # not ordinary unavailable evidence. Block before D6.
+        raise DecisionContextError(f"price_structure: canonical DAG blocked: {exc}") from exc
+
+    payload = composed.as_dict()
+    canonical_availability = str(composed.epistemic.get("availability", "UNAVAILABLE"))
+    status = {
+        "AVAILABLE": Availability.AVAILABLE,
+        "DEGRADED": Availability.DEGRADED,
+        "UNAVAILABLE": Availability.UNAVAILABLE,
+        "SKIPPED": Availability.SKIPPED,
+        "ERROR": Availability.ERROR,
+    }.get(canonical_availability, Availability.ERROR)
+
+    # Never upgrade the Stage2 classification of MARKET_STRUCTURE_LIQUIDITY.
+    if state.availability is not Availability.AVAILABLE:
+        allowed = {
+            Availability.DEGRADED: {Availability.DEGRADED, Availability.UNAVAILABLE, Availability.SKIPPED, Availability.ERROR},
+            Availability.UNAVAILABLE: {Availability.UNAVAILABLE},
+            Availability.SKIPPED: {Availability.SKIPPED},
+            Availability.ERROR: {Availability.ERROR},
+        }.get(state.availability, {state.availability})
+        if status not in allowed:
+            status = state.availability
+
+    reasons = ()
+    if status is not Availability.AVAILABLE:
+        reasons = (
+            f"Canonical price-structure evidence availability is {status.value}; missing facts were not neutralized.",
+        )
+    warnings = tuple(str(item) for item in composed.epistemic.get("warnings", ()) if str(item))
+    return EvidenceBlock(
+        source_engine="MARKET_STRUCTURE_LIQUIDITY",
+        source_snapshot_hash=snapshot_hash,
+        status=status,
+        payload=payload,
+        observed_at=None,
+        source_mode=state.source_mode,
+        evidence_version=PRICE_STRUCTURE_EVIDENCE_VERSION,
+        capability_source="canonical-price-structure-composer:MARKET_STRUCTURE_LIQUIDITY+MTF_CONFIRMATION",
+        source_output_hash=composed.structure_hash,
+        reasons=reasons,
+        warnings=warnings,
+        used_for_probability=False,
+        neutral_default_substituted=False,
+        claims_proof_authority=False,
+        claims_paper_authority=False,
+        claims_trade_authority=False,
+        final_band_claimed=False,
+    )
 
 
 def _evidence_from_state(
@@ -296,6 +365,19 @@ def _stage2_index(stage2_integrity: Stage2IntegrityReport) -> dict[str, EngineIn
             raise DecisionContextError(f"duplicate Stage2 engine state: {engine_id}")
         index[engine_id] = state
     return index
+
+
+def _receipt_mapping(receipt: Any) -> dict[str, Any]:
+    if isinstance(receipt, Mapping):
+        return dict(receipt)
+    return {
+        "engine_id": _get(receipt, "engine_id", ""),
+        "source_snapshot_hash": _get(receipt, "source_snapshot_hash", ""),
+        "output_hash": _get(receipt, "output_hash", ""),
+        "status": _get(receipt, "status", ""),
+        "output_summary": _get(receipt, "output_summary", {}),
+        "warnings": list(_get(receipt, "warnings", ()) or ()),
+    }
 
 
 def _get(value: Any, key: str, default: Any = None) -> Any:
