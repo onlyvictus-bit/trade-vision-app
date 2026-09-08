@@ -1,8 +1,9 @@
 """Canonical Decision Spine contracts.
 
-The package contains authority, Stage-2 evidence-integrity and canonical
-DecisionContext contracts. It intentionally does not expose execution authority
-or create a second final trading decision path.
+The package contains authority, Stage-2 evidence-integrity, canonical
+DecisionContext, and deterministic Paper Guidance context-adapter contracts. It
+intentionally does not expose execution authority or create a second final
+trading decision path.
 """
 
 from .authority_registry import (
@@ -28,6 +29,14 @@ from .decision_context import (
     IntegrityState,
     build_decision_context,
     unavailable_evidence,
+)
+from .paper_guidance_decision_context_adapter import (
+    CANONICAL_FIELD_BINDINGS,
+    PAPER_GUIDANCE_CONTEXT_ADAPTER_VERSION,
+    CanonicalFieldBinding,
+    build_canonical_stage2_observations,
+    build_paper_guidance_decision_context,
+    decision_context_audit_summary,
 )
 from .stage2_integrity import (
     INTEGRITY_VERSION,
@@ -60,6 +69,12 @@ __all__ = [
     "IntegrityState",
     "build_decision_context",
     "unavailable_evidence",
+    "CANONICAL_FIELD_BINDINGS",
+    "PAPER_GUIDANCE_CONTEXT_ADAPTER_VERSION",
+    "CanonicalFieldBinding",
+    "build_canonical_stage2_observations",
+    "build_paper_guidance_decision_context",
+    "decision_context_audit_summary",
     "INTEGRITY_VERSION",
     "Availability",
     "EngineIntegrityState",
