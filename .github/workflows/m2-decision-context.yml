@@ -7,8 +7,15 @@ on:
       - decision-spine-orchestration-v1
     paths:
       - apps/api/app/behavior/decision_spine/decision_context.py
+      - apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py
       - apps/api/app/behavior/decision_spine/__init__.py
+      - apps/api/app/behavior/paper_guidance_spine.py
+      - apps/api/app/behavior/paper_guidance_spine_m2_impl.py
+      - apps/api/app/behavior/paper_guidance_spine_legacy.py
       - apps/api/tests/decision_spine/test_decision_context.py
+      - apps/api/tests/decision_spine/test_paper_guidance_decision_context_adapter.py
+      - apps/api/tests/decision_spine/test_paper_guidance_m2_context_integration.py
+      - apps/api/tests/test_paper_guidance_v188.py
       - .github/workflows/m2-decision-context.yml
 
 permissions:
@@ -34,23 +41,35 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r apps/api/requirements.txt
 
-      - name: Compile Decision Spine modules
+      - name: Compile M2 Decision Spine modules
         run: |
           python -m py_compile \
             apps/api/app/behavior/decision_spine/__init__.py \
             apps/api/app/behavior/decision_spine/authority_registry.py \
             apps/api/app/behavior/decision_spine/stage2_integrity.py \
-            apps/api/app/behavior/decision_spine/decision_context.py
+            apps/api/app/behavior/decision_spine/decision_context.py \
+            apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py \
+            apps/api/app/behavior/paper_guidance_spine.py \
+            apps/api/app/behavior/paper_guidance_spine_m2_impl.py \
+            apps/api/app/behavior/paper_guidance_spine_legacy.py
 
-      - name: M2 DecisionContext tests
+      - name: M2 DecisionContext contract tests
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_decision_context.py
+
+      - name: M2 Paper Guidance adapter tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_paper_guidance_decision_context_adapter.py
+
+      - name: M2 Paper Guidance integration tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_paper_guidance_m2_context_integration.py
 
       - name: M0 Stage2 integrity regression
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_stage2_integrity.py
 
-      - name: Paper Guidance regression
+      - name: Paper Guidance v1.88 regression
         working-directory: apps/api
         run: pytest -q tests/test_paper_guidance_v188.py
 
