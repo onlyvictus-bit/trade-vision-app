@@ -292,10 +292,21 @@ def test_m2_pg_010_d6_semantics_match_preserved_pre_m2_route():
     assert level_receipt.output_summary["canonical_status"] == "DEGRADED"
     assert level_receipt.warnings
 
+    # M3.1-D deliberately distinguishes canonical accounting from legacy
+    # runtime success. This fixture monkeypatches the old two-argument runtime
+    # and returns pre-M3.1-D telemetry without IndicatorEvidence rows, so the
+    # migrated receipt must be DEGRADED rather than pretending complete
+    # canonical evidence. The D6 semantic assertions above remain exact.
+    indicator_receipt = migrated_receipts["SNAPSHOT_INDICATOR_RUNTIME"]
+    assert indicator_receipt.status == "degraded"
+    assert indicator_receipt.output_summary["canonical_indicator_intelligence"] is True
+    assert indicator_receipt.output_summary["canonical_status"] == "DEGRADED"
+    assert indicator_receipt.output_summary["canonical"]["accounted_count"] == 0
+    assert any("accounting is incomplete" in warning for warning in indicator_receipt.warnings)
+
     for engine_id in (
         "CHART_REASONING",
         "CANDLE_CONDITION",
-        "SNAPSHOT_INDICATOR_RUNTIME",
         "MTF_CONFIRMATION",
         "PERSISTED_INDICATOR_MEMORY",
         "MARKET_STRUCTURE_LIQUIDITY",
