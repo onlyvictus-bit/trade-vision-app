@@ -203,15 +203,26 @@ def build_canonical_relative_strength(
         raise CanonicalRelativeStrengthError("NEGATIVE_LEADERSHIP_THRESHOLD")
 
     if svs is not None and svi is not None:
-        if svs >= threshold and svi >= threshold:
-            state: RSState = "STOCK_LEADER"
+        # Preserve directional contradictions before relative-performance labels.
+        # A stock can be the strongest leg numerically while the surrounding
+        # market context is still internally contradictory.  M3.2 must expose
+        # that contradiction rather than flatten it into STOCK_LEADER/LAGGARD.
+        if sr > 0 and rr_sector < 0 and rr_index > 0:
+            state: RSState = "CONFLICTING"
+            contradictions.append("STOCK_UP_SECTOR_DOWN_INDEX_UP")
+            if svs >= threshold and svi >= threshold:
+                support.extend(("STOCK_OUTPERFORMS_SECTOR", "STOCK_OUTPERFORMS_INDEX"))
+        elif sr < 0 and rr_sector > 0 and rr_index < 0:
+            state = "CONFLICTING"
+            contradictions.append("STOCK_DOWN_SECTOR_UP_INDEX_DOWN")
+            if svs <= -threshold and svi <= -threshold:
+                support.extend(("STOCK_LAGS_SECTOR", "STOCK_LAGS_INDEX"))
+        elif svs >= threshold and svi >= threshold:
+            state = "STOCK_LEADER"
             support.extend(("STOCK_OUTPERFORMS_SECTOR", "STOCK_OUTPERFORMS_INDEX"))
         elif svs <= -threshold and svi <= -threshold:
             state = "STOCK_LAGGARD"
             support.extend(("STOCK_LAGS_SECTOR", "STOCK_LAGS_INDEX"))
-        elif sr > 0 and rr_sector < 0 and rr_index > 0:
-            state = "CONFLICTING"
-            contradictions.append("STOCK_UP_SECTOR_DOWN_INDEX_UP")
         elif (sr > 0 > rr_sector and rr_index) or (sr < 0 < rr_sector and rr_index):
             state = "STOCK_IDIOSYNCRATIC"
             support.append("STOCK_DIRECTION_DIFFERS_FROM_BENCHMARKS")
