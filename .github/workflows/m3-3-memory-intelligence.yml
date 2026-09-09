@@ -32,6 +32,7 @@ jobs:
           python -m py_compile \
             apps/api/app/behavior/decision_spine/canonical_memory_intelligence.py \
             apps/api/app/behavior/decision_spine/memory_corpus.py \
+            apps/api/app/behavior/decision_spine/canonical_analog_memory.py \
             apps/api/app/behavior/decision_spine/authority_registry.py \
             apps/api/app/behavior/decision_spine/canonical_context_intelligence.py \
             apps/api/app/behavior/decision_spine/canonical_context_world.py \
@@ -42,6 +43,9 @@ jobs:
       - name: M3.3-B delayed labels and PIT corpus
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_m3_3_memory_corpus.py
+      - name: M3.3-C canonical analog retrieval
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_3_analog_memory.py
       - name: Locked M3.2 context intelligence
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_m3_2_context_contract.py tests/decision_spine/test_m3_2_session.py tests/decision_spine/test_m3_2_market_context.py tests/decision_spine/test_m3_2_relative_strength.py tests/decision_spine/test_m3_2_regime.py tests/decision_spine/test_m3_2_context_world.py
