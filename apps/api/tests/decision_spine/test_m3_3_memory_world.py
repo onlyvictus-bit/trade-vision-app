@@ -131,3 +131,43 @@ def test_ood_dominates_memory_confidence():
     assert world.ood is True
     assert world.confidence == "OOD"
     assert "MEMORY_OOD" in world.failure_risks
+
+
+def test_later_corpus_records_do_not_leak_into_earlier_health_or_world_counts():
+    old = _record(_episode(100, "old", 50.0, "2"), "CONTINUATION")
+    future = _record(_episode(5_000, "future", 55.0, "3"), "TRAP")
+    query = _episode(2_000, "query", 50.0, "9")
+    corpus = build_memory_corpus(records=(old, future), cutoff_time_ns=10_000)
+
+    analogs = _analogs(query, corpus)
+    health = analyze_memory_health(corpus=corpus, analogs=analogs, minimum_window_count=2)
+    world = build_canonical_memory_world(query_episode=query, corpus=corpus, analogs=analogs, health=health)
+
+    assert corpus.episode_count == 2
+    assert world.raw_record_count == old.episode.raw_record_count
+    assert world.independent_episode_count == 1
+    assert future.episode.episode_hash not in world.source_episode_hashes
+    assert health.small_sample is True
+    assert health.quarantine_state == "CLEAR"
+
+
+def test_future_quarantine_does_not_leak_into_earlier_health_or_world_state():
+    base = _record(_episode(100, "old", 50.0, "2"), "CONTINUATION")
+    future_quarantined = quarantine_record(
+        base,
+        reason="provider_drift",
+        quarantine_version="q1",
+        quarantined_at_ns=3_000,
+    )
+    query = _episode(2_000, "query", 50.0, "9")
+    corpus = build_memory_corpus(records=(future_quarantined,), cutoff_time_ns=10_000)
+
+    analogs = _analogs(query, corpus)
+    health = analyze_memory_health(corpus=corpus, analogs=analogs, minimum_window_count=1)
+    world = build_canonical_memory_world(query_episode=query, corpus=corpus, analogs=analogs, health=health)
+
+    assert corpus.quarantined_count == 1
+    assert health.quarantine_state == "CLEAR"
+    assert "MEMORY_QUARANTINE" not in world.failure_risks
+    assert world.independent_episode_count == 1
+    assert world.retrieved_episode_count == 1
