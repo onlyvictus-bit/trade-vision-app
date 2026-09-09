@@ -27,7 +27,7 @@ jobs:
         run: python -m pip install --upgrade pip && python -m pip install -r apps/api/requirements.txt
       - name: Compile shadow semantic-hardening modules
         run: |
-          python -m py_compile apps/api/app/behavior/decision_spine/market_primitive_kernel_v2.py apps/api/app/behavior/decision_spine/canonical_candle_morphology_v2.py apps/api/app/behavior/decision_spine/canonical_chart_state_v2.py apps/api/app/behavior/decision_spine/canonical_market_structure_v2.py apps/api/app/behavior/decision_spine/canonical_level_graph_v2.py apps/api/app/behavior/decision_spine/canonical_indicator_contracts_v2.py apps/api/app/behavior/decision_spine/evidence_graph.py
+          python -m py_compile apps/api/app/behavior/decision_spine/market_primitive_kernel_v2.py apps/api/app/behavior/decision_spine/canonical_candle_morphology_v2.py apps/api/app/behavior/decision_spine/canonical_chart_state_v2.py apps/api/app/behavior/decision_spine/canonical_market_structure_v2.py apps/api/app/behavior/decision_spine/canonical_level_graph_v2.py apps/api/app/behavior/decision_spine/canonical_indicator_contracts_v2.py apps/api/app/behavior/decision_spine/evidence_graph.py apps/api/app/behavior/decision_spine/canonical_evidence_graph_v2.py
       - name: M3.1.1 primitive-kernel tests
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_market_primitive_kernel_v2.py
@@ -46,9 +46,12 @@ jobs:
       - name: M3.1.1 canonical-indicator-contract tests
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_canonical_indicator_contracts_v2.py
-      - name: M3.1.1 evidence-graph tests
+      - name: M3.1.1 evidence-graph foundation tests
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_evidence_graph.py
+      - name: M3.1.1 full canonical-evidence-graph tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_canonical_evidence_graph_v2.py
       - name: Locked M3.1 regression
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_snapshot_feature_kernel.py tests/decision_spine/test_m3_1_candle_pipeline.py tests/decision_spine/test_m3_1_levels.py tests/decision_spine/test_m3_1_indicator_pipeline.py tests/decision_spine/test_m3_1_mtf_pipeline.py tests/decision_spine/test_m3_1_price_evidence.py tests/decision_spine/test_m3_1_replay.py tests/decision_spine/test_m3_1_adversarial.py
@@ -79,8 +82,9 @@ jobs:
           from app.behavior.decision_spine.canonical_level_graph_v2 import build_canonical_level_graph_v2
           from app.behavior.decision_spine.canonical_indicator_contracts_v2 import build_canonical_indicator_contracts_v2
           from app.behavior.decision_spine.evidence_graph import build_evidence_graph
+          from app.behavior.decision_spine.canonical_evidence_graph_v2 import build_canonical_evidence_graph_v2
           assert validate_authority_registry() == ()
           assert [e.engine_id for e in all_engine_authorities() if e.may_set_final_band] == [FINAL_BAND_AUTHORITY]
           assert all(not e.may_execute for e in all_engine_authorities())
-          assert all(callable(x) for x in (build_market_primitive_kernel_v2,build_canonical_candle_morphology_v2,build_canonical_chart_state_v2,build_canonical_market_structure_v2,build_canonical_level_graph_v2,build_canonical_indicator_contracts_v2,build_evidence_graph))
+          assert all(callable(x) for x in (build_market_primitive_kernel_v2,build_canonical_candle_morphology_v2,build_canonical_chart_state_v2,build_canonical_market_structure_v2,build_canonical_level_graph_v2,build_canonical_indicator_contracts_v2,build_evidence_graph,build_canonical_evidence_graph_v2))
           PY
