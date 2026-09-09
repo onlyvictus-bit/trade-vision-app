@@ -1,778 +1,231 @@
 from __future__ import annotations
 
-import hashlib
-import json
-import math
-from datetime import datetime, timezone
-from uuid import NAMESPACE_URL, uuid5
+"""Public Paper Guidance facade for the Decision Spine migration.
 
-from ..models import (
-    BehaviorDataQualityResult,
-    CandleBar,
-    CandleSeries,
-    ChartReasoningRequest,
-    ClosedCandleSnapshot,
-    ConditionClassifierRequest,
-    ExecutionEventOiRiskRequest,
-    FinalConfluenceArbiterRequest,
-    HTFConfirmationRequest,
-    KillSwitchState,
-    MarketStructureLiquidityRequest,
-    PaperGuidanceEngineReceipt,
-    PaperGuidanceEvidenceVote,
-    PaperGuidanceMtfEvidence,
-    PaperGuidanceRequest,
-    PaperGuidanceSafetyCheck,
-    PaperGuidanceSafetyGate,
-    PaperTradeGuidance,
-    PointInTimeGuardRequest,
-    PointInTimeGuardResult,
-    SystemMode,
-    SystemModeValue,
-    VwapOrbCprContextRequest,
+The original implementation is preserved in ``paper_guidance_spine_legacy`` and
+the canonical orchestration implementation is preserved in
+``paper_guidance_spine_m2_impl`` while M3 specialist families migrate one at a
+time. This facade keeps the historical public import/monkeypatch surface stable.
+"""
+
+import inspect
+from contextvars import ContextVar
+
+from ..models import CandleAnatomyRequest, PaperGuidanceMtfEvidence
+from . import paper_guidance_spine_legacy as _legacy
+from . import paper_guidance_spine_m2_impl as _m2
+from .paper_guidance_spine_legacy import *  # noqa: F401,F403
+from .decision_spine.canonical_level_intelligence import (
+    CanonicalLevelIntelligenceResult,
+    build_canonical_level_intelligence,
 )
-from ..storage import list_indicator_signal_history_records
-from .chart_reasoning_volatility import build_chart_reasoning_report
-from .condition_classifier import classify_conditions
-from .context_engines import analyze_htf_confirmation, analyze_level_context
-from .data_quality import scan_data_quality
-from .execution_event_oi_risk import build_execution_event_oi_risk_report
-from .final_confluence_arbiter import build_final_confluence_arbiter_report
-from .market_structure_liquidity import build_market_structure_liquidity_report
-from .paper_guidance_config import PaperGuidanceConfig, load_paper_guidance_config
-from .point_in_time_guard import run_point_in_time_guard, timeframe_duration_ns
+from .decision_spine.canonical_mtf_intelligence import (
+    MTF_CONFIRMATION_VERSION,
+    build_canonical_mtf_intelligence,
+)
+from .decision_spine.canonical_persisted_memory_adapter import (
+    PERSISTED_MEMORY_ADAPTER_VERSION,
+    build_persisted_memory_evidence,
+)
+from .decision_spine.decision_context import DecisionContextError
+from .decision_spine.paper_guidance_decision_context_adapter import (
+    build_canonical_stage2_observations as _build_canonical_stage2_observations,
+    build_paper_guidance_decision_context,
+    decision_context_audit_summary,
+)
+from .decision_spine.stage2_integrity import (
+    Availability,
+    EvidenceObservation,
+    SourceMode,
+    build_stage2_integrity_report,
+)
 from .real_indicator_adapter import (
+    INDICATOR_EVIDENCE_VERSION,
     REAL_RUNTIME_PROMOTED_INDICATORS,
-    compute_real_indicator_outputs_with_telemetry,
+    build_indicator_evidence_summary,
 )
 
-
-PAPER_GUIDANCE_VERSION = "paper-trade-guidance.v1.87"
-PAPER_GUIDANCE_GATE_VERSION = "paper-guidance-safety-gate.v1.87"
-PAPER_GUIDANCE_SNAPSHOT_VERSION = "closed-candle-snapshot.v1.87"
-PAPER_GUIDANCE_P1_VERSION = "paper-trade-guidance.v1.88"
-PAPER_GUIDANCE_RECEIPT_VERSION = "paper-guidance-engine-receipt.v1.88"
-# v1.99.2: bounded recent window for snapshot indicator computation (9C needs
-# last-9 + warmup; slowest promoted lookback ~300 bars). Keeps every promoted
-# indicator inside the latency warn band on any snapshot size.
-SNAPSHOT_INDICATOR_WINDOW_BARS = 400
+_legacy.CandleAnatomyRequest = CandleAnatomyRequest
+_legacy_engine_version = _legacy._engine_version
 
 
-def run_paper_guidance_p1(
-    request: PaperGuidanceRequest,
-    *,
-    mode: SystemMode,
-    kill_switch: KillSwitchState,
-    config: PaperGuidanceConfig | None = None,
-) -> PaperTradeGuidance:
-    """Run snapshot-native research guidance through the hardened D6 arbiter."""
+def _canonical_engine_version(value) -> str:
+    calculation_version = getattr(value, "calculation_version", None)
+    if calculation_version:
+        return str(calculation_version)
+    return _legacy_engine_version(value)
 
-    settings = config or load_paper_guidance_config()
-    base = run_paper_guidance_p0(
-        request,
-        mode=mode,
-        kill_switch=kill_switch,
-        config=settings,
+
+_legacy._engine_version = _canonical_engine_version
+
+_bound_feature_kernel: ContextVar[object | None] = ContextVar(
+    "m31_bound_feature_kernel",
+    default=None,
+)
+_legacy_level_context = _legacy.analyze_level_context
+_legacy_run_engine = _legacy._run_engine
+_legacy_receipt = _legacy._receipt
+_legacy_snapshot_indicator_evidence = _legacy._snapshot_indicator_evidence
+_legacy_build_mtf_evidence = _legacy._build_mtf_evidence
+_legacy_build_persisted_memory_evidence = _legacy._build_persisted_memory_evidence
+_legacy_list_indicator_signal_history_records = _legacy.list_indicator_signal_history_records
+
+
+def __getattr__(name: str):
+    return getattr(_legacy, name)
+
+
+def build_canonical_stage2_observations(*, snapshot_hash: str, active_engine_ids):
+    """Complete canonical inventory while preserving locked migration facts."""
+
+    observations = list(
+        _build_canonical_stage2_observations(
+            snapshot_hash=snapshot_hash,
+            active_engine_ids=active_engine_ids,
+        )
     )
-    if not base.safety_gate.passed or base.snapshot is None or base.snapshot_hash is None:
-        return base
-
-    snapshot = base.snapshot
-    series = _series_from_snapshot(snapshot)
-    receipts: list[PaperGuidanceEngineReceipt] = []
-    warnings = list(base.warnings)
-    engines_run = ["D1_SAFETY_GATE", "D2_CLOSED_CANDLE_SNAPSHOT"]
-    engines_skipped: list[str] = []
-
-    chart, chart_receipt = _run_engine(
-        "CHART_REASONING",
-        "D3A_SETUP",
-        snapshot,
-        lambda: build_chart_reasoning_report(ChartReasoningRequest(series=series)),
-        lambda value: {
-            "trend_health": value.trend_health,
-            "chop_risk": value.chop_risk,
-            "volatility_regime": value.volatility_regime,
-            "trend_persistence_score": value.trend_persistence_score,
-        },
-    )
-    receipts.append(chart_receipt)
-    _record_engine_state(chart_receipt, engines_run, engines_skipped, warnings)
-
-    condition, condition_receipt = _run_engine(
-        "CANDLE_CONDITION",
-        "D3A_SETUP",
-        snapshot,
-        lambda: classify_conditions(ConditionClassifierRequest(series=series)),
-        lambda value: {
-            "market_state": value.market_state,
-            "signal_bias": value.final_signal_bias,
-            "blocks_trade": value.blocks_trade,
-        },
-    )
-    receipts.append(condition_receipt)
-    _record_engine_state(condition_receipt, engines_run, engines_skipped, warnings)
-
-    levels, levels_receipt = _run_engine(
-        "LEVEL_CONTEXT",
-        "D3A_SETUP",
-        snapshot,
-        lambda: analyze_level_context(
-            VwapOrbCprContextRequest(
-                series=series,
-                decision_time_ns=snapshot.decision_time_ns,
+    active = {str(item).strip().upper() for item in active_engine_ids if str(item).strip()}
+    existing = {item.engine_id for item in observations}
+    for engine_id, reason in (
+        (
+            "NINE_CANDLE_MEMORY",
+            "Snapshot-native canonical 9C exists, but no persisted canonical 9C corpus is activated in this Paper Guidance route yet.",
+        ),
+        (
+            "PTA_MARKER_RUNTIME",
+            "Canonical PTA marker evidence exists, but it is not a DecisionContext field and remains bounded explanation-only evidence.",
+        ),
+    ):
+        if engine_id in active or engine_id in existing:
+            continue
+        observations.append(
+            EvidenceObservation(
+                engine_id=engine_id,
+                source_snapshot_hash=snapshot_hash,
+                availability=Availability.SKIPPED,
+                source_mode=SourceMode.UNKNOWN,
+                identity_match=True,
+                used_for_probability=False,
+                neutral_default_substituted=False,
+                final_band_claimed=False,
+                future_leakage_detected=False,
+                explanation_only=True,
+                unavailable_reasons=(reason,),
+                notes=("Canonical specialist exists but remains intentionally inactive on this locked compatibility route.",),
             )
-        ),
-        lambda value: {
-            "vwap_state": value.vwap_state,
-            "opening_range_state": value.opening_range_state,
-            "level_respect_score": value.level_respect_score,
-            "blocks_trade": value.blocks_trade,
-        },
-    )
-    receipts.append(levels_receipt)
-    _record_engine_state(levels_receipt, engines_run, engines_skipped, warnings)
-
-    indicator_summary, indicator_receipt = _snapshot_indicator_evidence(request, snapshot)
-    receipts.append(indicator_receipt)
-    _record_engine_state(indicator_receipt, engines_run, engines_skipped, warnings)
-
-    mtf_evidence = _build_mtf_evidence(request, snapshot)
-    mtf_receipt = _receipt(
-        engine_id="MTF_CONFIRMATION",
-        stage="D3B_MEMORY",
-        engine_version="behavior-context.v0.16",
-        snapshot=snapshot,
-        status="completed" if not mtf_evidence.missing_required_timeframes else "degraded",
-        output_summary=mtf_evidence.model_dump(mode="json"),
-        warnings=[
-            f"Missing required higher timeframes: {', '.join(mtf_evidence.missing_required_timeframes)}."
-        ]
-        if mtf_evidence.missing_required_timeframes
-        else [],
-    )
-    receipts.append(mtf_receipt)
-    _record_engine_state(mtf_receipt, engines_run, engines_skipped, warnings)
-
-    memory_summary, memory_receipt = _build_persisted_memory_evidence(
-        request,
-        snapshot,
-        indicator_summary["indicator_ids"],
-        settings.minimum_evidence_count,
-    )
-    receipts.append(memory_receipt)
-    _record_engine_state(memory_receipt, engines_run, engines_skipped, warnings)
-
-    structure, structure_receipt = _run_engine(
-        "MARKET_STRUCTURE_LIQUIDITY",
-        "D4_STRUCTURE",
-        snapshot,
-        lambda: build_market_structure_liquidity_report(
-            MarketStructureLiquidityRequest(series=series)
-        ),
-        lambda value: {
-            "auction_state": value.auction_state,
-            "profile_shape": value.profile_shape,
-            "value_area_position": value.value_area_position,
-            "trap_score": value.trap_score,
-            "vsa_downgrade_active": value.vsa_downgrade_active,
-            "confidence_cap": value.confidence_cap,
-        },
-    )
-    receipts.append(structure_receipt)
-    _record_engine_state(structure_receipt, engines_run, engines_skipped, warnings)
-
-    execution_risk, execution_receipt = _run_engine(
-        "EXECUTION_EVENT_OI_RISK",
-        "D4_STRUCTURE",
-        snapshot,
-        lambda: build_execution_event_oi_risk_report(
-            ExecutionEventOiRiskRequest(series=series)
-        ),
-        lambda value: {
-            "liquidity_grade": value.liquidity_grade,
-            "fill_probability": value.fill_probability,
-            "slippage_risk": value.slippage_risk,
-            "event_risk_score": value.event_risk_score,
-            "event_context_status": value.event_context_status,
-            "options_context_status": value.options_context_status,
-            "depth_context_status": value.depth_context_status,
-            "unavailable_reasons": value.unavailable_reasons,
-            "confidence_cap": value.confidence_cap,
-        },
-    )
-    receipts.append(execution_receipt)
-    _record_engine_state(execution_receipt, engines_run, engines_skipped, warnings)
-
-    if request.include_kronos:
-        warnings.append("Kronos remains intentionally skipped in v1.88; it cannot boost guidance.")
-    if request.include_orb_playbook:
-        warnings.append("ORB remains intentionally skipped in v1.88; its primary setup role begins in v1.89.")
-    engines_skipped.extend(
-        [
-            "D5_KRONOS:not_enabled_in_v1.88",
-            "D3A_ORB:not_enabled_until_v1.89",
-            "D7_JARVIS_CARD:not_enabled_until_v1.92",
-            "D8_HUMAN_TO_PAPER:not_enabled_until_v1.93",
-        ]
-    )
-
-    authoritative_count = int(memory_summary["historical_match_count"])
-    low_evidence = authoritative_count < settings.minimum_evidence_count
-    required_mtf_complete = not mtf_evidence.missing_required_timeframes
-    arbiter_request = FinalConfluenceArbiterRequest(
-        symbol=snapshot.symbol,
-        timeframe=snapshot.timeframe,
-        direction=request.direction,
-        data_quality_pass=not base.data_quality.blocks_trade,
-        liquidity_grade=getattr(execution_risk, "liquidity_grade", "UNKNOWN"),
-        market_regime_score=_market_regime_score(chart, request.direction),
-        relative_strength_score=0.5,
-        structure_score=_structure_score(condition, levels, structure, request.direction),
-        volume_auction_score=_volume_auction_score(structure, request.direction),
-        indicator_signal_score=0.0,
-        external_ai_score=0.0,
-        trap_score=float(getattr(structure, "trap_score", 0.0)),
-        event_risk_score=float(getattr(execution_risk, "event_risk_score", 0.0)),
-        daily_resistance_conflict=_daily_resistance_conflict(levels, request.direction),
-        weak_sector=False,
-        post_entry_thesis_status="not_entered",
-        evidence_count=authoritative_count,
-        minimum_evidence_count=settings.minimum_evidence_count,
-        low_evidence_flag=low_evidence,
-        required_mtf_complete=required_mtf_complete,
-        entry_plan_authority_present=False,
-        no_future_leakage=True,
-    )
-    arbiter = build_final_confluence_arbiter_report(arbiter_request)
-    arbiter_receipt = _receipt(
-        engine_id="FINAL_CONFLUENCE_ARBITER",
-        stage="D6_ARBITER",
-        engine_version=arbiter.arbiter_version,
-        snapshot=snapshot,
-        status="completed",
-        output_summary={
-            "decision_band": arbiter.decision_band,
-            "final_decision": arbiter.final_decision,
-            "confluence_score": arbiter.confluence_score,
-            "dominant_blocker": arbiter.dominant_blocker,
-        },
-    )
-    receipts.append(arbiter_receipt)
-    _record_engine_state(arbiter_receipt, engines_run, engines_skipped, warnings)
-
-    final_band = _paper_band_from_arbiter(arbiter.final_decision)
-    confidence_cap = min(
-        settings.p0_confidence_cap,
-        arbiter.confidence_interval[1],
-        settings.low_evidence_confidence_cap if low_evidence else 1.0,
-    )
-    blockers = list(base.blockers)
-    if low_evidence:
-        blockers.append(
-            f"Only {authoritative_count} completed persisted records were available; "
-            f"{settings.minimum_evidence_count} are required."
         )
-    if not required_mtf_complete:
-        blockers.append(
-            f"Required higher-timeframe evidence is missing: {', '.join(mtf_evidence.missing_required_timeframes)}."
-        )
-    blockers.append("A verified ORB entry/stop/target plan is not available until v1.92.")
-    reason_for = [
-        "D1 safety and D2 immutable snapshot checks passed.",
-        *arbiter.human_reason_tree,
-    ]
-    reason_against = [
-        *[receipt_warning for receipt in receipts for receipt_warning in receipt.warnings],
-        "v1.88 has no entry-plan authority, so the final result cannot exceed WATCH.",
-    ]
-    guidance_id = str(
-        uuid5(
-            NAMESPACE_URL,
-            "tradevision:paper-guidance:v1.88:"
-            + snapshot.snapshot_hash
-            + ":"
-            + _hash_payload([receipt.output_hash for receipt in receipts]),
-        )
-    )
-    return PaperTradeGuidance(
-        guidance_version=PAPER_GUIDANCE_P1_VERSION,
-        guidance_id=guidance_id,
-        symbol=snapshot.symbol,
-        timeframe=snapshot.timeframe,
-        decision_time=snapshot.decision_time,
-        snapshot_hash=snapshot.snapshot_hash,
-        snapshot=snapshot,
-        final_band=final_band,
-        confidence_cap=round(confidence_cap, 4),
-        next_action="DO_NOTHING",
-        blockers=_unique(blockers),
-        warnings=_unique(warnings),
-        reason_for=_unique(reason_for),
-        reason_against=_unique(reason_against),
-        entry_plan=None,
-        evidence_votes=[
-            PaperGuidanceEvidenceVote(
-                engine_id=vote.evidence_layer,
-                vote=_paper_vote(vote.direction),
-                weight=min(1.0, abs(vote.weighted_score) / 7.0),
-                lag_penalty=0.0 if vote.evidence_layer != "indicators" else 0.5,
-                note=vote.reason,
-            )
-            for vote in arbiter.evidence_votes
-        ],
-        engine_receipts=receipts,
-        mtf_evidence=mtf_evidence,
-        arbiter_summary={
-            "arbiter_version": arbiter.arbiter_version,
-            "decision_band": arbiter.decision_band,
-            "final_decision": arbiter.final_decision,
-            "confluence_score": arbiter.confluence_score,
-            "dominant_blocker": arbiter.dominant_blocker,
-            "gates": [gate.model_dump(mode="json") for gate in arbiter.gates],
-        },
-        engines_run=_unique(engines_run),
-        engines_skipped=_unique(engines_skipped),
-        memory_summary=memory_summary,
-        risk_summary={
-            "system_mode": mode.mode.value,
-            "kill_switch_state": kill_switch.state,
-            "data_quality_score": base.data_quality.data_quality_score,
-            "point_in_time_passed": base.point_in_time.passed,
-            "liquidity_grade": getattr(execution_risk, "liquidity_grade", "UNKNOWN"),
-            "event_context_status": getattr(execution_risk, "event_context_status", "unavailable"),
-            "options_context_status": getattr(execution_risk, "options_context_status", "unavailable"),
-            "paper_entry_authority": False,
-        },
-        data_quality=base.data_quality,
-        point_in_time=base.point_in_time,
-        safety_gate=base.safety_gate,
-        low_evidence_flag=low_evidence,
-        historical_match_count=authoritative_count,
-        minimum_evidence_count=settings.minimum_evidence_count,
-    )
+    return tuple(sorted(observations, key=lambda item: item.engine_id))
 
 
-def run_paper_guidance_p0(
-    request: PaperGuidanceRequest,
-    *,
-    mode: SystemMode,
-    kill_switch: KillSwitchState,
-    config: PaperGuidanceConfig | None = None,
-) -> PaperTradeGuidance:
-    settings = config or load_paper_guidance_config()
-    decision_time_ns = _decision_time_ns(request)
-    quality = scan_data_quality(request.series).model_copy(
-        update={"checked_at": _iso_from_ns(decision_time_ns)}
-    )
-    point_in_time = run_point_in_time_guard(
-        PointInTimeGuardRequest(
-            series=request.series,
-            decision_time_ns=decision_time_ns,
-            source_timeframe=request.timeframe,
-        )
-    )
-    safety_gate = build_d1_safety_gate(
-        request,
-        mode=mode,
-        kill_switch=kill_switch,
-        quality=quality,
-        point_in_time=point_in_time,
-        decision_time_ns=decision_time_ns,
-        config=settings,
-    )
-    low_evidence = request.historical_match_count < settings.minimum_evidence_count
-
-    if not safety_gate.passed:
-        return _blocked_guidance(
-            request,
-            safety_gate=safety_gate,
-            quality=quality,
-            point_in_time=point_in_time,
-            decision_time_ns=decision_time_ns,
-            config=settings,
-            low_evidence=low_evidence,
-        )
-
-    snapshot = freeze_d2_closed_candle_snapshot(
-        request,
-        decision_time_ns=decision_time_ns,
-    )
-    confidence_cap = settings.p0_confidence_cap
-    warnings = list(safety_gate.warnings)
-    reason_against = [
-        "v1.87 P0 has no D3 setup, D3b memory, D4 structure, D5 Kronos, or D6 arbiter authority.",
-        "Paper entry remains blocked until the later spine milestones are implemented and verified.",
-    ]
-    if low_evidence:
-        confidence_cap = min(confidence_cap, settings.low_evidence_confidence_cap)
-        warnings.append(
-            f"Low evidence: {request.historical_match_count} matches are below the required "
-            f"{settings.minimum_evidence_count}."
-        )
-        reason_against.append("Low evidence cannot be promoted to ENTER_PAPER.")
-    if request.include_kronos:
-        warnings.append("Kronos was requested but is intentionally skipped in v1.87 P0.")
-    if request.include_orb_playbook:
-        warnings.append("ORB playbook lookup was requested but is intentionally skipped in v1.87 P0.")
-
-    guidance_id = str(
-        uuid5(
-            NAMESPACE_URL,
-            f"tradevision:paper-guidance:{snapshot.snapshot_hash}:{request.historical_match_count}",
-        )
-    )
-    return PaperTradeGuidance(
-        guidance_version=PAPER_GUIDANCE_VERSION,
-        guidance_id=guidance_id,
-        symbol=snapshot.symbol,
-        timeframe=snapshot.timeframe,
-        decision_time=snapshot.decision_time,
-        snapshot_hash=snapshot.snapshot_hash,
-        snapshot=snapshot,
-        final_band="WATCH",
-        confidence_cap=round(confidence_cap, 4),
-        next_action="DO_NOTHING",
-        blockers=[
-            "ENTER_PAPER is unavailable in v1.87 P0 because downstream decision and human-approval stages are not active."
-        ],
-        warnings=_unique(warnings),
-        reason_for=[
-            "D1 safety gate passed.",
-            f"D2 froze {snapshot.bar_count} fully closed {snapshot.timeframe} candles.",
-            "The snapshot hash binds every downstream research consumer to the same immutable candle set.",
-        ],
-        reason_against=reason_against,
-        entry_plan=None,
-        evidence_votes=[],
-        engines_run=["D1_SAFETY_GATE", "D2_CLOSED_CANDLE_SNAPSHOT"],
-        engines_skipped=_p0_skipped_engines(),
-        memory_summary={
-            "historical_match_count": request.historical_match_count,
-            "minimum_evidence_count": settings.minimum_evidence_count,
-            "minimum_evidence_pass": not low_evidence,
-            "low_evidence_flag": low_evidence,
-        },
-        risk_summary={
-            "system_mode": mode.mode.value,
-            "kill_switch_state": kill_switch.state,
-            "data_quality_score": quality.data_quality_score,
-            "point_in_time_passed": point_in_time.passed,
-            "paper_entry_authority": False,
-        },
-        data_quality=quality,
-        point_in_time=point_in_time,
-        safety_gate=safety_gate,
-        low_evidence_flag=low_evidence,
-        historical_match_count=request.historical_match_count,
-        minimum_evidence_count=settings.minimum_evidence_count,
-    )
-
-
-def build_d1_safety_gate(
-    request: PaperGuidanceRequest,
-    *,
-    mode: SystemMode,
-    kill_switch: KillSwitchState,
-    quality: BehaviorDataQualityResult,
-    point_in_time: PointInTimeGuardResult,
-    decision_time_ns: int,
-    config: PaperGuidanceConfig,
-) -> PaperGuidanceSafetyGate:
-    bars = request.series.bars
-    finite_values = _all_values_finite(bars)
-    checks = [
-        _check(
-            "PG-D1-001",
-            "Research-only system mode",
-            mode.mode != SystemModeValue.LIVE and not mode.allows_live_orders,
-            "block",
-            f"mode={mode.mode.value}; allows_live_orders={mode.allows_live_orders}",
-        ),
-        _check(
-            "PG-D1-002",
-            "Kill switch is armed",
-            kill_switch.state == "armed" and not kill_switch.blocks_order_paths,
-            "block",
-            f"state={kill_switch.state}; blocks_order_paths={kill_switch.blocks_order_paths}",
-        ),
-        _check(
-            "PG-D1-003",
-            "Symbol identity matches candle series",
-            request.symbol.upper() == request.series.symbol.upper(),
-            "block",
-            f"request={request.symbol.upper()}; series={request.series.symbol.upper()}",
-        ),
-        _check(
-            "PG-D1-004",
-            "Timeframe identity matches candle series",
-            request.timeframe == request.series.timeframe,
-            "block",
-            f"request={request.timeframe}; series={request.series.timeframe}",
-        ),
-        _check(
-            "PG-D1-005",
-            "Input bar count is bounded",
-            0 < len(bars) <= config.maximum_input_bars,
-            "block",
-            f"bars={len(bars)}; maximum={config.maximum_input_bars}",
-        ),
-        _check(
-            "PG-D1-006",
-            "OHLCV values are finite",
-            finite_values,
-            "block",
-            "All OHLCV values are finite." if finite_values else "NaN or infinity was found in OHLCV.",
-        ),
-        _check(
-            "PG-D1-007",
-            "Data quality meets threshold",
-            not quality.blocks_trade and quality.data_quality_score >= config.minimum_data_quality_score,
-            "block",
-            f"score={quality.data_quality_score:.4f}; threshold={config.minimum_data_quality_score:.4f}; "
-            f"blocks_trade={quality.blocks_trade}",
-        ),
-        _check(
-            "PG-D1-008",
-            "All supplied candles are closed and point-in-time safe",
-            point_in_time.passed,
-            "block",
-            f"allowed={point_in_time.allowed_bars}; blocked={point_in_time.blocked_bars}; "
-            f"future={point_in_time.future_bar_blocked}; incomplete={point_in_time.incomplete_candle_blocked}",
-        ),
-        _check(
-            "PG-D1-009",
-            "Broker credentials and routing are unavailable",
-            not mode.allows_broker_credentials,
-            "block",
-            f"allows_broker_credentials={mode.allows_broker_credentials}; order_routing_enabled=false",
-        ),
-    ]
-    blockers = [check.name for check in checks if check.severity == "block" and not check.passed]
-    warnings = [issue.message for issue in quality.issues if issue.severity == "warning"]
-    passed = not blockers
-    return PaperGuidanceSafetyGate(
-        gate_version=PAPER_GUIDANCE_GATE_VERSION,
-        decision_time_ns=decision_time_ns,
-        mode=mode.mode,
-        kill_switch_state=kill_switch.state,
-        passed=passed,
-        stop_pipeline=not passed,
-        checks=checks,
-        blockers=blockers,
-        warnings=_unique(warnings),
-    )
-
-
-def freeze_d2_closed_candle_snapshot(
-    request: PaperGuidanceRequest,
-    *,
-    decision_time_ns: int,
-) -> ClosedCandleSnapshot:
-    duration_ns = timeframe_duration_ns(request.timeframe)
-    closed_bars = [
-        bar
-        for bar in request.series.bars
-        if bar.timestamp_ns + duration_ns <= decision_time_ns
-    ]
-    if not closed_bars:
-        raise ValueError("D2 requires at least one fully closed candle")
-
-    payload = {
-        "snapshot_version": PAPER_GUIDANCE_SNAPSHOT_VERSION,
-        "symbol": request.symbol.upper(),
-        "timeframe": request.timeframe,
-        "decision_time_ns": decision_time_ns,
-        "timezone_offset_minutes": request.timezone_offset_minutes,
-        "source_schema_version": request.series.schema_version,
-        "closed_ohlcv_bars": [
-            bar.model_dump(mode="json")
-            for bar in closed_bars
-        ],
+def _build_m31_guarded_decision_context(**kwargs):
+    receipts = {
+        receipt.engine_id: receipt
+        for receipt in kwargs.get("receipts", ())
+        if getattr(receipt, "engine_id", None)
     }
-    canonical = json.dumps(
-        payload,
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=True,
-        allow_nan=False,
-    )
-    snapshot_hash = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-    snapshot_id = str(uuid5(NAMESPACE_URL, f"tradevision:paper-snapshot:{snapshot_hash}"))
-    last_bar = closed_bars[-1]
-    return ClosedCandleSnapshot(
-        snapshot_version=PAPER_GUIDANCE_SNAPSHOT_VERSION,
-        snapshot_id=snapshot_id,
-        snapshot_hash=snapshot_hash,
-        symbol=request.symbol.upper(),
-        timeframe=request.timeframe,
-        decision_time_ns=decision_time_ns,
-        decision_time=_iso_from_ns(decision_time_ns),
-        timezone_offset_minutes=request.timezone_offset_minutes,
-        bar_count=len(closed_bars),
-        first_bar_timestamp_ns=closed_bars[0].timestamp_ns,
-        last_bar_timestamp_ns=last_bar.timestamp_ns,
-        last_bar_close_time_ns=last_bar.timestamp_ns + duration_ns,
-        closed_ohlcv_bars=closed_bars,
-        source_schema_version=request.series.schema_version,
-    )
-
-
-def _blocked_guidance(
-    request: PaperGuidanceRequest,
-    *,
-    safety_gate: PaperGuidanceSafetyGate,
-    quality: BehaviorDataQualityResult,
-    point_in_time: PointInTimeGuardResult,
-    decision_time_ns: int,
-    config: PaperGuidanceConfig,
-    low_evidence: bool,
-) -> PaperTradeGuidance:
-    identity = ":".join(
-        [
-            request.symbol.upper(),
-            request.timeframe,
-            str(decision_time_ns),
-            str(len(request.series.bars)),
-            ",".join(safety_gate.blockers),
-        ]
-    )
-    guidance_id = str(uuid5(NAMESPACE_URL, f"tradevision:blocked-paper-guidance:{identity}"))
-    return PaperTradeGuidance(
-        guidance_version=PAPER_GUIDANCE_VERSION,
-        guidance_id=guidance_id,
-        symbol=request.symbol.upper(),
-        timeframe=request.timeframe,
-        decision_time=_iso_from_ns(decision_time_ns),
-        snapshot_hash=None,
-        snapshot=None,
-        final_band="WAIT",
-        confidence_cap=0.0,
-        next_action="DO_NOTHING",
-        blockers=safety_gate.blockers,
-        warnings=safety_gate.warnings,
-        reason_for=[],
-        reason_against=[
-            "D1 safety gate failed, so D2 did not freeze data or mint a snapshot hash.",
-            *[check.evidence for check in safety_gate.checks if not check.passed],
-        ],
-        entry_plan=None,
-        evidence_votes=[],
-        engines_run=["D1_SAFETY_GATE"],
-        engines_skipped=["D2_CLOSED_CANDLE_SNAPSHOT", *_p0_skipped_engines()],
-        memory_summary={
-            "historical_match_count": request.historical_match_count,
-            "minimum_evidence_count": config.minimum_evidence_count,
-            "minimum_evidence_pass": not low_evidence,
-            "low_evidence_flag": low_evidence,
-        },
-        risk_summary={
-            "system_mode": safety_gate.mode.value,
-            "kill_switch_state": safety_gate.kill_switch_state,
-            "data_quality_score": quality.data_quality_score,
-            "point_in_time_passed": point_in_time.passed,
-            "paper_entry_authority": False,
-        },
-        data_quality=quality,
-        point_in_time=point_in_time,
-        safety_gate=safety_gate,
-        low_evidence_flag=low_evidence,
-        historical_match_count=request.historical_match_count,
-        minimum_evidence_count=config.minimum_evidence_count,
-    )
-
-
-def _decision_time_ns(request: PaperGuidanceRequest) -> int:
-    if request.decision_time_ns is not None:
-        return request.decision_time_ns
-    if not request.series.bars:
-        return 0
-    duration_ns = timeframe_duration_ns(request.timeframe)
-    return max(bar.timestamp_ns + duration_ns for bar in request.series.bars)
-
-
-def _all_values_finite(bars: list[CandleBar]) -> bool:
-    for bar in bars:
-        values = [bar.open, bar.high, bar.low, bar.close]
-        if bar.volume is not None:
-            values.append(bar.volume)
-        if not all(math.isfinite(value) for value in values):
-            return False
-    return True
-
-
-def _check(
-    check_id: str,
-    name: str,
-    passed: bool,
-    severity: str,
-    evidence: str,
-) -> PaperGuidanceSafetyCheck:
-    return PaperGuidanceSafetyCheck(
-        check_id=check_id,
-        name=name,
-        passed=passed,
-        severity=severity,  # type: ignore[arg-type]
-        evidence=evidence,
-    )
-
-
-def _iso_from_ns(timestamp_ns: int) -> str:
-    return datetime.fromtimestamp(timestamp_ns / 1_000_000_000, tz=timezone.utc).isoformat()
-
-
-def _iso_to_ns(value: str) -> int:
-    try:
-        normalized = value.replace("Z", "+00:00")
-        parsed = datetime.fromisoformat(normalized)
-        if parsed.tzinfo is None:
-            parsed = parsed.replace(tzinfo=timezone.utc)
-        return int(parsed.timestamp() * 1_000_000_000)
-    except (TypeError, ValueError, OverflowError):
-        return 2**63 - 1
-
-
-def _p0_skipped_engines() -> list[str]:
-    return [
-        "D3A_SETUP:not_implemented_in_v1.87",
-        "D3B_MEMORY:not_implemented_in_v1.87",
-        "D4_STRUCTURE:not_implemented_in_v1.87",
-        "D5_KRONOS:not_enabled_in_v1.87",
-        "D6_ARBITER:not_implemented_in_v1.87",
-        "D7_JARVIS_CARD:not_implemented_in_v1.87",
-        "D8_HUMAN_TO_PAPER:not_implemented_in_v1.87",
+    incomplete = [
+        engine_id
+        for engine_id in ("CANDLE_ANATOMY", "CANDLE_CONDITION", "CHART_REASONING")
+        if engine_id not in receipts or receipts[engine_id].status != "completed"
     ]
-
-
-def _unique(items: list[str]) -> list[str]:
-    return list(dict.fromkeys(items))
-
-
-def _series_from_snapshot(snapshot: ClosedCandleSnapshot) -> CandleSeries:
-    return CandleSeries(
-        symbol=snapshot.symbol,
-        timeframe=snapshot.timeframe,
-        bars=snapshot.closed_ohlcv_bars,
-        snapshot_id=snapshot.snapshot_id,
-        schema_version=snapshot.source_schema_version,
+    levels_receipt = receipts.get("LEVEL_CONTEXT")
+    level_summary = getattr(levels_receipt, "output_summary", {}) if levels_receipt else {}
+    canonical_level_present = bool(
+        isinstance(level_summary, dict)
+        and level_summary.get("canonical_level_intelligence") is True
     )
+    if levels_receipt is None or not canonical_level_present:
+        incomplete.append("LEVEL_CONTEXT")
+
+    indicator_receipt = receipts.get("SNAPSHOT_INDICATOR_RUNTIME")
+    indicator_summary = getattr(indicator_receipt, "output_summary", {}) if indicator_receipt else {}
+    canonical_indicator_present = bool(
+        isinstance(indicator_summary, dict)
+        and indicator_summary.get("canonical_indicator_intelligence") is True
+        and indicator_summary.get("source_snapshot_hash")
+        == getattr(indicator_receipt, "source_snapshot_hash", None)
+    )
+    if indicator_receipt is None or not canonical_indicator_present:
+        incomplete.append("SNAPSHOT_INDICATOR_RUNTIME")
+
+    mtf_receipt = receipts.get("MTF_CONFIRMATION")
+    mtf_summary = getattr(mtf_receipt, "output_summary", {}) if mtf_receipt else {}
+    canonical_mtf_present = bool(
+        isinstance(mtf_summary, dict)
+        and mtf_summary.get("canonical_mtf_intelligence") is True
+        and mtf_summary.get("source_snapshot_hash")
+        == getattr(mtf_receipt, "source_snapshot_hash", None)
+    )
+    if mtf_receipt is None or not canonical_mtf_present:
+        incomplete.append("MTF_CONFIRMATION")
+
+    memory_receipt = receipts.get("PERSISTED_INDICATOR_MEMORY")
+    memory_summary = getattr(memory_receipt, "output_summary", {}) if memory_receipt else {}
+    canonical_memory_present = bool(
+        isinstance(memory_summary, dict)
+        and memory_summary.get("canonical_memory_intelligence") is True
+    )
+    # Compatibility test doubles intentionally exercise the historical seam.
+    # They are allowed to preserve the locked v1.88 behavior, but production
+    # storage failures cannot silently fall back from canonical memory.
+    compatibility_override = (
+        globals().get("list_indicator_signal_history_records")
+        is not _legacy_list_indicator_signal_history_records
+    )
+    if memory_receipt is None or (not canonical_memory_present and not compatibility_override):
+        incomplete.append("PERSISTED_INDICATOR_MEMORY")
+
+    if incomplete:
+        detail = ", ".join(
+            f"{engine_id}={getattr(receipts.get(engine_id), 'status', 'missing')}"
+            for engine_id in incomplete
+        )
+        raise DecisionContextError(
+            "M3 canonical dependency did not complete truthfully; D6 neutral substitution is forbidden: "
+            + detail
+        )
+    return build_paper_guidance_decision_context(**kwargs)
 
 
-def _run_engine(engine_id, stage, snapshot, runner, summarizer):
+def _canonical_level_context(request):
+    kernel = _bound_feature_kernel.get()
+    if kernel is None:
+        return _legacy_level_context(request)
+    return build_canonical_level_intelligence(request, feature_kernel=kernel)
+
+
+def _canonical_run_engine(engine_id, stage, snapshot, runner, summarizer):
+    if engine_id != "LEVEL_CONTEXT":
+        return _legacy_run_engine(engine_id, stage, snapshot, runner, summarizer)
     try:
         result = runner()
-        summary = summarizer(result)
-        return result, _receipt(
+        if not isinstance(result, CanonicalLevelIntelligenceResult):
+            summary = summarizer(result)
+            return result, _legacy._receipt(
+                engine_id=engine_id,
+                stage=stage,
+                engine_version=_legacy._engine_version(result),
+                snapshot=snapshot,
+                status="completed",
+                output_summary=summary,
+            )
+        summary = result.receipt_summary()
+        summary["canonical_level_intelligence"] = True
+        summary["canonical_status"] = "AVAILABLE" if not result.missing_reasons else "DEGRADED"
+        warnings = list(result.missing_reasons)
+        status = "completed" if not warnings else "degraded"
+        return result, _legacy._receipt(
             engine_id=engine_id,
             stage=stage,
-            engine_version=_engine_version(result),
+            engine_version=_legacy._engine_version(result),
             snapshot=snapshot,
-            status="completed",
+            status=status,
             output_summary=summary,
+            warnings=warnings,
         )
     except Exception as exc:
         warning = f"{engine_id} degraded safely: {type(exc).__name__}: {exc}"
-        return None, _receipt(
+        return None, _legacy._receipt(
             engine_id=engine_id,
             stage=stage,
             engine_version="unavailable",
@@ -783,62 +236,71 @@ def _run_engine(engine_id, stage, snapshot, runner, summarizer):
         )
 
 
-def _snapshot_indicator_evidence(
-    request: PaperGuidanceRequest,
-    snapshot: ClosedCandleSnapshot,
-) -> tuple[dict, PaperGuidanceEngineReceipt]:
-    # v1.99.2: compute on a bounded recent window. The 9C evidence needs only
-    # the last 9 values plus warmup (slowest promoted indicator lookback ~300
-    # bars); computing over the full snapshot history blew the 800 ms latency
-    # guard on every indicator (2-6 s at 5000 bars) and degraded the receipt.
-    selected = sorted(
-        set(request.indicator_ids)
-        if request.indicator_ids
-        else REAL_RUNTIME_PROMOTED_INDICATORS
-    )
+def _runtime_accepts_provenance(runtime) -> bool:
+    try:
+        params = inspect.signature(runtime).parameters.values()
+    except (TypeError, ValueError):
+        return False
+    return any(param.kind is inspect.Parameter.VAR_KEYWORD for param in params) or {
+        "source_snapshot_hash",
+        "source_timeframe",
+    }.issubset({param.name for param in params})
+
+
+def _canonical_snapshot_indicator_evidence(request, snapshot):
+    selected = sorted(set(request.indicator_ids) if request.indicator_ids else REAL_RUNTIME_PROMOTED_INDICATORS)
     unsupported = [item for item in selected if item not in REAL_RUNTIME_PROMOTED_INDICATORS]
     runnable = [item for item in selected if item in REAL_RUNTIME_PROMOTED_INDICATORS]
-    window_bars = SNAPSHOT_INDICATOR_WINDOW_BARS
     snapshot_bars = snapshot.closed_ohlcv_bars
-    compute_bars = snapshot_bars[-window_bars:]
+    compute_bars = snapshot_bars[-_legacy.SNAPSHOT_INDICATOR_WINDOW_BARS :]
     candles = [
         {
-            "event_time": _iso_from_ns(bar.timestamp_ns),
+            "event_time": _legacy._iso_from_ns(bar.timestamp_ns),
             "open": bar.open,
             "high": bar.high,
             "low": bar.low,
             "close": bar.close,
-            "volume": bar.volume or 0.0,
+            "volume": bar.volume,
         }
         for bar in compute_bars
     ]
-    warnings = (
-        [f"Indicators are not promoted for real snapshot runtime: {', '.join(unsupported)}."]
-        if unsupported
-        else []
-    )
+    warnings = [f"Indicators are not promoted for real snapshot runtime: {', '.join(unsupported)}."] if unsupported else []
     try:
-        outputs, telemetry = compute_real_indicator_outputs_with_telemetry(candles, runnable)
-        degraded = [
-            str(item["indicator_id"])
+        runtime = compute_real_indicator_outputs_with_telemetry
+        if _runtime_accepts_provenance(runtime):
+            outputs, telemetry = runtime(candles, runnable, source_snapshot_hash=snapshot.snapshot_hash, source_timeframe=snapshot.timeframe)
+        else:
+            outputs, telemetry = runtime(candles, runnable)
+        canonical = build_indicator_evidence_summary(telemetry)
+        canonical_accounting_complete = int(canonical.get("accounted_count", 0)) == len(runnable)
+        degraded_ids = [
+            str(item.get("indicator_id"))
             for item in telemetry
-            if item.get("status") not in {"computed", "slow_warn"}
+            if str(item.get("canonical_status") or item.get("status", "")).upper() not in {"COMPUTED", "SLOW_WARN"}
         ]
-        if degraded:
-            warnings.append(
-                f"Indicators without usable snapshot output: {', '.join(degraded)}."
-            )
+        if degraded_ids:
+            warnings.append(f"Indicators without usable snapshot output: {', '.join(degraded_ids)}.")
+        if not canonical_accounting_complete:
+            warnings.append("Canonical indicator accounting is incomplete because one or more runtime rows did not expose indicator-evidence.v1 observations.")
         summary = {
             "indicator_ids": selected,
             "promoted_indicator_ids": runnable,
             "computed_count": len(outputs),
             "telemetry": telemetry,
             "source_timeframe": snapshot.timeframe,
+            "source_snapshot_hash": snapshot.snapshot_hash,
             "source_bar_count": snapshot.bar_count,
             "compute_window_bars": len(compute_bars),
+            "canonical_indicator_intelligence": True,
+            "canonical_status": "AVAILABLE" if canonical_accounting_complete and not degraded_ids and not unsupported else "DEGRADED",
+            "canonical": canonical,
             "used_for_final_vote": False,
+            "used_for_probability": False,
+            "trade_allowed": False,
+            "order_routing_enabled": False,
+            "live_trading_blocked": True,
         }
-        status = "completed" if not degraded and not unsupported else "degraded"
+        status = "completed" if summary["canonical_status"] == "AVAILABLE" else "degraded"
     except Exception as exc:
         summary = {
             "indicator_ids": selected,
@@ -846,15 +308,32 @@ def _snapshot_indicator_evidence(
             "computed_count": 0,
             "telemetry": [],
             "source_timeframe": snapshot.timeframe,
+            "source_snapshot_hash": snapshot.snapshot_hash,
             "source_bar_count": snapshot.bar_count,
+            "compute_window_bars": len(compute_bars),
+            "canonical_indicator_intelligence": False,
+            "canonical_status": "ERROR",
+            "canonical": {
+                "calculation_version": INDICATOR_EVIDENCE_VERSION,
+                "requested_count": len(selected),
+                "accounted_count": 0,
+                "status_counts": {"ERROR": len(selected)},
+                "used_for_probability": False,
+                "may_set_final_band": False,
+                "may_execute": False,
+            },
             "used_for_final_vote": False,
+            "used_for_probability": False,
+            "trade_allowed": False,
+            "order_routing_enabled": False,
+            "live_trading_blocked": True,
         }
         status = "degraded"
         warnings.append(f"Snapshot indicator runtime degraded safely: {type(exc).__name__}: {exc}")
-    return summary, _receipt(
+    return summary, _legacy._receipt(
         engine_id="SNAPSHOT_INDICATOR_RUNTIME",
         stage="D3A_SETUP",
-        engine_version="real-indicator-adapter-cache.v1",
+        engine_version=INDICATOR_EVIDENCE_VERSION,
         snapshot=snapshot,
         status=status,
         output_summary=summary,
@@ -862,338 +341,164 @@ def _snapshot_indicator_evidence(
     )
 
 
-def _build_mtf_evidence(
-    request: PaperGuidanceRequest,
-    primary_snapshot: ClosedCandleSnapshot,
-) -> PaperGuidanceMtfEvidence:
-    snapshots: dict[str, ClosedCandleSnapshot] = {}
-    reasons: list[str] = []
-    for series in sorted(request.higher_timeframe_series, key=lambda item: item.timeframe):
-        if series.symbol.upper() != primary_snapshot.symbol:
-            reasons.append(
-                f"{series.timeframe} was excluded because symbol {series.symbol.upper()} "
-                f"does not match {primary_snapshot.symbol}."
-            )
-            continue
-        try:
-            mtf_request = PaperGuidanceRequest(
-                symbol=primary_snapshot.symbol,
-                timeframe=series.timeframe,
-                series=series,
-                decision_time_ns=primary_snapshot.decision_time_ns,
-                direction=request.direction,
-            )
-            snapshot = freeze_d2_closed_candle_snapshot(
-                mtf_request,
-                decision_time_ns=primary_snapshot.decision_time_ns,
-            )
-            snapshots[series.timeframe] = snapshot
-        except Exception as exc:
-            reasons.append(
-                f"{series.timeframe} was unavailable after closed-candle filtering: "
-                f"{type(exc).__name__}: {exc}"
-            )
-
-    supplied = sorted({series.timeframe for series in request.higher_timeframe_series})
-    usable = sorted(snapshots)
-    missing = sorted(set(request.required_higher_timeframes) - set(usable))
-    confirmation = analyze_htf_confirmation(
-        HTFConfirmationRequest(
-            symbol=primary_snapshot.symbol,
-            decision_time_ns=primary_snapshot.decision_time_ns,
-            direction=request.direction,
-            higher_timeframe_series=[
-                _series_from_snapshot(snapshots[timeframe])
-                for timeframe in usable
-            ],
-        )
-    )
-    reasons.extend(confirmation.reasons)
-    if missing:
-        reasons.append(
-            f"Required higher-timeframe evidence is missing: {', '.join(missing)}."
-        )
-    indicator_runtime: dict[str, dict] = {}
-    selected = sorted(
-        set(request.indicator_ids)
-        if request.indicator_ids
-        else REAL_RUNTIME_PROMOTED_INDICATORS
-    )
-    runnable = [
-        indicator_id
-        for indicator_id in selected
-        if indicator_id in REAL_RUNTIME_PROMOTED_INDICATORS
-    ]
-    for timeframe in usable:
-        mtf_snapshot = snapshots[timeframe]
-        candles = [
-            {
-                "event_time": _iso_from_ns(bar.timestamp_ns),
-                "open": bar.open,
-                "high": bar.high,
-                "low": bar.low,
-                "close": bar.close,
-                "volume": bar.volume or 0.0,
-            }
-            for bar in mtf_snapshot.closed_ohlcv_bars
-        ]
-        try:
-            outputs, telemetry = compute_real_indicator_outputs_with_telemetry(
-                candles,
-                runnable,
-            )
-            indicator_runtime[timeframe] = {
-                "source_snapshot_hash": mtf_snapshot.snapshot_hash,
-                "source_bar_count": mtf_snapshot.bar_count,
-                "indicator_ids": runnable,
-                "computed_count": len(outputs),
-                "telemetry": telemetry,
-                "used_for_final_vote": False,
-            }
-        except Exception as exc:
-            indicator_runtime[timeframe] = {
-                "source_snapshot_hash": mtf_snapshot.snapshot_hash,
-                "source_bar_count": mtf_snapshot.bar_count,
-                "indicator_ids": runnable,
-                "computed_count": 0,
-                "telemetry": [],
-                "used_for_final_vote": False,
-                "error": f"{type(exc).__name__}: {exc}",
-            }
-            reasons.append(
-                f"{timeframe} indicator runtime degraded safely: {type(exc).__name__}: {exc}"
-            )
-    return PaperGuidanceMtfEvidence(
-        required_timeframes=request.required_higher_timeframes,
-        supplied_timeframes=supplied,
-        usable_timeframes=usable,
-        missing_required_timeframes=missing,
-        snapshot_hashes={
-            timeframe: snapshots[timeframe].snapshot_hash
-            for timeframe in usable
-        },
-        indicator_runtime_by_timeframe=indicator_runtime,
-        confirmed=confirmation.confirmed,
-        blocks_promotion=bool(missing) or confirmation.blocks_trade,
-        reasons=_unique(reasons),
-    )
+def _canonical_mtf_indicator_runtime(candles, indicator_ids, **kwargs):
+    runnable = [item for item in indicator_ids if item in REAL_RUNTIME_PROMOTED_INDICATORS]
+    runtime = compute_real_indicator_outputs_with_telemetry
+    if _runtime_accepts_provenance(runtime):
+        return runtime(candles, runnable, **kwargs)
+    return runtime(candles, runnable)
 
 
-def _build_persisted_memory_evidence(
-    request: PaperGuidanceRequest,
-    snapshot: ClosedCandleSnapshot,
-    indicator_ids: list[str],
-    minimum_evidence_count: int,
-) -> tuple[dict, PaperGuidanceEngineReceipt]:
-    records = []
-    cutoff = _iso_from_ns(snapshot.decision_time_ns)
-    for indicator_id in indicator_ids:
-        records.extend(
-            list_indicator_signal_history_records(
-                symbol=snapshot.symbol,
-                indicator_id=indicator_id,
-                timeframe=snapshot.timeframe,
-                limit=500,
-                counted_only=True,
-                available_by_decision_time_ns=snapshot.decision_time_ns,
-                created_at_or_before=cutoff,
+def _canonical_build_mtf_evidence(request, snapshot):
+    try:
+        return build_canonical_mtf_intelligence(
+            request,
+            snapshot,
+            freeze_snapshot=lambda mtf_request: _legacy.freeze_d2_closed_candle_snapshot(mtf_request, decision_time_ns=snapshot.decision_time_ns),
+            indicator_runtime=_canonical_mtf_indicator_runtime,
+        )
+    except Exception as exc:
+        return PaperGuidanceMtfEvidence(
+            required_timeframes=request.required_higher_timeframes,
+            supplied_timeframes=sorted({series.timeframe for series in request.higher_timeframe_series}),
+            usable_timeframes=[],
+            missing_required_timeframes=sorted(set(request.required_higher_timeframes)),
+            snapshot_hashes={},
+            indicator_runtime_by_timeframe={},
+            confirmed=False,
+            blocks_promotion=True,
+            reasons=[f"Canonical MTF engine failed: {type(exc).__name__}: {exc}"],
+        )
+
+
+def _canonical_build_persisted_memory_evidence(request, snapshot, indicator_ids, minimum_evidence_count):
+    """Activate one-query production memory while preserving public test hooks."""
+
+    # The historical public module explicitly supports monkeypatching this read
+    # function. Preserve that compatibility contract for tests/embedders. The
+    # unmodified production path always uses the one-query canonical adapter.
+    if globals().get("list_indicator_signal_history_records") is not _legacy_list_indicator_signal_history_records:
+        return _legacy_build_persisted_memory_evidence(request, snapshot, indicator_ids, minimum_evidence_count)
+
+    try:
+        evidence = build_persisted_memory_evidence(
+            symbol=snapshot.symbol,
+            timeframe=snapshot.timeframe,
+            decision_time_ns=snapshot.decision_time_ns,
+            indicator_ids=indicator_ids,
+            minimum_evidence_count=minimum_evidence_count,
+            caller_historical_match_count=getattr(request, "historical_match_count", 0),
+        )
+        summary = dict(evidence.summary)
+        warnings = []
+        if summary["low_evidence_flag"]:
+            warnings.append(
+                f"Only {summary['independent_episode_count']} independent completed persisted episodes were available; {minimum_evidence_count} are required."
             )
-        )
-    complete = {
-        record.history_id: record
-        for record in records
-        if record.label.label_status == "complete"
-        and record.counted_in_reliability
-        and record.no_future_leakage
-        and not record.missing_mask
-        and record.decision_time_ns <= snapshot.decision_time_ns
-        and record.signal_time_ns <= snapshot.decision_time_ns
-        and _iso_to_ns(record.created_at) <= snapshot.decision_time_ns
-    }
-    count = len(complete)
-    low_evidence = count < minimum_evidence_count
-    ignored_caller_count = request.historical_match_count
-    summary = {
-        "historical_match_count": count,
-        "minimum_evidence_count": minimum_evidence_count,
-        "minimum_evidence_pass": not low_evidence,
-        "low_evidence_flag": low_evidence,
-        "history_source": "persistent",
-        "fixture_fallback_used": False,
-        "indicator_count": len(indicator_ids),
-        "caller_historical_match_count": ignored_caller_count,
-        "caller_count_used_for_authority": False,
-        "decision_time_cutoff": cutoff,
-    }
-    warnings = []
-    if low_evidence:
-        warnings.append(
-            f"Only {count} completed persisted records were available; "
-            f"{minimum_evidence_count} are required."
-        )
-    if ignored_caller_count:
-        warnings.append(
-            f"Caller historical_match_count={ignored_caller_count} was ignored for decision authority."
-        )
-    return summary, _receipt(
+        caller_count = int(summary.get("caller_historical_match_count", 0) or 0)
+        if caller_count:
+            warnings.append(f"Caller historical_match_count={caller_count} was ignored for decision authority.")
+        status = "completed" if not summary["low_evidence_flag"] else "degraded"
+        version = PERSISTED_MEMORY_ADAPTER_VERSION
+    except Exception as exc:
+        summary = {
+            "historical_match_count": 0,
+            "raw_record_count": 0,
+            "complete_record_count": 0,
+            "excluded_record_count": 0,
+            "independent_episode_count": 0,
+            "independent_session_count": 0,
+            "independent_symbol_count": 0,
+            "minimum_evidence_count": minimum_evidence_count,
+            "minimum_evidence_pass": False,
+            "low_evidence_flag": True,
+            "history_source": "persistent",
+            "fixture_fallback_used": False,
+            "indicator_count": len(indicator_ids),
+            "caller_historical_match_count": int(getattr(request, "historical_match_count", 0) or 0),
+            "caller_count_used_for_authority": False,
+            "decision_time_cutoff": _legacy._iso_from_ns(snapshot.decision_time_ns),
+            "canonical_memory_intelligence": False,
+            "canonical_status": "ERROR",
+            "storage_query_count": 0,
+            "used_for_probability": False,
+            "may_propose": False,
+            "may_veto": False,
+            "may_downgrade": False,
+            "may_set_final_band": False,
+            "may_execute": False,
+            "trade_allowed": False,
+            "order_routing_enabled": False,
+            "live_trading_blocked": True,
+            "human_approval_required": True,
+        }
+        warnings = [f"Canonical persisted memory failed closed: {type(exc).__name__}: {exc}"]
+        status = "degraded"
+        version = "unavailable"
+    return summary, _legacy._receipt(
         engine_id="PERSISTED_INDICATOR_MEMORY",
         stage="D3B_MEMORY",
-        engine_version="indicator-signal-history-store.v1.83",
+        engine_version=version,
         snapshot=snapshot,
-        status="completed" if not low_evidence else "degraded",
+        status=status,
         output_summary=summary,
         warnings=warnings,
     )
 
 
-def _receipt(
-    *,
-    engine_id: str,
-    stage: str,
-    engine_version: str,
-    snapshot: ClosedCandleSnapshot,
-    status: str,
-    output_summary: dict,
-    warnings: list[str] | None = None,
-) -> PaperGuidanceEngineReceipt:
-    identity = {
-        "engine_id": engine_id,
-        "engine_version": engine_version,
-        "source_snapshot_hash": snapshot.snapshot_hash,
-        "output_summary": output_summary,
-    }
-    return PaperGuidanceEngineReceipt(
-        receipt_version=PAPER_GUIDANCE_RECEIPT_VERSION,
-        engine_id=engine_id,
-        stage=stage,  # type: ignore[arg-type]
-        engine_version=engine_version,
-        source_snapshot_hash=snapshot.snapshot_hash,
-        output_hash=_hash_payload(identity),
-        status=status,  # type: ignore[arg-type]
-        identity_match=True,
-        output_summary=output_summary,
-        warnings=warnings or [],
-    )
+def _canonical_receipt(**kwargs):
+    if kwargs.get("engine_id") != "MTF_CONFIRMATION":
+        return _legacy_receipt(**kwargs)
+    summary = kwargs.get("output_summary") or {}
+    if not isinstance(summary, dict) or summary.get("canonical_mtf_intelligence") is not True:
+        return _legacy_receipt(**kwargs)
+    kwargs = dict(kwargs)
+    kwargs["engine_version"] = MTF_CONFIRMATION_VERSION
+    kwargs["status"] = "completed" if summary.get("canonical_status") == "AVAILABLE" else "degraded"
+    warnings = list(kwargs.get("warnings") or [])
+    if summary.get("canonical_status") != "AVAILABLE":
+        warnings.append(f"Canonical MTF availability is {summary.get('canonical_status')}; unavailable facts were not neutralized.")
+    kwargs["warnings"] = list(dict.fromkeys(warnings))
+    return _legacy_receipt(**kwargs)
 
 
-def _record_engine_state(receipt, engines_run, engines_skipped, warnings):
-    if receipt.status == "skipped":
-        engines_skipped.append(f"{receipt.engine_id}:skipped")
-    else:
-        engines_run.append(receipt.engine_id)
-    warnings.extend(receipt.warnings)
+def _sync_patchable_dependencies():
+    for name in ("compute_real_indicator_outputs_with_telemetry", "list_indicator_signal_history_records", "build_chart_reasoning_report"):
+        if name in globals():
+            setattr(_legacy, name, globals()[name])
+    _legacy._snapshot_indicator_evidence = _canonical_snapshot_indicator_evidence
+    _legacy._build_mtf_evidence = _canonical_build_mtf_evidence
+    _legacy._build_persisted_memory_evidence = _canonical_build_persisted_memory_evidence
+    _legacy._receipt = _canonical_receipt
+    _m2.build_stage2_integrity_report = build_stage2_integrity_report
+    _m2.build_canonical_stage2_observations = build_canonical_stage2_observations
+    _m2.build_paper_guidance_decision_context = _build_m31_guarded_decision_context
+    _m2.decision_context_audit_summary = decision_context_audit_summary
 
 
-def _engine_version(value) -> str:
-    for key in (
-        "reasoning_version",
-        "classifier_version",
-        "context_version",
-        "structure_version",
-        "risk_version",
-        "arbiter_version",
-    ):
-        version = getattr(value, key, None)
-        if version:
-            return str(version)
-    return "unknown"
+def run_paper_guidance_p1(request, *, mode, kill_switch, config=None):
+    _sync_patchable_dependencies()
+    delegated_kernel_builder = _m2.build_snapshot_feature_kernel
 
+    def build_and_bind_kernel(snapshot):
+        kernel = delegated_kernel_builder(snapshot)
+        _bound_feature_kernel.set(kernel)
+        return kernel
 
-def _hash_payload(value) -> str:
-    canonical = json.dumps(
-        _json_safe(value),
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=True,
-        allow_nan=False,
-    )
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-
-
-def _json_safe(value):
-    if hasattr(value, "model_dump"):
-        return _json_safe(value.model_dump(mode="json"))
-    if isinstance(value, dict):
-        return {str(key): _json_safe(item) for key, item in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_json_safe(item) for item in value]
-    if isinstance(value, float) and not math.isfinite(value):
-        return None
-    if value is None or isinstance(value, (str, int, float, bool)):
-        return value
-    return str(value)
-
-
-def _market_regime_score(chart, direction: str) -> float:
-    if chart is None:
-        return 0.0
-    score = float(chart.trend_persistence_score) * 2.0 - 1.0
-    if direction == "short":
-        score *= -1.0
-    if chart.chop_risk == "high":
-        score = min(score, -0.35)
-    return max(-1.0, min(1.0, score))
-
-
-def _structure_score(condition, levels, structure, direction: str) -> float:
-    parts: list[float] = []
-    if condition is not None:
-        bias = condition.final_signal_bias
-        score = 0.65 if bias == direction else -0.65 if bias in {"long", "short"} else -0.15
-        if condition.blocks_trade:
-            score = min(score, -0.55)
-        parts.append(score)
-    if levels is not None:
-        score = levels.level_respect_score * 2.0 - 1.0
-        if levels.blocks_trade:
-            score = min(score, -0.55)
-        parts.append(score)
-    if structure is not None:
-        score = 0.25
-        if structure.vsa_downgrade_active:
-            score -= 0.55
-        score -= structure.trap_score * 0.65
-        parts.append(score)
-    if not parts:
-        return 0.0
-    return max(-1.0, min(1.0, sum(parts) / len(parts)))
-
-
-def _volume_auction_score(structure, direction: str) -> float:
-    if structure is None:
-        return 0.0
-    score = 0.2
-    if structure.vsa_downgrade_active:
-        score -= 0.65
-    if structure.value_area_position == "above_value":
-        score += 0.25 if direction == "long" else -0.25
-    elif structure.value_area_position == "below_value":
-        score += 0.25 if direction == "short" else -0.25
-    return max(-1.0, min(1.0, score))
-
-
-def _daily_resistance_conflict(levels, direction: str) -> bool:
-    if levels is None or direction != "long":
-        return False
-    return any(
-        flag in {"rejecting_pdh", "failed_orb_breakout"}
-        for flag in levels.support_resistance_flags
-    )
-
-
-def _paper_vote(direction: str) -> str:
-    if direction == "long":
-        return "FOR"
-    if direction in {"short", "block"}:
-        return "AGAINST"
-    return "NEUTRAL"
-
-
-def _paper_band_from_arbiter(final_decision: str) -> str:
-    if final_decision == "PAPER-CANDIDATE":
-        return "WATCH"
-    if final_decision == "SHORT PAPER-CANDIDATE":
-        return "WATCH"
-    if final_decision in {"WAIT", "WATCH", "AVOID"}:
-        return final_decision
-    return "WAIT"
+    _m2.build_snapshot_feature_kernel = build_and_bind_kernel
+    _legacy.analyze_level_context = _canonical_level_context
+    _legacy._run_engine = _canonical_run_engine
+    _legacy._snapshot_indicator_evidence = _canonical_snapshot_indicator_evidence
+    _legacy._build_mtf_evidence = _canonical_build_mtf_evidence
+    _legacy._build_persisted_memory_evidence = _canonical_build_persisted_memory_evidence
+    _legacy._receipt = _canonical_receipt
+    _bound_feature_kernel.set(None)
+    try:
+        return _m2.run_paper_guidance_p1(request, mode=mode, kill_switch=kill_switch, config=config)
+    finally:
+        _bound_feature_kernel.set(None)
+        _m2.build_snapshot_feature_kernel = delegated_kernel_builder
+        _legacy._snapshot_indicator_evidence = _legacy_snapshot_indicator_evidence
+        _legacy._build_mtf_evidence = _legacy_build_mtf_evidence
+        _legacy._build_persisted_memory_evidence = _legacy_build_persisted_memory_evidence
+        _legacy._receipt = _legacy_receipt

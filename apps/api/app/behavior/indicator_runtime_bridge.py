@@ -78,6 +78,12 @@ def build_indicator_runtime_report(symbol: str = "RELIANCE", timeframe: str = "1
         for row in telemetry
         if str(row.get("status")) in {"slow_warn", "slow_blocked"}
     ]
+    pta_accounting = _pta_accounting(
+        selected_count=len(pta_selected),
+        telemetry=pta_telemetry,
+        materialized_output_count=len(pta_outputs),
+        requested=use_real_indicators,
+    )
     report = {
         "runtime_version": RUNTIME_VERSION,
         "symbol": symbol.upper(),
@@ -110,7 +116,15 @@ def build_indicator_runtime_report(symbol: str = "RELIANCE", timeframe: str = "1
         "slow_indicator_count": len(slow_indicator_ids),
         "slow_indicator_ids": slow_indicator_ids,
         "pta_marker_selected_count": len(pta_selected),
+        "pta_marker_probe_count": pta_accounting["probe_count"],
+        "pta_marker_computed_count": pta_accounting["computed_count"],
+        "pta_marker_no_signal_count": pta_accounting["no_signal_count"],
+        "pta_marker_dependency_unavailable_count": pta_accounting["dependency_unavailable_count"],
+        "pta_marker_error_count": pta_accounting["error_count"],
+        # Legacy field retained as materialized outputs only (computed + no-signal).
+        # It must never be interpreted as probe completeness.
         "pta_marker_output_count": len(pta_outputs),
+        "pta_marker_accounting": pta_accounting,
         "pta_marker_telemetry": pta_telemetry,
         "pta_marker_telemetry_counts": _telemetry_counts(pta_telemetry),
         "pta_marker_dependency": pta_dependency,
@@ -221,6 +235,38 @@ def _missing_outputs(selected: list[str], computed_outputs: dict[str, Any], runt
         for key in selected
         if key not in computed_outputs or computed_outputs.get(key) in ({}, [], None)
     ]
+
+
+def _pta_accounting(
+    *,
+    selected_count: int,
+    telemetry: list[dict[str, object]],
+    materialized_output_count: int,
+    requested: bool,
+) -> dict[str, object]:
+    counts = _telemetry_counts(telemetry)
+    probe_count = len(telemetry)
+    computed_count = int(counts.get("computed", 0))
+    no_signal_count = int(counts.get("no_signal", 0))
+    dependency_unavailable_count = int(counts.get("dependency_unavailable", 0))
+    error_count = int(counts.get("error", 0))
+    classified_count = computed_count + no_signal_count + dependency_unavailable_count + error_count
+    expected_materialized_count = computed_count + no_signal_count
+    accounting_pass = (
+        probe_count == classified_count
+        and materialized_output_count == expected_materialized_count
+        and ((not requested and probe_count == 0) or (requested and probe_count == selected_count))
+    )
+    return {
+        "selected_count": selected_count,
+        "probe_count": probe_count,
+        "computed_count": computed_count,
+        "no_signal_count": no_signal_count,
+        "dependency_unavailable_count": dependency_unavailable_count,
+        "error_count": error_count,
+        "materialized_output_count": materialized_output_count,
+        "accounting_pass": accounting_pass,
+    }
 
 
 def _telemetry_counts(telemetry: list[dict[str, object]]) -> dict[str, int]:

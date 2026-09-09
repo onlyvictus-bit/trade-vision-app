@@ -1,0 +1,80 @@
+name: M3.2 Canonical Context Intelligence
+on:
+  workflow_dispatch:
+  push:
+    branches: [m3-2-context-intelligence]
+    paths:
+      - apps/api/app/behavior/decision_spine/**
+      - apps/api/app/behavior/paper_guidance_spine.py
+      - apps/api/app/behavior/paper_guidance_spine_m3_1_impl.py
+      - apps/api/app/behavior/final_release_audit.py
+      - apps/api/tests/decision_spine/**
+      - apps/api/tests/test_final_release_audit_cache_isolation.py
+      - docs/**
+      - .github/workflows/m3-2-context-intelligence.yml
+permissions: {contents: read}
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: '${{ github.sha }}', fetch-depth: 0}
+      - name: Verify exact checkout identity
+        run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Install API dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r apps/api/requirements.txt
+      - name: Compile M3.2 and locked Decision Spine modules
+        run: python -m py_compile apps/api/app/behavior/decision_spine/canonical_context_intelligence.py apps/api/app/behavior/decision_spine/canonical_session_intelligence.py apps/api/app/behavior/decision_spine/canonical_market_context.py apps/api/app/behavior/decision_spine/canonical_relative_strength.py apps/api/app/behavior/decision_spine/canonical_market_regime.py apps/api/app/behavior/decision_spine/canonical_context_world.py apps/api/app/behavior/decision_spine/authority_registry.py apps/api/app/behavior/decision_spine/stage2_integrity.py apps/api/app/behavior/decision_spine/decision_context.py apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py apps/api/app/behavior/paper_guidance_spine.py apps/api/app/behavior/paper_guidance_spine_m3_1_impl.py apps/api/app/behavior/final_release_audit.py
+      - name: M3.2-A context source contract
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_2_context_contract.py
+      - name: M3.2-B session intelligence
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_2_session.py
+      - name: M3.2-C index sector context
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_2_market_context.py
+      - name: M3.2-D relative strength
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_2_relative_strength.py
+      - name: M3.2-E market regime
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_2_regime.py
+      - name: M3.2-F context fusion
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_2_context_world.py
+      - name: Final release audit cache isolation
+        working-directory: apps/api
+        run: pytest -q tests/test_final_release_audit_cache_isolation.py
+      - name: Locked M3.1 price intelligence
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_snapshot_feature_kernel.py tests/decision_spine/test_m3_1_candle_pipeline.py tests/decision_spine/test_m3_1_levels.py tests/decision_spine/test_m3_1_indicator_pipeline.py tests/decision_spine/test_m3_1_mtf_pipeline.py tests/decision_spine/test_m3_1_price_evidence.py tests/decision_spine/test_m3_1_replay.py tests/decision_spine/test_m3_1_adversarial.py
+      - name: Locked M2 DecisionContext
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_decision_context.py tests/decision_spine/test_paper_guidance_decision_context_adapter.py tests/decision_spine/test_paper_guidance_m2_context_integration.py
+      - name: Locked M0 Stage2 integrity
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_stage2_integrity.py
+      - name: Paper Guidance regression
+        working-directory: apps/api
+        run: pytest -q tests/test_paper_guidance_v188.py
+      - name: Historical API regression
+        working-directory: apps/api
+        run: pytest -q tests/test_api.py
+      - name: Full API test tree
+        working-directory: apps/api
+        run: python -m pytest tests -q
+      - name: Verify Decision Spine safety and authority invariants
+        working-directory: apps/api
+        run: |
+          python - <<'PY'
+          from app.behavior.decision_spine import FINAL_BAND_AUTHORITY, all_engine_authorities, validate_authority_registry
+          assert validate_authority_registry() == ()
+          assert [e.engine_id for e in all_engine_authorities() if e.may_set_final_band] == [FINAL_BAND_AUTHORITY]
+          assert all(not e.may_execute for e in all_engine_authorities())
+          print('Decision Spine authority invariants verified')
+          PY

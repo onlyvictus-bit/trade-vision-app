@@ -28,6 +28,7 @@ from app.models import (
 client = TestClient(app)
 BASE_NS = 1_714_815_600_000_000_000
 ENGINE_ORDER = [
+    "CANDLE_ANATOMY",
     "CHART_REASONING",
     "CANDLE_CONDITION",
     "LEVEL_CONTEXT",
@@ -464,3 +465,52 @@ def test_tv_v188_020_openapi_manifest_and_safety_literals():
     assert result.paper_execution_attempted is False
     assert result.order_routing_enabled is False
     assert result.live_trading_blocked is True
+
+def test_tv_v188_020_stage2_integrity_is_wired_before_d6():
+    result = _run(_request())
+    integrity = result.risk_summary["stage2_integrity"]
+    assert integrity["canonical_snapshot_hash"] == result.snapshot_hash
+    assert integrity["canonical_context_eligible"] is True
+    assert integrity["paper_promotion_eligible"] is False
+    assert integrity["trade_allowed"] is False
+    assert integrity["order_routing_enabled"] is False
+    assert integrity["live_trading_blocked"] is True
+    assert "FINAL_CONFLUENCE_ARBITER" in result.engines_run
+    states = {row["engine_id"]: row for row in integrity["engine_states"]}
+    for engine_id in ("NINE_CANDLE_MEMORY", "PTA_MARKER_RUNTIME", "ORB_CORE", "AFRE"):
+        assert states[engine_id]["availability"] == "SKIPPED"
+        assert states[engine_id]["used_for_probability"] is False
+
+
+def test_tv_v188_021_stage2_block_stops_before_d6(monkeypatch):
+    class ForcedBlock:
+        canonical_context_eligible = False
+        hard_blockers = ("FORCED_STAGE2_BLOCK",)
+        warnings = ("forced-stage2-warning",)
+        output_hash = "f" * 64
+
+        @staticmethod
+        def as_dict():
+            return {
+                "status": "BLOCK",
+                "canonical_context_eligible": False,
+                "hard_blockers": ["FORCED_STAGE2_BLOCK"],
+                "warnings": ["forced-stage2-warning"],
+                "paper_promotion_eligible": False,
+                "trade_allowed": False,
+                "order_routing_enabled": False,
+                "live_trading_blocked": True,
+            }
+
+    monkeypatch.setattr(
+        "app.behavior.paper_guidance_spine.build_stage2_integrity_report",
+        lambda **_: ForcedBlock(),
+    )
+    result = _run(_request())
+    assert result.final_band == "WAIT"
+    assert "FINAL_CONFLUENCE_ARBITER" not in result.engines_run
+    assert "D6_ARBITER:stage2_integrity_block" in result.engines_skipped
+    assert result.arbiter_summary["arbiter_run"] is False
+    assert result.arbiter_summary["blocked_before_d6"] is True
+    assert any("FORCED_STAGE2_BLOCK" in blocker for blocker in result.blockers)
+    assert result.risk_summary["stage2_integrity"]["canonical_context_eligible"] is False

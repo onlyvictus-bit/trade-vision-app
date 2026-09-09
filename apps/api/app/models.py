@@ -8092,7 +8092,7 @@ class IndicatorFeatureBlock(BaseModel):
     matched_failure_count: int = Field(ge=0)
     historical_effect: str
     current_alignment: float = Field(ge=0.0, le=1.0)
-    source_mode: Literal["mock", "real", "masked"] = "mock"
+    source_mode: Literal["mock", "real", "masked", "synthetic_fallback"] = "mock"
     runtime_status: str = "mock_generated"
     normalized_from: str | None = None
     raw_output_present: bool = False
@@ -8133,6 +8133,10 @@ class NineCandleFeatureVectorAudit(BaseModel):
     usable_probability_feature_count: int = Field(ge=0)
     promoted_runtime_indicator_count: int = Field(default=0, ge=0)
     real_runtime_computed_count: int = Field(default=0, ge=0)
+    synthetic_fallback_computed_count: int = Field(default=0, ge=0)
+    runtime_unavailable_count: int = Field(default=0, ge=0)
+    runtime_failed_count: int = Field(default=0, ge=0)
+    runtime_accounting_pass: bool = True
     real_runtime_masked_count: int = Field(default=0, ge=0)
     non_promoted_masked_count: int = Field(default=0, ge=0)
     missing_value_count: int = Field(ge=0)

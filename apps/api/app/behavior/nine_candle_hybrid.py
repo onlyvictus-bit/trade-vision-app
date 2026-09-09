@@ -182,8 +182,35 @@ def build_feature_vector_audit(
     promoted_runtime_indicator_count = sum(
         1 for entry in registry.entries if entry.indicator_id in REAL_RUNTIME_PROMOTED_INDICATORS
     )
+    computed_statuses = {"computed", "slow_warn"}
     real_runtime_computed_count = sum(
-        1 for sequence in sequences if sequence.source_mode == "real" and sequence.runtime_status in {"computed", "slow_warn"}
+        1
+        for sequence in sequences
+        if sequence.source_mode == "real" and sequence.runtime_status in computed_statuses
+    )
+    synthetic_fallback_computed_count = sum(
+        1
+        for sequence in sequences
+        if sequence.source_mode == "synthetic_fallback" and sequence.runtime_status in computed_statuses
+    )
+    runtime_failed_count = sum(
+        1
+        for sequence in sequences
+        if sequence.runtime_status == "error" and sequence.runtime_status != "not_promoted"
+    )
+    runtime_unavailable_count = max(
+        0,
+        promoted_runtime_indicator_count
+        - real_runtime_computed_count
+        - synthetic_fallback_computed_count
+        - runtime_failed_count,
+    )
+    runtime_accounting_pass = (
+        real_runtime_computed_count
+        + synthetic_fallback_computed_count
+        + runtime_unavailable_count
+        + runtime_failed_count
+        == promoted_runtime_indicator_count
     )
     real_runtime_masked_count = sum(
         1 for sequence in sequences if sequence.source_mode == "masked" and sequence.runtime_status != "not_promoted"
@@ -195,6 +222,13 @@ def build_feature_vector_audit(
         warnings.append(
             f"{non_promoted_masked_count} registry indicators are not promoted for the local real-runtime bridge and remain masked"
         )
+    if use_real_indicators and synthetic_fallback_computed_count:
+        warnings.append(
+            f"{synthetic_fallback_computed_count} promoted indicators were computed from synthetic fallback candles; "
+            "they are explanation-only and excluded from probability authority"
+        )
+    if use_real_indicators and not runtime_accounting_pass:
+        failures.append("runtime_provenance_accounting_mismatch")
     if missing_mask_count:
         warnings.append(f"{missing_mask_count} features are explicitly masked and cannot act as zero signals")
     if probability_enabled_count == 0:
@@ -215,6 +249,10 @@ def build_feature_vector_audit(
         usable_probability_feature_count=usable_probability_feature_count,
         promoted_runtime_indicator_count=promoted_runtime_indicator_count,
         real_runtime_computed_count=real_runtime_computed_count,
+        synthetic_fallback_computed_count=synthetic_fallback_computed_count,
+        runtime_unavailable_count=runtime_unavailable_count,
+        runtime_failed_count=runtime_failed_count,
+        runtime_accounting_pass=runtime_accounting_pass,
         real_runtime_masked_count=real_runtime_masked_count,
         non_promoted_masked_count=non_promoted_masked_count,
         missing_value_count=missing_value_count,
@@ -402,8 +440,14 @@ def _build_real_indicator_sequences(symbol: str, timeframe: str) -> list[Indicat
                 runtime_status=runtime_status,
                 normalized_from=normalized_from,
                 raw_output_present=True,
-                explanation_only=not bool(item.used_for_probability),
-                usable_for_probability=bool(item.used_for_probability and not any(mask)),
+                # Synthetic candles may be useful for explanation/runtime diagnostics,
+                # but they can never become calibrated probability evidence.
+                explanation_only=bool(candle_source != "hstry_real" or not item.used_for_probability),
+                usable_for_probability=bool(
+                    candle_source == "hstry_real"
+                    and item.used_for_probability
+                    and not any(mask)
+                ),
                 missing_reason=missing_reason,
             )
         )

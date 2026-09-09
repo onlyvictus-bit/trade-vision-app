@@ -2,48 +2,90 @@ name: AFRE v4 CI
 
 on:
   pull_request:
-    paths:
-      - "apps/api/**"
-      - ".github/workflows/afre-v4-ci.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: afre-v4-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   afre-targeted:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout exact PR source head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact source-head identity
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$EXPECTED_HEAD"
+          echo "Verified source head: $actual"
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: apps/api/requirements.txt
+
       - name: Install API dependencies
         run: python -m pip install --upgrade pip && pip install -r apps/api/requirements.txt
+
       - name: Compile adaptive engine
         working-directory: apps/api
         run: python -m compileall -q app/orb/adaptive
+
       - name: Run AFRE regression suite
         working-directory: apps/api
         run: pytest tests/afre -q
 
   api-no-new-regressions:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
-      - name: Checkout PR candidate
+      - name: Checkout exact PR source head
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           path: pr
+          fetch-depth: 0
+
+      - name: Verify exact PR source-head identity
+        working-directory: pr
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$EXPECTED_HEAD"
+          echo "Verified PR source head: $actual"
 
       - name: Checkout base revision
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.base.sha || 'main' }}
           path: baseline
+          fetch-depth: 0
+
+      - name: Verify base identity
+        if: github.event_name == 'pull_request'
+        working-directory: baseline
+        shell: bash
+        env:
+          EXPECTED_BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$EXPECTED_BASE"
+          echo "Verified base head: $actual"
 
       - uses: actions/setup-python@v5
         with:
@@ -74,7 +116,7 @@ jobs:
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Run complete API suite on PR candidate
+      - name: Run complete API suite on PR source head
         id: pr_suite
         working-directory: pr/apps/api
         shell: bash
@@ -85,7 +127,7 @@ jobs:
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Fail only on regressions introduced by PR
+      - name: Require a completely green PR suite and compare with base
         env:
           BASELINE_XML: ${{ github.workspace }}/baseline-results.xml
           PR_XML: ${{ github.workspace }}/pr-results.xml
@@ -97,34 +139,45 @@ jobs:
           import os
           import sys
           import xml.etree.ElementTree as ET
+          from pathlib import Path
 
-          def failed_cases(path: str) -> set[str]:
-              root = ET.parse(path).getroot()
+          def parse_results(path: str) -> tuple[int, set[str]]:
+              result_path = Path(path)
+              if not result_path.is_file():
+                  raise SystemExit(f"Missing pytest JUnit result: {result_path}")
+              root = ET.parse(result_path).getroot()
+              cases = list(root.iter("testcase"))
+              if not cases:
+                  raise SystemExit(f"No pytest testcases were recorded in {result_path}")
               failures: set[str] = set()
-              for case in root.iter("testcase"):
+              for case in cases:
                   if case.find("failure") is None and case.find("error") is None:
                       continue
                   location = case.attrib.get("file") or case.attrib.get("classname") or "unknown"
                   name = case.attrib.get("name") or "unknown"
                   failures.add(f"{location}::{name}")
-              return failures
+              return len(cases), failures
 
           baseline_exit = int(os.environ["BASELINE_EXIT"])
           pr_exit = int(os.environ["PR_EXIT"])
           if baseline_exit not in (0, 1):
-              raise SystemExit(f"Base suite did not complete normally (pytest exit {baseline_exit}); cannot establish regression baseline")
+              raise SystemExit(
+                  f"Base suite did not complete normally (pytest exit {baseline_exit}); "
+                  "cannot establish a trustworthy regression baseline"
+              )
           if pr_exit not in (0, 1):
               raise SystemExit(f"PR suite did not complete normally (pytest exit {pr_exit})")
 
-          baseline_failures = failed_cases(os.environ["BASELINE_XML"])
-          pr_failures = failed_cases(os.environ["PR_XML"])
+          baseline_count, baseline_failures = parse_results(os.environ["BASELINE_XML"])
+          pr_count, pr_failures = parse_results(os.environ["PR_XML"])
           new_failures = sorted(pr_failures - baseline_failures)
           resolved_failures = sorted(baseline_failures - pr_failures)
 
-          print(f"Base failures: {len(baseline_failures)}")
+          print(f"Base testcases: {baseline_count}; failures/errors: {len(baseline_failures)}")
+          print(f"PR testcases:   {pr_count}; failures/errors: {len(pr_failures)}")
+
           for item in sorted(baseline_failures):
               print(f"  BASE_FAIL {item}")
-          print(f"PR failures: {len(pr_failures)}")
           for item in sorted(pr_failures):
               print(f"  PR_FAIL   {item}")
           if resolved_failures:
@@ -135,7 +188,36 @@ jobs:
               print("New regressions introduced by PR:")
               for item in new_failures:
                   print(f"  NEW_FAIL  {item}")
-              sys.exit(1)
 
-          print("PASS: PR introduces zero new pytest failures relative to its base revision.")
+          if pr_exit != 0 or pr_failures:
+              raise SystemExit(
+                  "PR merge gate requires the candidate itself to be fully green; "
+                  "pre-existing baseline failures are not accepted as a reason to pass."
+              )
+
+          print("PASS: PR source head completed the full API tree with zero failures/errors.")
+          PY
+
+      - name: Verify Decision Spine safety and authority invariants on PR head
+        working-directory: pr/apps/api
+        shell: bash
+        run: |
+          "${{ github.workspace }}/.venv-pr/bin/python" - <<'PY'
+          from app.behavior.decision_spine import (
+              FINAL_BAND_AUTHORITY,
+              all_engine_authorities,
+              authority_manifest,
+              validate_authority_registry,
+          )
+
+          assert validate_authority_registry() == ()
+          authorities = all_engine_authorities()
+          assert [e.engine_id for e in authorities if e.may_set_final_band] == [FINAL_BAND_AUTHORITY]
+          assert all(not e.may_execute for e in authorities)
+
+          manifest = authority_manifest()
+          assert manifest["trade_allowed"] is False
+          assert manifest["order_routing_enabled"] is False
+          assert manifest["live_trading_blocked"] is True
+          print("Decision Spine authority and execution-safety invariants verified")
           PY

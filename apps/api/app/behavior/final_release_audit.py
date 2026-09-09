@@ -348,16 +348,20 @@ def _build_final_release_audit_uncached() -> FinalProductionReadinessAudit:
 
 
 def _final_audit_cache_key() -> tuple[object, ...]:
+    # Keep strong references to each callable in the cache key. Using id(callable)
+    # is unsafe because monkeypatch/reload teardown can release the callable while
+    # the integer id remains cached; CPython may then reuse that address for a
+    # different callable, causing a stale audit to be returned for new evidence.
     return (
         AUDIT_VERSION,
-        id(deployment_readiness),
-        id(deployment_smoke),
-        id(build_security_posture),
-        id(build_threat_report),
-        id(build_resilience_report),
-        id(build_tv_prod_red_001_report),
-        id(scan_for_unsafe_live_paths),
-        id(build_release_manifest),
+        deployment_readiness,
+        deployment_smoke,
+        build_security_posture,
+        build_threat_report,
+        build_resilience_report,
+        build_tv_prod_red_001_report,
+        scan_for_unsafe_live_paths,
+        build_release_manifest,
         os.environ.get("TRADEVISION_OPENALGO_ADAPTER_URL", ""),
         os.environ.get("TRADEVISION_EXPECTED_CONFIG_FINGERPRINT", ""),
         bool(os.environ.get("TRADEVISION_ADAPTER_SHARED_SECRET")),

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from statistics import mean, pstdev
+from typing import TYPE_CHECKING
 
 from ..models import (
     CandleAnatomyFeature,
@@ -11,19 +12,51 @@ from ..models import (
     CandleDirection,
 )
 
+if TYPE_CHECKING:
+    from .decision_spine.snapshot_feature_kernel import SnapshotFeatureKernel
+
 
 CALCULATION_VERSION = "candle-anatomy.v0.15"
 
 
-def analyze_candles(request: CandleAnatomyRequest) -> CandleAnatomyResult:
-    bars = sorted(request.series.bars, key=lambda bar: (bar.timestamp_ns, bar.sequence_number))
+def analyze_candles(
+    request: CandleAnatomyRequest,
+    *,
+    feature_kernel: SnapshotFeatureKernel | None = None,
+) -> CandleAnatomyResult:
+    """Build deterministic candle anatomy.
+
+    Standalone callers retain the historical behavior. The canonical M3.1 path
+    supplies the already-built D2 SnapshotFeatureKernel so ordering, average
+    range and volume-window facts are reused instead of recalculated.
+    """
+
+    if feature_kernel is None:
+        bars = sorted(request.series.bars, key=lambda bar: (bar.timestamp_ns, bar.sequence_number))
+        average_ranges = None
+        volume_zscores = None
+        kernel_feature_hash = None
+    else:
+        _validate_feature_kernel(request, feature_kernel)
+        bars = list(request.series.bars)
+        average_ranges = feature_kernel.average_range(request.atr_period).values
+        volume_zscores = feature_kernel.volume_stats(request.volume_z_window).zscores
+        kernel_feature_hash = feature_kernel.feature_hash
+
     features: list[CandleAnatomyFeature] = []
 
     for index, bar in enumerate(bars):
         previous = bars[index - 1] if index > 0 else None
-        window = bars[max(0, index - request.atr_period + 1) : index + 1]
-        volume_window = bars[max(0, index - request.volume_z_window + 1) : index + 1]
-        atr = _average_range(window)
+        if average_ranges is None:
+            window = bars[max(0, index - request.atr_period + 1) : index + 1]
+            average_range = _average_range(window)
+        else:
+            average_range = average_ranges[index]
+        if volume_zscores is None:
+            volume_window = bars[max(0, index - request.volume_z_window + 1) : index + 1]
+            volume_z = _volume_z(bar, volume_window)
+        else:
+            volume_z = volume_zscores[index]
         candle_range = max(bar.high - bar.low, 0.0)
         body_size = abs(bar.close - bar.open)
         body_pct = _pct(body_size, candle_range)
@@ -32,7 +65,6 @@ def analyze_candles(request: CandleAnatomyRequest) -> CandleAnatomyResult:
         upper_wick_pct = _pct(upper_wick, candle_range)
         lower_wick_pct = _pct(lower_wick, candle_range)
         close_location_value = _ratio(bar.close - bar.low, candle_range)
-        volume_z = _volume_z(bar, volume_window)
         body_to_volume_efficiency = _body_to_volume_efficiency(body_pct, volume_z)
         effort_vs_result = _effort_vs_result(body_pct, volume_z)
         wick_cluster_count = _wick_cluster_count(bars, index, request.wick_cluster_lookback)
@@ -40,14 +72,19 @@ def analyze_candles(request: CandleAnatomyRequest) -> CandleAnatomyResult:
         is_outside_bar = bool(previous and bar.high >= previous.high and bar.low <= previous.low)
         gap_pct = _gap_pct(bar, previous)
         follow_through_count = _follow_through_count(bars, index)
-        failed_follow_through = _failed_follow_through(bars, index, request.breakout_reference_high, request.breakout_reference_low)
+        failed_follow_through = _failed_follow_through(
+            bars,
+            index,
+            request.breakout_reference_high,
+            request.breakout_reference_low,
+        )
         structure_types = _structure_types(
             bar=bar,
             previous=previous,
             body_pct=body_pct,
             upper_wick_pct=upper_wick_pct,
             lower_wick_pct=lower_wick_pct,
-            range_atr=_ratio(candle_range, atr),
+            range_atr=_ratio(candle_range, average_range),
             volume_z=volume_z,
             is_inside_bar=is_inside_bar,
             is_outside_bar=is_outside_bar,
@@ -73,7 +110,7 @@ def analyze_candles(request: CandleAnatomyRequest) -> CandleAnatomyResult:
                 upper_wick_pct=round(upper_wick_pct, 4),
                 lower_wick_pct=round(lower_wick_pct, 4),
                 close_location_value=round(close_location_value, 4),
-                range_atr=round(_ratio(candle_range, atr), 4),
+                range_atr=round(_ratio(candle_range, average_range), 4),
                 volume_z=round(volume_z, 4) if volume_z is not None else None,
                 body_to_volume_efficiency=body_to_volume_efficiency,
                 effort_vs_result=effort_vs_result,
@@ -88,6 +125,13 @@ def analyze_candles(request: CandleAnatomyRequest) -> CandleAnatomyResult:
         )
 
     latest = features[-1] if features else None
+    summary = _summary(features)
+    if feature_kernel is not None:
+        summary["calculation_audit"] = {
+            "candle_anatomy_compute_count": 1,
+            "feature_kernel_reused": True,
+            "feature_kernel_feature_hash": kernel_feature_hash,
+        }
     return CandleAnatomyResult(
         calculation_version=CALCULATION_VERSION,
         symbol=request.series.symbol.upper(),
@@ -95,8 +139,21 @@ def analyze_candles(request: CandleAnatomyRequest) -> CandleAnatomyResult:
         total_candles=len(features),
         features=features,
         latest=latest,
-        summary=_summary(features),
+        summary=summary,
     )
+
+
+def _validate_feature_kernel(request: CandleAnatomyRequest, feature_kernel: SnapshotFeatureKernel) -> None:
+    if feature_kernel.identity.symbol != request.series.symbol.upper():
+        raise ValueError("Candle Anatomy feature-kernel symbol mismatch")
+    if feature_kernel.identity.timeframe != str(request.series.timeframe):
+        raise ValueError("Candle Anatomy feature-kernel timeframe mismatch")
+    if feature_kernel.closed_bar_count != len(request.series.bars):
+        raise ValueError("Candle Anatomy feature-kernel bar-count mismatch")
+    if tuple(feature_kernel.vectors.timestamps_ns) != tuple(bar.timestamp_ns for bar in request.series.bars):
+        raise ValueError("Candle Anatomy feature-kernel timestamp identity mismatch")
+    if tuple(feature_kernel.vectors.sequence_numbers) != tuple(bar.sequence_number for bar in request.series.bars):
+        raise ValueError("Candle Anatomy feature-kernel sequence identity mismatch")
 
 
 def _direction(bar: CandleBar) -> CandleDirection:

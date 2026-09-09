@@ -1,0 +1,93 @@
+name: M2 DecisionContext
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - decision-spine-orchestration-v1
+    paths:
+      - apps/api/app/behavior/decision_spine/decision_context.py
+      - apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py
+      - apps/api/app/behavior/decision_spine/__init__.py
+      - apps/api/app/behavior/paper_guidance_spine.py
+      - apps/api/app/behavior/paper_guidance_spine_m2_impl.py
+      - apps/api/app/behavior/paper_guidance_spine_legacy.py
+      - apps/api/tests/decision_spine/test_decision_context.py
+      - apps/api/tests/decision_spine/test_paper_guidance_decision_context_adapter.py
+      - apps/api/tests/decision_spine/test_paper_guidance_m2_context_integration.py
+      - apps/api/tests/test_paper_guidance_v188.py
+      - .github/workflows/m2-decision-context.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: decision-spine-orchestration-v1
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install API dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r apps/api/requirements.txt
+
+      - name: Compile M2 Decision Spine modules
+        run: |
+          python -m py_compile \
+            apps/api/app/behavior/decision_spine/__init__.py \
+            apps/api/app/behavior/decision_spine/authority_registry.py \
+            apps/api/app/behavior/decision_spine/stage2_integrity.py \
+            apps/api/app/behavior/decision_spine/decision_context.py \
+            apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py \
+            apps/api/app/behavior/paper_guidance_spine.py \
+            apps/api/app/behavior/paper_guidance_spine_m2_impl.py \
+            apps/api/app/behavior/paper_guidance_spine_legacy.py
+
+      - name: M2 DecisionContext contract tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_decision_context.py
+
+      - name: M2 Paper Guidance adapter tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_paper_guidance_decision_context_adapter.py
+
+      - name: M2 Paper Guidance integration tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_paper_guidance_m2_context_integration.py
+
+      - name: M0 Stage2 integrity regression
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_stage2_integrity.py
+
+      - name: Paper Guidance v1.88 regression
+        working-directory: apps/api
+        run: pytest -q tests/test_paper_guidance_v188.py
+
+      - name: Full API regression file
+        working-directory: apps/api
+        run: pytest -q tests/test_api.py
+
+      - name: Verify Decision Spine safety invariants
+        working-directory: apps/api
+        run: |
+          python - <<'PY'
+          from app.behavior.decision_spine import (
+              FINAL_BAND_AUTHORITY,
+              all_engine_authorities,
+              validate_authority_registry,
+          )
+          assert validate_authority_registry() == ()
+          assert [e.engine_id for e in all_engine_authorities() if e.may_set_final_band] == [FINAL_BAND_AUTHORITY]
+          assert all(not e.may_execute for e in all_engine_authorities())
+          print('Decision Spine authority invariants verified')
+          PY

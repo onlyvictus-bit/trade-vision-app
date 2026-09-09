@@ -1,0 +1,163 @@
+name: M3.1 Canonical Price Intelligence
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - m3-1-canonical-price-intelligence
+    paths:
+      - apps/api/app/behavior/decision_spine/snapshot_feature_kernel.py
+      - apps/api/app/behavior/decision_spine/canonical_level_intelligence.py
+      - apps/api/app/behavior/decision_spine/canonical_mtf_intelligence.py
+      - apps/api/app/behavior/decision_spine/price_structure_evidence.py
+      - apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py
+      - apps/api/app/behavior/decision_spine/__init__.py
+      - apps/api/app/behavior/candle_anatomy.py
+      - apps/api/app/behavior/condition_classifier.py
+      - apps/api/app/behavior/chart_reasoning_volatility.py
+      - apps/api/app/behavior/context_engines.py
+      - apps/api/app/behavior/real_indicator_adapter.py
+      - apps/api/app/behavior/paper_guidance_spine.py
+      - apps/api/app/behavior/paper_guidance_spine_m2_impl.py
+      - apps/api/app/behavior/paper_guidance_spine_m3_1_impl.py
+      - apps/api/tests/decision_spine/test_snapshot_feature_kernel.py
+      - apps/api/tests/decision_spine/test_m3_1_candle_pipeline.py
+      - apps/api/tests/decision_spine/test_m3_1_levels.py
+      - apps/api/tests/decision_spine/test_m3_1_indicator_pipeline.py
+      - apps/api/tests/decision_spine/test_m3_1_mtf_pipeline.py
+      - apps/api/tests/decision_spine/test_m3_1_price_evidence.py
+      - apps/api/tests/decision_spine/test_m3_1_replay.py
+      - apps/api/tests/decision_spine/test_m3_1_adversarial.py
+      - apps/api/tests/decision_spine/test_decision_context.py
+      - apps/api/tests/decision_spine/test_paper_guidance_decision_context_adapter.py
+      - apps/api/tests/decision_spine/test_paper_guidance_m2_context_integration.py
+      - apps/api/tests/test_orb_opening_scenarios_v201.py
+      - apps/api/tests/test_research_stack_verifier.py
+      - apps/api/tests/test_paper_guidance_v188.py
+      - docs/CANONICAL_BUILD_STATUS.md
+      - docs/NEXT_BUILD_TARGET.md
+      - .github/workflows/m3-1-price-intelligence.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact triggering commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact checkout identity
+        run: |
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+          echo "Verified exact M3.1 head: ${GITHUB_SHA}"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install API dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r apps/api/requirements.txt
+
+      - name: Compile M3.1 and locked Decision Spine modules
+        run: |
+          python -m py_compile \
+            apps/api/app/behavior/decision_spine/__init__.py \
+            apps/api/app/behavior/decision_spine/authority_registry.py \
+            apps/api/app/behavior/decision_spine/stage2_integrity.py \
+            apps/api/app/behavior/decision_spine/decision_context.py \
+            apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py \
+            apps/api/app/behavior/decision_spine/snapshot_feature_kernel.py \
+            apps/api/app/behavior/decision_spine/canonical_level_intelligence.py \
+            apps/api/app/behavior/decision_spine/canonical_mtf_intelligence.py \
+            apps/api/app/behavior/decision_spine/price_structure_evidence.py \
+            apps/api/app/behavior/candle_anatomy.py \
+            apps/api/app/behavior/condition_classifier.py \
+            apps/api/app/behavior/chart_reasoning_volatility.py \
+            apps/api/app/behavior/real_indicator_adapter.py \
+            apps/api/app/behavior/paper_guidance_spine.py \
+            apps/api/app/behavior/paper_guidance_spine_m2_impl.py \
+            apps/api/app/behavior/paper_guidance_spine_m3_1_impl.py \
+            apps/api/app/behavior/paper_guidance_spine_legacy.py
+
+      - name: M3.1-A snapshot feature kernel tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_snapshot_feature_kernel.py
+
+      - name: M3.1-B canonical candle pipeline tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_1_candle_pipeline.py
+
+      - name: M3.1-C canonical level intelligence tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_1_levels.py
+
+      - name: M3.1-D canonical indicator intelligence tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_1_indicator_pipeline.py
+
+      - name: M3.1-E PIT-safe MTF intelligence tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_1_mtf_pipeline.py
+
+      - name: M3.1-F price evidence fusion tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_1_price_evidence.py
+
+      - name: M3.1-F replay and metamorphic tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_1_replay.py
+
+      - name: M3.1-F adversarial DAG tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_1_adversarial.py
+
+      - name: Locked M2 DecisionContext regression
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_decision_context.py
+
+      - name: Locked M2 standalone adapter regression
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_paper_guidance_decision_context_adapter.py
+
+      - name: Locked M2 Paper Guidance integration regression
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_paper_guidance_m2_context_integration.py
+
+      - name: Locked M0 Stage2 integrity regression
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_stage2_integrity.py
+
+      - name: Paper Guidance v1.88 regression
+        working-directory: apps/api
+        run: pytest -q tests/test_paper_guidance_v188.py
+
+      - name: Historical API regression
+        working-directory: apps/api
+        run: pytest -q tests/test_api.py
+
+      - name: Full API test tree
+        working-directory: apps/api
+        run: python -m pytest tests -q
+
+      - name: Verify Decision Spine safety and authority invariants
+        working-directory: apps/api
+        run: |
+          python - <<'PY'
+          from app.behavior.decision_spine import (
+              FINAL_BAND_AUTHORITY,
+              all_engine_authorities,
+              validate_authority_registry,
+          )
+          assert validate_authority_registry() == ()
+          assert [e.engine_id for e in all_engine_authorities() if e.may_set_final_band] == [FINAL_BAND_AUTHORITY]
+          assert all(not e.may_execute for e in all_engine_authorities())
+          print('Decision Spine authority invariants verified')
+          PY
