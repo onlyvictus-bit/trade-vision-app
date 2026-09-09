@@ -8,10 +8,12 @@ on:
     paths:
       - apps/api/app/behavior/decision_spine/market_primitive_kernel_v2.py
       - apps/api/app/behavior/decision_spine/canonical_candle_morphology_v2.py
+      - apps/api/app/behavior/decision_spine/canonical_chart_state_v2.py
       - apps/api/app/behavior/decision_spine/evidence_graph.py
       - apps/api/tests/conftest.py
       - apps/api/tests/decision_spine/test_market_primitive_kernel_v2.py
       - apps/api/tests/decision_spine/test_canonical_candle_morphology_v2.py
+      - apps/api/tests/decision_spine/test_canonical_chart_state_v2.py
       - apps/api/tests/decision_spine/test_evidence_graph.py
       - docs/M3_1_SEMANTIC_INTELLIGENCE_REVERIFY_AND_HARDENING_PLAN_2026-09-08.md
       - docs/M3_1_AGI_REASONING_REFERENCE_SOURCE_2026-09-08.md
@@ -50,6 +52,7 @@ jobs:
           python -m py_compile \
             apps/api/app/behavior/decision_spine/market_primitive_kernel_v2.py \
             apps/api/app/behavior/decision_spine/canonical_candle_morphology_v2.py \
+            apps/api/app/behavior/decision_spine/canonical_chart_state_v2.py \
             apps/api/app/behavior/decision_spine/evidence_graph.py
 
       - name: M3.1.1 primitive-kernel tests
@@ -59,6 +62,10 @@ jobs:
       - name: M3.1.1 canonical-morphology tests
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_canonical_candle_morphology_v2.py
+
+      - name: M3.1.1 canonical-chart-state tests
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_canonical_chart_state_v2.py
 
       - name: M3.1.1 evidence-graph tests
         working-directory: apps/api
@@ -113,6 +120,7 @@ jobs:
           )
           from app.behavior.decision_spine.market_primitive_kernel_v2 import build_market_primitive_kernel_v2
           from app.behavior.decision_spine.canonical_candle_morphology_v2 import build_canonical_candle_morphology_v2
+          from app.behavior.decision_spine.canonical_chart_state_v2 import build_canonical_chart_state_v2
           from app.behavior.decision_spine.evidence_graph import build_evidence_graph
 
           assert validate_authority_registry() == ()
@@ -120,6 +128,7 @@ jobs:
           assert all(not e.may_execute for e in all_engine_authorities())
           assert callable(build_market_primitive_kernel_v2)
           assert callable(build_canonical_candle_morphology_v2)
+          assert callable(build_canonical_chart_state_v2)
           assert callable(build_evidence_graph)
           print('Decision Spine authority + M3.1.1 shadow invariants verified')
           PY
