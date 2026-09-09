@@ -383,11 +383,12 @@ def retrieve_pit_records(
     for record in corpus.records:
         if record.available_at() > decision_time_ns:
             continue
-        if labelled_only and record.label is None:
+        visible_record = _project_record_at_cutoff(record, cutoff_time_ns=decision_time_ns)
+        if labelled_only and visible_record.label is None:
             continue
-        if record.quarantined and not include_quarantined:
+        if visible_record.quarantined and not include_quarantined:
             continue
-        result.append(record)
+        result.append(visible_record)
     return tuple(result)
 
 
