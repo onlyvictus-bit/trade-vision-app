@@ -60,6 +60,9 @@ jobs:
       - name: M3.3-F canonical persisted memory adapter
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_m3_3_persisted_memory_adapter.py
+      - name: M3.3-G zero-authority isolation
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_3_authority.py
       - name: Locked M3.2 context intelligence
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_m3_2_context_contract.py tests/decision_spine/test_m3_2_session.py tests/decision_spine/test_m3_2_market_context.py tests/decision_spine/test_m3_2_relative_strength.py tests/decision_spine/test_m3_2_regime.py tests/decision_spine/test_m3_2_context_world.py
