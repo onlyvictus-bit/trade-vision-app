@@ -4,9 +4,8 @@ from __future__ import annotations
 
 The original implementation is preserved in ``paper_guidance_spine_legacy`` and
 the canonical orchestration implementation is preserved in
-``paper_guidance_spine_m2_impl`` while M3.1 migrates specialist families one at
-a time. This facade keeps the historical public import/monkeypatch surface
-stable.
+``paper_guidance_spine_m2_impl`` while M3 specialist families migrate one at a
+time. This facade keeps the historical public import/monkeypatch surface stable.
 """
 
 import inspect
@@ -23,6 +22,10 @@ from .decision_spine.canonical_level_intelligence import (
 from .decision_spine.canonical_mtf_intelligence import (
     MTF_CONFIRMATION_VERSION,
     build_canonical_mtf_intelligence,
+)
+from .decision_spine.canonical_persisted_memory_adapter import (
+    PERSISTED_MEMORY_ADAPTER_VERSION,
+    build_persisted_memory_evidence,
 )
 from .decision_spine.decision_context import DecisionContextError
 from .decision_spine.paper_guidance_decision_context_adapter import (
@@ -74,6 +77,7 @@ _legacy_run_engine = _legacy._run_engine
 _legacy_receipt = _legacy._receipt
 _legacy_snapshot_indicator_evidence = _legacy._snapshot_indicator_evidence
 _legacy_build_mtf_evidence = _legacy._build_mtf_evidence
+_legacy_build_persisted_memory_evidence = _legacy._build_persisted_memory_evidence
 
 
 def __getattr__(name: str):
@@ -81,7 +85,7 @@ def __getattr__(name: str):
 
 
 def build_canonical_stage2_observations(*, snapshot_hash: str, active_engine_ids):
-    """Complete canonical inventory while preserving locked M0 migration facts."""
+    """Complete canonical inventory while preserving locked migration facts."""
 
     observations = list(
         _build_canonical_stage2_observations(
@@ -94,11 +98,11 @@ def build_canonical_stage2_observations(*, snapshot_hash: str, active_engine_ids
     for engine_id, reason in (
         (
             "NINE_CANDLE_MEMORY",
-            "Current 9C evidence is intentionally not D2-native in this Paper Guidance route; M3 migration is required.",
+            "Snapshot-native canonical 9C exists, but no persisted canonical 9C corpus is activated in this Paper Guidance route yet.",
         ),
         (
             "PTA_MARKER_RUNTIME",
-            "Current PTA marker runtime is intentionally not D2-native in this Paper Guidance route; M3 migration is required.",
+            "Canonical PTA marker evidence exists, but it is not a DecisionContext field and remains bounded explanation-only evidence.",
         ),
     ):
         if engine_id in active or engine_id in existing:
@@ -107,7 +111,7 @@ def build_canonical_stage2_observations(*, snapshot_hash: str, active_engine_ids
             EvidenceObservation(
                 engine_id=engine_id,
                 source_snapshot_hash=snapshot_hash,
-                availability=Availability.SKIPPED,
+                availability=Availability.UNAVAILABLE,
                 source_mode=SourceMode.UNKNOWN,
                 identity_match=True,
                 used_for_probability=False,
@@ -116,7 +120,7 @@ def build_canonical_stage2_observations(*, snapshot_hash: str, active_engine_ids
                 future_leakage_detected=False,
                 explanation_only=True,
                 unavailable_reasons=(reason,),
-                notes=("Locked M0 migration observation preserved by canonical Paper Guidance.",),
+                notes=("M3.3 explicit canonical memory inventory; unavailable is not neutral evidence.",),
             )
         )
     return tuple(sorted(observations, key=lambda item: item.engine_id))
@@ -136,10 +140,6 @@ def _build_m31_guarded_decision_context(**kwargs):
         if engine_id not in receipts or receipts[engine_id].status != "completed"
     ]
 
-    # LEVEL_CONTEXT may be DEGRADED when canonical sub-facts are truthfully
-    # unavailable (for example no previous session in the bounded D2 lookback),
-    # while its compatibility projection remains deterministic. A true engine
-    # exception lacks the canonical marker and is blocked before D6.
     levels_receipt = receipts.get("LEVEL_CONTEXT")
     level_summary = getattr(levels_receipt, "output_summary", {}) if levels_receipt else {}
     canonical_level_present = bool(
@@ -149,10 +149,6 @@ def _build_m31_guarded_decision_context(**kwargs):
     if levels_receipt is None or not canonical_level_present:
         incomplete.append("LEVEL_CONTEXT")
 
-    # M3.1-D: a degraded indicator receipt may be truthful (for example
-    # insufficient warmup, dependency unavailable or slow-blocked). The block
-    # is required only when the canonical normalization layer did not run at all
-    # or did not bind its evidence to this D2 snapshot.
     indicator_receipt = receipts.get("SNAPSHOT_INDICATOR_RUNTIME")
     indicator_summary = (
         getattr(indicator_receipt, "output_summary", {}) if indicator_receipt else {}
@@ -166,10 +162,6 @@ def _build_m31_guarded_decision_context(**kwargs):
     if indicator_receipt is None or not canonical_indicator_present:
         incomplete.append("SNAPSHOT_INDICATOR_RUNTIME")
 
-    # M3.1-E: partial or missing required HTF facts may be truthful degradation,
-    # but the canonical MTF layer itself must have run and be causally bound to
-    # the primary D2 snapshot. A builder exception returns no canonical marker
-    # and therefore fails closed before D6.
     mtf_receipt = receipts.get("MTF_CONFIRMATION")
     mtf_summary = getattr(mtf_receipt, "output_summary", {}) if mtf_receipt else {}
     canonical_mtf_present = bool(
@@ -181,13 +173,27 @@ def _build_m31_guarded_decision_context(**kwargs):
     if mtf_receipt is None or not canonical_mtf_present:
         incomplete.append("MTF_CONFIRMATION")
 
+    # M3.3-F/H: the active persisted-memory route must itself be canonical. A
+    # failed adapter is not allowed to silently fall back to the legacy
+    # per-indicator query loop or a caller-supplied historical count.
+    memory_receipt = receipts.get("PERSISTED_INDICATOR_MEMORY")
+    memory_summary = getattr(memory_receipt, "output_summary", {}) if memory_receipt else {}
+    canonical_memory_present = bool(
+        isinstance(memory_summary, dict)
+        and memory_summary.get("canonical_memory_intelligence") is True
+        and memory_summary.get("storage_query_count") == 1
+        and memory_summary.get("fixture_fallback_used") is False
+    )
+    if memory_receipt is None or not canonical_memory_present:
+        incomplete.append("PERSISTED_INDICATOR_MEMORY")
+
     if incomplete:
         detail = ", ".join(
             f"{engine_id}={getattr(receipts.get(engine_id), 'status', 'missing')}"
             for engine_id in incomplete
         )
         raise DecisionContextError(
-            "M3.1 canonical dependency did not complete truthfully; D6 neutral substitution is forbidden: "
+            "M3 canonical dependency did not complete truthfully; D6 neutral substitution is forbidden: "
             + detail
         )
     return build_paper_guidance_decision_context(**kwargs)
@@ -204,9 +210,6 @@ def _canonical_run_engine(engine_id, stage, snapshot, runner, summarizer):
     if engine_id != "LEVEL_CONTEXT":
         return _legacy_run_engine(engine_id, stage, snapshot, runner, summarizer)
 
-    # Mint the receipt only after the final canonical summary/status are known.
-    # Mutating output_summary after _receipt() would break the output_hash ->
-    # payload causal identity that DecisionContext relies on.
     try:
         result = runner()
         if not isinstance(result, CanonicalLevelIntelligenceResult):
@@ -279,7 +282,6 @@ def _canonical_snapshot_indicator_evidence(request, snapshot):
             "high": bar.high,
             "low": bar.low,
             "close": bar.close,
-            # Preserve missingness. M3.1-D must not silently turn None into 0.0.
             "volume": bar.volume,
         }
         for bar in compute_bars
@@ -300,10 +302,6 @@ def _canonical_snapshot_indicator_evidence(request, snapshot):
                 source_timeframe=snapshot.timeframe,
             )
         else:
-            # Existing tests and public monkeypatch hooks may still expose the
-            # historical two-argument callable. Keep that surface working, but
-            # classify the canonical normalization as degraded because those
-            # test doubles do not provide per-indicator D2 provenance.
             outputs, telemetry = runtime(candles, runnable)
 
         canonical = build_indicator_evidence_summary(telemetry)
@@ -414,9 +412,6 @@ def _canonical_build_mtf_evidence(request, snapshot):
             indicator_runtime=_canonical_mtf_indicator_runtime,
         )
     except Exception as exc:
-        # Return the old compatible shell without a canonical marker. The M3.1
-        # DecisionContext guard will block before D6 rather than letting a hard
-        # MTF engine error masquerade as missing/neutral evidence.
         return PaperGuidanceMtfEvidence(
             required_timeframes=request.required_higher_timeframes,
             supplied_timeframes=sorted(
@@ -430,6 +425,88 @@ def _canonical_build_mtf_evidence(request, snapshot):
             blocks_promotion=True,
             reasons=[f"Canonical MTF engine failed: {type(exc).__name__}: {exc}"],
         )
+
+
+def _canonical_build_persisted_memory_evidence(
+    request,
+    snapshot,
+    indicator_ids,
+    minimum_evidence_count,
+):
+    """Activate the one-query, independent-episode M3.3 persisted-memory route."""
+
+    try:
+        evidence = build_persisted_memory_evidence(
+            symbol=snapshot.symbol,
+            timeframe=snapshot.timeframe,
+            decision_time_ns=snapshot.decision_time_ns,
+            indicator_ids=indicator_ids,
+            minimum_evidence_count=minimum_evidence_count,
+            caller_historical_match_count=getattr(request, "historical_match_count", 0),
+        )
+        summary = dict(evidence.summary)
+        warnings = []
+        if summary["low_evidence_flag"]:
+            warnings.append(
+                f"Only {summary['independent_episode_count']} independent completed persisted episodes were available; "
+                f"{minimum_evidence_count} are required."
+            )
+        caller_count = int(summary.get("caller_historical_match_count", 0) or 0)
+        if caller_count:
+            warnings.append(
+                f"Caller historical_match_count={caller_count} was ignored for decision authority."
+            )
+        status = "completed" if not summary["low_evidence_flag"] else "degraded"
+        version = PERSISTED_MEMORY_ADAPTER_VERSION
+    except Exception as exc:
+        # No legacy loop fallback: an adapter/storage failure is explicit
+        # unavailable memory and the M3 guard blocks before D6.
+        summary = {
+            "historical_match_count": 0,
+            "raw_record_count": 0,
+            "complete_record_count": 0,
+            "excluded_record_count": 0,
+            "independent_episode_count": 0,
+            "independent_session_count": 0,
+            "independent_symbol_count": 0,
+            "minimum_evidence_count": minimum_evidence_count,
+            "minimum_evidence_pass": False,
+            "low_evidence_flag": True,
+            "history_source": "persistent",
+            "fixture_fallback_used": False,
+            "indicator_count": len(indicator_ids),
+            "caller_historical_match_count": int(getattr(request, "historical_match_count", 0) or 0),
+            "caller_count_used_for_authority": False,
+            "decision_time_cutoff": _legacy._iso_from_ns(snapshot.decision_time_ns),
+            "canonical_memory_intelligence": False,
+            "canonical_status": "ERROR",
+            "storage_query_count": 0,
+            "used_for_probability": False,
+            "may_propose": False,
+            "may_veto": False,
+            "may_downgrade": False,
+            "may_set_final_band": False,
+            "may_execute": False,
+            "trade_allowed": False,
+            "order_routing_enabled": False,
+            "live_trading_blocked": True,
+            "human_approval_required": True,
+        }
+        warnings = [
+            f"Canonical persisted memory failed closed: {type(exc).__name__}: {exc}"
+        ]
+        status = "degraded"
+        version = "unavailable"
+
+    return summary, _legacy._receipt(
+        engine_id="PERSISTED_INDICATOR_MEMORY",
+        stage="D3B_MEMORY",
+        engine_version=version,
+        snapshot=snapshot,
+        status=status,
+        output_summary=summary,
+        warnings=warnings,
+    )
 
 
 def _canonical_receipt(**kwargs):
@@ -465,6 +542,7 @@ def _sync_patchable_dependencies():
 
     _legacy._snapshot_indicator_evidence = _canonical_snapshot_indicator_evidence
     _legacy._build_mtf_evidence = _canonical_build_mtf_evidence
+    _legacy._build_persisted_memory_evidence = _canonical_build_persisted_memory_evidence
     _legacy._receipt = _canonical_receipt
     _m2.build_stage2_integrity_report = build_stage2_integrity_report
     _m2.build_canonical_stage2_observations = build_canonical_stage2_observations
@@ -475,9 +553,6 @@ def _sync_patchable_dependencies():
 def run_paper_guidance_p1(request, *, mode, kill_switch, config=None):
     _sync_patchable_dependencies()
 
-    # Preserve monkeypatchability of the M3.1-A kernel builder while adding one
-    # request-local binding operation. The delegated builder remains the sole
-    # calculation; canonical levels reuse its returned object.
     delegated_kernel_builder = _m2.build_snapshot_feature_kernel
 
     def build_and_bind_kernel(snapshot):
@@ -490,6 +565,7 @@ def run_paper_guidance_p1(request, *, mode, kill_switch, config=None):
     _legacy._run_engine = _canonical_run_engine
     _legacy._snapshot_indicator_evidence = _canonical_snapshot_indicator_evidence
     _legacy._build_mtf_evidence = _canonical_build_mtf_evidence
+    _legacy._build_persisted_memory_evidence = _canonical_build_persisted_memory_evidence
     _legacy._receipt = _canonical_receipt
     _bound_feature_kernel.set(None)
     try:
@@ -504,4 +580,5 @@ def run_paper_guidance_p1(request, *, mode, kill_switch, config=None):
         _m2.build_snapshot_feature_kernel = delegated_kernel_builder
         _legacy._snapshot_indicator_evidence = _legacy_snapshot_indicator_evidence
         _legacy._build_mtf_evidence = _legacy_build_mtf_evidence
+        _legacy._build_persisted_memory_evidence = _legacy_build_persisted_memory_evidence
         _legacy._receipt = _legacy_receipt
