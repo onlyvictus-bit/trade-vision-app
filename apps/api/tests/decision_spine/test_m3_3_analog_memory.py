@@ -64,6 +64,7 @@ def test_retrieval_is_deterministic_and_pit_safe():
         feature_manifest_version="v1",
         feature_specs=_specs(),
         max_analogs=10,
+        maximum_distance=1.0,
         minimum_independent_analogs=1,
     )
     two = retrieve_analogs(
@@ -73,9 +74,11 @@ def test_retrieval_is_deterministic_and_pit_safe():
         feature_manifest_version="v1",
         feature_specs=tuple(reversed(_specs())),
         max_analogs=10,
+        maximum_distance=1.0,
         minimum_independent_analogs=1,
     )
     assert one.output_hash == two.output_hash
+    assert len(one.matches) == 2
     assert one.matches[0].episode_hash == a.episode.episode_hash
     assert one.matches[0].distance < one.matches[-1].distance
 
