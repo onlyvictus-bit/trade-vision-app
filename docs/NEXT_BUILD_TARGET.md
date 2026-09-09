@@ -12,114 +12,85 @@ M1      Authority Registry                   FOUNDATION GREEN / SCOPE LOCKED
 M2      Canonical DecisionContext            GREEN / LOCKED
 M3      Brain migration                      IN BUILD
 M3.1    Canonical Price Intelligence         GREEN / LOCKED
-M3.1-A  Snapshot Feature Kernel              GREEN / LOCKED
-M3.1-B  Canonical Candle Intelligence        GREEN / LOCKED
-M3.1-C  Canonical Level Intelligence         GREEN / LOCKED
-M3.1-D  Canonical Indicator Intelligence     GREEN / LOCKED
-M3.1-E  PIT-safe MTF Intelligence            GREEN / LOCKED
-M3.1-F  Price Evidence Fusion / DAG / parity GREEN / LOCKED
 M3.2    Canonical Context Intelligence       GREEN / LOCKED
-M3.2-A  Context Source Contract              GREEN / LOCKED
-M3.2-B  Canonical Session Intelligence       GREEN / LOCKED
-M3.2-C  Canonical Index/Sector Context       GREEN / LOCKED
-M3.2-D  Canonical Relative Strength          GREEN / LOCKED
-M3.2-E  Canonical Market Regime              GREEN / LOCKED
-M3.2-F  Context Fusion / Wiring / Parity     GREEN / LOCKED
-M3.3    Canonical Memory Intelligence        NEXT / DESIGN STAGED / RUNTIME NOT ACTIVE
+M3.3    Canonical Memory Intelligence        GREEN / LOCKED
+M4      D6 orchestration redesign            NEXT / NOT STARTED
 ```
 
-## Exact M3.2 lock evidence
+## M3.3 lock summary
+
+Canonical Memory Intelligence now provides:
+
+- deterministic D2-bound memory episode identity;
+- delayed labels with explicit `label_available_at` causality;
+- PIT-safe corpus retrieval, duplicate collapse and conflicting-label fail-closed behavior;
+- separate raw-record and independent-episode/session counts;
+- analog retrieval with independence controls;
+- real-labelled reliability memory with no fixture fallback;
+- historical session memory without synthetic exact-time histories;
+- canonical day-shape v2 pattern memory with explicit missingness and bounded retrieval;
+- snapshot-native Nine-Candle memory without mock packet generation;
+- D2-bound PTA marker explanation evidence;
+- OOD, drift, sample-sufficiency, quarantine and auditable retention state;
+- one-query production persisted-memory compatibility wiring;
+- replay/adversarial tests and complete authority registration;
+- zero final-band and zero execution authority for canonical M3.3 specialists.
+
+The current implementation lock candidate is `c336e33065ce3fc00e71798f53c3fb4a5ae3b074`; its M3.3 workflow run is `34334397084`. Documentation-only commits after that implementation head must also pass the exact-head M3.3 workflow before M4 begins.
+
+## Next build — M4 D6 orchestration redesign
+
+M4 must redesign the final orchestration around the three locked canonical worlds rather than adding another independent trading score.
 
 ```text
-M3.2-B source: 5c944ac0f727767f5494af4c23b9334366860a8d
-M3.2-B run:    34321289260 — SUCCESS
-
-M3.2-C source: 64eaa47f5ecf02c18aa3b3422ef1e0cab9b489e6
-M3.2-C run:    34323060143 — SUCCESS
-
-M3.2-D source: 576ca58e5b4f62aeb4925a02e056680923cc4f22
-M3.2-D run:    34325190554 — SUCCESS
-
-M3.2-E source: 1a03a0888ea3fdd92593c358fa30ed50da789627
-M3.2-E run:    34325585040 — SUCCESS
-
-M3.2-F source: 4a98058357e6cddc8b3cb0aac225171933881479
-M3.2-F run:    34326793497 — SUCCESS
-workflow:      M3.2 Canonical Context Intelligence
+D1 SAFETY / DATA INTEGRITY
+        |
+        v
+D2 CLOSED-CANDLE SNAPSHOT
+        |
+        +--------------------+
+        |                    |
+        v                    v
+M3.1 PRICE WORLD       M3.2 CONTEXT WORLD
+        \                    /
+         \                  /
+          +--> M3.3 MEMORY WORLD
+                    |
+                    v
+          CANONICAL DECISION CONTEXT
+                    |
+                    v
+             M4 D6 ORCHESTRATOR
+                    |
+                    +--> conflict resolution
+                    +--> explicit missing/degraded handling
+                    +--> authority-ranked evidence
+                    +--> reason tree / uncertainty
+                    +--> conservative final band
+                    |
+                    v
+          PAPER GUIDANCE ONLY
 ```
 
-The M3.2-F exact-head run passed the A-F targeted gates, compile checks, final-release cache isolation, locked M3.1/M2/M0 regressions, Paper Guidance regression, historical API regression, the complete API test tree and sole-D6/zero-execution authority audit.
+## M4 non-negotiable design laws
 
-## M3.2-F locked architecture
+1. `FINAL_CONFLUENCE_ARBITER / D6` remains the sole final-band authority unless a separately approved migration explicitly replaces that identity.
+2. D1 hard blockers outrank every predictor, memory view, reviewer and strategy.
+3. Missing, degraded, stale, OOD, quarantined or contradictory evidence may not be silently converted to neutral/zero.
+4. M4 consumes canonical M3.1/M3.2/M3.3 receipts; it must not recompute their raw facts independently.
+5. Memory sample size must use independent evidence, not correlated indicator-row count.
+6. Reviewers/LLMs may explain or downgrade but cannot upgrade a hard safety block or create execution authority.
+7. Conflict resolution must be deterministic, replay-stable and auditable.
+8. No hidden weighted average may allow many weak votes to overwhelm one higher-authority blocker.
+9. Confidence must reflect evidence quality, independence, contradiction, OOD/drift and missingness; it cannot be a cosmetic score.
+10. Short-side logic remains explicit and separately validated; do not infer symmetry from long-side behavior.
+11. Paper Guidance public contracts and locked regressions remain compatibility constraints during migration.
+12. `trade_allowed=false`, `order_routing_enabled=false`, `live_trading_blocked=true`, `human_approval_required=true` remain hard product boundaries.
 
-```text
-SESSION
-  + INDEX
-  + SECTOR
-  + RELATIVE STRENGTH
-  + MARKET REGIME
-        |
-        v
-CANONICAL CONTEXT WORLD
-        |
-        +--> bounded canonical component receipts
-        +--> Stage2 identity / authority validation
-        +--> DecisionContext context slots
-        |
-        v
-CURRENT D6 (UNCHANGED AUTHORITY)
-```
+## Required M4 first action
 
-The composer preserves supporting facts, contradictions, missing/degraded evidence, failure risks, reason codes, warnings, component hashes and source hashes. It does not create a weighted trading score and has no probability/proposal/veto/downgrade/final-band/execution authority.
-
-## Next build — M3.3 Canonical Memory Intelligence
-
-Read before coding:
-
-```text
-docs/M3_3_CANONICAL_MEMORY_INTELLIGENCE_ANALYSIS_AND_BUILD_PLAN_2026-09-08.md
-docs/M3_INTELLIGENCE_UPGRADE_REFERENCE_2026-09-08.md
-docs/CANONICAL_BUILD_STATUS.md
-docs/NEXT_BUILD_TARGET.md
-```
-
-Required M3.3 direction:
-
-```text
-M3.1 canonical price facts
-        +
-M3.2 canonical context facts
-        |
-        v
-PIT-SAFE FEATURE / EPISODE FREEZER
-        |
-        v
-VERSIONED MEMORY RECORD
-        |
-        +--> delayed labels only after outcome horizon
-        +--> exact feature/corpus/label provenance
-        +--> independent episode identity/count
-        +--> reliability/session/pattern/9C/analog views
-        +--> OOD + drift + decay + quarantine
-        +--> replay-safe retrieval / forgetting / retention
-        |
-        v
-CANONICAL MEMORY WORLD
-```
-
-Hard laws:
-
-- 50 indicators from one event are not 50 independent observations;
-- keep `raw_record_count` separate from `independent_episode_count`;
-- no future label leakage;
-- no mock analog generation or mock 9-candle histories in production authority paths;
-- no fixture outcome production fallback;
-- labels are delayed, versioned and provenance-bound;
-- retrieval must be PIT-safe and deterministic under replay/restart;
-- drift/OOD/decay/quarantine must be explicit and fail closed;
-- memory remains evidence, never final-band or execution authority;
-- D6 redesign remains deferred to M4.
+Before coding M4, create a repository-grounded D6 analysis/build plan that inventories every current vote, blocker, downgrade path, duplicated calculation, authority conflict, missing-evidence default, and compatibility dependency. The plan must define the canonical input contract and migration sequence before changing final arbitration behavior.
 
 ## Hard boundary
 
-M3.2 is locked. Do not modify its calculations merely to make M3.3 pass. M3.3 must consume the locked M3.1/M3.2 evidence contracts and preserve D6 compatibility until the authorized M4 redesign.
+Do not modify locked M3.1, M3.2 or M3.3 calculations merely to make M4 pass. M4 must consume their canonical outputs and fix orchestration at the orchestration layer.
