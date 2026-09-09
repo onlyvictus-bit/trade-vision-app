@@ -9,6 +9,7 @@ on:
       - apps/api/app/behavior/decision_spine/memory_retention.py
       - apps/api/app/behavior/decision_spine/canonical_memory_world.py
       - apps/api/app/behavior/decision_spine/canonical_analog_memory.py
+      - apps/api/app/behavior/decision_spine/canonical_persisted_memory_adapter.py
       - apps/api/app/behavior/decision_spine/canonical_nine_candle_memory.py
       - apps/api/app/behavior/decision_spine/authority_registry.py
       - apps/api/tests/decision_spine/test_m3_3_*.py
@@ -36,6 +37,7 @@ jobs:
             apps/api/app/behavior/decision_spine/memory_retention.py \
             apps/api/app/behavior/decision_spine/canonical_analog_memory.py \
             apps/api/app/behavior/decision_spine/canonical_memory_world.py \
+            apps/api/app/behavior/decision_spine/canonical_persisted_memory_adapter.py \
             apps/api/app/behavior/decision_spine/authority_registry.py \
             apps/api/app/behavior/decision_spine/canonical_context_intelligence.py \
             apps/api/app/behavior/decision_spine/canonical_context_world.py \
@@ -55,6 +57,9 @@ jobs:
       - name: M3.3-E auditable retention
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_m3_3_memory_retention.py
+      - name: M3.3-F canonical persisted memory adapter
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_3_persisted_memory_adapter.py
       - name: Locked M3.2 context intelligence
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_m3_2_context_contract.py tests/decision_spine/test_m3_2_session.py tests/decision_spine/test_m3_2_market_context.py tests/decision_spine/test_m3_2_relative_strength.py tests/decision_spine/test_m3_2_regime.py tests/decision_spine/test_m3_2_context_world.py
