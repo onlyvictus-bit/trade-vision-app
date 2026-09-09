@@ -149,12 +149,20 @@ def test_e011_invalid_microstructure_inputs_fail_closed():
     with pytest.raises(CanonicalLevelGraphV2Error): _build(spread=-0.01)
 
 
-def test_e012_receipt_is_bounded_and_contains_no_probability_or_execution_claim():
+def test_e012_receipt_is_bounded_and_contains_no_predictive_or_execution_claim():
     g, *_ = _build()
-    text = str(g.receipt_summary()).lower()
-    assert "probability" not in text
-    assert "may_set_final_band': true" not in text
-    assert "may_execute': true" not in text
+    receipt = g.receipt_summary()
+    authority = receipt["authority"]
+    assert authority["used_for_probability"] is False
+    assert authority["may_set_final_band"] is False
+    assert authority["may_execute"] is False
+    assert authority["trade_allowed"] is False
+    assert authority["order_routing_enabled"] is False
+    assert authority["live_trading_blocked"] is True
+    assert authority["human_approval_required"] is True
+    text = str(receipt).lower()
+    assert "calibrated_probability" not in text
+    assert "predicted_probability" not in text
     assert len(text) < 12000
 
 
