@@ -176,6 +176,43 @@ def test_quarantine_preserves_record_but_removes_it_from_independent_count():
     assert len(retrieve_pit_records(corpus, decision_time_ns=2_500, include_quarantined=True)) == 1
 
 
+def test_retrieve_pit_records_does_not_leak_future_quarantine_state():
+    episode = _episode()
+    quarantined = quarantine_record(
+        MemoryRecord(episode=episode),
+        reason="provider_schema_drift",
+        quarantine_version="q.v1",
+        quarantined_at_ns=2_100,
+    )
+    corpus = build_memory_corpus(records=(quarantined,), cutoff_time_ns=2_500)
+
+    before_quarantine = retrieve_pit_records(corpus, decision_time_ns=2_000)
+    assert len(before_quarantine) == 1
+    assert before_quarantine[0].quarantined is False
+    assert before_quarantine[0].quarantine_reason is None
+    assert before_quarantine[0].quarantine_version is None
+    assert before_quarantine[0].quarantined_at_ns is None
+
+    audit_before_quarantine = retrieve_pit_records(
+        corpus,
+        decision_time_ns=2_000,
+        include_quarantined=True,
+    )
+    assert audit_before_quarantine == before_quarantine
+
+    assert retrieve_pit_records(corpus, decision_time_ns=2_200) == ()
+    audit_after_quarantine = retrieve_pit_records(
+        corpus,
+        decision_time_ns=2_200,
+        include_quarantined=True,
+    )
+    assert len(audit_after_quarantine) == 1
+    assert audit_after_quarantine[0].quarantined is True
+    assert audit_after_quarantine[0].quarantine_reason == "provider_schema_drift"
+    assert audit_after_quarantine[0].quarantine_version == "q.v1"
+    assert audit_after_quarantine[0].quarantined_at_ns == 2_100
+
+
 def test_independence_counts_episode_session_and_symbol_separately():
     e1 = _episode(decision_time_ns=1_000, symbol="RELIANCE", session_id="s1")
     e2 = _episode(decision_time_ns=1_100, symbol="RELIANCE", session_id="s1")
