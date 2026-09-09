@@ -12,7 +12,7 @@ import json
 from dataclasses import dataclass
 from typing import Any
 
-from .memory_corpus import MemoryCorpus, MemoryRecord
+from .memory_corpus import MemoryCorpus, MemoryRecord, retrieve_pit_records
 
 
 MEMORY_RETENTION_VERSION = "canonical-memory-retention.v1"
@@ -100,7 +100,16 @@ def apply_retention_policy(
         raise MemoryRetentionError("INVALID_RETENTION_EVALUATION_TIME")
     _validate_policy(policy)
 
-    records = tuple(sorted(corpus.records, key=lambda item: (item.episode.decision_time_ns, item.episode.episode_hash)))
+    records = tuple(
+        sorted(
+            retrieve_pit_records(
+                corpus,
+                decision_time_ns=evaluated_at_ns,
+                include_quarantined=True,
+            ),
+            key=lambda item: (item.episode.decision_time_ns, item.episode.episode_hash),
+        )
+    )
     retained: dict[str, MemoryRecord] = {record.episode.episode_hash: record for record in records}
     retired_reason: dict[str, str] = {}
 
