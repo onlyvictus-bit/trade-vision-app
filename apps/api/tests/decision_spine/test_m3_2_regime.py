@@ -7,8 +7,6 @@ def dims(**kw):
     base=dict(trend="UP",volatility="NORMAL",liquidity="HEALTHY",breadth="BROAD_RISK_ON",index_alignment="UP",sector_alignment="UP",relative_strength_state="STOCK_LEADER",session_phase="MORNING",source_hashes=("b"*64,))
     base.update(kw); return RegimeDimensions(**base)
 
-def build(d,history=None): return build_canonical_market_regime(d2_snapshot_hash=H,decision_time_ns=100,d2_snapshot_hash=H,dimensions=d,history=history)
-
 def test_clear_trend():
     r=build_canonical_market_regime(d2_snapshot_hash=H,decision_time_ns=100,dimensions=dims())
     assert r.stable_regime=="TREND_UP" and r.confidence=="HIGH"
