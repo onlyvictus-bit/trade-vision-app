@@ -15,7 +15,7 @@ from typing import Any, Literal, Sequence
 
 from .canonical_analog_memory import AnalogRetrievalResult
 from .canonical_memory_intelligence import CanonicalMemoryEpisode
-from .memory_corpus import MemoryCorpus, MemoryRecord
+from .memory_corpus import MemoryCorpus, MemoryRecord, retrieve_pit_records
 
 
 CANONICAL_MEMORY_WORLD_VERSION = "canonical-memory-world.v1"
@@ -143,6 +143,15 @@ class CanonicalMemoryWorld:
         }
 
 
+def _pit_records(corpus: MemoryCorpus, *, decision_time_ns: int) -> tuple[MemoryRecord, ...]:
+    """Project backing-corpus records to exactly what was knowable at decision time."""
+    return retrieve_pit_records(
+        corpus,
+        decision_time_ns=decision_time_ns,
+        include_quarantined=True,
+    )
+
+
 def analyze_memory_health(
     *,
     corpus: MemoryCorpus,
@@ -154,12 +163,15 @@ def analyze_memory_health(
 ) -> MemoryHealth:
     if analogs.corpus_hash != corpus.corpus_hash:
         raise CanonicalMemoryWorldError("ANALOG_CORPUS_HASH_MISMATCH")
+    if analogs.decision_time_ns > corpus.corpus_cutoff_time_ns:
+        raise CanonicalMemoryWorldError("QUERY_AFTER_CORPUS_CUTOFF")
     if recent_episode_count < 1 or minimum_window_count < 1:
         raise CanonicalMemoryWorldError("INVALID_HEALTH_WINDOW")
     if not 0 <= drift_watch_threshold <= drift_alert_threshold <= 1:
         raise CanonicalMemoryWorldError("INVALID_DRIFT_THRESHOLDS")
 
-    usable = [record for record in corpus.records if not record.quarantined and record.label is not None]
+    pit_records = _pit_records(corpus, decision_time_ns=analogs.decision_time_ns)
+    usable = [record for record in pit_records if not record.quarantined and record.label is not None]
     usable.sort(key=lambda record: (record.episode.decision_time_ns, record.episode.episode_hash))
     recent = usable[-recent_episode_count:]
     baseline = usable[:-recent_episode_count]
@@ -181,8 +193,9 @@ def analyze_memory_health(
         drift_state = "UNKNOWN"
         reason_codes.append("INSUFFICIENT_INDEPENDENT_WINDOWS_FOR_DRIFT")
 
-    quarantine_fraction = (corpus.quarantined_count / corpus.episode_count) if corpus.episode_count else 0.0
-    if corpus.quarantined_count == 0:
+    quarantined_count = sum(1 for record in pit_records if record.quarantined)
+    quarantine_fraction = (quarantined_count / len(pit_records)) if pit_records else 0.0
+    if quarantined_count == 0:
         quarantine_state: State = "CLEAR"
     elif quarantine_fraction >= 0.20:
         quarantine_state = "ALERT"
@@ -192,13 +205,14 @@ def analyze_memory_health(
         reason_codes.append("QUARANTINED_MEMORY_PRESENT")
 
     # Outcome labels are multi-class market behavior labels, not a universal
-    # strategy success label.  Therefore an edge-decay assertion would be
-    # fabricated here.  Keep decay unknown until a policy-specific calibration
+    # strategy success label. Therefore an edge-decay assertion would be
+    # fabricated here. Keep decay unknown until a policy-specific calibration
     # specialist supplies a valid success/utility definition.
     decay_state: State = "UNKNOWN"
     reason_codes.append("EDGE_DECAY_REQUIRES_POLICY_SPECIFIC_UTILITY_LABEL")
 
-    small_sample = corpus.independent_episode_count < minimum_window_count
+    independent_count = sum(1 for record in pit_records if not record.quarantined)
+    small_sample = independent_count < minimum_window_count
     if small_sample:
         reason_codes.append("SMALL_INDEPENDENT_SAMPLE")
     if analogs.ood:
@@ -232,6 +246,11 @@ def build_canonical_memory_world(
     if corpus.corpus_cutoff_time_ns < query_episode.decision_time_ns:
         raise CanonicalMemoryWorldError("CORPUS_CUTOFF_BEFORE_DECISION")
 
+    pit_records = _pit_records(corpus, decision_time_ns=query_episode.decision_time_ns)
+    pit_by_hash = {record.episode.episode_hash: record for record in pit_records}
+    pit_raw_record_count = sum(record.episode.raw_record_count for record in pit_records)
+    pit_independent_episode_count = sum(1 for record in pit_records if not record.quarantined)
+
     supporting = tuple(sorted(set(analogs.supporting_facts)))
     contradictions = tuple(sorted(set(analogs.contradictions) | set(query_episode.contradictions)))
     missing = tuple(sorted(set(query_episode.missing_facts)))
@@ -254,8 +273,8 @@ def build_canonical_memory_world(
             {
                 source_hash
                 for match in analogs.matches
-                for record in corpus.records
-                if record.episode.episode_hash == match.episode_hash
+                for record in (pit_by_hash.get(match.episode_hash),)
+                if record is not None
                 for source_hash in record.episode.source_snapshot_hashes
             }
         )
@@ -265,14 +284,14 @@ def build_canonical_memory_world(
             {
                 source_hash
                 for match in analogs.matches
-                for record in corpus.records
-                if record.episode.episode_hash == match.episode_hash
+                for record in (pit_by_hash.get(match.episode_hash),)
+                if record is not None
                 for source_hash in record.episode.source_output_hashes
             }
         )
     )
 
-    if corpus.episode_count == 0:
+    if not pit_records:
         availability = "UNAVAILABLE"
         quality = "NO_MEMORY"
         confidence: Confidence = "INSUFFICIENT_EVIDENCE"
@@ -304,6 +323,8 @@ def build_canonical_memory_world(
         "corpus_hash": corpus.corpus_hash,
         "feature_version": corpus.feature_version,
         "label_version": corpus.label_version,
+        "pit_raw_record_count": pit_raw_record_count,
+        "pit_independent_episode_count": pit_independent_episode_count,
         "analog_output_hash": analogs.output_hash,
         "health": health.as_dict(),
         "supporting_facts": supporting,
@@ -325,8 +346,8 @@ def build_canonical_memory_world(
         corpus_hash=corpus.corpus_hash,
         feature_version=corpus.feature_version,
         label_version=corpus.label_version,
-        raw_record_count=corpus.raw_record_count,
-        independent_episode_count=corpus.independent_episode_count,
+        raw_record_count=pit_raw_record_count,
+        independent_episode_count=pit_independent_episode_count,
         retrieved_episode_count=analogs.raw_nearest_neighbor_count,
         independent_retrieved_episode_count=analogs.independent_analog_count,
         supporting_facts=supporting,
