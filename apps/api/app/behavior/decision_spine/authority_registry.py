@@ -75,7 +75,7 @@ def _engine(
 
 # Registry entries intentionally include the exact engine IDs emitted by the
 # current Paper Guidance spine plus specialist engines that must be migrated
-# into the future DecisionContext.  Registering an engine does not activate it.
+# into the future DecisionContext. Registering an engine does not activate it.
 ENGINE_AUTHORITIES: tuple[EngineAuthority, ...] = (
     _engine("CHART_REASONING", "app.behavior.chart_reasoning_volatility", EngineClassification.EVIDENCE, rank=20),
     _engine("CANDLE_ANATOMY", "app.behavior.candle_anatomy", EngineClassification.CALCULATOR, rank=10),
@@ -91,6 +91,12 @@ ENGINE_AUTHORITIES: tuple[EngineAuthority, ...] = (
     _engine("CANONICAL_MEMORY_WORLD", "app.behavior.decision_spine.canonical_memory_world", EngineClassification.MEMORY, rank=0, notes="Canonical M3.3 memory receipt; evidence-only and explicitly non-authoritative."),
     _engine("CANONICAL_MEMORY_RETENTION", "app.behavior.decision_spine.memory_retention", EngineClassification.MEMORY, rank=0, notes="Audit-preserving retention view; cannot change decision authority."),
     _engine("CANONICAL_PERSISTED_MEMORY_ADAPTER", "app.behavior.decision_spine.canonical_persisted_memory_adapter", EngineClassification.MEMORY, rank=0, notes="Single-query persisted-memory adapter; never converts correlated indicator rows into fake independent evidence."),
+    _engine("CANONICAL_RELIABILITY_MEMORY", "app.behavior.decision_spine.canonical_reliability_memory", EngineClassification.MEMORY, rank=0, notes="Real labelled-history outcome distribution only; fixture fallback and strategy-probability authority are forbidden."),
+    _engine("HISTORICAL_SESSION_MEMORY", "app.behavior.decision_spine.canonical_session_memory", EngineClassification.MEMORY, rank=0, notes="Historical session-conditioned memory only; M3.2 remains owner of current session state."),
+    _engine("CANONICAL_PATTERN_MEMORY", "app.behavior.decision_spine.canonical_pattern_memory", EngineClassification.MEMORY, rank=0, notes="Day-shape v2 historical pattern evidence only; bounded retrieval and explicit missingness."),
+    _engine("CANONICAL_NINE_CANDLE_MEMORY", "app.behavior.decision_spine.canonical_nine_candle_memory", EngineClassification.MEMORY, rank=0, notes="Snapshot-native 9C historical evidence only; no mock packet or synthetic fallback."),
+    _engine("CANONICAL_PTA_MARKER_RUNTIME", "app.behavior.decision_spine.canonical_pta_marker_runtime", EngineClassification.EVIDENCE, rank=0, notes="D2-bound bounded PTA marker explanation evidence only."),
+    _engine("M33_MEMORY_WIRING", "app.behavior.decision_spine.m3_3_memory_wiring", EngineClassification.COMPATIBILITY, rank=0, notes="Receipt transport only; cannot create authority or execute D6."),
     _engine("MARKET_STRUCTURE_LIQUIDITY", "app.behavior.market_structure_liquidity", EngineClassification.EVIDENCE, veto=True, downgrade=True, rank=40),
     _engine("MARKET_REGIME", "app.behavior.regime_gate", EngineClassification.EVIDENCE, downgrade=True, rank=30, lifecycle="migration"),
     _engine("RELATIVE_STRENGTH", "app.behavior.context_engines", EngineClassification.EVIDENCE, downgrade=True, rank=30, lifecycle="migration"),
@@ -99,8 +105,8 @@ ENGINE_AUTHORITIES: tuple[EngineAuthority, ...] = (
     _engine("SESSION_MEMORY", "app.behavior.session_memory", EngineClassification.MEMORY, downgrade=True, rank=25, lifecycle="migration"),
     _engine("PATTERN_MEMORY", "app.behavior.pattern_memory", EngineClassification.MEMORY, downgrade=True, rank=25, lifecycle="migration"),
     _engine("ANALOG_MEMORY", "app.behavior.analog_research", EngineClassification.MEMORY, downgrade=True, rank=25, lifecycle="migration"),
-    _engine("NINE_CANDLE_MEMORY", "app.behavior.nine_candle_hybrid", EngineClassification.MEMORY, downgrade=True, rank=25, lifecycle="migration", notes="9C/PTA runtime contract stabilization required before canonical authority use."),
-    _engine("PTA_MARKER_RUNTIME", "app.behavior.real_indicator_adapter", EngineClassification.EVIDENCE, rank=10, lifecycle="migration", notes="PTA marker probes are availability/explanation evidence only; never probability or trade authority."),
+    _engine("NINE_CANDLE_MEMORY", "app.behavior.nine_candle_hybrid", EngineClassification.MEMORY, downgrade=True, rank=25, lifecycle="migration", notes="Compatibility identity; canonical 9C source is separately registered and remains zero-authority."),
+    _engine("PTA_MARKER_RUNTIME", "app.behavior.real_indicator_adapter", EngineClassification.EVIDENCE, rank=10, lifecycle="migration", notes="Compatibility identity; canonical PTA evidence is separately registered and never probability or trade authority."),
     _engine("HYPOTHESIS_ENGINE", "app.behavior.hypothesis_engine", EngineClassification.SCENARIO, propose=True, downgrade=True, rank=35, lifecycle="migration"),
     _engine("ORB_CORE", "app.orb.core", EngineClassification.STRATEGY, propose=True, veto=True, downgrade=True, rank=50, lifecycle="migration"),
     _engine("AFRE", "app.orb.adaptive", EngineClassification.STRATEGY, propose=True, veto=True, downgrade=True, rank=55, lifecycle="migration", notes="Confirmed variant never bypasses proof/paper gates."),
