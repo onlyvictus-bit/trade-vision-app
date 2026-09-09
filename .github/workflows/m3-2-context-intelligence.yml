@@ -16,6 +16,8 @@ on:
       - apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py
       - apps/api/app/behavior/paper_guidance_spine.py
       - apps/api/app/behavior/paper_guidance_spine_m3_1_impl.py
+      - apps/api/app/behavior/final_release_audit.py
+      - apps/api/tests/test_final_release_audit_cache_isolation.py
       - docs/M3_2_CANONICAL_CONTEXT_INTELLIGENCE_ANALYSIS_AND_BUILD_PLAN_2026-09-08.md
       - docs/M3_3_CANONICAL_MEMORY_INTELLIGENCE_ANALYSIS_AND_BUILD_PLAN_2026-09-08.md
       - docs/M3_INTELLIGENCE_UPGRADE_REFERENCE_2026-09-08.md
@@ -61,7 +63,8 @@ jobs:
             apps/api/app/behavior/decision_spine/decision_context.py \
             apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py \
             apps/api/app/behavior/paper_guidance_spine.py \
-            apps/api/app/behavior/paper_guidance_spine_m3_1_impl.py
+            apps/api/app/behavior/paper_guidance_spine_m3_1_impl.py \
+            apps/api/app/behavior/final_release_audit.py
 
       - name: M3.2-A canonical context source contract
         working-directory: apps/api
@@ -70,6 +73,10 @@ jobs:
       - name: M3.2-B canonical session intelligence
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_m3_2_session.py
+
+      - name: Final release audit cache-isolation regression
+        working-directory: apps/api
+        run: pytest -q tests/test_final_release_audit_cache_isolation.py
 
       - name: Locked M3.1 price-intelligence regression
         working-directory: apps/api
