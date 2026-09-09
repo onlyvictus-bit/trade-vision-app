@@ -164,7 +164,14 @@ def test_m311_morphology_006_failed_extension_signatures_are_direction_symmetric
 def test_m311_morphology_007_bar_open_discontinuity_is_signed_and_first_bar_unknown():
     snapshot = _snapshot()
     rows = list(snapshot.closed_ohlcv_bars)
-    rows[15] = rows[15].model_copy(update={"open": rows[14].close * 1.01})
+    gap_open = rows[14].close * 1.01
+    rows[15] = rows[15].model_copy(
+        update={
+            "open": gap_open,
+            "high": max(gap_open, rows[15].close) + 0.10,
+            "low": min(gap_open, rows[15].close) - 0.08,
+        }
+    )
     snapshot = snapshot.model_copy(update={"closed_ohlcv_bars": rows})
     morphology, _, _ = _build(snapshot)
     assert morphology.bars[0].bar_open_discontinuity_bps is None
@@ -203,7 +210,7 @@ def test_m311_morphology_011_requires_materialized_true_atr_period():
         build_canonical_candle_morphology_v2(primitive, observed, atr_period=20)
 
 
-def test_m311_morphology_012_receipt_contains_no_intent_probability_or_decision_claim():
+def test_m311_morphology_012_receipt_contains_no_intent_or_decision_claim():
     morphology, _, _ = _build()
     summary = morphology.receipt_summary()
     encoded = str(summary).lower()
@@ -217,9 +224,12 @@ def test_m311_morphology_012_receipt_contains_no_intent_probability_or_decision_
         "smart money",
         "decision_band",
         "final_decision",
-        "probability",
+        "trap_probability",
+        "continuation_probability",
+        "reversal_probability",
     )
     assert all(token not in encoded for token in forbidden)
+    assert summary["authority"]["used_for_probability"] is False
     assert summary["quality"]["intent_claims_present"] is False
     assert summary["authority"]["may_set_final_band"] is False
     assert len(encoded) < 12_000
