@@ -1,5 +1,4 @@
 name: M3.2 Canonical Context Intelligence
-
 on:
   workflow_dispatch:
   push:
@@ -11,16 +10,9 @@ on:
       - apps/api/app/behavior/final_release_audit.py
       - apps/api/tests/decision_spine/**
       - apps/api/tests/test_final_release_audit_cache_isolation.py
-      - docs/M3_2_CANONICAL_CONTEXT_INTELLIGENCE_ANALYSIS_AND_BUILD_PLAN_2026-09-08.md
-      - docs/M3_3_CANONICAL_MEMORY_INTELLIGENCE_ANALYSIS_AND_BUILD_PLAN_2026-09-08.md
-      - docs/M3_INTELLIGENCE_UPGRADE_REFERENCE_2026-09-08.md
-      - docs/CANONICAL_BUILD_STATUS.md
-      - docs/NEXT_BUILD_TARGET.md
+      - docs/**
       - .github/workflows/m3-2-context-intelligence.yml
-
-permissions:
-  contents: read
-
+permissions: {contents: read}
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -36,19 +28,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r apps/api/requirements.txt
       - name: Compile M3.2 and locked Decision Spine modules
-        run: |
-          python -m py_compile \
-            apps/api/app/behavior/decision_spine/canonical_context_intelligence.py \
-            apps/api/app/behavior/decision_spine/canonical_session_intelligence.py \
-            apps/api/app/behavior/decision_spine/canonical_market_context.py \
-            apps/api/app/behavior/decision_spine/canonical_relative_strength.py \
-            apps/api/app/behavior/decision_spine/authority_registry.py \
-            apps/api/app/behavior/decision_spine/stage2_integrity.py \
-            apps/api/app/behavior/decision_spine/decision_context.py \
-            apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py \
-            apps/api/app/behavior/paper_guidance_spine.py \
-            apps/api/app/behavior/paper_guidance_spine_m3_1_impl.py \
-            apps/api/app/behavior/final_release_audit.py
+        run: python -m py_compile apps/api/app/behavior/decision_spine/canonical_context_intelligence.py apps/api/app/behavior/decision_spine/canonical_session_intelligence.py apps/api/app/behavior/decision_spine/canonical_market_context.py apps/api/app/behavior/decision_spine/canonical_relative_strength.py apps/api/app/behavior/decision_spine/canonical_market_regime.py apps/api/app/behavior/decision_spine/authority_registry.py apps/api/app/behavior/decision_spine/stage2_integrity.py apps/api/app/behavior/decision_spine/decision_context.py apps/api/app/behavior/decision_spine/paper_guidance_decision_context_adapter.py apps/api/app/behavior/paper_guidance_spine.py apps/api/app/behavior/paper_guidance_spine_m3_1_impl.py apps/api/app/behavior/final_release_audit.py
       - name: M3.2-A context source contract
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_m3_2_context_contract.py
@@ -61,13 +41,15 @@ jobs:
       - name: M3.2-D relative strength
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_m3_2_relative_strength.py
+      - name: M3.2-E market regime
+        working-directory: apps/api
+        run: pytest -q tests/decision_spine/test_m3_2_regime.py
       - name: Final release audit cache isolation
         working-directory: apps/api
         run: pytest -q tests/test_final_release_audit_cache_isolation.py
       - name: Locked M3.1 price intelligence
         working-directory: apps/api
-        run: |
-          pytest -q tests/decision_spine/test_snapshot_feature_kernel.py tests/decision_spine/test_m3_1_candle_pipeline.py tests/decision_spine/test_m3_1_levels.py tests/decision_spine/test_m3_1_indicator_pipeline.py tests/decision_spine/test_m3_1_mtf_pipeline.py tests/decision_spine/test_m3_1_price_evidence.py tests/decision_spine/test_m3_1_replay.py tests/decision_spine/test_m3_1_adversarial.py
+        run: pytest -q tests/decision_spine/test_snapshot_feature_kernel.py tests/decision_spine/test_m3_1_candle_pipeline.py tests/decision_spine/test_m3_1_levels.py tests/decision_spine/test_m3_1_indicator_pipeline.py tests/decision_spine/test_m3_1_mtf_pipeline.py tests/decision_spine/test_m3_1_price_evidence.py tests/decision_spine/test_m3_1_replay.py tests/decision_spine/test_m3_1_adversarial.py
       - name: Locked M2 DecisionContext
         working-directory: apps/api
         run: pytest -q tests/decision_spine/test_decision_context.py tests/decision_spine/test_paper_guidance_decision_context_adapter.py tests/decision_spine/test_paper_guidance_m2_context_integration.py
