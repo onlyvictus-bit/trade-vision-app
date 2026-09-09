@@ -231,6 +231,52 @@ def build_delayed_label(
     )
 
 
+def _merge_duplicate_record(existing: MemoryRecord, incoming: MemoryRecord) -> MemoryRecord:
+    """Merge two projections of one episode without allowing input order to change corpus truth."""
+    if existing.episode.episode_hash != incoming.episode.episode_hash:
+        raise MemoryCorpusError("DUPLICATE_MERGE_EPISODE_MISMATCH")
+
+    if existing.label and incoming.label and existing.label.label_hash != incoming.label.label_hash:
+        raise MemoryCorpusError("CONFLICTING_LABELS_FOR_EPISODE")
+    label = existing.label or incoming.label
+
+    quarantine_rows = tuple(record for record in (existing, incoming) if record.quarantined)
+    quarantined = bool(quarantine_rows)
+    quarantine_reason: str | None = None
+    quarantine_version: str | None = None
+    quarantined_at_ns: int | None = None
+    if quarantine_rows:
+        quarantine_states = {
+            (record.quarantine_reason, record.quarantine_version, record.quarantined_at_ns)
+            for record in quarantine_rows
+        }
+        if len(quarantine_states) > 1:
+            raise MemoryCorpusError("CONFLICTING_QUARANTINE_STATE_FOR_EPISODE")
+        quarantine_reason, quarantine_version, quarantined_at_ns = next(iter(quarantine_states))
+
+    availability_values = tuple(
+        value
+        for value in (existing.memory_available_at_ns, incoming.memory_available_at_ns)
+        if value is not None
+    )
+    memory_available_at_ns = max(availability_values) if availability_values else None
+
+    merged = MemoryRecord(
+        episode=existing.episode,
+        label=label,
+        memory_available_at_ns=memory_available_at_ns,
+        quarantined=quarantined,
+        quarantine_reason=quarantine_reason,
+        quarantine_version=quarantine_version,
+        quarantined_at_ns=quarantined_at_ns,
+    )
+    try:
+        _validate_record(merged)
+    except MemoryCorpusError as exc:
+        raise MemoryCorpusError(f"CONFLICTING_DUPLICATE_STATE_FOR_EPISODE:{exc}") from exc
+    return merged
+
+
 def build_memory_corpus(*, records: Sequence[MemoryRecord], cutoff_time_ns: int) -> MemoryCorpus:
     if not isinstance(cutoff_time_ns, int) or isinstance(cutoff_time_ns, bool) or cutoff_time_ns <= 0:
         raise MemoryCorpusError("INVALID_CORPUS_CUTOFF")
@@ -250,16 +296,12 @@ def build_memory_corpus(*, records: Sequence[MemoryRecord], cutoff_time_ns: int)
 
     by_hash: dict[str, MemoryRecord] = {}
     for record in eligible:
-        existing = by_hash.get(record.episode.episode_hash)
+        episode_hash = record.episode.episode_hash
+        existing = by_hash.get(episode_hash)
         if existing is None:
-            by_hash[record.episode.episode_hash] = record
+            by_hash[episode_hash] = record
             continue
-        if existing.label and record.label and existing.label.label_hash != record.label.label_hash:
-            raise MemoryCorpusError("CONFLICTING_LABELS_FOR_EPISODE")
-        if existing.label is None and record.label is not None:
-            by_hash[record.episode.episode_hash] = record
-        elif record.quarantined and not existing.quarantined:
-            by_hash[record.episode.episode_hash] = record
+        by_hash[episode_hash] = _merge_duplicate_record(existing, record)
 
     normalized = tuple(sorted(by_hash.values(), key=lambda item: item.episode.episode_hash))
     episode_hashes = tuple(record.episode.episode_hash for record in normalized)
