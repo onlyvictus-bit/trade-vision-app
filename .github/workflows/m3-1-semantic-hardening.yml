@@ -9,6 +9,7 @@ on:
       - apps/api/app/behavior/decision_spine/market_primitive_kernel_v2.py
       - apps/api/app/behavior/decision_spine/canonical_candle_morphology_v2.py
       - apps/api/app/behavior/decision_spine/evidence_graph.py
+      - apps/api/tests/conftest.py
       - apps/api/tests/decision_spine/test_market_primitive_kernel_v2.py
       - apps/api/tests/decision_spine/test_canonical_candle_morphology_v2.py
       - apps/api/tests/decision_spine/test_evidence_graph.py
@@ -97,9 +98,9 @@ jobs:
         working-directory: apps/api
         run: pytest -q tests/test_api.py
 
-      - name: Remaining API test tree
+      - name: Full API test tree with order-isolation regression
         working-directory: apps/api
-        run: python -m pytest tests -q --ignore=tests/test_api.py
+        run: python -m pytest tests -q
 
       - name: Verify Decision Spine safety and authority invariants
         working-directory: apps/api
