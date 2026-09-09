@@ -2,10 +2,12 @@ from __future__ import annotations
 
 """M3.3 delayed labels, corpus identity, PIT retrieval, and quarantine.
 
-The corpus is intentionally immutable-at-build-time and deterministic.  Labels
+The corpus is intentionally immutable-at-build-time and deterministic. Labels
 become usable only at their causal availability timestamp; episode creation time
-alone is never sufficient.  Suspicious records are retained as quarantined
-provenance rather than silently deleted.
+alone is never sufficient. Suspicious records are retained as quarantined
+provenance rather than silently deleted. Quarantine state itself is also PIT:
+a quarantine event may not leak backward into a corpus reconstructed before the
+quarantine timestamp.
 """
 
 import hashlib
@@ -237,19 +239,21 @@ def build_memory_corpus(*, records: Sequence[MemoryRecord], cutoff_time_ns: int)
     if len(records) > MAX_CORPUS_EPISODES:
         raise MemoryCorpusError("CORPUS_TOO_LARGE")
 
-    eligible = [record for record in records if record.available_at() <= cutoff_time_ns]
-    by_hash: dict[str, MemoryRecord] = {}
-    for record in eligible:
+    eligible: list[MemoryRecord] = []
+    for record in records:
         if not isinstance(record, MemoryRecord):
             raise MemoryCorpusError("INVALID_MEMORY_RECORD")
         _validate_record(record)
+        if record.available_at() > cutoff_time_ns:
+            continue
+        eligible.append(_project_record_at_cutoff(record, cutoff_time_ns=cutoff_time_ns))
+
+    by_hash: dict[str, MemoryRecord] = {}
+    for record in eligible:
         existing = by_hash.get(record.episode.episode_hash)
         if existing is None:
             by_hash[record.episode.episode_hash] = record
             continue
-        # Duplicate physical copies of one episode must not create fake
-        # statistical independence.  Prefer the richer labelled/quarantine
-        # record only if it is semantically identical where overlapping.
         if existing.label and record.label and existing.label.label_hash != record.label.label_hash:
             raise MemoryCorpusError("CONFLICTING_LABELS_FOR_EPISODE")
         if existing.label is None and record.label is not None:
@@ -367,6 +371,24 @@ def quarantine_record(
     )
 
 
+def _project_record_at_cutoff(record: MemoryRecord, *, cutoff_time_ns: int) -> MemoryRecord:
+    """Return the record state that was knowable at the requested corpus cutoff."""
+    if not record.quarantined:
+        return record
+    assert record.quarantined_at_ns is not None
+    if record.quarantined_at_ns <= cutoff_time_ns:
+        return record
+    return MemoryRecord(
+        episode=record.episode,
+        label=record.label,
+        memory_available_at_ns=record.memory_available_at_ns,
+        quarantined=False,
+        quarantine_reason=None,
+        quarantine_version=None,
+        quarantined_at_ns=None,
+    )
+
+
 def _validate_record(record: MemoryRecord) -> None:
     if record.label is not None:
         if record.label.episode_hash != record.episode.episode_hash:
@@ -378,6 +400,8 @@ def _validate_record(record: MemoryRecord) -> None:
     if record.quarantined:
         if not record.quarantine_reason or not record.quarantine_version or not record.quarantined_at_ns:
             raise MemoryCorpusError("INCOMPLETE_QUARANTINE_METADATA")
+        if record.quarantined_at_ns < record.available_at():
+            raise MemoryCorpusError("QUARANTINE_BEFORE_MEMORY_AVAILABLE")
 
 
 def _require_hash(value: str, field: str) -> str:
