@@ -97,9 +97,9 @@ jobs:
         working-directory: apps/api
         run: pytest -q tests/test_api.py
 
-      - name: Full API test tree
+      - name: Remaining API test tree
         working-directory: apps/api
-        run: python -m pytest tests -q
+        run: python -m pytest tests -q --ignore=tests/test_api.py
 
       - name: Verify Decision Spine safety and authority invariants
         working-directory: apps/api
