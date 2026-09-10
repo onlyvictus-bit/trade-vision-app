@@ -1,0 +1,18 @@
+name: Export M4 Reference for Library
+on:
+  push:
+    branches:
+      - m4-d6-orchestration-redesign
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m4-trading-cognitive-architecture-reference
+          path: docs/M4_TRADING_COGNITIVE_ARCHITECTURE_REFERENCE_2026-09-10.md
+          if-no-files-found: error
+          retention-days: 7
