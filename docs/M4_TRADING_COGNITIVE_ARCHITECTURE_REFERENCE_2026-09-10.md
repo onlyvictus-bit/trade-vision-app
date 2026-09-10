@@ -1277,3 +1277,34 @@ When the next planning phase starts:
 Do not attempt to implement all enhancement ideas as one unreviewed mega-commit.
 
 End of reference.
+
+
+---
+
+## Agreed think-engine planning order — 2026-09-10
+
+This is the current order for creating separate improvement/update plans for the existing thinking engines. It is a planning priority list, not an implementation-completion claim and not a change to final authority.
+
+1. **Hypothesis Box** — first priority. Build stronger thesis / anti-thesis generation, explicit required evidence, invalidators, expiry, expected sequence, and failure paths.
+2. **Twin** — second. Improve disagreement, contradiction, and competing-explanation detection. Twin remains a reviewer/compatibility component; canonical M4 conflict reasoning remains broader than Twin.
+3. **ORB + AFRE** — third. Strengthen strategy-specialist reasoning after hypothesis/conflict logic is defined; preserve safety/proof gates and proposal-only authority.
+4. **Kronos** — fourth. Upgrade toward real validated sequence/candlestick intelligence; mock/fallback output remains research-only and must not influence canonical decisions.
+5. **Indicators / M3.1 Price Proof** — fifth. Improve indicator ontology, multi-horizon interpretation, relationship/dependency reasoning, and efficiency while preserving locked M3.1 contracts and evidence provenance.
+6. **9-Candle Real Album / M3.3 Memory Proof** — sixth. Improve interpretation, retrieval quality, contextual matching, and speed without weakening the canonical real/PIT-safe route.
+7. **History + Pattern Diary / M3.3 Memory Proof** — seventh. Deepen analog, sequence-transition, failure-pattern, regime-conditioned, and historical reasoning after core memory handling is stable.
+8. **Old Fake / Mock Album** — never integrate into production reasoning. Keep strictly outside the canonical path for practice, fixtures, and research-only testing.
+
+Short planning sequence:
+
+```text
+Hypothesis Box
+    -> Twin
+    -> ORB / AFRE
+    -> Kronos
+    -> Indicators / M3.1
+    -> 9-Candle Real Memory / M3.3
+    -> History + Pattern Diary / M3.3
+    -> Old Fake Album remains outside production
+```
+
+For each engine, the dedicated plan should begin by auditing current repository truth, identifying weak/broken/legacy functionality, separating canonical from mock paths, and defining measurable correctness, speed, safety, and acceptance tests before implementation.
