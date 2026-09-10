@@ -785,3 +785,198 @@ Captured:
 - target Hypothesis Box v2 flow.
 
 Future discussions about the Hypothesis Box should append new dated entries here and, when appropriate, revise earlier design sections rather than creating conflicting undocumented rules.
+
+---
+
+# 18. Preferred multi-sensor Hypothesis Box design — 2026-09-10
+
+This is the preferred direction from the later design discussion. It replaces any earlier impression that Hypothesis Box should mainly reason from EMA, VWAP and OI. Those were examples only.
+
+## Core rule
+
+Hypothesis Box must not be a normal indicator-voting engine:
+
+```text
+EMA bullish + VWAP bullish + OI bullish = LONG
+```
+
+Instead it should be a bounded, deterministic, auditable market-reasoning engine that:
+- understands many evidence types;
+- knows what each one actually measures;
+- knows when each one is unreliable;
+- selects evidence dynamically for the current market question;
+- understands dependencies so correlated indicators do not inflate confidence;
+- creates several competing hypotheses;
+- creates an anti-thesis for the preferred hypothesis;
+- describes expected path, failure path and invalidation;
+- compares current state with PIT-safe real history/memory;
+- preserves missing, unknown and conflicting evidence;
+- never owns final authority. D6 remains sole final-band authority.
+
+## Evidence world to support
+
+### Price structure / location
+S&R, HH/HL/LH/LL, swing highs/lows, BOS/CHOCH, PDH/PDL/PDC, CPR, pivots, Fibonacci when valid, ORH/ORL, gaps, and true higher-timeframe levels.
+
+### Liquidity / smart-money-style structure
+Chart-derived order blocks/supply-demand zones, FVGs, liquidity sweeps, SFP/stop-run evidence, repeated level tests, mitigation/retest, rejection and acceptance.
+
+Chart order blocks are inferred price zones. They must not be presented as proof of actual institutional orders. Real order-book/order-flow evidence is a separate evidence type.
+
+### Value / auction
+Session, anchored, daily and weekly VWAP; U1/L1, U2/L2, U3/L3 VWAP bands; VWAP slope/distance/reclaim/rejection/band ride; POC/VAH/VAL and volume profile when available.
+
+The 3 upper + 3 lower VWAP bands should be treated as one richer distribution map, not seven independent votes.
+
+### Volatility / distribution
+ATR, Bollinger center, future validated +/-1 sigma, +/-2 sigma and +/-3 sigma bands, band width/slope, squeeze/compression, expansion, band walk, rejection/acceptance, Keltner Channel, realized volatility and VIX context.
+
+An upper Bollinger-band touch must not automatically mean sell; it can represent momentum expansion or exhaustion depending on context.
+
+### Trend / horizon
+EMA9, EMA20/21, EMA50, EMA200, each slope, stack order, separation/compression, price location relative to each horizon, true higher-timeframe trend, Supertrend, Ichimoku and ADX.
+
+EMA9/20/50 remain distinct horizon facts but are not three independent proofs because they share price dependency.
+
+### Momentum
+RSI level/slope/divergence, MACD state/transition, stochastic, acceleration/deceleration and other validated M3.1 oscillators.
+
+### Participation / real flow
+Volume, RVOL, volume expansion/contraction, OBV, CMF, MFI, breakout participation, and real order-book/order-flow/trade-flow evidence when provenance is known.
+
+### Derivatives
+Futures price + OI change, options OI by strike/side, change in OI, PCR, volume, IV, IV rank, term structure, skew, max pain, GEX/gamma only when assumptions are valid, vanna/charm, basis, rollover, expiry and PIT-safe participant/FII positioning.
+
+Raw OI alone must never be converted directly to bullish/bearish.
+
+### Market context
+Nifty/benchmark, sector, relative strength, breadth, volatility regime, market phase, opening behavior, event calendar and expiry/session context.
+
+### Pattern / sequence
+Candlestick patterns, multi-candle transitions, breakout/retest/rejection sequences, harmonic geometry plus validation, Elliott/wave hypotheses only as uncertain structure, opening sequence, 1/3/5/9-bar context, level-interaction and volume sequences.
+
+### Memory / reviewers
+Real 9-candle memory, historical analogs, pattern diary, failure trajectories, regime-conditioned reliability, OOD/drift, ORB, AFRE, Twin disagreement, and real validated Kronos sequence evidence. Mock/synthetic evidence stays outside canonical influence.
+
+## Dynamic evidence routing
+
+The box should not process all 94 outputs as equal votes. It first identifies the market question.
+
+Example: price is testing major resistance. It can focus on:
+- location: resistance, HTF level, order block, VWAP/BB bands, POC/VAH;
+- breakout quality: acceptance, volume/RVOL, retest, BOS, candle sequence;
+- trend: EMA horizons and HTF trend;
+- context: Nifty, sector, breadth;
+- derivatives: strike OI/OI change, IV/skew, expiry;
+- memory: prior real/false breakouts and failure paths;
+- sequence reviewer: validated Kronos when available.
+
+## Multiple possible worlds
+
+For the same state it may build:
+1. real breakout/continuation;
+2. resistance rejection;
+3. liquidity sweep/false breakout;
+4. compression then delayed expansion;
+5. range/mean reversion;
+6. trend pullback rather than reversal;
+7. event-distorted/untrustworthy state;
+8. chop/no edge.
+
+For every hypothesis store:
+thesis, anti-thesis, required evidence, support, opposition, unknowns, dependencies, market phase, timeframe/horizon, expected sequence, failure sequence, invalidators, expiry, regime assumptions, robustness/fragility and closest alternatives.
+
+Do not decide by counting bullish versus bearish indicators.
+
+## Relationship reasoning example
+
+```text
+weekly resistance
++ chart order block
++ VWAP U3
++ BB U2/U3
++ weakening RVOL
++ bearish divergence
+```
+can support an exhaustion/rejection hypothesis.
+
+But:
+
+```text
+same resistance
++ accepted close above it
++ strong RVOL
++ rising VWAP
++ expanding BB with controlled band walk
++ retest holds old resistance as support
++ index/sector aligned
+```
+can support breakout continuation.
+
+Neither is a guaranteed prediction.
+
+## Prediction means path reasoning
+
+Real-breakout expectation:
+
+```text
+break level -> accept above -> healthy participation -> retest -> old resistance holds -> higher low -> continuation
+```
+
+False-breakout expectation:
+
+```text
+trade above -> no acceptance -> participation weakens -> re-enter range -> lose value area -> structure weakens -> downside expansion
+```
+
+New closed-bar evidence should update each hypothesis to plausible, fragile or invalid.
+
+## Evidence must earn importance
+
+No indicator is mandatory simply because it is popular.
+
+Promotion path:
+
+```text
+candidate evidence
+-> understand what it measures
+-> verify formula/implementation
+-> verify PIT/freshness/provenance
+-> test on real NSE data
+-> test by stock/timeframe/market phase/regime
+-> measure failures/false positives
+-> measure dependency with other evidence
+-> walk-forward/OOS testing
+-> shadow/paper evaluation
+-> assign canonical role only after proof
+```
+
+A sensor can be REQUIRED, SUPPORTING, OPPOSING, IRRELEVANT or UNKNOWN depending on the hypothesis and market state.
+
+## Strong design formula
+
+```text
+KNOW MANY MARKET FACTS
++ UNDERSTAND THEIR REAL MEANING
++ UNDERSTAND LOCATION / PHASE / TIMEFRAME
++ UNDERSTAND RELATIONSHIPS / DEPENDENCIES
++ CREATE MULTIPLE FUTURE PATHS
++ BUILD ANTI-THESIS
++ TRY TO DISPROVE THE PREFERRED THESIS
++ COMPARE WITH PIT-SAFE REAL MEMORY
++ USE CONDITIONAL EMPIRICAL RELIABILITY
++ PRESERVE MISSING / UNKNOWN / CONFLICT
+= STRONG BOUNDED HYPOTHESIS REASONING
+```
+
+## Repository-informed scope
+
+The current project already contains or references dynamic VWAP, pivots, zones, FVGs, trendlines, HTF context, an order-block zone builder, daily/weekly VWAP with three upper and three lower deviation bands, Bollinger logic, CPR/pivots and many trend/momentum/volume/structure families. Hypothesis Engine v2 should reason over this broader canonical evidence graph instead of throwing it away.
+
+## Authority remains unchanged
+
+Hypothesis Box has no execution authority, cannot route orders, cannot set the final band, cannot use future data as causal evidence, cannot silently neutralize missing evidence, cannot use fake calibrated probability, and cannot allow mock/synthetic reviewers to affect canonical decisions.
+
+## 2026-09-10 update log
+
+The broader multi-sensor design is now preferred over the earlier narrow EMA/VWAP/OI examples. Future Hypothesis Box discussions should extend or explicitly revise this section.
