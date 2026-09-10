@@ -1,0 +1,98 @@
+name: ChatGPT Library Repository Export
+
+on:
+  push:
+    branches:
+      - chatgpt-library-export-2026-09-10
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout export branch with history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Fetch every repository branch and tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --force --prune origin '+refs/heads/*:refs/remotes/origin/*'
+          git fetch --force --tags origin
+          if command -v git-lfs >/dev/null 2>&1; then
+            git lfs fetch --all || true
+          fi
+
+      - name: Build complete reusable snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p export
+
+          # HEAD^ is the exact M4 planning branch commit from which this temporary
+          # export branch was created, before this workflow-only commit.
+          M4_SHA="$(git rev-parse HEAD^)"
+          MAIN_SHA="$(git rev-parse origin/main)"
+
+          git archive --format=zip --output=export/trade-vision-app-m4-d6-orchestration-redesign-source.zip "$M4_SHA"
+          git archive --format=zip --output=export/trade-vision-app-main-source.zip "$MAIN_SHA"
+
+          # Preserve complete Git object history for all real remote branches/tags,
+          # excluding this temporary export branch itself.
+          mapfile -t REFS < <(
+            git for-each-ref --format='%(refname)' refs/remotes/origin refs/tags \
+              | grep -v 'refs/remotes/origin/HEAD$' \
+              | grep -v 'refs/remotes/origin/chatgpt-library-export-2026-09-10$'
+          )
+          if [ "${#REFS[@]}" -eq 0 ]; then
+            echo 'No repository refs available for bundle' >&2
+            exit 1
+          fi
+          git bundle create export/trade-vision-app-complete-history.bundle "${REFS[@]}"
+
+          if [ -d .git/lfs/objects ] && find .git/lfs/objects -type f -print -quit | grep -q .; then
+            tar -C .git/lfs -czf export/trade-vision-app-lfs-objects.tar.gz objects
+          fi
+
+          cat > export/SNAPSHOT_MANIFEST.md <<EOF
+          # Trade Vision / TrendForge GitHub Library Snapshot
+
+          Export date: 2026-09-10
+          Repository: onlyvictus-bit/trade-vision-app
+          Canonical planning branch: m4-d6-orchestration-redesign
+          Canonical planning SHA: ${M4_SHA}
+          Main SHA: ${MAIN_SHA}
+
+          Contents:
+          - trade-vision-app-m4-d6-orchestration-redesign-source.zip — source tree at the exact current M4 planning SHA before this temporary export workflow commit.
+          - trade-vision-app-main-source.zip — source tree at current origin/main.
+          - trade-vision-app-complete-history.bundle — Git history/refs for all repository branches and tags fetched from origin, excluding the temporary export branch.
+          - trade-vision-app-lfs-objects.tar.gz — present only if Git LFS objects were available on the runner.
+          - SHA256SUMS.txt — integrity hashes.
+
+          Restore examples:
+          - Source only: unzip the desired source ZIP.
+          - Git history: git clone trade-vision-app-complete-history.bundle trade-vision-app-restored
+
+          This export is for archival/future ChatGPT Library use. It does not change main or the M4 planning branch.
+          EOF
+
+          (cd export && sha256sum trade-vision-app-* SNAPSHOT_MANIFEST.md > SHA256SUMS.txt)
+          (cd export && zip -9 -r ../trade-vision-app-full-github-snapshot-2026-09-10.zip .)
+          sha256sum trade-vision-app-full-github-snapshot-2026-09-10.zip > trade-vision-app-full-github-snapshot-2026-09-10.zip.sha256
+
+      - name: Upload ChatGPT Library package
+        uses: actions/upload-artifact@v4
+        with:
+          name: trade-vision-app-full-github-snapshot-2026-09-10
+          path: |
+            trade-vision-app-full-github-snapshot-2026-09-10.zip
+            trade-vision-app-full-github-snapshot-2026-09-10.zip.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
