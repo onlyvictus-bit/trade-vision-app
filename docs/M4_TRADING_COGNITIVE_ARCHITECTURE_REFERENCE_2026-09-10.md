@@ -1308,3 +1308,1012 @@ Hypothesis Box
 ```
 
 For each engine, the dedicated plan should begin by auditing current repository truth, identifying weak/broken/legacy functionality, separating canonical from mock paths, and defining measurable correctness, speed, safety, and acceptance tests before implementation.
+
+
+---
+
+# 31. Unified Market Evidence and Reasoning Architecture — research upgrade
+
+Date merged: 2026-09-10
+Status: RESEARCH-BACKED ARCHITECTURE REFERENCE — NOT AN IMPLEMENTATION-COMPLETE CLAIM
+
+This section merges the deeper market-evidence research into the existing M4 cognitive architecture reference. It strengthens the earlier plan; it does not erase the earlier sections, the agreed think-engine planning order, locked M0–M3 behavior, D1/D2 safety, or D6 sole-final-authority rule.
+
+The engineering target is broad, context-sensitive, adversarially challenged market reasoning. It must remain bounded, deterministic where required, replayable, point-in-time safe, explicit about missing information, and research/paper-guidance only.
+
+## 31.1 Core rule — evidence is typed information, not a vote
+
+The unified system must not reason like this:
+
+```text
+EMA bullish + RSI bullish + VWAP bullish + OBV bullish + MACD bullish = BUY
+```
+
+That loses semantics and can count the same underlying information multiple times.
+
+The stronger canonical flow is:
+
+```text
+D1 SAFETY / DATA INTEGRITY
+-> D2 CLOSED PIT SNAPSHOT
+-> MARKET FACT KERNEL
+-> VERSIONED TYPED EVIDENCE
+-> MARKET PHASE / ACTIVE QUESTION
+-> RELEVANCE ROUTER
+-> DEPENDENCY + RELATIONSHIP GRAPH
+-> COMPETING HYPOTHESES
+-> THESIS / ANTI-THESIS
+-> FAILURE-PATH SEARCH
+-> SCENARIOS
+-> COUNTERFACTUALS
+-> ADVERSARIAL CHALLENGE
+-> OOD / UNCERTAINTY / ROBUSTNESS
+-> D6 SOLE FINAL ARBITRATION
+-> WAIT / WATCH / PAPER-CANDIDATE
+```
+
+A market sensor may answer direction, trend persistence, momentum, structural location, value/auction location, volatility state, participation, liquidity/rejection risk, derivatives positioning or convexity, market context, historical similarity, or plausible future sequence. No sensor receives final authority merely because it is popular or visually persuasive.
+
+## 31.2 Canonical market-fact contract
+
+Every decision-affecting observation should eventually carry an explicit contract similar to:
+
+```text
+EvidenceFact
+  evidence_id
+  feature_id
+  family
+  subfamily
+  formula_id
+  formula_version
+  parameter_hash
+  source_id
+  source_snapshot_hash
+  source_timeframe
+  effective_horizon
+  confirmation_time
+  decision_time
+  value
+  normalized_state
+  direction_semantics
+  location_semantics
+  market_role
+  market_phase
+  freshness_state
+  PIT_state
+  availability_state
+  quality_state
+  dependency_keys[]
+  correlation_group
+  independent_episode_key
+  supports[]
+  contradicts[]
+  requires[]
+  invalidates[]
+  conditional_on[]
+  uncertainty
+  allowed_conclusions[]
+  forbidden_conclusions[]
+  warnings[]
+  evidence_hash
+```
+
+Important invariants:
+
+```text
+same label + different formula/config != same fact
+same price source != independent confirmation
+same event seen through multiple indicators != multiple independent episodes
+missing input != numeric zero
+calculation error != no signal
+unconfirmed pivot != confirmed structure
+unfinished HTF bar != closed HTF evidence
+```
+
+## 31.3 Price Structure intelligence
+
+Price Structure answers: **Where is price structurally, and what has price actually proven?**
+
+- **Support / Resistance** — dynamic reaction zones, not magical exact lines. Use confirmed swing/auction/level sources. Zone width, touch count, recency and volatility normalization must be versioned. Stale or repeatedly tested zones should lose reliability unless evidence proves otherwise.
+- **HH / HL / LH / LL** — maintain a confirmed swing sequence. Forming pivots must remain separate from confirmed pivots.
+- **BOS** — continuation-style break of a defined structural swing. Store swing source, close/wick policy, breakout buffer, confirmation bar and time.
+- **CHOCH** — potential transition against the previous structural sequence. It is a reversal/transition hypothesis, not proof that a new trend already exists.
+- **PDH / PDL** — previous completed trading session high/low using an exchange-aware calendar.
+- **CPR** — prior-period central pivot range. Canonical formula should be explicit: `P=(H+L+C)/3`, `BC=(H+L)/2`, `TC=2P-BC`.
+- **Classic pivots** — formula/version explicit. Common form: `R1=2P-L`, `S1=2P-H`, `R2=P+(H-L)`, `S2=P-(H-L)`.
+- **Fibonacci** — low-authority candidate location/confluence only. Swing anchors, ratios and confirmation must be explicit. It must never be a promotion gate by itself; its conditional incremental value should be measured empirically by stock/timeframe/phase/regime.
+
+Prefer semantic structure states over one score. Example:
+
+```text
+STRUCTURE_5M:
+  trend_sequence = HH_HL
+  latest_confirmed_event = BOS_UP
+  forming_event = NONE
+  distance_to_daily_resistance_atr = 0.28
+  structural_state = BULLISH_BUT_OBSTRUCTED
+```
+
+## 31.4 Liquidity / smart-money-structure intelligence
+
+Liquidity Structure answers: **Where may price be probing, rejecting, filling imbalance, or triggering clustered orders?**
+
+Canonical concepts include chart order blocks, FVG, liquidity sweep, SFP and inferred stop zones.
+
+Epistemic rules:
+
+```text
+chart-derived order block != observed institutional order
+chart-derived stop zone != observed stop inventory
+FVG != guaranteed future fill
+```
+
+These are OHLCV-derived structural proxies unless direct order-book/order-flow evidence exists. Their schema should state `inference_type=CHART_DERIVED_PROXY`.
+
+A common three-candle FVG geometry may be represented as:
+
+```text
+bullish_gap when low[t] > high[t-2]
+bearish_gap when high[t] < low[t-2]
+```
+
+but the production contract must also define body/wick policy, minimum gap size, ATR normalization, mitigation/fill state and expiry.
+
+A liquidity sweep should require a sequence:
+
+```text
+known liquidity/reference level
+-> price trades beyond level
+-> failure to accept beyond level
+-> close/re-entry into expected region
+-> optional displacement/participation confirmation
+```
+
+SFP reasoning should distinguish attempted breakout, excursion size, close location, reclaim speed, volume/RVOL, higher-timeframe location, repeated tests and next-bar confirmation. Liquidity intelligence is especially important to the anti-thesis of a breakout.
+
+## 31.5 Value / Auction intelligence
+
+Value/Auction answers: **Where has the market accepted business, and is current price near, above or below that value?**
+
+### VWAP
+
+Canonical session VWAP:
+
+```text
+typical_price = (high + low + close) / 3
+VWAP = cumulative_sum(typical_price * volume) / cumulative_sum(volume)
+```
+
+The exact price basis must be configurable/versioned because implementations may use different price bases.
+
+Use VWAP for session value location, reclaim/loss sequence, breakout acceptance context, pullback-to-value context and strategy side veto when required. `price > VWAP` is not a universal long signal.
+
+### Anchored VWAP
+
+Anchored VWAP uses the same weighted-average principle but resets at an explicit causal anchor such as session open, confirmed swing, event time, breakout event, result event or prior major gap. Every AVWAP must store `anchor_type`, `anchor_time`, `anchor_reason` and `anchor_available_at_decision_time`. Hindsight-selected anchors are not PIT-safe.
+
+### VWAP bands
+
+All VWAP envelopes must store their actual multiplier rather than only a display name:
+
+```text
+vwap_band:
+  center = VWAP
+  dispersion_method = VOLUME_WEIGHTED_RUNNING_STD
+  sigma_multiplier = 1.0
+  reset = SESSION
+```
+
+Repository-specific correction: a current legacy Trade Vision VWAP helper uses multipliers `0.5, 1.0, 1.5` while labeling outputs upper/lower `1,2,3`. Other implementations may mean `1,2,3` standard deviations. These must never share one canonical feature identity unless formula/config identity matches.
+
+### POC / VAH / VAL / Volume Profile
+
+Volume Profile must be a versioned volume-at-price approximation or exchange-derived profile. Contract must define window/session, price binning, number/width of bins, volume allocation, value-area percentage, POC tie-breaking and whether source data is actual trade-at-price or candle-distributed approximation.
+
+POC is the price/bin with greatest modeled volume concentration. VAH/VAL are value-area boundaries for the configured volume mass, commonly around 70%, but that percentage is a parameter rather than a universal law. Volume Profile is primarily location/acceptance context, not a standalone next-direction forecast.
+
+## 31.6 Volatility intelligence
+
+Volatility answers: **How much is price moving, how unusual is the movement regime, and is volatility compressing or expanding?**
+
+### ATR
+
+```text
+TR[t] = max(high-low, abs(high-close[t-1]), abs(low-close[t-1]))
+ATR = versioned smoothing of TR, commonly Wilder/RMA over 14 bars
+```
+
+ATR is non-directional. Use it for normalized level distance, breakout extension, stop/target scale research, gap magnitude, volatility regime, buffer sizing and cross-instrument/timeframe comparison.
+
+### Bollinger Bands
+
+Classic default representation should be explicit:
+
+```text
+middle = SMA(close, 20)
+upper = middle + 2 * rolling_std
+lower = middle - 2 * rolling_std
+```
+
+If Trade Vision calculates +/-1 sigma and +/-3 sigma envelopes, they are useful extensions but must be named/versioned separately. Useful derived facts include normalized band width and percent-B. Band touches are not automatic buy/sell instructions; strong trends can walk a band.
+
+### Keltner Channel
+
+Version center, ATR method and multiplier. A common form:
+
+```text
+center = EMA(close, 20)
+upper = center + k * ATR
+lower = center - k * ATR
+```
+
+BB-inside-KC can be compression evidence; release can create an expansion hypothesis, but direction must come from structure/acceptance/context.
+
+### Compression / Expansion
+
+Compression can combine BB-width percentile, ATR percentile, BB/KC relationship, realized range contraction, volume behavior and structural-range duration. Expansion requires realized follow-through/acceptance, not only a volatility indicator turning up.
+
+## 31.7 Trend intelligence
+
+Trend answers: **What direction and persistence exist at each effective horizon?**
+
+EMA recurrence:
+
+```text
+alpha = 2 / (period + 1)
+EMA[t] = alpha * price[t] + (1-alpha) * EMA[t-1]
+```
+
+Preserve EMA 9/20-or-21/50/200 as distinct horizon observations:
+
+```text
+EMA9   -> fast impulse / immediate trend
+EMA20  -> short-medium intraday trend
+EMA50  -> structural intraday trend
+EMA200 -> slow/background structure on that source timeframe
+```
+
+They share price dependency, so four bullish EMAs are not four independent proofs.
+
+Useful facts: normalized slope, separation in bps/ATR, ordered stack, average compression, cross age, distance from stack and stack persistence.
+
+Example:
+
+```text
+EMA9 > EMA20 > EMA50
+all slopes rising
+separation expanding
+price not excessively extended
+=> coherent same-timeframe trend structure
+```
+
+Different case:
+
+```text
+EMA9 > EMA20
+EMA20 < EMA50
+EMA50 falling
+=> fast recovery inside still-bearish structural state
+=> countertrend rally / short covering / early reversal possible
+```
+
+A longer moving average on 5m data is not equivalent to a true 1H trend. HTF evidence must come from closed native bars or validated closed-bar resampling.
+
+Supertrend should be treated as ATR-based trailing trend state; version ATR method, multiplier, band-update rules and flip semantics.
+
+Ichimoku should preserve Tenkan, Kijun, cloud state, price/cloud location, Tenkan/Kijun relation, cloud thickness and trailing-only decision-safe representation. Visual forward shifts must never introduce future information into decision time.
+
+## 31.8 Momentum intelligence
+
+Momentum answers: **Is the move accelerating, decelerating, stretched, diverging, or transitioning?**
+
+- **RSI** — keep numeric value, slope, regime-adjusted zone, range shift, divergence and confirmation age. `RSI=75` can describe strength in a high-participation trend or support exhaustion anti-thesis at major resistance after a sweep.
+- **MACD** — common form `EMA12-EMA26`, signal `EMA9(MACD)`, histogram `MACD-signal`. Keep sign, slope, histogram change, cross age and zero-line context.
+- **Stochastic** — common `%K = 100*(close-lowest_N)/(highest_N-lowest_N)` with smoothed `%D`. Most useful for turning behavior in ranges/pullbacks; extreme values can persist in trends.
+- **ADX/DMI** — ADX is primarily trend-strength information, not bullish/bearish direction. Direction belongs to +DI/-DI and surrounding trend/structure facts.
+- **Divergences** — require confirmed pivots and therefore delay. Store pivot timestamps, confirmation timestamp, price relation, oscillator relation, hidden/regular type, direction, age and location context. Never backdate divergence evidence.
+
+## 31.9 Participation intelligence
+
+Participation answers: **Is trading activity supporting, rejecting or failing to confirm the price story?**
+
+Absolute volume requires session context. For intraday NSE, prefer seasonality-aware RVOL such as current bar/cumulative volume divided by historical expected volume for the same elapsed session time.
+
+OBV should be interpreted by trend/divergence rather than raw absolute level. CMF requires explicit handling of zero-range bars. MFI is a price-volume momentum sensor.
+
+Dependency rule:
+
+```text
+Volume + RVOL + OBV + CMF + MFI
+can enrich the participation story
+but must not count as five independent confirmations.
+```
+
+## 31.10 Derivatives intelligence
+
+Derivatives answers: **What positioning, volatility expectations, strike structure and convexity forces may change the path?**
+
+### Price + OI change
+
+Classic classification is contextual evidence:
+
+```text
+price up   + OI up   -> LONG_BUILDUP candidate
+price down + OI up   -> SHORT_BUILDUP candidate
+price up   + OI down -> SHORT_COVERING candidate
+price down + OI down -> LONG_UNWINDING candidate
+```
+
+Open interest counts outstanding contracts; it does not reveal all participant direction by itself.
+
+### Futures OI / Call-Put OI / PCR
+
+Track current OI, delta, percent delta, price change, expiry, contract migration, rollover, basis and participant data where available. Large call OI is not automatically resistance and large put OI is not automatically support; interpretation depends on position side, OI change, price/IV move, expiry and participant composition.
+
+PCR type must be explicit:
+
+```text
+PCR_OI = total_put_OI / total_call_OI
+PCR_VOLUME = put_volume / call_volume
+```
+
+### IV / IV Rank / Skew
+
+IV expresses option-implied expected volatility rather than bullish/bearish direction. Store whether IV is vendor/exchange supplied or locally solved and preserve model/assumptions.
+
+A common IV rank form is:
+
+```text
+IV_rank = 100 * (current_IV - min_IV_window) / (max_IV_window - min_IV_window)
+```
+
+Window length and observation frequency are part of the feature identity.
+
+25-delta skew must define its convention. Put-IV minus call-IV can indicate richer downside protection pricing but is not a direct next-candle signal.
+
+### Max Pain
+
+If used, calculate from one identified option-chain snapshot and store chain completeness, expiry and multiplier. Treat max pain as low/moderate contextual evidence whose value must be empirically tested, especially near expiry.
+
+### Gamma / GEX / Vanna / Charm
+
+Keep unsigned exposure, signed position exposure, assumed dealer exposure and observed/known dealer-position exposure distinct. Open interest alone does not identify dealer side. Preserve the existing Trade Vision law: dealer-signed GEX is unavailable unless dealer-position sign is explicitly supplied.
+
+Vanna/charm are expiry/volatility-path modifiers and depend on time-to-expiry, underlying move, IV move and position assumptions. They are not standalone directional votes.
+
+### Rollover / Basis
+
+Rollover must preserve expiring and next-contract identity. Basis can be stored as raw observed basis:
+
+```text
+basis_bps = (futures_price - spot_price) / spot_price * 10_000
+```
+
+Raw basis must remain distinct from fair-value-adjusted basis using carry/dividend/time assumptions.
+
+## 31.11 Market Context intelligence
+
+Market Context answers: **Is the stock's local thesis aligned with or fighting its environment?**
+
+Required context: Nifty/relevant benchmark, sector, relative strength, breadth, India VIX and events.
+
+Represent stock/index/sector state at compatible horizons. A stock can be bullish while sector is weak; that may indicate genuine stock-specific leadership rather than automatic invalidation. M4 should ask whether the move can survive the headwind and whether historical evidence supports it.
+
+Relative-strength benchmark and horizon must be explicit. A simple form is `stock_return_horizon - benchmark_return_horizon`; more advanced beta/volatility-adjusted forms must remain separately identified.
+
+Breadth must define universe and calculation, such as advance/decline, percent above VWAP, percent above EMA20/50, up/down volume or sector participation. Universe changes must not silently alter comparability.
+
+India VIX is expected-volatility context, not bullish/bearish direction. Use level, regime, change and shock as volatility/risk context.
+
+Events require PIT availability and event-time identity. Important classes include company results, RBI policy, Budget/election sessions, corporate actions, exchange restrictions, F&O ban/MWPL and major scheduled macro releases. Unknown/stale event state cannot become `NO_EVENT`.
+
+## 31.12 Memory intelligence
+
+Memory answers: **Have we seen comparable states, what happened next, and how did similar cases fail?**
+
+Canonical real 9-candle memory should remain based on the last nine closed bars, current M3.1 evidence, PIT-safe episodes, delayed labels and snapshot/time/hash verification. Improve retrieval/interpretation without reintroducing mock album data.
+
+Pattern diary should store transition narratives:
+
+```text
+state_before
+-> approach sequence
+-> level interaction
+-> breakout/rejection
+-> value/VWAP behavior
+-> participation behavior
+-> context
+-> derivatives context
+-> outcome path
+-> failure path
+```
+
+Similarity should use exact schema/version, missing masks, appropriate stock/timeframe/regime/phase filters, deterministic distances, bounded top-k, sample sufficiency and episode independence. Ten near-identical correlated episodes from one event are not ten independent proofs.
+
+Failure trajectories deserve first-class storage. Example:
+
+```text
+approach resistance
+-> breakout attempt
+-> low acceptance
+-> return below level
+-> VWAP loss
+-> participation deterioration
+-> accelerated reversal
+```
+
+## 31.13 Real validated Kronos
+
+Kronos is a sequence-model specialist, not an oracle.
+
+Canonical influence rule:
+
+```text
+REAL MODEL
++ VERIFIED WEIGHTS
++ PIT-CLEAN INPUT
++ BENCHMARKED ON HELD-OUT NSE DATA
++ CALIBRATION / RELIABILITY RECEIPT
+=> eligible as bounded sequence evidence
+
+MOCK / FALLBACK / UNVERIFIED / OOD KRONOS
+=> research-only
+=> zero canonical decision influence
+```
+
+Useful outputs may include plausible forward K-line paths, direction/path distribution, realized-volatility distribution and breakout/reversal path likelihood only when actually calibrated. Never convert an uncalibrated model score into trade confidence. A larger model is not automatically better for NSE intraday; benchmark latency, horizon quality, calibration, robustness and OOS performance.
+
+## 31.14 Semantic corrections that must become tests
+
+1. `ATR_HIGH` means high movement/range, not bullish.
+2. `VIX_UP` means expected volatility increased, not automatically bearish.
+3. `ADX_HIGH` means trend strength, not automatically long.
+4. `IV_HIGH` means options imply high volatility, not automatically long/short.
+5. `OI_HIGH` means many outstanding contracts, not participant direction.
+6. `CALL_OI_HIGH` does not automatically mean resistance.
+7. `PUT_OI_HIGH` does not automatically mean support.
+8. `BOLLINGER_UPPER_TOUCH` is not an automatic sell.
+9. `BOLLINGER_LOWER_TOUCH` is not an automatic buy.
+10. `FIBONACCI_LEVEL_TOUCH` is not sufficient to promote a thesis.
+11. chart `ORDER_BLOCK` is an inferred zone, not proof of institutional orders.
+12. `FVG` is imbalance geometry, not a guaranteed fill promise.
+13. `VOLUME_PROFILE` is mainly location/acceptance context, not guaranteed forecast direction.
+14. `SIGNED_DEALER_GEX` requires position-side evidence or an explicitly quarantined assumption.
+15. multiple EMA/MACD/Supertrend facts do not become independent because names differ.
+16. multiple memory matches from one correlated episode do not become independent observations.
+17. higher-timeframe state must be closed/confirmed at decision time.
+18. unavailable indicator/derivatives sources stay unavailable, not zero/neutral.
+
+## 31.15 Market phase and active-question router
+
+The router should first identify the active market problem:
+
+```text
+TREND_CONTINUATION
+TREND_PULLBACK
+BREAKOUT_ATTEMPT
+BREAKOUT_ACCEPTANCE
+BREAKOUT_FAILURE
+LIQUIDITY_SWEEP
+RANGE_MEAN_REVERSION
+SQUEEZE_COMPRESSION
+SQUEEZE_RELEASE
+GAP_AND_GO
+GAP_EXHAUSTION
+EVENT_DISTORTION
+EXPIRY_PINNING_OR_GAMMA
+MULTI_TIMEFRAME_CONFLICT
+NO_EDGE_CHOP
+POST_ENTRY_THESIS_CHECK
+```
+
+The router does not delete nonselected evidence. It changes reasoning depth/priority while retaining contradictions and hard safety facts.
+
+For a breakout attempt, primary evidence should emphasize structure/location, VWAP/value, volume/RVOL, acceptance closes, index/sector/RS, nearby liquidity and strike/OI structure; trend/momentum/memory/Kronos become secondary or conditional according to context.
+
+## 31.16 Unified case reasoning playbooks
+
+### Case A — Trend continuation / pullback
+
+Ask whether this is a healthy pullback inside an intact trend or beginning trend failure. Support can require intact higher-horizon structure, coherent EMA horizon state, pullback into value/support rather than uncontrolled extension, VWAP/AVWAP/EMA/support interaction, contraction then participation expansion, non-hostile context, no dominant event/derivatives obstruction and comparable successful memory.
+
+Anti-thesis searches for CHOCH, value failure, lower-high response, expanding opposite participation, sector/index deterioration, HTF obstruction and known memory failure paths.
+
+### Case B — Breakout acceptance
+
+Require a confirmed level, defined close/buffer beyond it, participation/RVOL support, hold or successful retest, VWAP/value alignment, structural continuation, acceptable ATR extension, non-hostile context and no dominant OI/liquidity/event obstruction. Anti-thesis is fake breakout/sweep/exhaustion. `close > resistance` alone is insufficient.
+
+### Case C — False breakout / liquidity sweep reversal
+
+Strong narrative:
+
+```text
+known level
+-> excursion beyond level
+-> failed acceptance
+-> re-entry
+-> SFP/sweep structure
+-> opposite displacement
+-> VWAP/value reversal
+-> participation confirms rejection
+```
+
+Memory should compare prior false-break trajectories. Kronos may challenge with alternative continuation paths but cannot override real rejection evidence.
+
+### Case D — Range / mean reversion
+
+Look for weak/flat structural progression, low trend-strength state, repeated VWAP/POC crossing, stable VAH/VAL/range boundaries, oscillating momentum, failed edge breaks and moderate/declining volatility. Do not apply trend-continuation logic in range center. Range-edge reversal hypotheses weaken when participation/volatility expands and acceptance develops outside value.
+
+### Case E — Compression -> expansion
+
+Compression combines low BB width percentile, BB/KC squeeze, ATR contraction, narrowing structure and reduced movement. Expansion confirmation requires a break, increasing realized volatility, participation expansion, value acceptance and structural continuation. Direction comes from structure/acceptance/context, not compression itself.
+
+### Case F — Gap-and-go vs gap exhaustion
+
+Normalize gap by ATR and corporate actions. Compare gap magnitude, opening-drive acceptance, OR structure, VWAP, RVOL, index/sector, event catalyst, prior-day levels, derivatives and same-stock gap memory. Extreme gap + weak acceptance + major resistance + fading participation strengthens exhaustion anti-thesis.
+
+### Case G — Multi-timeframe conflict
+
+Example:
+
+```text
+5m bullish BOS + EMA stack
+15m transition
+1H bearish structure near resistance
+```
+
+Do not average to neutral. Preserve `FAST=bullish opportunity`, `MEDIUM=transition`, `HIGHER=bearish headwind`, then ask whether strategy horizon can complete before HTF opposition dominates. This may cap to WATCH.
+
+### Case H — Event shock / distorted market
+
+Events can veto pending entries, widen uncertainty, invalidate analog comparability, alter volatility regime, increase derivatives relevance and reduce value of lagging indicators. Unknown event status is not no event.
+
+### Case I — Expiry / pinning / convexity
+
+Near expiry increase relevance of strike concentration, spot-to-strike distance, gamma state, IV structure, skew, charm/vanna, rollover/basis and low-authority max-pain context. Assumed dealer positioning must never become observed fact.
+
+### Case J — No edge / chop
+
+The engine must be able to conclude no coherent thesis deserves promotion. Repeated conflicting breaks, unstable structure, value recrossing, poor participation, material evidence conflict, insufficient memory, missing required context or a fragile decision that flips under small perturbations should produce `WAIT`, not a forced directional forecast.
+
+## 31.17 Hypothesis Engine v2 consumption contract
+
+Hypothesis Engine v2 should consume immutable canonical evidence and not independently recompute the market.
+
+Every hypothesis should contain:
+
+```text
+hypothesis_id
+hypothesis_type
+direction
+source_timeframe
+effective_horizon
+market_phase
+thesis
+required_facts[]
+supporting_evidence_ids[]
+opposing_evidence_ids[]
+unknown_required_evidence[]
+anti_thesis_id
+invalidators[]
+expected_sequence[]
+expected_failure_sequence[]
+expiry_condition
+regime_assumptions[]
+fragility_factors[]
+OOD_state
+robustness_state
+```
+
+Candidate types include LONG/SHORT CONTINUATION and REVERSAL, BREAKOUT FOLLOW-THROUGH/FAILURE, RANGE MEAN REVERSION, SQUEEZE EXPANSION, GAP-AND-GO, GAP EXHAUSTION FADE, LIQUIDITY SWEEP REVERSAL, TREND PULLBACK, EVENT-DISTORTED MARKET and CHOP/NO-EDGE.
+
+No hypothesis may invent fallback S/R, entry, invalidation or confirmation boundaries when required levels are unavailable. No hand-built rule score may be renamed probability without a PIT-clean calibration contract.
+
+## 31.18 Relationship and independence graph
+
+Replace broad correlation buckets with explicit graph edges:
+
+```text
+DERIVED_FROM
+SHARES_INPUT_WITH
+CORRELATED_WITH
+CONFIRMS
+CONTRADICTS
+REQUIRES
+INVALIDATES
+LEADS
+LAGS
+CONDITIONAL_ON
+LOCATION_CONTEXT
+FAILURE_PRECURSOR
+REGIME_DEPENDENT
+TIMEFRAME_PARENT
+TIMEFRAME_CHILD
+SAME_EPISODE_AS
+```
+
+Example:
+
+```text
+EMA9 SHARES_INPUT_WITH EMA20
+EMA20 SHARES_INPUT_WITH EMA50
+MACD DERIVED_FROM close
+Supertrend DERIVED_FROM price + ATR
+BOS_UP CONFIRMED_BY acceptance_close
+BOS_UP CONFIRMED_BY RVOL_EXPANSION
+BOS_UP CONTRADICTED_BY SFP_DOWN
+BOS_UP CONDITIONAL_ON breakout_level_confirmed
+LONG_BREAKOUT THREATENED_BY daily_resistance
+LONG_BREAKOUT INVALIDATED_BY accepted_reentry_below_level
+```
+
+Independent support counts only when graph/episode identity supports independence.
+
+## 31.19 Failure engine
+
+Required failure classes include at least:
+
+```text
+FALSE_BREAKOUT
+NO_ACCEPTANCE
+OR_TOO_WIDE
+OR_TOO_NARROW
+GAP_EXHAUSTION
+EVENT_SHOCK
+VIX_SHOCK
+DOUBLE_STOP_WHIPSAW
+HTF_OPPOSITION
+VALUE_REJECTION
+OI_WALL_REJECTION
+EXPIRY_PINNING
+ROLLOVER_DISTORTION
+LIQUIDITY_DRY_UP
+FEED_STALE
+BAD_TICK
+PIT_FAILURE
+OOD
+MEMORY_SAMPLE_TOO_SMALL
+EDGE_DECAY
+```
+
+For each active thesis, produce likely failure path, dangerous failure path, earliest precursor, confirming precursor, invalidation and whether failure risk caps promotion.
+
+## 31.20 Counterfactual and adversarial challenge
+
+Before promotion, run bounded deterministic challenges such as removing strongest support, removing correlated duplicates, reversing index/sector context, marking one key feed stale, removing memory support, replacing memory with OOD, removing Kronos, adding nearby higher-authority resistance, introducing a liquidity-sweep alternative, increasing event risk and adding contradictory derivatives evidence.
+
+Ask whether the thesis remains logically valid, required evidence remains satisfied, a stronger anti-thesis emerges, final band changes or the conclusion depends on one factor. Do not ask only whether a numeric score remains above threshold.
+
+## 31.21 D6 target semantics — categorical arbitration, not weighted master score
+
+The current D6 v1.75 weighted-score implementation is a migration baseline, not the target M4 reasoning model.
+
+Target D6 inputs should include semantic states such as:
+
+```text
+SAFETY
+DATA_INTEGRITY
+THESIS_STATE
+ANTI_THESIS_MATERIALITY
+REQUIRED_EVIDENCE_COVERAGE
+INDEPENDENT_SUPPORT
+CONFLICT_STATE
+FAILURE_RISK
+OOD_STATE
+ROBUSTNESS
+FRAGILITY
+ENTRY_PLAN_AUTHORITY
+```
+
+Possible deterministic lattice:
+
+```text
+hard safety/integrity blocker -> WAIT/AVOID according to product contract
+invalid thesis -> WAIT
+required evidence incomplete -> WAIT or WATCH
+material anti-thesis + unresolved conflict -> WATCH
+material failure risk or fragile robustness -> WATCH
+valid thesis + complete required evidence + sufficient independent support
++ resolved anti-thesis + no hard blocker + survives failure challenge
++ acceptable OOD/robustness -> PAPER-CANDIDATE
+```
+
+D6 remains the only final-band authority and remains non-executing.
+
+## 31.22 Calculation normalization and compatibility layer
+
+Create a calculation-definition registry containing:
+
+```text
+feature_id
+formula_id
+formula_version
+parameters
+units
+input_schema
+input_timeframe
+minimum_history
+warmup_policy
+session_reset_policy
+anchor_policy
+pivot_confirmation_policy
+missing_policy
+error_policy
+PIT_policy
+output_schema
+```
+
+Migration checks:
+
+1. resolve VWAP band naming/multiplier mismatches;
+2. resolve BB naming/multiplier mismatches;
+3. version alternative pivot formulas;
+4. version volume-profile bin/allocation methods;
+5. distinguish native HTF from resampled HTF;
+6. distinguish confirmed from forming pivots;
+7. distinguish chart-inferred SMC proxies from observed order-flow facts;
+8. distinguish supplied IV from locally solved IV;
+9. distinguish unsigned GEX from signed/assumed dealer GEX;
+10. distinguish OI-PCR from volume-PCR;
+11. distinguish raw basis from fair-value-adjusted basis;
+12. reject same feature id when formula/config identities disagree.
+
+## 31.23 Runtime design for speed and resilience
+
+The system should feel intelligent because it reuses one coherent world model, not because it repeatedly runs 94 independent calculators.
+
+Market Fact Kernel computes reusable primitives once: OHLCV arrays, returns, true range/ATR, rolling min/max, EMA family, SMA/std family, session boundaries, VWAP accumulators, volume baselines, confirmed pivots, swing state, level distances and closed resampled timeframes.
+
+Use a dependency DAG so derived sensors reuse these primitives. Maintain safe incremental state where batch-equivalence can be proven. Cache identity must include snapshot hash, source timeframe, formula version, parameter hash and relevant window hash. Never cache by symbol alone.
+
+Set tested bounds for evidence nodes, hypotheses, conflicts, memory matches, scenarios, counterfactuals, receipt bytes and CPU/memory per decision. No network call, historical corpus scan or required LLM call inside deterministic D6.
+
+## 31.24 Error semantics — make canonical paths non-silent
+
+Legacy wrappers may return empty lists/dicts on exceptions for compatibility. Canonical M4 must not interpret an exception-empty result as genuine no-signal.
+
+Required statuses:
+
+```text
+AVAILABLE
+NO_SIGNAL
+WARMUP
+MISSING_INPUT
+DEPENDENCY_UNAVAILABLE
+STALE
+UNCONFIRMED
+ERROR
+UNSUPPORTED
+QUARANTINED
+OOD
+```
+
+Material epistemic states must survive into the decision receipt.
+
+## 31.25 Robust engineering meaning of “non-breakable”
+
+No market system is literally unbreakable. Target fail-closed behavior, deterministic replay where required, immutable decision inputs, explicit schema/version migrations, backward-compatible adapters, no silent coercion, bounded compute, idempotent calculations, property/adversarial tests, corrupted/missing/stale data fixtures, exact-head CI gates, rollback per stage and unchanged live-trading safety boundaries.
+
+## 31.26 Required acceptance tests for this research upgrade
+
+### Formula identity
+- VWAP multiplier is part of feature identity.
+- same display label with different multiplier cannot merge silently.
+- BB +/-1/+/-2/+/-3 extensions remain distinguishable from classic defaults.
+- alternate pivot/profile formulas receive distinct version ids.
+
+### Direction semantics
+- ATR, India VIX, ADX, IV or raw OI alone cannot set long/short direction.
+
+### Dependency / independence
+- EMA9/20/50/200 agreement is not four independent families.
+- MACD+EMA cannot multiply independent support without graph justification.
+- OBV/CMF/MFI/RVOL dependencies are represented.
+- unlimited duplicate evidence cannot overpower D1.
+
+### Structure / PIT
+- future-confirmed pivots cannot appear early.
+- unfinished HTF bars are never closed evidence.
+- PDH/PDL use prior completed exchange session.
+- event availability time is respected.
+
+### SMC epistemics
+- chart order block is proxy/inference.
+- FVG does not imply guaranteed fill.
+- sweep uses defined excursion + acceptance/re-entry logic.
+
+### Derivatives
+- OI build-up needs price and OI deltas.
+- PCR type is explicit.
+- signed dealer GEX unavailable without sign evidence.
+- IV rank unavailable with insufficient history.
+- expiry/rollover contract identities cannot mix.
+
+### Memory
+- delayed labels unavailable before label time.
+- correlated episodes cannot inflate independent count.
+- missing masks remain in similarity identity.
+- mock 9C remains unreachable from canonical M4.
+
+### Kronos
+- mock/fallback Kronos has zero canonical influence.
+- OOD/unverified output cannot promote.
+- model version/input hash appear in receipt.
+
+### Hypothesis
+- no fabricated S/R or boundaries.
+- every trade-like thesis has anti-thesis.
+- unknown required evidence stays explicit.
+- fake probability labels rejected without calibration.
+
+### D6
+- final authority remains singular.
+- reviewers/specialists cannot directly upgrade final band.
+- safety blockers dominate unlimited support.
+- unresolved material conflict caps promotion.
+- fragile/single-factor thesis cannot become PAPER-CANDIDATE.
+- no execution/order-routing authority introduced.
+
+## 31.27 Reconciliation with existing agreed planning order
+
+The saved priority remains:
+
+```text
+Hypothesis Box
+-> Twin
+-> ORB / AFRE
+-> Kronos
+-> Indicators / M3.1
+-> 9-Candle Real Memory / M3.3
+-> History + Pattern Diary / M3.3
+-> Old Fake Album remains outside production
+```
+
+New dependency law:
+
+```text
+Planning order != unsafe implementation shortcut.
+```
+
+Hypothesis v2 may be designed first, but production code must not invent evidence while later Fact-Kernel/Indicator work is unfinished. Missing required evidence stays missing and may cap the hypothesis. Twin can be improved second but canonical conflict/independence semantics must not depend on Twin alone. ORB/AFRE remain proposal specialists; Kronos remains bounded sequence evidence; M3.1/M3.3 improvements strengthen the same contracts without changing authority.
+
+## 31.28 Updated engine-specific planning checklist
+
+Every future dedicated engine plan should answer:
+
+```text
+1. What exact market question does this engine answer?
+2. Which facts does it consume?
+3. Which facts does it calculate, if any?
+4. What formula/config versions exist today?
+5. Are any names hiding different calculations?
+6. What is its effective horizon and source timeframe?
+7. What can be known at decision time?
+8. What needs delayed confirmation?
+9. Which inputs are shared/correlated?
+10. Which evidence can actually be independent?
+11. Which market phases make the engine relevant?
+12. Which regimes weaken it?
+13. What supports its thesis?
+14. What contradicts it?
+15. What invalidates it?
+16. What information can be missing?
+17. How does missingness propagate?
+18. What is its likely failure path?
+19. What is its dangerous failure path?
+20. What counterfactual should challenge it?
+21. What OOD/drift state can occur?
+22. What historical evidence is PIT-safe?
+23. What mock/synthetic paths stay quarantined?
+24. What authority may it exercise?
+25. What authority is explicitly forbidden?
+26. What bounded latency/memory design applies?
+27. What deterministic replay proof is required?
+28. What adversarial tests are required?
+29. What migration/rollback path exists?
+30. What exact evidence marks GREEN/LOCKED?
+```
+
+## 31.29 Example unified reason receipt
+
+```text
+ACTIVE_CASE:
+BREAKOUT_ATTEMPT
+
+MARKET_PHASE:
+OPENING_BREAKOUT_ATTEMPT
+
+THESIS:
+BREAKOUT_FOLLOW_THROUGH
+
+SUPPORT:
+- confirmed ORH break
+- accepted close above ORH
+- price above session VWAP
+- EMA9>20>50 with positive slopes
+- RVOL elevated for same session time
+- Nifty and sector supportive
+
+DEPENDENCY_NOTE:
+- EMA stack and MACD share price-trend dependency
+- RVOL and OBV share volume dependency
+- descriptive richness != duplicate independent proof
+
+OPPOSITION:
+- daily resistance 0.31 ATR above
+- concentrated call OI near next strike
+
+UNKNOWN:
+- participant OI unavailable
+
+ANTI_THESIS:
+BREAKOUT_FAILURE / LIQUIDITY_SWEEP
+
+EXPECTED_NEXT_IF_THESIS_TRUE:
+- hold above ORH
+- shallow retest
+- VWAP remains below price
+- participation remains healthy
+
+EARLY_FAILURE_PRECURSOR:
+- immediate re-entry below ORH
+
+INVALIDATION:
+- accepted close below ORH plus VWAP loss
+
+MEMORY:
+- analogous PIT-safe episodes available
+- material historical failure subset rejected at daily resistance
+
+KRONOS:
+- REAL_VALIDATED or UNAVAILABLE
+- never mock-influenced
+
+ROBUSTNESS:
+MODERATE
+
+D6 RESULT:
+WATCH
+
+WHY:
+Thesis is valid but opposition/failure risk remains material and unresolved.
+```
+
+This is desired explainability: structured facts, relationships, alternatives, invalidators and authority outcomes, not hidden chain-of-thought or a weighted indicator-vote dump.
+
+## 31.30 Research references retained for future plan authors
+
+- NSE India VIX overview: https://www.nseindia.com/static/products-services/indices-indiavix-index
+- CME open-interest reference: https://www.cmegroup.com/market-data/volume-open-interest/about.html
+- TradingView VWAP reference: https://www.tradingview.com/support/solutions/43000502018-volume-weighted-average-price-vwap/
+- TradingView Relative Volume at Time: https://www.tradingview.com/support/solutions/43000635874-how-do-we-calculate-relative-volume-and-relative-volume-at-time/
+- Bollinger Bands official material: https://www.bollingerbands.com/
+- Fidelity technical-indicator reference library: https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/overview
+- Support/resistance empirical study: https://arxiv.org/abs/2101.07410
+- Fibonacci retracement empirical study: https://www.sciencedirect.com/science/article/abs/pii/S0957417421012495
+- Kronos paper: https://arxiv.org/abs/2508.02739
+- Kronos official repository: https://github.com/shiyu-coder/Kronos
+
+## 31.31 Final merged design principle
+
+The unified Trade Vision reasoning engine should know **what each observation means, what it does not mean, how it was calculated, when it became knowable, which observations share its information, which market problem makes it relevant, what alternative explanation competes with it, and how the thesis can fail**.
+
+The system becomes stronger by combining relationships, not by forcing every sensor into one number.
+
+Canonical summary:
+
+```text
+TRUTHFUL DATA
+-> VERSIONED MARKET FACTS
+-> SEMANTIC EVIDENCE
+-> CONTEXT / PHASE
+-> RELATIONSHIP + INDEPENDENCE GRAPH
+-> THESIS + ANTI-THESIS
+-> FAILURE / SCENARIO / COUNTERFACTUAL CHALLENGE
+-> ROBUSTNESS / OOD / UNCERTAINTY
+-> D6 SOLE FINAL AUTHORITY
+-> WAIT / WATCH / PAPER-CANDIDATE
+```
+
+This section is a research/design source. It does not claim these enhancements are implemented or GREEN/LOCKED until code, tests, adversarial replay and exact-head CI prove them.
+
