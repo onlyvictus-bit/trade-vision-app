@@ -667,3 +667,1235 @@ The ORB + AFRE upgrade is complete only when Trade Vision can, for an eligible s
 10. return only the permitted guidance state, with live trading and order routing still blocked.
 
 That is the intended future design: **research what works for this stock, detect today's ORB signal, choose only proven trade parameters, use controlled ML to improve future probability accuracy, and let AFRE/D6 reason over the complete evidence rather than blindly following an ORB breakout.**
+
+---
+
+# 16. Canonical Build Order and Inter-Stage Data Flow
+
+This section is a required implementation map. It defines **how the build proceeds, what exact class of data enters every stage, what that stage is allowed to calculate, and what artifact is permitted to flow to the next stage**.
+
+There are two separate but connected pipelines:
+
+1. **Research/build pipeline** — uses historical point-in-time-safe data to discover, validate, prove, calibrate, and promote per-stock ORB playbooks and ML models.
+2. **Daily runtime pipeline** — uses only information available at the current decision timestamp, the already-promoted playbook/model, and closed candles to create today's ORB evidence package for AFRE/D6.
+
+Do not mix these two pipelines. Historical future outcomes may be used to create matured research labels **after** their horizon completes, but may never flow into the feature snapshot used to reproduce an earlier decision.
+
+## 16.1 Full build order
+
+| Stage | Build responsibility | Main data IN | Canonical data/artifact OUT |
+|---|---|---|---|
+| 0 | Baseline Lock and Audit | branch SHA, current ORB code, AFRE/D6 code, tests, current CI, authority registry | `ORB_BASELINE_MANIFEST` |
+| 1 | Canonical ORB Context Brain | historical OHLCV, previous completed DAILY session, CPR, BB, VWAP bands, ATR, volume, index, sector, structure, events, derivatives, quality/provenance | `ORB_CONTEXT_SNAPSHOT` |
+| 2 | Timing/Confirmation Research | historical context snapshots + closed historical intraday bars + historical matured outcomes | `ORB_TIMING_RESEARCH_REPORT` |
+| 3 | Explicit ORB Signal Engine | promoted/researched OR-duration rules + locked ORH/ORL + closed post-OR bars + context | `ORB_SIGNAL` |
+| 4 | Trade Parameter Research and Selection | historical ORB signals + decision-time context + later matured price-path outcomes | `ORB_PARAMETER_SET` candidates and proof |
+| 5 | Combination Research | context + signal + parameters + matured outcomes | `ORB_COMBINATION_EVIDENCE` |
+| 6 | ML Dataset / Feature Store | immutable decision-time snapshots + separately matured labels | versioned ML feature/label dataset |
+| 7 | ML Training / Calibration / Challenger | chronological train/validation data + approved feature schema | model artifact + calibration + uncertainty + promotion evidence |
+| 8 | Per-Stock Playbook Promotion | timing proof + signal proof + parameter proof + combination proof + approved ML metadata | versioned `ORB_PLAYBOOK` |
+| 9 | AFRE/D6 Integration | today's context + playbook + ORB signal + selected trade parameters + ML evidence + FOR/AGAINST evidence | `ORB_EVIDENCE_PACKAGE` to AFRE/D6 |
+| 10 | Safety / Adversarial CI | replay cases, missing/stale data, leakage attacks, authority attacks, model drift cases | exact-head test/CI evidence |
+| 11 | Paper Operational Validation | live closed-candle market data + promoted playbook/model, no broker authority | immutable paper decision snapshots + later matured outcomes |
+
+The ordering matters. Do not train ML before there is a stable, versioned feature contract. Do not promote a per-stock playbook before timing, signal, trade-parameter, and unseen-data proof exist. Do not wire ORB as a final authority before AFRE/D6 evidence contracts and veto behavior are tested.
+
+---
+
+# 17. Stage 0 — Baseline Lock and Audit
+
+Before new ORB coding:
+
+```text
+CURRENT BRANCH HEAD
+       +
+CURRENT ORB MODULES
+       +
+CURRENT AFRE/D6 MODULES
+       +
+CURRENT TESTS / CI
+       +
+CURRENT AUTHORITY RULES
+       ↓
+ORB_BASELINE_MANIFEST
+```
+
+The baseline manifest should record at minimum:
+
+- exact branch
+- exact commit SHA
+- existing ORB engine versions
+- existing AFRE/D6 versions
+- current data contracts
+- current tests and passing/failing status
+- current CI run IDs where applicable
+- known gaps
+- known legacy behavior that must not silently change
+- research-only/live-trading-blocked invariants
+
+This prevents a future implementation from starting over or falsely claiming an existing feature is missing.
+
+---
+
+# 18. Stage 1 — Canonical ORB Context Brain Data Flow
+
+Stage 1 is the **market-context construction layer**. It does not make the final trade decision.
+
+## 18.1 Previous completed DAILY session creation
+
+Historical/live intraday bars flow as:
+
+```text
+Yesterday's closed intraday candles
+09:15
+09:20
+09:25
+...
+15:25
+15:30
+       ↓
+validate session completeness / provenance
+       ↓
+aggregate once
+       ↓
+ONE PREVIOUS COMPLETED DAILY OHLCV CANDLE
+```
+
+The following substitution is forbidden:
+
+```text
+Yesterday's last 5m / 10m / 15m candle
+                 ≠
+Yesterday's completed DAILY candle
+```
+
+## 18.2 Previous-day data extracted/calculated
+
+From the completed prior session:
+
+```text
+PREVIOUS COMPLETED DAILY SESSION
+│
+├── OHLCV
+├── candle anatomy
+│   ├── body size
+│   ├── full range
+│   ├── body/range ratio
+│   ├── upper wick
+│   ├── lower wick
+│   ├── close location
+│   ├── directional strength
+│   └── abnormal range flags
+│
+├── candlestick pattern evidence
+│   ├── Engulfing
+│   ├── Hammer
+│   ├── Inverted Hammer
+│   ├── Shooting Star
+│   ├── Doji
+│   ├── Harami
+│   ├── Kicker
+│   ├── Morning Star
+│   ├── Evening Star
+│   ├── Three Inside
+│   ├── Dark Cloud / Piercing
+│   ├── Outside Reversal
+│   ├── SFP
+│   └── other validated registered patterns
+│
+├── CPR
+│   ├── Pivot
+│   ├── BC
+│   ├── TC
+│   ├── CPR width
+│   ├── width / ATR
+│   └── NARROW / NORMAL / WIDE
+│
+├── PDH
+├── PDL
+├── PDC
+│
+├── Bollinger context
+│   ├── basis
+│   ├── upper
+│   ├── lower
+│   ├── width
+│   ├── compression/squeeze
+│   ├── expansion
+│   ├── slope
+│   └── price/band relationship
+│
+├── VWAP context
+│   ├── Daily VWAP
+│   ├── Daily +1 / +2 / +3
+│   ├── Daily -1 / -2 / -3
+│   ├── Weekly VWAP
+│   ├── Weekly +1 / +2 / +3
+│   ├── Weekly -1 / -2 / -3
+│   ├── distance
+│   ├── acceptance/rejection
+│   └── confluence
+│
+├── ATR / volatility regime
+├── volume / participation evidence
+├── market structure / liquidity / trap evidence
+└── data-quality / provenance metadata
+```
+
+## 18.3 Current-session context available before the decision
+
+Only information already known at the current timestamp may be added:
+
+```text
+TODAY SO FAR
+│
+├── opening price
+├── gap size / gap direction
+├── position vs PDH/PDL/PDC
+├── position vs CPR zones
+├── closed-candle intraday volatility
+├── closed-candle volume / RVOL
+├── Nifty / benchmark alignment
+├── sector alignment
+├── structure/liquidity/trap evidence
+├── event risk
+├── derivatives / OI / expiry context when valid
+└── data quality / freshness
+```
+
+## 18.4 Stage-1 canonical output
+
+All of the above is normalized into:
+
+```text
+ORB_CONTEXT_SNAPSHOT
+```
+
+Example structure:
+
+```text
+symbol = RELIANCE
+snapshot_time = 09:40 IST
+previous_daily_pattern = BULLISH_ENGULFING
+previous_daily_close_location = 0.91
+cpr_class = NARROW
+vwap_state = ABOVE_DAILY_PLUS_1
+bb_state = EXPANDING
+atr_regime = NORMAL_HIGH
+nifty_alignment = BULLISH
+sector_alignment = BULLISH
+event_state = NONE
+quality = GOOD
+snapshot_hash = ...
+feature_version = ...
+```
+
+Every value must include enough identity/provenance to reproduce it. Missing values remain explicitly unavailable/unknown instead of being converted to zero or neutral.
+
+---
+
+# 19. Stage 2 — ORB Timing and Confirmation-Timeframe Research Flow
+
+Stage 2 asks **which opening-range duration and confirmation timeframe actually work for this stock and context**.
+
+Inputs:
+
+```text
+HISTORICAL ORB_CONTEXT_SNAPSHOTs
+             +
+HISTORICAL CLOSED INTRADAY BARS
+             +
+MATURED HISTORICAL OUTCOMES
+```
+
+Research matrix includes at minimum:
+
+```text
+ORB-5
+ORB-10
+ORB-15
+ORB-20
+ORB-30
+```
+
+crossed with supported confirmation timeframes such as:
+
+```text
+1m
+3m
+5m
+15m
+```
+
+A research cell is conceptually:
+
+```text
+SYMBOL
+  ×
+OR DURATION
+  ×
+CONFIRMATION TF
+  ×
+SIGNAL FAMILY
+  ×
+REGIME / CONTEXT
+```
+
+Example research comparisons:
+
+```text
+RELIANCE + ORB-5  + 5m confirmation + narrow CPR + bullish prior day
+RELIANCE + ORB-15 + 5m confirmation + narrow CPR + bullish prior day
+RELIANCE + ORB-30 + 15m confirmation + same context
+```
+
+For each cell, calculate at least:
+
+- sample count
+- win/loss rate
+- expectancy
+- mean/median R
+- profit factor
+- drawdown
+- MAE/MFE
+- false-break rate
+- retest success
+- average trigger time
+- average holding time
+- no-chase sensitivity
+- entry-cutoff sensitivity
+- stop/target sensitivity
+- regime dependence
+- year-to-year stability
+- unseen/holdout performance
+- uncertainty/confidence interval
+- edge decay/drift
+
+Output:
+
+```text
+ORB_TIMING_RESEARCH_REPORT
+```
+
+Possible data-driven result:
+
+```text
+symbol = RELIANCE
+ORB-5 = unstable
+ORB-10 = acceptable
+ORB-15 = strongest promoted evidence
+ORB-20 = good but lower opportunity count
+ORB-30 = lower expectancy / too late
+preferred_confirmation_tf = 5m
+```
+
+This example is illustrative only. The engine must discover the result from historical proof.
+
+---
+
+# 20. Stage 3 — Explicit ORB Signal Engine Data Flow
+
+Stage 2/playbook tells runtime **how the OR should be formed**. Stage 3 determines **what signal actually occurred today**.
+
+Example promoted configuration:
+
+```text
+symbol = RELIANCE
+OR duration = 15m
+confirmation = 5m closed candle
+```
+
+Today's opening range:
+
+```text
+09:15–09:30 closed bars
+        ↓
+ORH = highest eligible high
+ORL = lowest eligible low
+ORM = midpoint
+OR width
+OR width / ATR
+OR volume
+OR VWAP
+        ↓
+LOCKED OPENING RANGE
+```
+
+After the OR is locked, only fully closed eligible bars can create authority.
+
+Example:
+
+```text
+ORH = 1510
+ORL = 1490
+09:35 closed candle close = 1514
+volume confirmation = PASS
+        ↓
+ORB_SIGNAL.type = BREAKOUT_LONG
+```
+
+Allowed explicit signal families include:
+
+```text
+NO_SETUP
+BREAKOUT_LONG
+BREAKDOWN_SHORT
+RETEST_LONG
+RETEST_SHORT
+REVERSAL_LONG
+REVERSAL_SHORT
+TRAP_LONG
+TRAP_SHORT
+SECOND_CHANCE_REENTRY_LONG
+SECOND_CHANCE_REENTRY_SHORT
+INVALIDATED
+```
+
+Stage-3 output:
+
+```text
+ORB_SIGNAL
+│
+├── symbol/session
+├── signal family
+├── direction
+├── OR duration
+├── confirmation TF
+├── ORH / ORL / midpoint
+├── width / ATR
+├── lock time
+├── trigger time
+├── closed-candle confirmation time
+├── trigger price
+├── breakout buffer
+├── volume confirmation
+├── VWAP confirmation
+├── retest evidence
+├── trap evidence
+├── freshness / staleness
+├── invalidation
+├── context support summary
+├── context conflict summary
+├── reasons FOR
+├── reasons AGAINST
+├── source snapshot hash
+├── deterministic signal hash
+└── engine version
+```
+
+`ORB_SIGNAL` is evidence. It is never a broker instruction or final decision.
+
+---
+
+# 21. Stage 4 — Trade Parameter Research and Selection Data Flow
+
+An ORB signal such as `BREAKOUT_LONG` is incomplete without a proven plan.
+
+Stage 4 receives:
+
+```text
+HISTORICAL ORB_SIGNALs
+       +
+DECISION-TIME ORB_CONTEXT_SNAPSHOTs
+       +
+LATER MATURED PRICE-PATH OUTCOMES
+```
+
+Research parameter families:
+
+```text
+ENTRY
+├── breakout close
+├── confirmed breach
+├── ORH/ORL + buffer
+├── first retest
+└── confirmed pullback
+
+STOP
+├── opposite OR boundary
+├── signal candle invalidation
+├── swing/structure invalidation
+├── ATR based
+└── validated hybrid
+
+TARGET
+├── fixed R
+├── ATR based
+├── PDH/PDL
+├── CPR/pivot
+├── VWAP band
+├── next structure/level
+└── validated hybrid
+```
+
+Also research:
+
+```text
+breakout buffer
+no-chase distance
+minimum RR
+volume threshold
+VWAP acceptance/veto
+entry cutoff
+setup expiry
+maximum holding time
+mandatory flat rule
+retest wait window
+maximum re-entry count
+slippage/cost assumptions
+liquidity/spread safeguards
+```
+
+Example sensitivity grid:
+
+```text
+No-chase: 0.20 ATR / 0.30 ATR / 0.50 ATR
+Entry cutoff: 10:00 / 10:30 / 11:00 / 11:30
+Retest wait: 1 / 2 / 3 candles
+Target: 1.5R / 2R / structure / hybrid
+```
+
+Output:
+
+```text
+ORB_PARAMETER_SET
+│
+├── entry rule / entry zone
+├── breakout buffer
+├── confirmation rule
+├── volume requirement
+├── VWAP requirement
+├── stop rule
+├── stop/invalidation semantics
+├── target rule
+├── target semantics
+├── minimum RR
+├── no-chase rule
+├── entry cutoff
+├── setup expiry
+├── hold/flat rule
+├── retest rule
+├── re-entry limit
+├── slippage/cost model
+├── liquidity constraints
+├── expected win/loss probability
+├── expected R
+├── sample size
+├── uncertainty
+├── proof dataset/version
+└── parameter-set version
+```
+
+Promoted parameters are frozen/versioned before runtime. They must not be changed ad hoc using future price movement from the same session.
+
+---
+
+# 22. Stage 5 — Combination Research Data Flow
+
+Stage 5 does not ask only whether a single indicator works. It asks which **combinations and contradictions** materially change ORB outcomes.
+
+Inputs:
+
+```text
+ORB_CONTEXT_SNAPSHOT
+       +
+ORB_SIGNAL
+       +
+ORB_PARAMETER_SET
+       +
+MATURED OUTCOME
+```
+
+Examples of combination questions:
+
+```text
+ORB-15
++
+Bullish Engulfing yesterday
++
+Narrow CPR
++
+Above/accepted daily VWAP
++
+BB expanding
++
+Moderate bullish gap
++
+Nifty bullish
++
+Sector bullish
++
+Strong volume
+        ↓
+How did BREAKOUT_LONG perform?
+```
+
+Contradiction example:
+
+```text
+BREAKOUT_LONG
+BUT
+previous DAILY bearish rejection
++
+wide CPR
++
+BB contracting
++
+Nifty bearish
++
+sector weak
++
+weekly resistance nearby
+        ↓
+How often did the breakout fail?
+```
+
+The combination layer should learn:
+
+```text
+what materially SUPPORTS ORB
+what materially CONTRADICTS ORB
+what appears irrelevant/noisy
+what works only in a particular regime
+what helps retest but hurts direct breakout
+what makes ORB-5 noisy but ORB-15 stable
+```
+
+Output:
+
+```text
+ORB_COMBINATION_EVIDENCE
+│
+├── combination identity
+├── support/contradiction direction
+├── signal family
+├── context bucket
+├── sample count
+├── success/failure statistics
+├── expectancy
+├── uncertainty
+├── stability
+├── unseen-data proof
+└── overfit/sparsity status
+```
+
+Low-sample combinations must not become false rules.
+
+---
+
+# 23. Stage 6 — Machine-Learning Dataset and Feature-Store Flow
+
+ML begins only after deterministic snapshot and signal contracts are stable.
+
+Every historical ORB decision becomes an **immutable decision-time feature row**.
+
+Example at 09:40:
+
+```text
+DECISION SNAPSHOT — 2025-04-15 09:40
+
+symbol = RELIANCE
+ORB_duration = 15
+confirmation_tf = 5m
+signal = BREAKOUT_LONG
+OR_width_ATR = 0.42
+previous_daily_pattern = BULLISH_ENGULFING
+CPR = NARROW
+BB = EXPANDING
+VWAP_band_state = ABOVE_PLUS_1
+Nifty = BULLISH
+Sector = BULLISH
+Volume_ratio = 1.65
+Gap = +0.55%
+selected_parameter_set = ...
+entry = 1514
+stop = 1505
+target = 1532
+snapshot_hash = ...
+feature_schema_version = ...
+```
+
+At 09:40 the feature row must **not** contain:
+
+```text
+today's eventual close       ❌
+today's future high/low       ❌
+future target-hit state       ❌
+future stop-hit state         ❌
+future MFE/MAE                ❌
+post-entry facts not yet known❌
+```
+
+Data flow:
+
+```text
+DECISION-TIME FEATURE SNAPSHOT
+           ↓
+          FREEZE
+           ↓
+wait until configured outcome horizon matures
+           ↓
+CREATE OUTCOME LABEL SEPARATELY
+           ↓
+JOIN FOR TRAINING BY IMMUTABLE ID
+```
+
+A matured label may contain:
+
+```text
+target_before_stop = YES
+win/loss/timeout = WIN
+realized_R_after_costs = +2.0
+MFE = +2.4R
+MAE = -0.25R
+false_break = NO
+retest_success = YES/NA
+```
+
+The original 09:40 snapshot must never be mutated after the outcome becomes known.
+
+---
+
+# 24. Stage 7 — Machine-Learning Training, Calibration and Challenger Flow
+
+Inputs:
+
+```text
+VERSIONED PIT-SAFE FEATURES
+         +
+MATURED OUTCOME LABELS
+         ↓
+CHRONOLOGICAL DATASET
+```
+
+ML tasks may estimate:
+
+```text
+P(target before stop)
+P(false breakout / trap)
+P(retest success)
+Expected R after costs
+P(setup remains valid for horizon)
+Most suitable already-researched OR duration / confirmation TF
+Best expected risk-adjusted already-proven parameter set
+```
+
+ML must also output/retain:
+
+```text
+model version
+feature schema version
+training window
+sample size
+probability calibration
+Brier score
+log loss
+ROC-AUC / PR-AUC when meaningful
+uncertainty
+stability by stock/year/regime/signal
+drift state
+edge-decay state
+```
+
+Training flow:
+
+```text
+chronological training data
+        ↓
+train baseline + candidate/challenger
+        ↓
+validation / hyperparameter selection
+        ↓
+purged/embargoed validation where horizons overlap
+        ↓
+walk-forward tests
+        ↓
+FINAL UNTOUCHED HOLDOUT
+        ↓
+compare challenger vs champion and deterministic baseline
+        ↓
+PROMOTE / REJECT / ABSTAIN
+```
+
+Never tune hyperparameters on final holdout.
+
+Do not judge ML only by raw classification accuracy. Better raw accuracy with worse probability calibration, expectancy, drawdown, or unseen stability does not automatically qualify for promotion.
+
+---
+
+# 25. Stage 8 — Per-Stock Playbook Promotion Flow
+
+Inputs:
+
+```text
+ORB_TIMING_RESEARCH_REPORT
+          +
+ORB signal-family proof
+          +
+ORB_PARAMETER_SET proof
+          +
+ORB_COMBINATION_EVIDENCE
+          +
+approved ML model/calibration metadata
+          ↓
+PLAYBOOK PROMOTION GATE
+```
+
+Output:
+
+```text
+ORB_PLAYBOOK
+```
+
+A promoted per-stock playbook should contain conceptually:
+
+```text
+symbol = RELIANCE
+preferred_OR = 15m
+confirmation = 5m close
+supported_signals = BREAKOUT_LONG, RETEST_LONG, ...
+strong_contexts = ...
+weak/no-trade_contexts = ...
+false-break/trap behavior = ...
+volume requirements = ...
+VWAP 3-band rules = ...
+CPR rules = ...
+previous DAILY candle/pattern rules = ...
+BB rules = ...
+index/sector alignment = ...
+event/derivatives/liquidity vetoes = ...
+entry rule = ...
+stop rule = ...
+target rule = ...
+minimum RR = ...
+no_chase = ...
+entry_cutoff = ...
+setup_expiry = ...
+reentry_max = ...
+hold/flat rule = ...
+training range = ...
+validation range = ...
+holdout range = ...
+backtest statistics = ...
+ML model/version/calibration = ...
+uncertainty = ...
+known failure modes = ...
+drift status = ...
+playbook_version = ...
+promotion_status = ACTIVE/REJECTED/SHADOW/etc.
+```
+
+The runtime engine reads a frozen promoted playbook. It does not reinvent OR timing or parameters during the current session using future observations.
+
+---
+
+# 26. Stage 9 — Daily Runtime Data Flow
+
+The runtime flow is distinct from research.
+
+```text
+D2 / CLOSED-CANDLE MARKET DATA
+             │
+             ▼
+PREVIOUS COMPLETED DAILY SESSION
+             │
+             ▼
+CANONICAL ORB CONTEXT BRAIN
+             │
+      ┌──────┼─────────────────────────────────┐
+      │      │              │                  │
+      ▼      ▼              ▼                  ▼
+Daily/CPR/  Market &      Structure /        Risk/Event/
+BB/VWAP     Index/Sector  Liquidity/Trap      Derivatives
+      │      │              │                  │
+      └──────┴──────────────┴──────────────────┘
+                         │
+                         ▼
+                 ORB_CONTEXT_SNAPSHOT
+                         │
+                         +----> ACTIVE ORB_PLAYBOOK
+                         │
+                         ▼
+                 BUILD TODAY'S OR
+                         │
+                   ORH / ORL LOCK
+                         │
+                         ▼
+                    ORB_SIGNAL
+                         │
+                         ▼
+             SELECT PROMOTED PARAMETERS
+                         │
+                         ▼
+                 ORB_PARAMETER_SET
+                         │
+                         ▼
+               PROMOTED ML INFERENCE
+                         │
+                         ▼
+                ML EVIDENCE / SCORE
+                         │
+                         ▼
+              ORB_EVIDENCE_PACKAGE
+                         │
+                         ▼
+                    AFRE / D6
+                         │
+                         ▼
+             WAIT / WATCH / PAPER-CANDIDATE
+```
+
+The daily pipeline must never call research code in a manner that leaks same-day future outcomes back into current decisions.
+
+---
+
+# 27. ORB Evidence Package Contract
+
+Before AFRE/D6, all ORB-related evidence should be assembled into one traceable package:
+
+```text
+ORB_EVIDENCE_PACKAGE
+│
+├── identity
+│   ├── symbol
+│   ├── session
+│   ├── decision timestamp
+│   ├── source snapshot hash
+│   └── package version/hash
+│
+├── canonical context
+│   ├── previous DAILY candle/pattern
+│   ├── CPR / PDH / PDL / PDC
+│   ├── BB state
+│   ├── daily/weekly VWAP ±1/±2/±3
+│   ├── ATR / volatility
+│   ├── volume
+│   ├── index / sector
+│   ├── structure / liquidity / traps
+│   ├── events / derivatives
+│   └── quality / availability
+│
+├── ORB_SIGNAL
+│   ├── signal family / direction
+│   ├── ORH / ORL
+│   ├── OR duration / confirmation TF
+│   ├── trigger / confirmation
+│   ├── volume / VWAP confirmation
+│   ├── retest/trap evidence
+│   └── signal freshness/invalidation
+│
+├── ORB_PARAMETER_SET
+│   ├── entry
+│   ├── stop
+│   ├── target
+│   ├── RR
+│   ├── no-chase
+│   ├── cutoff / expiry
+│   ├── re-entry
+│   └── costs/liquidity assumptions
+│
+├── deterministic research evidence
+│   ├── sample count
+│   ├── win/loss statistics
+│   ├── expected R
+│   ├── drawdown
+│   ├── false-break / retest statistics
+│   ├── unseen-data performance
+│   └── stability / uncertainty
+│
+├── combination evidence
+│   ├── historical supporting contexts
+│   ├── historical contradicting contexts
+│   └── sparsity/overfit flags
+│
+├── ML evidence
+│   ├── calibrated P(success)
+│   ├── P(false break)
+│   ├── P(retest success)
+│   ├── expected R
+│   ├── uncertainty
+│   ├── calibration state
+│   ├── model version
+│   └── drift/edge-decay state
+│
+├── reasons FOR
+├── reasons AGAINST
+├── hard blockers / unavailable inputs
+└── PIT / causality proof
+```
+
+This package is evidence, not an order.
+
+---
+
+# 28. AFRE/D6 Consumption and Authority Flow
+
+AFRE/D6 must receive the ORB package alongside its other canonical evidence.
+
+Example:
+
+```text
+ORB_SIGNAL:
+BREAKOUT_LONG
+
+Trade plan candidate:
+Entry 1514
+Stop 1504
+Target 1534
+
+Deterministic ORB research:
+ORB-15 / 5m confirmation historically strong in comparable promoted contexts
+
+ML evidence:
+P(success) = 0.68
+Expected R = +0.46R
+calibration = valid
+uncertainty = ...
+
+Previous day:
+Bullish Engulfing
+Narrow CPR
+BB expansion
+VWAP positive
+
+Current context:
+Index bullish
+Volume strong
+```
+
+But AFRE/D6 can simultaneously receive contradiction:
+
+```text
+Weekly resistance = VERY CLOSE
+Event risk = MEDIUM
+Trap evidence = elevated
+Sector = slightly weak
+```
+
+Therefore the reasoning structure is:
+
+```text
+FOR
+├── ORB breakout
+├── volume
+├── previous DAILY evidence
+├── CPR
+├── VWAP
+├── BB
+├── index alignment
+├── deterministic historical proof
+└── calibrated ML evidence
+
+AGAINST
+├── nearby resistance
+├── sector conflict
+├── trap risk
+├── event risk
+└── any other stronger canonical contradiction
+```
+
+Then D6 retains final authority to return only the permitted guidance band:
+
+```text
+WAIT
+WATCH
+PAPER-CANDIDATE
+```
+
+A 68% ML probability does **not** mean `BUY`. An ORB breakout does **not** mean `BUY`. An attractive trade parameter set does **not** mean `BUY`. They are evidence inputs to final deliberation.
+
+---
+
+# 29. After-the-Outcome Learning Flow
+
+After the configured session/trade horizon is complete, the system may learn from the result.
+
+Example original decision:
+
+```text
+09:40
+ORB_SIGNAL = BREAKOUT_LONG
+ML P(success) = 0.68
+ORB evidence package hash = X
+```
+
+Later, after the label is mature:
+
+```text
+target_before_stop = YES
+realized_R = +2.0R
+```
+
+The system stores:
+
+```text
+ORIGINAL IMMUTABLE DECISION SNAPSHOT
+              +
+SEPARATE MATURED OUTCOME LABEL
+```
+
+It must not rewrite the original feature snapshot with information learned later.
+
+Controlled future-learning loop:
+
+```text
+NEW MATURED OUTCOMES
+        ↓
+rolling calibration / expectancy statistics
+        ↓
+drift / edge-decay / regime-shift detection
+        ↓
+enough new evidence to retrain?
+       / \
+     NO   YES
+     │     │
+keep      train challenger
+champion       │
+               ▼
+        walk-forward + holdout proof
+               │
+          ┌────┴────┐
+          │         │
+        WORSE     BETTER
+          │         │
+        REJECT    eligible for promotion
+          │         │
+          └────┬────┘
+               ▼
+     champion / rollback registry
+```
+
+Promotion requires material unseen-data improvement without degraded safety, calibration, expectancy, or stability. If evidence is insufficient, the system keeps the previous champion or abstains.
+
+---
+
+# 30. Which Data Is Allowed to Flow Where
+
+## 30.1 Allowed forward flow
+
+```text
+Raw closed market facts
+        ↓
+canonical calculations
+        ↓
+context snapshot
+        ↓
+ORB research / signal
+        ↓
+parameter research/selection
+        ↓
+combination evidence
+        ↓
+ML feature representation / inference
+        ↓
+ORB evidence package
+        ↓
+AFRE/D6
+```
+
+## 30.2 Matured outcome flow
+
+Matured future outcomes may flow only into **research/evaluation/training after the outcome horizon completes**:
+
+```text
+matured outcome
+   ├──> backtest statistics
+   ├──> timing research
+   ├──> parameter research
+   ├──> combination research
+   ├──> ML labels
+   ├──> calibration monitoring
+   └──> challenger evaluation
+```
+
+Matured outcomes may never flow backward into an earlier decision-time feature snapshot.
+
+## 30.3 Forbidden flow
+
+```text
+future candle → current signal                  ❌
+end-of-day high/low → 09:40 feature             ❌
+future target hit → current ML input             ❌
+future stop hit → current trade parameters       ❌
+holdout results → hyperparameter tuning          ❌
+ML score → bypass hard safety gates              ❌
+ORB signal → broker order                        ❌
+parameter engine → execution authority           ❌
+AFRE sub-engine → overwrite D1/D2 causality      ❌
+missing value → neutral/zero fabrication         ❌
+```
+
+---
+
+# 31. Canonical Short-Form Architecture
+
+The complete intended runtime architecture can be summarized as:
+
+```text
+RAW MARKET DATA
+      ↓
+PREVIOUS-DAY + CURRENT MARKET CONTEXT
+      ↓
+PER-STOCK ORB RESEARCH / ACTIVE PLAYBOOK
+      ↓
+BEST PROVEN OR TIME + CONFIRMATION TF
+      ↓
+LOCK TODAY'S ORH / ORL
+      ↓
+EXPLICIT ORB SIGNAL
+      ↓
+PROVEN ENTRY / STOP / TARGET PARAMETERS
+      ↓
+ML PROBABILITY + EXPECTED R + UNCERTAINTY
+      ↓
+FULL ORB EVIDENCE PACKAGE
+      ↓
+AFRE REASONING
+      ↓
+D6 FINAL ARBITRATION
+      ↓
+WAIT / WATCH / PAPER-CANDIDATE
+      ↓
+LATER MATURED OUTCOME
+      ↓
+CALIBRATION / DRIFT / CHALLENGER LEARNING
+      ↓
+FUTURE MODEL / PLAYBOOK IMPROVEMENT
+```
+
+The governing architecture law for this ORB build is:
+
+> **RAW FACT CALCULATED ONCE → MANY BRAINS INTERPRET → EVERY INTERPRETATION TRACEABLE.**
+
+For ORB specifically:
+
+> **Raw facts are canonical → context describes the market → research discovers what has proof → ORB produces an explicit signal → the parameter engine produces a proof-backed trade-plan candidate → ML estimates calibrated outcome probabilities → AFRE weighs support and contradiction → D6 retains final authority.**
+
+---
+
+# 32. Inter-Stage Contract Audit
+
+Future implementation must verify these data handoffs one by one:
+
+| Flow ID | Producer | Consumer | Required payload | Forbidden contamination |
+|---|---|---|---|---|
+| F01 | Raw market-data adapter | Canonical context | closed PIT-safe OHLCV + provenance | incomplete/future candles |
+| F02 | Previous-session aggregator | Context Brain | completed DAILY OHLCV | last intraday candle masquerading as daily |
+| F03 | Canonical indicators/structure | Context Brain | CPR, BB, VWAP bands, ATR, structure, quality | duplicate inconsistent recalculation |
+| F04 | Context Brain | Timing Research | immutable historical context snapshots | future outcomes inside features |
+| F05 | Closed bars + playbook | Signal Engine | locked OR + confirmation bars | incomplete-bar authority |
+| F06 | Signal Engine | Parameter Selection | deterministic `ORB_SIGNAL` | final-trade authority |
+| F07 | Historical signals/context | Parameter Research | signal/context + later matured outcomes | same-session future leakage into decision inputs |
+| F08 | Context + signal + parameters | Combination Research | versioned identities + matured outcomes | sparse-combination false certainty |
+| F09 | Decision snapshot | ML Feature Store | only decision-time features | future/post-entry facts |
+| F10 | Matured outcome builder | ML Label Store | labels after horizon completion | immature labels |
+| F11 | Feature/label store | ML Trainer | chronological versioned dataset | holdout leakage |
+| F12 | ML Trainer | Model Registry | model + calibration + uncertainty + proof | unproven model promotion |
+| F13 | Research stages | Playbook Promotion | timing + signal + parameters + combinations + approved ML metadata | in-sample-only promotion |
+| F14 | Playbook + current context | Runtime Signal/Parameters | frozen promoted rules | ad-hoc future-aware rule mutation |
+| F15 | ML Runtime | ORB Evidence Package | calibrated probabilities/expected R/uncertainty | deterministic-signal override |
+| F16 | ORB subsystem | AFRE/D6 | complete evidence package with FOR/AGAINST | order-routing authority |
+| F17 | AFRE/D6 | Guidance | final evidence arbitration | ORB/ML bypass of D6 |
+| F18 | Completed horizon | Learning loop | immutable snapshot + matured outcome | rewriting original snapshot |
+
+A future implementation is incomplete if any one of these handoffs is implicit, unversioned, unhashable, non-replayable, or able to smuggle future information into an earlier decision.
