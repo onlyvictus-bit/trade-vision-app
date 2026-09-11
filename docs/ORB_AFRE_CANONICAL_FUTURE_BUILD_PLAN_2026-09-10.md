@@ -3,6 +3,7 @@
 **Repository:** `onlyvictus-bit/trade-vision-app`  
 **Planning branch:** `m4-d6-orchestration-redesign`  
 **Document date:** 2026-09-10  
+**Re-audit date:** 2026-09-11  
 **Status:** FUTURE BUILD SPECIFICATION — this document records intended design and acceptance criteria. Its presence does **not** mean every item below is implemented or production-ready.
 
 ---
@@ -33,7 +34,7 @@ Create one canonical context object for every ORB research run and live/paper gu
 
 1. Previous completed DAILY OHLCV candle.
 2. Previous-day candle anatomy: body size, range, body/range ratio, upper wick, lower wick, close location, gap relationship, directional strength, and abnormal-range flags.
-3. Previous-day named candlestick-pattern evidence, including available single-bar and multi-bar patterns such as Doji, Harami, Engulfing, Piercing, Kicker, Hanging Man, Morning/Evening Star, Shooting Star, Hammer, Inverted Hammer, Three Inside, Dark Cloud/Piercing, Outside Reversal, SFP, and other validated registered candle structures.
+3. Previous-day named candlestick-pattern evidence, including available single-bar and multi-bar patterns such as Doji, Harami, Engulfing, Piercing, Bullish Belt, Kicker, Hanging Man, Morning/Evening Star, Shooting Star, Hammer, Inverted Hammer, Three Inside, Dark Cloud/Piercing, Outside Reversal, SFP, and other validated registered candle structures.
 4. CPR from completed prior-session data: Pivot, BC, TC, CPR width, ATR-normalized width, percentage width, and `NARROW` / `NORMAL` / `WIDE` class.
 5. Previous-day levels: PDH, PDL, PDC and relevant pivot/support/resistance references.
 6. Current opening gap state and opening location relative to previous-day levels and CPR zones.
@@ -572,9 +573,9 @@ The build is incomplete unless all applicable gates below pass:
 
 ---
 
-## 14. Line-by-line requirement audit
+## 14. Original line-by-line requirement audit
 
-This section is intentionally redundant. It exists so a future build agent can verify that the design request was not shortened or silently reinterpreted.
+This original audit is preserved for traceability, but the **2026-09-11 full-conversation re-audit in Section 44 supersedes any claim that this 68-item table alone covered the entire accumulated ORB conversation.**
 
 | Audit ID | Required design line | Captured in |
 |---|---|---|
@@ -646,8 +647,6 @@ This section is intentionally redundant. It exists so a future build agent can v
 | A66 | Human approval remains required for paper action. | §§6, 12 Phase 11, 13 |
 | A67 | Harden with adversarial tests and exact-head CI before GREEN. | §12 Phase 10, §13 |
 | A68 | Do not fake READY/GREEN. | §13.32 |
-
-**Audit result at document creation:** 68/68 requested design requirements are explicitly represented in this specification. Future implementation must re-run this audit against code, tests, docs, CI evidence, and promoted playbook/model artifacts; this document alone is not implementation proof.
 
 ---
 
@@ -794,6 +793,7 @@ PREVIOUS COMPLETED DAILY SESSION
 │   ├── Shooting Star
 │   ├── Doji
 │   ├── Harami
+│   ├── Bullish Belt
 │   ├── Kicker
 │   ├── Morning Star
 │   ├── Evening Star
@@ -1318,7 +1318,7 @@ feature_schema_version = ...
 At 09:40 the feature row must **not** contain:
 
 ```text
-today's eventual close       ❌
+today's eventual close        ❌
 today's future high/low       ❌
 future target-hit state       ❌
 future stop-hit state         ❌
@@ -1603,6 +1603,13 @@ ORB_EVIDENCE_PACKAGE
 │   ├── unseen-data performance
 │   └── stability / uncertainty
 │
+├── historical analog evidence
+│   ├── comparable-case definition
+│   ├── analog sample count
+│   ├── successful / failed / mixed counts
+│   ├── analog expectancy
+│   └── analog similarity/uncertainty metadata
+│
 ├── combination evidence
 │   ├── historical supporting contexts
 │   ├── historical contradicting contexts
@@ -1632,6 +1639,21 @@ This package is evidence, not an order.
 
 AFRE/D6 must receive the ORB package alongside its other canonical evidence.
 
+AFRE's deliberation must explicitly ask questions equivalent to:
+
+1. Does the previous completed DAILY session support or contradict this ORB signal?
+2. Does today's market regime support it?
+3. Is current market structure supportive or hostile?
+4. Is VWAP/value context supportive or hostile?
+5. Is this likely to be a trap/failed breakout?
+6. Is Nifty/benchmark context aligned or disagreeing?
+7. Is sector context aligned or disagreeing?
+8. Is event risk elevated?
+9. Are derivatives/OI/expiry conditions supportive, contradictory, or unavailable?
+10. What happened in genuinely comparable historical situations, and how large/uncertain is that sample?
+11. Do deterministic proof and ML calibration agree or conflict?
+12. Is any higher-authority hard blocker present?
+
 Example:
 
 ```text
@@ -1645,6 +1667,12 @@ Target 1534
 
 Deterministic ORB research:
 ORB-15 / 5m confirmation historically strong in comparable promoted contexts
+
+Historical analogs — illustrative only:
+67 similar cases
+44 successful
+14 failed
+9 mixed
 
 ML evidence:
 P(success) = 0.68
@@ -1668,7 +1696,7 @@ But AFRE/D6 can simultaneously receive contradiction:
 ```text
 Weekly resistance = VERY CLOSE
 Event risk = MEDIUM
-Trap evidence = elevated
+Trap score = 0.51   # illustrative only
 Sector = slightly weak
 ```
 
@@ -1684,6 +1712,7 @@ FOR
 ├── BB
 ├── index alignment
 ├── deterministic historical proof
+├── historical analog evidence
 └── calibrated ML evidence
 
 AGAINST
@@ -1719,9 +1748,12 @@ ML P(success) = 0.68
 ORB evidence package hash = X
 ```
 
-Later, after the label is mature:
+Later, after the label is mature, an illustrative result may be:
 
 ```text
+11:05
+Target hit
+
 target_before_stop = YES
 realized_R = +2.0R
 ```
@@ -1784,7 +1816,7 @@ ORB research / signal
         ↓
 parameter research/selection
         ↓
-combination evidence
+combination + historical-analog evidence
         ↓
 ML feature representation / inference
         ↓
@@ -1803,6 +1835,7 @@ matured outcome
    ├──> timing research
    ├──> parameter research
    ├──> combination research
+   ├──> historical-analog evaluation
    ├──> ML labels
    ├──> calibration monitoring
    └──> challenger evaluation
@@ -1813,16 +1846,20 @@ Matured outcomes may never flow backward into an earlier decision-time feature s
 ## 30.3 Forbidden flow
 
 ```text
-future candle → current signal                  ❌
-end-of-day high/low → 09:40 feature             ❌
-future target hit → current ML input             ❌
-future stop hit → current trade parameters       ❌
-holdout results → hyperparameter tuning          ❌
-ML score → bypass hard safety gates              ❌
-ORB signal → broker order                        ❌
-parameter engine → execution authority           ❌
-AFRE sub-engine → overwrite D1/D2 causality      ❌
-missing value → neutral/zero fabrication         ❌
+future candle → current signal                   ❌
+end-of-day high/low → 09:40 feature              ❌
+future target hit → current ML input              ❌
+future stop hit → current trade parameters        ❌
+holdout results → hyperparameter tuning           ❌
+ML score → bypass hard safety gates               ❌
+ORB signal → broker order                         ❌
+parameter engine → execution authority            ❌
+AFRE sub-engine → overwrite D1/D2 causality       ❌
+missing value → neutral/zero fabrication          ❌
+unknown sector state → weak_sector=False          ❌
+missing indicator evidence → score 0.0            ❌
+missing trap/event evidence → safe score 0.0       ❌
+missing volume → volume 0.0 as if observed         ❌
 ```
 
 ---
@@ -1899,3 +1936,715 @@ Future implementation must verify these data handoffs one by one:
 | F18 | Completed horizon | Learning loop | immutable snapshot + matured outcome | rewriting original snapshot |
 
 A future implementation is incomplete if any one of these handoffs is implicit, unversioned, unhashable, non-replayable, or able to smuggle future information into an earlier decision.
+
+---
+
+# 33. 2026-09-11 Re-Audit — Existing ORB Engines Must Be Reused, Not Forgotten
+
+The prior audit was incomplete because it did not explicitly preserve the already-existing ORB research stack. A future build must inspect and reuse/extend the current implementation before adding new modules.
+
+Current branch verification on `m4-d6-orchestration-redesign` confirms these ORB components exist:
+
+1. `apps/api/app/orb/core.py` — existing deterministic ORB/ORR candidate builder.
+2. `apps/api/app/orb/context.py` — existing gap/CPR/opening-scenario context and prior-session daily aggregation logic.
+3. `apps/api/app/orb/timing_research.py` — existing ORB timing research engine.
+4. `apps/api/app/orb/discovery.py` — existing discovery engine.
+5. `apps/api/app/orb/proof.py` — existing proof/promotion-related research engine.
+6. `apps/api/app/orb/adaptive/` — existing adaptive ORB research/runtime area.
+7. `apps/api/app/orb/hstry_csv.py` — existing historical-data support.
+8. `apps/api/app/behavior/orb_guidance.py` — existing ORB → paper-guidance / final-arbiter wiring.
+9. `apps/api/app/behavior/indicator_registry.py` — canonical indicator metadata registry.
+10. `legacy/stock_app/shared/indicators/self_indc.py` — preserved indicator wrappers that contain relevant BB/VWAP/candlestick capabilities.
+
+**Build rule:** do not create a parallel ORB stack that ignores these modules. First map responsibilities, identify canonical truth, migrate/reuse safely, then deprecate duplicate paths only with tests and explicit evidence.
+
+---
+
+# 34. Verified Current-Code Baseline and Gaps That Future Build Must Correct
+
+These are **current-code observations at the 2026-09-11 re-audit**, not claims about the finished future design. Reverify them against the exact branch head before coding because the repository may advance.
+
+## 34.1 Existing `orb/context.py` capability
+
+The current context module already provides important reusable foundations:
+
+- gap-state classification;
+- CPR calculation and classification;
+- PDH/PDL/PDC-based opening context;
+- Z1–Z5 open-location zones;
+- Wilder ATR helper;
+- `daily_from_intraday()` aggregation;
+- historical opening-scenario classification;
+- research-only completed-session day-type labels/predictions.
+
+Current thresholds in that module include:
+
+- flat gap boundary `<= 0.1%`;
+- large gap threshold `>= max(1.0%, 1.4 × ATR%)`;
+- CPR narrow `< 0.5 ATR`;
+- CPR wide `> 1.0 ATR` or CPR width percent `> 0.6`;
+- corporate-action suspect guard for absolute gap `> 20%`.
+
+These are current implementation facts, not automatically the final ORB research thresholds. Research definitions must remain separately versioned where they differ.
+
+## 34.2 Existing `orb/core.py` capability
+
+Current `orb-core.v1.89` already:
+
+- excludes symbol/timeframe-mismatched bars;
+- excludes incomplete/future bars;
+- removes duplicate timestamps;
+- identifies current session bars;
+- builds a locked opening range by bar count or clock window;
+- calculates ORH, ORL, midpoint, width, width percentage, range volume and **opening-range VWAP**;
+- supports current strategy families `orb_breakout`, `orr_reversal`, and `hybrid_orb`;
+- supports long/short/both configuration;
+- supports breakout buffer, close confirmation, volume confirmation, opening-range VWAP confirmation, entry cutoff, stop, target and reward:risk;
+- currently emits `BREAKOUT_LONG`, `BREAKDOWN_SHORT`, `REVERSAL_LONG`, `REVERSAL_SHORT`, or `NO_SETUP` through the existing code path;
+- keeps research-only/no-order-route gates.
+
+The current opening-range VWAP is **not the same thing as the requested previous-session / daily / weekly VWAP ±1/±2/±3 context**. Both concepts must remain clearly separated.
+
+## 34.3 Existing indicator-library capability to preserve
+
+Prior inspection identified existing library functions/capabilities that the future ORB context brain should reuse or canonically migrate rather than re-implement blindly:
+
+- Bollinger breakout/state logic with basis/upper/lower bands;
+- daily/weekly VWAP with `upper_1`, `upper_2`, `upper_3`, `lower_1`, `lower_2`, `lower_3` in pivot/VWAP confluence functions;
+- VWAP + Bollinger confluence functions;
+- detailed candlestick-pattern functions;
+- other structure/pattern marker engines.
+
+The current indicator registry identifies BB as volatility evidence, VWAP as value-area evidence, and supports timeframes including `1m`, `3m`, `5m`, `15m`, `30m`, `1H`, `4H`, `daily`, and `weekly`. It also contains an exact-94-output registry gate. The future ORB build must use the registry/dependency contracts rather than bypassing them with an untracked parallel calculation.
+
+## 34.4 Detailed candle-pattern coverage preserved from the prior discussion
+
+The prior inspection of the candle-pattern engine identified these explicit pattern outputs:
+
+1. `bullish_harami`
+2. `bullish_engulfing`
+3. `piercing_line`
+4. `bullish_belt`
+5. `bullish_kicker`
+6. `morning_star`
+7. `hammer`
+8. `inverted_hammer`
+9. `bearish_harami`
+10. `bearish_engulfing`
+11. `bearish_kicker`
+12. `hanging_man`
+13. `evening_star`
+14. `shooting_star`
+15. `doji`
+
+The prior discussion also recorded a pattern-priority ordering that must not be forgotten when evaluating/migrating that legacy behavior:
+
+- Morning Star / Evening Star: 100
+- Bull/Bear Kicker: 96
+- Bull/Bear Engulfing: 90
+- Piercing: 86
+- Hammer / Shooting Star: 82
+- Inverted Hammer / Hanging Man: 78
+- Harami: 68
+- Bullish Belt: 58
+- Doji: 30
+
+Other previously identified pattern engines include `outside_reversal`, `three_inside`, `three_inside_filtered`, `dark_cloud_piercing`, `cdl_multibar_markers`, `sfp_markers`, N-bar reversal logic, and chart-pattern/H&S-related logic. Their use must remain PIT-safe and pattern semantics must be evaluated at the correct timeframe.
+
+**Critical requirement:** these existing pattern capabilities do not satisfy the user's requirement until the completed **previous DAILY session** is explicitly transformed into the ORB context package. Merely having a pattern function somewhere in the repository is insufficient.
+
+## 34.5 Verified neutral/default hazards in current ORB path
+
+The future build must explicitly eliminate or quarantine legacy defaults that can violate the project's epistemic rules.
+
+Current `orb_guidance.py` contains hard-coded/default values including:
+
+- `relative_strength_score=0.5`;
+- `indicator_signal_score=0.0`;
+- `external_ai_score=0.0`;
+- `weak_sector=False`;
+- missing trap evidence defaulting through `0.0`;
+- missing event-risk evidence defaulting through `0.0`.
+
+Current `orb/core.py` also contains examples such as:
+
+- `bar.volume or 0.0` in volume calculations;
+- zero-valued feature fallbacks when required source state is absent.
+
+Future canonical ORB contracts must distinguish:
+
+```text
+OBSERVED ZERO
+≠
+MISSING
+≠
+UNAVAILABLE
+≠
+UNKNOWN
+≠
+NOT_APPLICABLE
+≠
+ERROR
+```
+
+A missing indicator must not become a neutral score. Missing volume must not become observed zero. Missing sector information must not become “sector is not weak.” Missing trap/event evidence must not become “safe.”
+
+## 34.6 Current guidance integration that should be extended, not discarded
+
+Current ORB guidance already:
+
+- runs from the same immutable D2 guidance snapshot;
+- loads an active proof-backed ORB playbook;
+- builds the ORB candidate against that snapshot;
+- checks MTF evidence completeness;
+- consumes liquidity/trap/event/structure/volume information;
+- requires entry-plan authority before paper candidacy;
+- enforces no-future-leakage identity checks;
+- sends evidence to the final confluence arbiter;
+- retains human approval for paper recording.
+
+The future work should strengthen this path with the full canonical context, first-class signal/parameter package, calibrated ML evidence, explicit availability semantics, and historical analog evidence rather than building an unrelated second final arbiter.
+
+---
+
+# 35. Preserved ORB Variant Research Coverage — 18 Variants
+
+The earlier ORB review discussion explicitly included **18 variants**. Future research must either implement/test each variant or mark it `NOT_IMPLEMENTED`, `UNAVAILABLE`, `REJECTED_BY_PROOF`, or otherwise explicitly accounted for. Do not silently drop a variant.
+
+| Variant ID | Variant |
+|---|---|
+| V01 | Classic ORB-15 |
+| V02 | ORB-5 |
+| V03 | ORB-30 |
+| V04 | Volume-confirmed ORB |
+| V05 | VWAP-filtered ORB |
+| V06 | Index-aligned ORB |
+| V07 | Narrow-OR expansion |
+| V08 | Wide-OR reduced |
+| V09 | Gap-and-go |
+| V10 | Gap-fade / ORR |
+| V11 | False-breakout reversal / trap |
+| V12 | Pullback retest |
+| V13 | Second-chance re-entry |
+| V14 | Post-result ORB |
+| V15 | PDH/PDL breakout |
+| V16 | Expiry-day ORB |
+| V17 | Afternoon range breakout |
+| V18 | Extension no-chase rule |
+
+ORB-10 and ORB-20 are additional timing-research durations requested later and must also be studied when source data supports exact reconstruction; they do not erase the original 18-variant coverage list.
+
+The **afternoon range breakout** must remain a separately identified research variant. It must not silently weaken the morning-ORB time policy described below.
+
+---
+
+# 36. Preserved Failure-Scenario Taxonomy
+
+The earlier review brief grouped failure scenarios A–G. Every case below must be represented in research labels, veto/context evidence, adversarial tests, or an explicit `NOT_SUPPORTED` state.
+
+## 36.A Regime failures
+
+1. Chop day.
+2. VIX coma (`<11`).
+3. VIX spike (`20–25` or `ΔVIX +8%`).
+4. Gap exhaustion (`>1.5 × ATR`).
+5. News shock.
+
+## 36.B Signal failures
+
+1. False breakout.
+2. OR too wide (`>1.0 × ATR`).
+3. OR too narrow (`<0.25 × ATR`).
+4. First-bar contamination.
+5. Level/setup staleness after `11:30` for the morning system.
+6. Double-stop whipsaw.
+
+## 36.C Event failures
+
+1. Result-day whipsaw.
+2. RBI MPC around `10:00`.
+3. Budget/election event risk.
+4. Ex-dividend misread.
+
+## 36.D Instrument failures
+
+1. Circuit lock.
+2. ASM/GSM/T2T restrictions.
+3. Illiquidity/slippage.
+4. F&O ban.
+
+## 36.E Data / execution-simulation failures
+
+1. Feed lag / bad ticks.
+2. Order rejection / broker square-off assumptions in research or paper simulation.
+3. PIT violation.
+4. Backtest/live mismatch.
+
+These are research/paper failure labels only; their presence in the taxonomy does not grant broker execution authority.
+
+## 36.F Derivatives failures
+
+1. Expiry pinning.
+2. Gamma squeeze.
+3. OI wall rejection.
+4. Rollover distortion.
+
+## 36.G Statistical failures
+
+1. Edge decay.
+2. Overfit.
+3. Small sample.
+
+## 36.H Preserved response/measure vocabulary
+
+The earlier brief also preserved these possible research/guidance measures:
+
+- `SKIP_DAY`
+- `DELAY_ENTRY`
+- `HALF_SIZE`
+- `TIGHTEN_TARGET`
+- `WIDEN_STOP`
+- `FLIP_BIAS`
+- `VETO_DIRECTION`
+- `ALERT_ONLY`
+
+These are **candidate research/guidance measures**, not automatic execution commands. Any parameter-altering measure must itself be validated and constrained by the promoted playbook, risk policy, and human-approval boundary. `HALF_SIZE` remains a paper/risk hint only; it does not grant position-sizing or broker authority.
+
+---
+
+# 37. Preserved Derivatives Overlay and Thresholds
+
+The future context/research layer must preserve and test the derivatives-overlay concepts from the earlier review. Availability and point-in-time status must be explicit for every metric.
+
+1. India VIX regime buckets: `<11`, `11–14`, `14–17`, `17–20`, `20–25`, `>25`.
+2. `ΔVIX +8%` shock rule: cancel/block pending setup assumptions according to the validated policy.
+3. IV Rank `>60` pre-result context.
+4. Term-structure inversion `>5 vol points`.
+5. 25Δ skew evidence.
+6. Post-result IV crush evidence.
+7. PCR extremes: `>1.3` and `<0.7`.
+8. OI buildup classification: long buildup, short buildup, long unwind, short covering.
+9. Max-pain proximity: `≤0.5%`.
+10. GEX / dealer-gamma context where a valid source and model exist.
+11. Charm/vanna expiry-day context where valid.
+12. Weekly/monthly expiry context.
+13. Rollover `% >85%` together with positive basis as the preserved research threshold from the brief.
+14. Basis context: `> +15 bps` or negative basis, with dividend adjustment where applicable.
+15. Pre-open GIFT Nifty implied-gap context: `>1.5 × ATR`.
+16. Index-gap extreme context: `>2.5%`.
+17. FII index-futures long/short context: preserved thresholds included short `>80%` and `<30%` states in the prior brief.
+18. Every derivatives metric must carry a PIT/availability classification such as `YES`, `PARTIAL`, `UNAVAILABLE`, or a stronger canonical equivalent.
+
+### Expiry-calendar caveat
+
+The earlier brief recorded: weekly Nifty expiry Tuesday, monthly stock F&O last Tuesday, and BSE Thursday. These calendar statements must **not** be permanently hard-coded as timeless truth. At runtime/research reconstruction, verify the applicable historical/live exchange/NFO calendar for the relevant date and instrument.
+
+---
+
+# 38. Preserved 50-Row Decision-Table Coverage
+
+The earlier review contained a 50-row conditions → measures table. The retained conversation preserves the following row-group mapping, which must not be lost:
+
+| Rows | Preserved condition family |
+|---|---|
+| 1–6 | VIX states |
+| 7 | ΔVIX shock |
+| 8–11 | OR-width buckets |
+| 12 | Compression setup |
+| 13 | First-bar anomaly |
+| 14 | PDC inside OR |
+| 15–17 | Extreme/moderate/flat gap states |
+| 18–19 | GIFT divergence |
+| 20 | Ex-dividend adjustment |
+| 21–23 | Index-alignment gates |
+| 24 | Sector divergence |
+| 25–26 | Volume pass/fail |
+| 27–28 | Post-breakout behaviors |
+| 29–33 | Time-window rules |
+| 34–37 | Event gates |
+| 38–39 | Expiry rules |
+| 40–44 | Derivatives gates |
+| 45–48 | Structural exclusions |
+| 49 | Chop signature |
+| 50 | Edge decay / small sample |
+
+**Audit honesty:** the retained conversation available during this 2026-09-11 re-audit does not contain the exact measure text for every one of the 50 individual rows. Do **not** invent those missing row-by-row measures. Before implementing this table as canonical logic, recover the original review brief/source and attach the exact row definitions or create a separately reviewed replacement table.
+
+---
+
+# 39. Preserved Ranked Additions From Earlier Review
+
+The earlier review's ranked additions explicitly retained these first seven items:
+
+1. Event-calendar gate.
+2. Universe hygiene filter.
+3. Session VWAP + side veto.
+4. Ex-dividend gap adjustment.
+5. Nifty-alignment gate.
+6. VIX-scaled buffers.
+7. Conditional re-entry (`≤1`).
+
+**Audit honesty:** items 8–10 of that earlier “Top 10” list are not present in the retained conversation available to this re-audit. They must not be fabricated. Recover them from the original review brief before claiming full Top-10 parity.
+
+---
+
+# 40. Morning-System Time Rules and Advice States
+
+The earlier ORB design discussion preserved these operating constraints:
+
+1. Core morning ORB research focus is on Indian NSE stocks and commonly 5-minute candle data, while supported lower/higher confirmation timeframes may be researched when exact source data exists.
+2. The standard opening range reference is the first minutes after the 09:15 NSE open, commonly 09:15–09:30 for ORB-15.
+3. Morning-system baseline: **no new entries after 11:30**.
+4. Morning-system baseline: **hard paper flat at 15:10**.
+5. Any separately researched afternoon-range-breakout variant must have its own explicit policy and must not silently override the morning-system baseline.
+6. User-facing guidance/advice states remain `WAIT`, `WATCH`, and `PAPER-CANDIDATE`.
+7. The system may backtest history, prove winners on unseen data, store proven playbooks, and issue research/paper guidance; it still does not become a broker or live execution system.
+
+Historical note from the earlier review brief: it referred to an ORB system version `v2.01` with `740/740` tests green at that time. This is **historical review context only**, not a current exact-head CI claim. Current completion status must always be reverified from GitHub.
+
+---
+
+# 41. Exact Illustrative Handoffs Preserved From the Chat
+
+These examples are deliberately preserved because they explain how data should move. They are **illustrative**, never hard-coded strategy facts.
+
+## 41.1 Example per-stock playbook
+
+```text
+RELIANCE_ORB_PLAYBOOK_V7
+
+Symbol:
+RELIANCE
+
+Preferred OR:
+15m
+
+Confirmation:
+5m close
+
+Strong contexts:
+- narrow CPR
+- bullish prior daily structure
+- BB expansion
+- VWAP acceptance
+- index alignment
+
+Weak contexts:
+- wide CPR
+- index disagreement
+- major resistance nearby
+
+Signals:
+BREAKOUT_LONG
+RETEST_LONG
+
+Entry:
+first confirmed breakout/retest
+
+Stop:
+structure + ATR hybrid
+
+Target:
+2R or next major level
+
+No-chase:
+0.30 ATR
+
+Cutoff:
+10:45
+
+Reentry:
+max 1
+
+ML model:
+ORB_ML_V4
+
+Model calibration:
+PASS
+```
+
+Again, those values are examples only. Research must discover the actual promoted values for each stock/regime.
+
+## 41.2 Example ORB signal
+
+```text
+RELIANCE
+OR = 15 minutes
+Confirmation = 5m close
+
+09:15–09:30
+ORH = 1510
+ORL = 1490
+
+09:35 closed candle:
+Close = 1514
+Volume = strong
+
+ORB_SIGNAL:
+BREAKOUT_LONG
+```
+
+## 41.3 Example AFRE/D6 historical-analog reasoning
+
+```text
+ORB research:
+ORB-15 historically strongest for this stock/context
+5m confirmation preferred
+
+Yesterday:
+Bullish Engulfing
+Close near day high
+Narrow CPR
+Positive VWAP acceptance
+Close between VWAP U1/U2
+BB expansion
+
+Today:
+Moderate gap-up
+ORB high broken
+Strong breakout volume
+Nifty aligned
+
+Against:
+Near previous weekly resistance
+Some trap risk
+
+Historical analogs:
+67 similar cases
+44 successful
+14 failed
+9 mixed
+
+AFRE reasoning:
+Strong continuation evidence,
+but resistance reduces confidence.
+
+Final:
+WATCH → possible PAPER-CANDIDATE
+```
+
+---
+
+# 42. Project-Wide Safety, Causality, and Epistemic Invariants Applied to ORB
+
+The ORB future build must explicitly inherit the Decision Spine's project-wide invariants:
+
+```text
+research_only = true
+trade_allowed = false
+order_routing_enabled = false
+live_trading_blocked = true
+human_approval_required = true
+```
+
+Epistemic laws:
+
+```text
+missing != neutral
+unknown != false
+unavailable != safe
+synthetic != real
+error != zero
+no_signal != unavailable
+no_output != neutral
+```
+
+Causality/authority laws:
+
+1. No incomplete-candle authority.
+2. D1 outranks predictors/reviewers.
+3. All M2+ evidence used by this build must remain D2-causal / PIT-safe according to the repository's canonical contracts.
+4. Preserve snapshot-hash lineage and no-look-ahead replay.
+5. No new ORB, parameter, ML, context, or reviewer module gains execution authority.
+6. D6 remains the sole final-band authority until an explicitly approved architecture migration changes that rule.
+7. `NO_SETUP` is not the same as unavailable data; unavailable data is not evidence of safety.
+8. Synthetic/test data must never be represented as real historical proof.
+
+Engineering-discipline artifacts should include, for each stage, at minimum:
+
+- assumptions;
+- source evidence;
+- alternatives considered;
+- decisions;
+- invariants;
+- failure cases;
+- tests;
+- unresolved uncertainties.
+
+---
+
+# 43. Additional Tests Required by the Re-Audit
+
+In addition to the tests already listed, explicitly add regression/adversarial coverage for:
+
+1. missing volume stays `UNAVAILABLE`/equivalent and never becomes observed `0.0`;
+2. missing indicator evidence never becomes a neutral score by default;
+3. missing sector evidence never becomes `weak_sector=False` as if observed;
+4. missing event/trap evidence never becomes safe zero risk;
+5. opening-range VWAP and daily/weekly VWAP-band context cannot be accidentally conflated;
+6. BB present in library but not wired must fail an ORB-context completeness gate until canonical wiring exists;
+7. previous-DAY candle patterns present in library but not wired must fail the same completeness proof;
+8. every promoted signal/parameter/model references exact feature/data versions;
+9. historical analog counts are computed from PIT-safe comparable cases only;
+10. no analog row can use an outcome not mature by the historical decision timestamp when the analog feature was constructed;
+11. each of the 18 preserved ORB variants has an explicit implementation/proof/status record;
+12. each failure-taxonomy case has an explicit test, label, veto path, or documented unsupported state;
+13. derivatives data carries explicit availability/PIT state and never defaults to safe;
+14. expiry-calendar reconstruction is date-correct and not hard-coded to a permanently fixed weekday;
+15. the 11:30 morning entry cutoff and 15:10 hard flat policy are tested separately from any afternoon research variant;
+16. paper sizing hints cannot become live sizing authority;
+17. current placeholder scores are either replaced with real canonical evidence or explicitly `UNAVAILABLE`, never silently retained as neutral facts;
+18. full replay reproduces `ORB_CONTEXT_SNAPSHOT`, `ORB_SIGNAL`, `ORB_PARAMETER_SET`, ML inputs, ML output and `ORB_EVIDENCE_PACKAGE` hashes exactly.
+
+---
+
+# 44. 2026-09-11 Full-Conversation Line-by-Line Re-Audit
+
+This audit supersedes the earlier narrow “68/68” statement. `A01–A68` still track the original future-spec requirements; the rows below audit the additional accumulated chat requirements and omissions discovered on re-read.
+
+| Re-audit ID | Requirement / detail | Status after this revision | Location |
+|---|---|---|---|
+| R001 | Preserve existing `orb/core.py` rather than start over. | PRESENT | §33, §34.2 |
+| R002 | Preserve/reuse `orb/context.py`. | PRESENT | §33, §34.1 |
+| R003 | Preserve/reuse `timing_research.py`. | PRESENT | §33 |
+| R004 | Preserve/reuse `discovery.py`. | PRESENT | §33 |
+| R005 | Preserve/reuse `proof.py`. | PRESENT | §33 |
+| R006 | Preserve/reuse `orb/adaptive/`. | PRESENT | §33 |
+| R007 | Preserve/reuse `hstry_csv.py`. | PRESENT | §33 |
+| R008 | Preserve/extend `orb_guidance.py` integration. | PRESENT | §33, §34.6 |
+| R009 | Use canonical indicator registry instead of untracked duplicates. | PRESENT | §34.3 |
+| R010 | Preserve relevant legacy BB/VWAP/candle capability during canonical migration. | PRESENT | §34.3–34.4 |
+| R011 | Distinguish opening-range VWAP from daily/weekly ±1/2/3 VWAP bands. | PRESENT | §34.2–34.3, §43 |
+| R012 | Explicitly wire BB into ORB context; library existence alone is insufficient. | PRESENT | §§3, 34.3, 43 |
+| R013 | Explicitly wire prior completed DAILY candlestick patterns; library existence alone is insufficient. | PRESENT | §§2–3, 34.4, 43 |
+| R014 | Preserve Bullish Belt pattern that was omitted from the earlier file. | PRESENT | §3, §34.4 |
+| R015 | Preserve exact previously discussed 15 candle-pattern outputs. | PRESENT | §34.4 |
+| R016 | Preserve previously discussed candle-pattern priority ordering. | PRESENT | §34.4 |
+| R017 | Preserve other pattern engines (outside reversal, three inside, dark cloud, SFP, N-bar, H&S etc.) for audit. | PRESENT | §34.4 |
+| R018 | Explicit ORB signal remains first class. | PRESENT | §§5, 20 |
+| R019 | Signal supports breakout and breakdown. | PRESENT | §§5, 20 |
+| R020 | Signal supports retest. | PRESENT | §§5, 20 |
+| R021 | Signal supports reversal/failed-break/trap. | PRESENT | §§5, 20 |
+| R022 | Signal supports constrained second-chance re-entry. | PRESENT | §§5, 20 |
+| R023 | Signal carries ORH/ORL/time/volume/VWAP/freshness/hash/FOR/AGAINST. | PRESENT | §§5, 20 |
+| R024 | Trade parameters include entry rule/price/zone. | PRESENT | §§6, 21 |
+| R025 | Trade parameters include stop/invalidation. | PRESENT | §§6, 21 |
+| R026 | Trade parameters include target(s). | PRESENT | §§6, 21 |
+| R027 | Trade parameters include RR. | PRESENT | §§6, 21 |
+| R028 | Trade parameters include breakout buffer and no-chase. | PRESENT | §§6, 21 |
+| R029 | Trade parameters include volume/VWAP confirmations. | PRESENT | §§6, 21 |
+| R030 | Trade parameters include cutoff, expiry, hold/flat, retest window and re-entry maximum. | PRESENT | §§6, 21 |
+| R031 | Trade parameters include cost/slippage/liquidity assumptions. | PRESENT | §§6, 21 |
+| R032 | Per-stock OR timing tests ORB-5/10/15/20/30. | PRESENT | §§4, 19 |
+| R033 | Confirmation TF research includes 1m/3m/5m/15m when exact data supports it. | PRESENT | §§4, 19 |
+| R034 | Research measures sample, win/loss, expectancy, drawdown, MAE/MFE, false break, retest, stability, holdout, uncertainty and drift. | PRESENT | §§4, 19 |
+| R035 | Combination research studies support and contradiction, not isolated indicators only. | PRESENT | §§7, 22 |
+| R036 | Historical analog evidence is a first-class package element. | PRESENT | §§27–28, 41.3 |
+| R037 | Preserve illustrative 67/44/14/9 historical-analog example. | PRESENT | §§28, 41.3 |
+| R038 | AFRE asks whether yesterday supports the signal. | PRESENT | §28 |
+| R039 | AFRE asks whether today's regime supports the signal. | PRESENT | §28 |
+| R040 | AFRE checks structure. | PRESENT | §28 |
+| R041 | AFRE checks VWAP/value. | PRESENT | §28 |
+| R042 | AFRE checks trap/failed-break risk. | PRESENT | §28 |
+| R043 | AFRE checks index and sector disagreement. | PRESENT | §28 |
+| R044 | AFRE checks event and derivatives context. | PRESENT | §28 |
+| R045 | AFRE checks comparable historical situations. | PRESENT | §28 |
+| R046 | ML is for future accuracy/calibration, not trade authority. | PRESENT | §§9, 24, 42 |
+| R047 | ML estimates target-before-stop probability. | PRESENT | §§9, 24 |
+| R048 | ML estimates false-break/trap probability. | PRESENT | §§9, 24 |
+| R049 | ML estimates retest success. | PRESENT | §§9, 24 |
+| R050 | ML estimates expected R after costs. | PRESENT | §§9, 24 |
+| R051 | ML may rank suitable already-researched OR duration/confirmation TF. | PRESENT | §§9, 24 |
+| R052 | ML may rank already-proven parameter sets. | PRESENT | §§9, 24 |
+| R053 | Decision-time features are immutable/PIT-safe. | PRESENT | §§9, 23 |
+| R054 | Matured labels are created separately after horizon completion. | PRESENT | §§9, 23, 29 |
+| R055 | Chronological split/walk-forward/purge/embargo/untouched holdout. | PRESENT | §§9, 24 |
+| R056 | Calibration metrics, not raw accuracy alone. | PRESENT | §§9, 24 |
+| R057 | Champion/challenger, drift, edge decay, rollback and abstention. | PRESENT | §§9, 24, 29 |
+| R058 | Preserve exact illustrative `ORB_PLAYBOOK_V7` example including 0.30 ATR, 10:45, max-1 reentry and `ORB_ML_V4`. | PRESENT | §41.1 |
+| R059 | Preserve illustrative 09:35 close=1514 ORB signal handoff. | PRESENT | §41.2 |
+| R060 | Preserve illustrative 11:05 target-hit +2R matured outcome. | PRESENT | §29 |
+| R061 | Preserve all 18 ORB variants. | PRESENT | §35 |
+| R062 | Preserve regime failure cases. | PRESENT | §36.A |
+| R063 | Preserve signal failure cases. | PRESENT | §36.B |
+| R064 | Preserve event failure cases. | PRESENT | §36.C |
+| R065 | Preserve instrument failure cases. | PRESENT | §36.D |
+| R066 | Preserve data/execution-simulation failure cases. | PRESENT | §36.E |
+| R067 | Preserve derivatives failure cases. | PRESENT | §36.F |
+| R068 | Preserve statistical failure cases. | PRESENT | §36.G |
+| R069 | Preserve SKIP_DAY/DELAY_ENTRY/HALF_SIZE/TIGHTEN_TARGET/WIDEN_STOP/FLIP_BIAS/VETO_DIRECTION/ALERT_ONLY vocabulary. | PRESENT | §36.H |
+| R070 | Preserve VIX buckets. | PRESENT | §37 |
+| R071 | Preserve ΔVIX +8% rule. | PRESENT | §37 |
+| R072 | Preserve IV Rank >60 pre-result. | PRESENT | §37 |
+| R073 | Preserve >5-vol-point term inversion. | PRESENT | §37 |
+| R074 | Preserve 25Δ skew and post-result IV crush. | PRESENT | §37 |
+| R075 | Preserve PCR >1.3 / <0.7. | PRESENT | §37 |
+| R076 | Preserve OI buildup classification. | PRESENT | §37 |
+| R077 | Preserve max-pain ≤0.5%. | PRESENT | §37 |
+| R078 | Preserve GEX and charm/vanna context. | PRESENT | §37 |
+| R079 | Preserve rollover >85% + positive basis. | PRESENT | §37 |
+| R080 | Preserve basis >+15 bps or negative, dividend-adjusted. | PRESENT | §37 |
+| R081 | Preserve GIFT gap >1.5×ATR and index gap >2.5%. | PRESENT | §37 |
+| R082 | Preserve FII index-futures long/short threshold context. | PRESENT | §37 |
+| R083 | Every derivatives metric has PIT/availability state. | PRESENT | §37 |
+| R084 | Preserve expiry-calendar caveat and require date-correct verification. | PRESENT | §37 |
+| R085 | Preserve 50-row decision-table row-group map. | PRESENT | §38 |
+| R086 | Do not fabricate unavailable exact row measures. | PRESENT / SOURCE RECOVERY REQUIRED | §38 |
+| R087 | Preserve Top additions 1–7. | PRESENT | §39 |
+| R088 | Do not fabricate unavailable Top additions 8–10. | PRESENT / SOURCE RECOVERY REQUIRED | §39 |
+| R089 | Preserve morning no-new-entry-after-11:30 rule. | PRESENT | §§36.B, 40 |
+| R090 | Preserve hard paper flat at 15:10. | PRESENT | §40 |
+| R091 | Keep afternoon range breakout as a separate research variant. | PRESENT | §§35, 40 |
+| R092 | Preserve WAIT/WATCH/PAPER-CANDIDATE user-facing states. | PRESENT | §§1, 10, 26, 28, 40 |
+| R093 | Preserve historical v2.01 / 740-of-740 note without pretending it is current CI. | PRESENT | §40 |
+| R094 | Replace hard-coded neutral placeholders with real evidence or explicit unavailability. | PRESENT | §§34.5, 43 |
+| R095 | Missing volume cannot become observed zero. | PRESENT | §§34.5, 43 |
+| R096 | Unknown sector cannot become `weak_sector=False`. | PRESENT | §§34.5, 43 |
+| R097 | Missing event/trap evidence cannot become safe zero. | PRESENT | §§34.5, 43 |
+| R098 | Research-only/live-trading-blocked exact flags preserved. | PRESENT | §42 |
+| R099 | D1 outranks predictors/reviewers. | PRESENT | §42 |
+| R100 | D2/PIT/closed-candle causality preserved. | PRESENT | §§2, 30, 42 |
+| R101 | Raw fact calculated once, many interpretations traceable. | PRESENT | §31 |
+| R102 | Human approval remains required. | PRESENT | §§6, 12, 42 |
+| R103 | Publish assumptions/evidence/alternatives/decisions/invariants/failures/tests/uncertainties. | PRESENT | §42 |
+| R104 | Exact-head CI required before GREEN. | PRESENT | §§12–13 |
+| R105 | No fake READY/GREEN. | PRESENT | §13 |
+
+### Re-audit outcome
+
+- The earlier document was **not fully complete relative to the whole accumulated ORB conversation**.
+- Missing details were identified and added in Sections 33–43.
+- The re-audit now tracks `A01–A68`, `F01–F18`, and `R001–R105`.
+- Two source-recovery gaps remain intentionally unresolved rather than fabricated: **the exact measures for every individual row of the historical 50-row decision table**, and **items 8–10 of the earlier ranked Top-10 additions**, because those exact texts are not available in the retained conversation used for this audit.
+- A future build must recover those original-source details before claiming exact parity with that historical external-review brief.
+
+This status is more accurate than the previous “68/68 complete” claim.
+
+---
+
+# 45. Final Canonical Build Instruction
+
+When this future build starts:
+
+1. Reverify exact GitHub branch/head/current modules before editing.
+2. Read this entire document, including the re-audit sections, rather than using only the short architecture diagram.
+3. Reuse/migrate existing ORB research engines instead of starting over.
+4. First repair epistemic/default-value hazards and lock the canonical data contracts.
+5. Build the completed-previous-DAILY context and explicit availability semantics.
+6. Wire CPR + detailed DAILY candle pattern/anatomy + BB + daily/weekly VWAP ±1/±2/±3 + ATR/volume + index/sector + structure + event/derivatives evidence.
+7. Research OR duration and confirmation timeframe per stock.
+8. Expand/reconcile the explicit ORB signal families and all 18 preserved ORB variants.
+9. Research and freeze proof-backed trade parameters.
+10. Research combinations and historical analogs with sparse-sample/overfit protection.
+11. Build leakage-safe ML feature/label stores only after deterministic contracts are stable.
+12. Train/calibrate champion/challenger ML with chronological walk-forward and untouched holdout proof.
+13. Promote only proof-backed per-stock playbooks/models.
+14. Send signal + parameters + deterministic proof + analog evidence + calibrated ML + FOR/AGAINST + blockers/unavailability together to AFRE/D6.
+15. Keep D6 final authority, live trading blocked, and human approval required.
+16. Run adversarial/replay/causality/availability/variant/failure-taxonomy/ML tests and exact-head CI.
+17. Do not mark GREEN until code, tests, docs, CI, replay hashes and authority audits all prove the stage.
+18. Recover the two explicitly unresolved historical-source gaps in §44 before claiming complete parity with the old external-review brief.
+
+The intended result remains:
+
+> **Research what works for each stock → understand the completed previous DAILY session and current market → form the correct proven OR → emit an explicit ORB signal → attach proof-backed trade parameters → estimate calibrated future outcome probabilities with controlled ML → compare deterministic history and analogs → send all support/contradiction to AFRE → let D6 issue WAIT/WATCH/PAPER-CANDIDATE → learn only from later matured outcomes without rewriting the past.**
