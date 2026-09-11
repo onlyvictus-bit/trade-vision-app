@@ -2648,3 +2648,107 @@ When this future build starts:
 The intended result remains:
 
 > **Research what works for each stock → understand the completed previous DAILY session and current market → form the correct proven OR → emit an explicit ORB signal → attach proof-backed trade parameters → estimate calibrated future outcome probabilities with controlled ML → compare deterministic history and analogs → send all support/contradiction to AFRE → let D6 issue WAIT/WATCH/PAPER-CANDIDATE → learn only from later matured outcomes without rewriting the past.**
+
+---
+
+# 46. Added Layers — Per-Stock Clock/TF Fit and Inside/Outside Pattern (2026-09-11)
+
+This section extends the Stage 1–11 chain without altering it. Layer A refines
+Stage 2 timing research. Layer B inserts one explicit pattern classifier between
+the ORB signal (Stage 3) and trade-parameter research (Stage 4). Section 46.3
+restates the complete runtime as a 14-layer flowchart including both layers.
+
+## 46.1 Layer A — Per-stock confirmation-TF and OR-end-clock research
+
+Stage 2 researches ORB duration (ORB-5/10/15/20/30). Layer A researches, per
+stock, the two remaining timing degrees of freedom from locally stored history:
+
+1. Confirmation timeframe: 3m vs 5m vs 15m closed-candle confirmation.
+2. OR-end clock: 09:20 vs 09:25 vs 09:30 vs 09:40 session-time cutoff.
+
+Rules:
+
+- Research runs per stock over that stock's own downloaded history files
+  (1m/3m/5m/15m), never over live calls. Local files are timestamped and
+  versioned with the research report.
+- Duration × clock-end × confirmation-TF is tested as one matrix (for example
+  RELIANCE ORB-15 × OR-end 09:30 × 5m confirmation vs SBIN ORB-10 × OR-end
+  09:25 × 3m confirmation), measuring win rate, expectancy, drawdown,
+  false-break rate, sample size, regime dependence, stability and unseen-data
+  performance.
+- Output is one versioned `CLOCK_TF_FIT` per stock
+  (`confirmation_tf`, `or_end_clock`, proof period, sample count), stored into
+  that stock's playbook (Stage 8) beside the duration finding.
+- Only completed bars enter the calculation. An OR-end variant whose window is
+  not yet complete at the decision time is PENDING, never confirmed.
+- Missing history for a stock yields UNKNOWN fit, never a copied fit from
+  another stock.
+
+## 46.2 Layer B — Inside/outside previous-day pattern classifier
+
+After the ORB signal is confirmed, the engine locates today's breakout against
+the previous completed DAILY high/low before any trade parameter is chosen:
+
+- Breakout ABOVE previous-day high or BELOW previous-day low → OUTSIDE →
+  `TREND_UP` / `TREND_DOWN`. Expect continuation; parameters use runner-style
+  targets and strict no-chase distance.
+- Breakout contained INSIDE previous-day high–low → `GAP_FILL` / `RANGE`.
+  Expect fill-or-fade; parameters use previous-close/PDH/PDL targets and
+  tighter stops.
+- The pattern label (`TREND_UP`, `TREND_DOWN`, `GAP_FILL`, `RANGE`, `UNKNOWN`)
+  travels with `ORB_SIGNAL` into Stage 4 (parameters split by pattern),
+  Stage 5 (combinations conditioned on pattern), Stage 6 (pattern as an
+  immutable ML feature), and Stage 9 (AFRE weighs pattern-congruent vs
+  pattern-contradicting evidence).
+- Forbidden: emitting `RANGE` or `GAP_FILL` when previous-day high/low is
+  unavailable. Missing prior-day range yields `UNKNOWN`, never a neutral
+  range assumption.
+
+## 46.3 End-to-end 14-layer runtime flowchart
+
+```text
+1. RAW DATA IN (yesterday + opening + index/sector/news + local history)
+                         |
+                         v
+2. CONTEXT BRAIN -> ORB_CONTEXT_SNAPSHOT
+                         |
+                         v
+3. TIMING RESEARCH (ORB-5/10/15/20/30 per stock)
+                         |
+                         v
+4. LAYER A: CLOCK + TF FIT (3m/5m/15m x 09:20/09:25/09:30/09:40 per stock)
+                         |
+                         v
+5. SIGNAL ENGINE -> ORB_SIGNAL (closed-candle confirmation)
+                         |
+                         v
+6. LAYER B: INSIDE/OUTSIDE -> TREND_UP / TREND_DOWN / GAP_FILL / RANGE
+                         |
+                         v
+7. TRADE PARAMS (pattern-split entry/stop/target/no-chase/cutoff)
+                         |
+                         v
+8. COMBINATION RESEARCH (pattern-conditioned situations)
+                         |
+                         v
+9. ML DATASET (frozen photo + separately matured label)
+                         |
+                         v
+10. ML ENGINE (calibrated P(win), expected R, uncertainty)
+                         |
+                         v
+11. PLAYBOOK (clock/TF fit + pattern stats + params + ML proof, frozen)
+                         |
+                         v
+12. MORNING RUNTIME -> ORB_EVIDENCE_PACKAGE (signal + pattern + FOR/AGAINST)
+                         |
+                         v
+13. AFRE + D6 -> WAIT / WATCH / PAPER-CANDIDATE (D6 sole final authority)
+                         |
+                         v
+14. AFTER THE DAY (outcome -> calibration -> challenger -> rollback if worse)
+```
+
+Layers A and B obey all Section 42 invariants: D2/PIT causality, missing stays
+missing, deterministic replay, zero live-trading authority, human approval
+required.
