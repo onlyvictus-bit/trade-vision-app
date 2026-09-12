@@ -499,3 +499,534 @@ The canonical target is now:
 > **Selected intraday stock/commodity candidate → candidate-intake proof → correct instrument/session profile → previous completed exchange session → canonical ORB context → per-instrument OR duration/clock/confirmation research → discovery + unseen-data proof → combination/analog research → frozen per-instrument playbook → today's closed-candle ORB signal + proof-backed parameters → ORB evidence package → AFRE support/contradiction reasoning → D6 WAIT/WATCH/PAPER-CANDIDATE → human-approved paper record only → later matured outcome feeds controlled research.**
 
 This addendum strengthens the parent ORB/AFRE plan. It does not weaken or replace the existing safety, causality, epistemic, replay, proof, or authority requirements.
+
+---
+
+# code build ready plan
+
+This section converts the scope and architecture above into the concrete implementation plan to start coding from the current repository. It is intentionally written as an **upgrade plan**, not a rewrite plan.
+
+## A. Build-readiness verdict
+
+**YES — coding can start now.**
+
+The repository already contains enough working ORB infrastructure to begin implementation safely:
+
+```text
+apps/api/app/orb/hstry_csv.py
+apps/api/app/orb/context.py
+apps/api/app/orb/core.py
+apps/api/app/orb/timing_research.py
+apps/api/app/orb/discovery.py
+apps/api/app/orb/proof.py
+apps/api/app/orb/adaptive/
+apps/api/app/behavior/orb_guidance.py
+apps/api/app/behavior/final_confluence_arbiter.py
+apps/api/app/behavior/indicator_registry.py
+```
+
+The build therefore starts by extending these seams and their models/tests. Do **not** create a second independent ORB implementation.
+
+Coding readiness does not mean all future data feeds are already available. The correct approach is:
+
+1. implement deterministic contracts and session logic first;
+2. represent missing feeds as `UNAVAILABLE`/`NOT_APPLICABLE` rather than fake neutral values;
+3. add external/event/commodity feeds later behind the same contracts;
+4. never delay the safe core build merely because every enrichment source is not connected yet.
+
+## B. Non-negotiable implementation laws
+
+Every code stage must preserve:
+
+```text
+research_only = true
+trade_allowed = false
+order_routing_enabled = false
+live_trading_blocked = true
+human_approval_required = true
+```
+
+Epistemic laws:
+
+```text
+missing != neutral
+unknown != false
+unavailable != safe
+synthetic != real
+error != zero
+no_signal != unavailable
+no_output != neutral
+NOT_APPLICABLE != UNAVAILABLE
+```
+
+Causality/authority laws:
+
+1. fully closed candles only;
+2. no future data in research features or runtime decisions;
+3. previous-day/session means the previous **completed exchange session**;
+4. snapshot-hash lineage must survive every handoff;
+5. canonical facts are calculated once and reused;
+6. ORB, context, ML, research and reviewers gain zero execution authority;
+7. AFRE/D6 may contradict or veto ORB evidence;
+8. D6 remains sole final-band authority;
+9. no stage is GREEN without exact-head tests/CI evidence.
+
+## C. Exact coding sequence
+
+### BUILD-0 — baseline and contract inventory
+
+Before modifying behavior:
+
+- re-read the exact current branch head;
+- inventory current ORB models in `apps/api/app/models.py` or their current canonical location;
+- inventory ORB API routes and call chains;
+- inventory existing ORB tests and workflow coverage;
+- snapshot current deterministic outputs for representative NSE fixtures;
+- record current playbook/proof storage schemas;
+- record all current neutral/default hazards in `orb_guidance.py`, `core.py`, context adapters and arbiter inputs.
+
+**GREEN gate:** existing ORB regression suite passes unchanged and baseline hashes are recorded.
+
+### BUILD-1 — `ORB_CANDIDATE_INTAKE`
+
+Implement the typed upstream attention contract.
+
+Primary code changes should include the canonical models plus the smallest intake adapter needed to normalize:
+
+- explicit user symbol list;
+- Trendforge `READY` / `PRIORITY_RADAR` candidates;
+- later scanner sources through the same schema.
+
+Required states include source, reason, `as_of`, session identity, provenance, observed premarket metrics, availability and deterministic hash.
+
+Do not infer bullish/short direction from the shortlist.
+
+**Tests:** manual symbol, Trendforge symbol, duplicate symbol, stale intake, missing premarket volume, provenance mismatch, deterministic replay, candidate-selection bias.
+
+### BUILD-2 — `ORB_INSTRUMENT_PROFILE` + `ORB_SESSION_PROFILE`
+
+Create the canonical abstraction that removes exchange/session assumptions from generic ORB research.
+
+NSE profile must initially reproduce current behavior exactly:
+
+```text
+timezone = Asia/Kolkata
+session anchor = NSE cash-session open
+legacy ORB session semantics preserved
+```
+
+Then add commodity-capable fields without pretending unsupported calendars are known.
+
+Refactor hard-coded session filtering in `orb/discovery.py` and any equivalent ORB path so session grouping comes from the profile.
+
+Refactor previous-session aggregation in `orb/context.py` so canonical session bars are produced by exchange-session identity, not a generic `resample("D")` when the instrument profile says otherwise.
+
+**GREEN gate:** legacy NSE fixtures produce equivalent results; generic ORB sessionization no longer depends directly on `09:15`/`15:30` constants outside the NSE profile.
+
+### BUILD-3 — canonical previous-session object
+
+Create an immutable, hashable previous-session structure containing:
+
+- session id/calendar version;
+- open/high/low/close/volume availability;
+- settlement reference where applicable;
+- PDH/PDL/PDC semantics for equities;
+- candle anatomy;
+- corporate-action/roll adjustment identity;
+- data quality and provenance.
+
+The builder must prove that a previous 5m/10m/15m bar can never be substituted for the completed session candle.
+
+**GREEN gate:** explicit regression that last intraday bar != prior DAILY/session candle.
+
+### BUILD-4 — Canonical ORB Context Brain v2
+
+Extend/reconcile `apps/api/app/orb/context.py`; do not build an unrelated context stack.
+
+Wire canonical facts/evidence for:
+
+- previous-session candle anatomy;
+- detailed registered candlestick patterns;
+- CPR/Pivot/BC/TC where applicable;
+- previous-session high/low/close/settlement;
+- gap and opening zone;
+- BB state/compression/expansion;
+- daily/session and weekly VWAP ±1/±2/±3;
+- ATR/volatility;
+- volume/RVOL/participation;
+- canonical structure/levels/liquidity/trap evidence;
+- benchmark/index/sector/underlying context;
+- event/derivatives/OI/expiry/roll context;
+- availability, freshness, provenance and hashes.
+
+Required contract rule:
+
+```text
+OBSERVED_ZERO
+MISSING
+UNKNOWN
+UNAVAILABLE
+NOT_APPLICABLE
+ERROR
+```
+
+must remain distinguishable.
+
+No evidence source may silently become `0.0`, `False`, or neutral merely because it is missing.
+
+**GREEN gate:** context replay hash deterministic; incomplete context is explicit; no fake-neutral regression failures.
+
+### BUILD-5 — ORB Timing / Clock / Confirmation-TF Research v2
+
+Upgrade `timing_research.py` rather than replace it.
+
+Research matrix:
+
+```text
+instrument
+× ORB duration (5/10/15/20/30)
+× session-relative OR-end clock
+× confirmation TF (1m/3m/5m/15m where exact data exists)
+× signal family
+× regime/context bucket
+× candidate-intake condition when required
+```
+
+Required metrics:
+
+- sample count;
+- win/loss;
+- expectancy R and after-cost expectancy;
+- profit factor;
+- maximum drawdown;
+- MAE/MFE;
+- false-break rate;
+- retest success;
+- trigger time;
+- no-chase sensitivity;
+- stop/target sensitivity;
+- context/regime dependence;
+- year/period stability;
+- holdout performance;
+- uncertainty;
+- drift/edge decay;
+- commodity expiry/roll stability when applicable.
+
+Retain deterministic checkpoints and resumability.
+
+**GREEN gate:** the engine can legitimately conclude `INSUFFICIENT_DATA` or no significant timing difference instead of inventing a winner.
+
+### BUILD-6 — explicit ORB signal contract v2
+
+Reconcile `core.py` with the parent future plan so ORB signals are first-class, versioned and hashable.
+
+Signal families must explicitly represent, as implemented/proven:
+
+- `NO_SETUP`;
+- breakout long;
+- breakdown short;
+- retest long/short;
+- reversal/failed-break long/short;
+- trap evidence;
+- constrained second-chance re-entry;
+- invalidated/stale.
+
+Every signal must carry ORH/ORL, OR timing, confirmation TF, closed-bar confirmation timestamp, direction, buffer, volume/VWAP evidence, retest/trap state, freshness, provenance, source snapshot, reasons FOR/AGAINST and deterministic hash.
+
+**GREEN gate:** no signal can gain authority from an incomplete bar.
+
+### BUILD-7 — discovery engine hardening
+
+Extend `discovery.py` to consume the session profile, canonical context and expanded research dimensions.
+
+Research must preserve costs and no-future-leakage while expanding beyond the current limited combination grid.
+
+A candidate-selected strategy must use historical selection rules reconstructed from information known at each historical `as_of`; it cannot tag winning historical days after seeing the future.
+
+**GREEN gate:** same input/version produces same ranked combinations and trade ledger.
+
+### BUILD-8 — proof / promotion engine v2
+
+Extend `proof.py`; preserve its current good properties:
+
+- train-only candidate selection;
+- chronological holdout;
+- expanding walk-forward validation;
+- minimum-sample gates;
+- deterministic proof IDs/hashes.
+
+Add:
+
+- duration/clock/confirmation-TF proof;
+- context/combination proof;
+- candidate-intake-conditioned proof;
+- transaction-cost sensitivity;
+- uncertainty intervals;
+- edge-decay/stability checks;
+- commodity contract/roll/expiry stability where applicable;
+- explicit rejected/insufficient-data reasons.
+
+No playbook promotion from in-sample results alone.
+
+### BUILD-9 — combination + historical analog research
+
+Create the research layer that answers situations rather than isolated indicator questions.
+
+Minimum join key is:
+
+```text
+candidate intake
++ immutable ORB context snapshot
++ ORB signal
++ parameter set
++ later matured outcome
+```
+
+Research support, contradiction and conflict cases.
+
+Examples include:
+
+```text
+bullish engulfing + narrow CPR + VWAP acceptance + BB expansion
++ aligned benchmark + strong breakout volume
+```
+
+and the mirrored/conflicting cases.
+
+Sparse combinations must pool/abstain rather than become confident rules.
+
+Historical analog output must contain comparable-case definition, sample count, wins/failures/mixed, expectancy, similarity/uncertainty and PIT proof.
+
+### BUILD-10 — trade-parameter research v2
+
+Research and freeze per-instrument/per-signal/per-context parameters only when proof supports them:
+
+- entry style/zone;
+- breakout buffer;
+- confirmation rule;
+- required volume;
+- VWAP/3-band acceptance/veto;
+- stop methodology;
+- target methodology;
+- minimum RR;
+- maximum chase;
+- entry cutoff;
+- setup expiry;
+- retest window;
+- maximum re-entry;
+- maximum hold/paper-flat rules;
+- slippage/cost/liquidity assumptions.
+
+Runtime selects from frozen promoted parameter sets; it must not optimize using later movement from the current session.
+
+### BUILD-11 — per-instrument playbook v2
+
+Promote one immutable playbook contract containing:
+
+```text
+instrument identity
+instrument/session profile version
+candidate-selection scope if relevant
+preferred OR duration
+preferred OR-end clock
+confirmation TF
+supported signal families
+best/bad contexts
+volume/VWAP/CPR/candle/BB rules
+benchmark/event/expiry/roll rules
+entry/stop/target/no-chase/cutoff
+sample count
+train/validation/holdout periods
+proof hashes
+uncertainty
+failure modes
+drift state
+promotion state
+```
+
+A stock playbook remains stock-specific. A commodity contract/instrument playbook cannot silently inherit a stock session profile.
+
+### BUILD-12 — ORB Evidence Package
+
+Build one immutable package before AFRE/D6 containing:
+
+- candidate-intake identity;
+- instrument/session identity;
+- canonical context;
+- active playbook/proof;
+- ORB signal;
+- selected promoted parameters;
+- deterministic research statistics;
+- historical analog evidence;
+- combination evidence;
+- ML evidence when later promoted;
+- reasons FOR;
+- reasons AGAINST;
+- blockers;
+- unavailable/not-applicable evidence;
+- PIT/causality proof;
+- package hash.
+
+ORB evidence remains advisory/evidentiary, never final authority.
+
+### BUILD-13 — AFRE / D6 integration hardening
+
+Upgrade `orb_guidance.py` and the canonical D6 ingestion seam.
+
+Replace current placeholder/default semantics such as artificial neutral indicator/relative-strength/external-AI/sector/event/trap values with either:
+
+1. real canonical evidence; or
+2. explicit `UNAVAILABLE`/`NOT_APPLICABLE` state.
+
+D6 must deliberate over support and contradiction and retain the ability to reject a strong ORB setup because of stronger structure, resistance, event, liquidity, trap, data-quality or uncertainty evidence.
+
+Permitted user-facing outputs remain:
+
+```text
+WAIT
+WATCH
+PAPER-CANDIDATE
+```
+
+### BUILD-14 — ML feature/label store only after deterministic contracts stabilize
+
+Do not start ML first.
+
+Once context, signal, parameters and playbook contracts are stable:
+
+- freeze immutable decision-time feature rows;
+- create outcome labels only after the outcome horizon matures;
+- never mutate past decision snapshots;
+- use chronological train/validation/test;
+- add purging/embargo where trade horizons overlap;
+- preserve untouched final holdout;
+- compare against simple deterministic/statistical baselines;
+- calibrate probabilities;
+- maintain champion/challenger/rollback/drift states.
+
+ML may rank/evaluate proven configurations but cannot invent execution authority or bypass hard blockers.
+
+### BUILD-15 — full adversarial + deterministic replay suite
+
+In addition to all earlier tests, full-build acceptance must cover:
+
+- future-bar mutation cannot alter an earlier decision;
+- incomplete-bar authority blocked;
+- prior session truly completed;
+- wrong timezone/session rejected;
+- DST/calendar/session-boundary cases where applicable;
+- missing volume not zero;
+- missing indicator not neutral;
+- missing event/trap not safe;
+- `NOT_APPLICABLE` distinct from `UNAVAILABLE`;
+- raw commodity contract not silently mixed with adjusted continuous data;
+- expiry/roll fake-gap prevention;
+- candidate-selection leakage prevention;
+- deterministic context/signal/parameter/evidence hashes;
+- train/validation/holdout separation;
+- multiple-testing/sparse-sample controls;
+- playbook/version mismatch fail-closed;
+- D6 sole final-band authority;
+- zero live execution authority.
+
+## D. Stage progression rule
+
+The build progresses serially:
+
+```text
+BUILD-0 GREEN
+   ↓
+BUILD-1 GREEN
+   ↓
+BUILD-2 GREEN
+   ↓
+BUILD-3 GREEN
+   ↓
+BUILD-4 GREEN
+   ↓
+BUILD-5 GREEN
+   ↓
+...
+   ↓
+ORB/AFRE integration GREEN
+```
+
+For every stage:
+
+1. inspect exact current implementation;
+2. state assumptions and canonical source of truth;
+3. change the smallest safe seam;
+4. add unit + integration + adversarial tests;
+5. run affected regressions;
+6. run full required workflow/CI;
+7. verify exact-head result;
+8. record unresolved limitations;
+9. lock the stage before moving on.
+
+Never mark a stage GREEN from documentation alone.
+
+## E. Files expected to be extended first
+
+The first coding passes are expected to touch, subject to exact-head re-verification:
+
+```text
+apps/api/app/models.py                     # typed candidate/session/context contracts
+apps/api/app/orb/context.py                # canonical session/context brain
+apps/api/app/orb/discovery.py              # session-aware historical discovery
+apps/api/app/orb/timing_research.py        # duration/clock/confirmation-TF research
+apps/api/app/orb/proof.py                  # expanded OOS/promotion proof
+apps/api/app/orb/core.py                   # signal contract and context consumption
+apps/api/app/behavior/orb_guidance.py      # ORB evidence -> AFRE/D6
+apps/api/app/behavior/indicator_registry.py# reuse canonical registered indicators
+```
+
+Tests should be added beside the repository's existing ORB/behavior test structure rather than creating a disconnected test harness.
+
+## F. Current system → target system summary
+
+Current useful foundation:
+
+```text
+history
+ -> timing research
+ -> discovery
+ -> proof
+ -> playbook
+ -> ORB core
+ -> ORB guidance
+ -> final arbiter
+```
+
+Target strengthened system:
+
+```text
+selected premarket/intraday candidate
+ -> canonical candidate intake
+ -> instrument/session profile
+ -> completed previous exchange session
+ -> canonical ORB context
+ -> per-instrument OR/clock/TF research
+ -> signal-family + parameter research
+ -> combination + analog research
+ -> discovery + OOS/walk-forward proof
+ -> frozen playbook
+ -> today's closed-candle ORB signal
+ -> proof-backed parameter selection
+ -> ORB evidence package with FOR/AGAINST
+ -> AFRE reasoning
+ -> D6 final deliberation
+ -> WAIT / WATCH / PAPER-CANDIDATE
+ -> human paper approval only
+ -> later matured outcome
+ -> controlled calibration/challenger research
+```
+
+## G. Coding start point
+
+The correct first implementation target is:
+
+> **BUILD-0 baseline lock → BUILD-1 candidate intake → BUILD-2 instrument/session profile → BUILD-3 previous-session contract → BUILD-4 Canonical ORB Context Brain.**
+
+These stages create the safe foundation for everything that follows. Timing research, combination research, playbook v2, AFRE integration and ML should build on those contracts rather than being implemented ahead of them.
+
+Therefore the ORB build is **code-ready now**, with the condition that implementation starts by verifying the exact branch head and current tests, then proceeds stage by stage without breaking the already-working ORB research/proof/guidance path.
