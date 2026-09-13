@@ -244,12 +244,11 @@ def test_stale_or_rejected_trendforge_receipt_cannot_become_candidate() -> None:
     assert trendforge_candidate_intakes(intake) == []
 
 
-def test_trendforge_candidate_created_after_receipt_is_quarantined() -> None:
+def test_trendforge_candidate_created_after_receipt_fails_closed_before_candidate_materialization() -> None:
     intake = _trendforge_intake()
     intake["packet"]["evidence"]["candidates"][0]["createdAt"] = (T0 + timedelta(seconds=2)).isoformat()
-    rows = trendforge_candidate_intakes(intake)
-    assert rows[0].state is CandidateState.QUARANTINED
-    assert "FUTURE_FACT:trendforge_candidate_state" in rows[0].rejection_reasons
+    with pytest.raises(ValueError, match="observed_at cannot be after available_at"):
+        trendforge_candidate_intakes(intake)
 
 
 def test_reference_price_rejects_zero_nan_and_bad_hash() -> None:
