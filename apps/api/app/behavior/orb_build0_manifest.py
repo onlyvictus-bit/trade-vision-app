@@ -79,6 +79,9 @@ def build_manifest() -> dict[str, Any]:
         item = _row(rid, text, owner, "47. R1–R105 accumulated-requirement traceability matrix", line, "TARGET_REQUIRED", requirement_class="ACCUMULATED_REQUIREMENT")
         item["test_ids"] = [_test_for(owner)]
         item["notes"] = "Future implementation requirement; BUILD-0 verifies traceability, not completion."
+        if rid in {"R19", "R102"}:
+            item["allow_duplicate_text_hash"] = True
+            item["semantic_equivalence_group"] = "DETERMINISTIC_REPLAY"
         requirements.append(item)
 
     fixtures = {"D020":"FIXTURE-MEMORY-30", "D021":"FIXTURE-PAPER-CONFIG-DEFAULTS", "D022":"FIXTURE-D1-GATE-INVENTORY"}
