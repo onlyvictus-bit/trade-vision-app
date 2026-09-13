@@ -98,7 +98,7 @@ jobs:
             --report-json artifacts/orb-build0/coverage.json \
             --report-md artifacts/orb-build0/coverage.md
 
-      - name: Verify only the registered source blocker remains
+      - name: Verify BUILD-0 is source-complete and lock-eligible
         run: |
           python - <<'PY'
           import json
@@ -107,12 +107,11 @@ jobs:
           report = json.loads(Path('artifacts/orb-build0/coverage.json').read_text(encoding='utf-8'))
           assert report['coverage']['coverage_pct'] == 100.0, report
           assert report['coverage']['hard_finding_count'] == 0, report
-          assert report['status'] in {'PASS', 'BLOCKED'}, report
-          blockers = [row['requirement_id'] for row in report['findings'] if row['exit_class'] == 'BLOCKED_NEEDS_AUDIT']
-          assert blockers in ([], ['BLOCKER-12D-001']), blockers
-          if blockers:
-              assert report['lock_eligible'] is False
-          print(f"ORB BUILD-0 audit implementation verified: status={report['status']} blockers={blockers}")
+          assert report['coverage']['blocked_count'] == 0, report
+          assert report['status'] == 'PASS', report
+          assert report['lock_eligible'] is True, report
+          assert report['findings'] == [], report
+          print('ORB BUILD-0 source-complete audit verified: PASS / LOCK-ELIGIBLE')
           PY
 
       - name: Verify immutable safety authority rules
