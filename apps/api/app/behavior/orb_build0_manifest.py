@@ -40,6 +40,7 @@ _SOURCE_ROWS = (
     ("SRC-AUTH", "apps/api/app/behavior/decision_spine/authority_registry.py", "6e77936112b0244c6951a593127a20b01435c9c4", "current authority registry truth"),
 )
 
+
 def _test_for(owner: str) -> str:
     if "authority" in owner.lower(): return "ORB-B0-AUTHORITY-LOCK"
     if owner.startswith("D6"): return "ORB-B11-D6-HANDOFF"
@@ -103,11 +104,51 @@ def build_manifest() -> dict[str, Any]:
         requirements.append(item)
 
     blocker_line = '- exact source of any previously referenced “12-dimension readiness matrix” not yet verified by this re-audit.'
-    blocker_text = "Exact canonical definition/source of the historical 12-dimension readiness matrix remains unverified; do not invent its dimensions."
-    blocker = _row("BLOCKER-12D-001", blocker_text, "BUILD-0", "50. Known blockers and unresolved uncertainties", blocker_line, "BLOCKED_NEEDS_AUDIT", requirement_class="UNRESOLVED_SOURCE_AUDIT")
-    blocker["source_locator"]["source_block_kind"] = "BULLET"
-    blocker["notes"] = "Repository/branch audit did not recover an authoritative definition. BUILD-0 must not be called source-complete GREEN/LOCKED while this blocker exists."
-    requirements.append(blocker)
+    historical_name = "Historical 211-link activation contract: 12 assessment dimensions plus separate live proof."
+    historical_text = (
+        historical_name
+        + " The 12 assessment dimensions are: Inventory ID and exact URL; Verified owner and source role; "
+        "Duplicate/source-family mapping; Intended decision field or non-trading use; API/artifact, method and parameters; "
+        "Headers, cookies, authentication and licensing; Content type, schema and units; Data date, publication time, frequency, revisions and valid-empty policy; "
+        "Normalized table, primary key and point-in-time join; Gate effect and prohibited claims; Failure tests; Activation verdict. "
+        "Live runtime proof is a separate 13th requirement."
+    )
+    historical = _row("BLOCKER-12D-001", historical_text, "BUILD-0", "50. Known blockers and unresolved uncertainties", blocker_line, "HISTORICAL_EVIDENCE", requirement_class="RESOLVED_SOURCE_AUDIT")
+    historical["source_locator"]["source_block_kind"] = "BULLET"
+    historical.update(
+        verification_status="SOURCE_VERIFIED",
+        corrected_name=historical_name,
+        notes="Historical source recovered outside this repository; preserved as evidence only, not as the current runtime readiness schema.",
+        historical_source_evidence={
+            "activation_matrix_path":"D:/TrendForge/delete/source_link_api_merge_2026-07-14/ALL_211_LINK_ACTIVATION_MATRIX.csv",
+            "activation_prompt_path":"D:/TrendForge/delete/source_link_api_merge_2026-07-14/ALL_211_LINK_ACTIVATION_PROMPT.md",
+            "source_registry_path":"D:/TrendForge/TREND_FORGE_SOURCE_REGISTRY.md",
+            "archive_status_path":"D:/TrendForge/docs/BUILD_STATUS.md",
+            "matrix_sha256":"781069985bf029cb2ad6b4479ac5ff28141362aa6297d5f68601993d53ca0a28",
+            "row_count":211,
+            "unique_id_count":211,
+            "matrix_column_count":12,
+            "can_unlock_ready_now_no_count":211,
+            "assessment_dimensions":[
+                "Inventory ID and exact URL",
+                "Verified owner and source role",
+                "Duplicate/source-family mapping",
+                "Intended decision field or non-trading use",
+                "API/artifact, method and parameters",
+                "Headers, cookies, authentication and licensing",
+                "Content type, schema and units",
+                "Data date, publication time, frequency, revisions and valid-empty policy",
+                "Normalized table, primary key and point-in-time join",
+                "Gate effect and prohibited claims",
+                "Failure tests",
+                "Activation verdict",
+            ],
+            "live_runtime_proof":"SEPARATE_13TH_REQUIREMENT",
+            "current_matrix_distinction":"D:/TrendForge/backend/trendforge_api/source_cohort_r0b.py is newer and different: 8 declared dimensions and 9 evaluated dimensions; it is not the historical 12-dimension definition.",
+            "provenance_note":"Original hash/provenance preserved in TREND_FORGE_SOURCE_REGISTRY.md; BUILD_STATUS.md records archival move rather than deletion.",
+        },
+    )
+    requirements.append(historical)
 
     test_ids = {test_id for item in requirements for test_id in item.get("test_ids", [])}
     test_ids |= {"ORB-B0-MANIFEST-SCHEMA","ORB-B0-SOURCE-DRIFT","ORB-B0-CANARY-GUARD","ORB-B0-DETERMINISM","ORB-B0-D1-DRIFT","ORB-B0-CONFIG-DRIFT","ORB-B0-AUTHORITY-LOCK","ORB-B0-REGRESSION-BASELINE"}
@@ -148,5 +189,5 @@ def build_manifest() -> dict[str, Any]:
         "baseline":baseline, "sources":sources,
         "registries":{"stages":[{"stage_id":f"BUILD-{i}"} for i in range(15)]+[{"stage_id":"D6"},{"stage_id":"GLOBAL"}],"contracts":[{"contract_id":"OrbBaselineManifestV1","owner":"BUILD-0"},{"contract_id":"OrbRequirementManifestV1","owner":"BUILD-0"},{"contract_id":"OrbRequirementCoverageReportV1","owner":"BUILD-0"},{"contract_id":"OrbSourceReadinessV1","owner":"BUILD-0"}],"calculations":[],"tests":[{"test_id":value,"owner":"BUILD-0" if value.startswith("ORB-B0") else "FUTURE_STAGE_CONTRACT"} for value in sorted(test_ids)],"fixtures":[{"fixture_id":"FIXTURE-MEMORY-30"},{"fixture_id":"FIXTURE-PAPER-CONFIG-DEFAULTS"},{"fixture_id":"FIXTURE-D1-GATE-INVENTORY"}]},
         "source_readiness":readiness, "canaries":canaries, "requirements":requirements,
-        "coverage_policy":{"required_pct":100.0,"orphan_targets_allowed":0,"unexplained_source_drift_allowed":0,"hidden_conflicts_allowed":0,"missing_canaries_allowed":0,"research_priors_authoritative_without_proof":False,"deterministic_replay_required":True,"registered_blockers_prevent_lock":True,"require_r1_r105":True,"allowed_lock_blockers":["BLOCKER-12D-001"]},
+        "coverage_policy":{"required_pct":100.0,"orphan_targets_allowed":0,"unexplained_source_drift_allowed":0,"hidden_conflicts_allowed":0,"missing_canaries_allowed":0,"research_priors_authoritative_without_proof":False,"deterministic_replay_required":True,"registered_blockers_prevent_lock":True,"require_r1_r105":True,"allowed_lock_blockers":[]},
     }
