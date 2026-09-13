@@ -162,14 +162,29 @@ def _real_audit(manifest: dict) -> dict:
     return audit_manifest(_repo_root(), manifest, exact_git_sha="b" * 40, branch="m4-d6-orchestration-redesign")
 
 
-def test_real_build0_manifest_has_only_registered_12_dimension_blocker() -> None:
+def test_real_build0_manifest_is_lock_eligible_after_12_dimension_source_verification() -> None:
     report = _real_audit(_real_manifest())
-    assert report["status"] == "BLOCKED"
+    assert report["status"] == "PASS"
+    assert report["lock_eligible"] is True
     assert report["coverage"]["coverage_pct"] == 100.0
     assert report["coverage"]["requirement_count"] == 129
-    assert report["coverage"]["blocked_count"] == 1
+    assert report["coverage"]["blocked_count"] == 0
     assert report["coverage"]["hard_finding_count"] == 0
-    assert report["findings"][0]["requirement_id"] == "BLOCKER-12D-001"
+    assert report["findings"] == []
+
+
+def test_historical_211_link_contract_is_exact_and_distinct_from_current_matrix() -> None:
+    manifest = _real_manifest()
+    row = next(item for item in manifest["requirements"] if item["requirement_id"] == "BLOCKER-12D-001")
+    evidence = row["historical_source_evidence"]
+    assert row["disposition"] == "HISTORICAL_EVIDENCE"
+    assert row["verification_status"] == "SOURCE_VERIFIED"
+    assert row["corrected_name"] == "Historical 211-link activation contract: 12 assessment dimensions plus separate live proof."
+    assert evidence["matrix_sha256"] == "781069985bf029cb2ad6b4479ac5ff28141362aa6297d5f68601993d53ca0a28"
+    assert evidence["row_count"] == evidence["unique_id_count"] == evidence["can_unlock_ready_now_no_count"] == 211
+    assert evidence["matrix_column_count"] == len(evidence["assessment_dimensions"]) == 12
+    assert evidence["live_runtime_proof"] == "SEPARATE_13TH_REQUIREMENT"
+    assert "8 declared dimensions and 9 evaluated dimensions" in evidence["current_matrix_distinction"]
 
 
 def test_real_d1_inventory_is_exact_and_not_prose_invented() -> None:
