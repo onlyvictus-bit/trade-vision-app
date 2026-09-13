@@ -11,6 +11,7 @@ on:
       - apps/api/app/orb/timing_research.py
       - apps/api/app/behavior/trendforge_bridge.py
       - apps/api/tests/test_orb_candidate_intake_build1.py
+      - apps/api/tests/test_orb_timing_shadow_build1.py
       - apps/api/tests/test_orb_timing_v197.py
       - apps/api/tests/test_trendforge_bridge.py
       - apps/api/app/behavior/decision_spine/authority_registry.py
@@ -38,12 +39,14 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r apps/api/requirements.txt
 
-      - name: Compile BUILD-1 module
-        run: python -m py_compile apps/api/app/orb/candidate_intake.py
+      - name: Compile BUILD-1 modules
+        run: |
+          python -m py_compile apps/api/app/orb/candidate_intake.py
+          python -m py_compile apps/api/app/orb/timing_research.py
 
       - name: BUILD-1 adversarial candidate intake suite
         working-directory: apps/api
-        run: pytest -q tests/test_orb_candidate_intake_build1.py
+        run: pytest -q tests/test_orb_candidate_intake_build1.py tests/test_orb_timing_shadow_build1.py
 
       - name: Intake seam regressions
         working-directory: apps/api

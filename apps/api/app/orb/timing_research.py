@@ -14,6 +14,7 @@ import hashlib
 import json
 import threading
 from collections import Counter
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import NAMESPACE_URL, uuid5
@@ -26,11 +27,20 @@ from ..models import (
     OrbTimingResearchResult,
     OrbTimingWindowRow,
 )
+from .candidate_intake import (
+    OrbCandidateIntakeV1,
+    manual_candidate_intake,
+    project_eligible_symbols,
+    trendforge_candidate_intakes,
+)
 from .discovery import run_orb_discovery
 from .hstry_csv import HstryCsvNotFound, load_hstry_series
 
 ORB_TIMING_RESEARCH_VERSION = "orb-timing-research.v1.97"
+ORB_SYMBOL_SHADOW_VERSION = "orb-symbol-shadow.v1"
 NO_SIGNIFICANT_DIFFERENCE_THRESHOLD_R = 1.0
+EXPLICIT_SYMBOL_LIMIT = 50
+TRENDFORGE_INTAKE_SCAN_LIMIT = 5
 
 _JOBS: dict[str, OrbTimingResearchJob] = {}
 _LOCK = threading.RLock()
@@ -44,21 +54,24 @@ def _hash(value) -> str:
     ).hexdigest()
 
 
-def resolve_symbols(request: OrbTimingResearchRequest) -> list[str]:
-    if request.symbols_source == "explicit":
-        if not request.symbols:
-            raise ValueError("explicit symbols_source requires a non-empty symbols list")
-        seen: dict[str, None] = {}
-        for raw in request.symbols:
-            clean = str(raw).strip().upper()
-            if clean:
-                seen.setdefault(clean, None)
-        return list(seen)[:50]
+def _explicit_symbols(symbols: list[str]) -> list[str]:
+    """Legacy explicit-list projection: strip/upper/dedupe, first 50. Pure."""
+    if not symbols:
+        raise ValueError("explicit symbols_source requires a non-empty symbols list")
+    seen: dict[str, None] = {}
+    for raw in symbols:
+        clean = str(raw).strip().upper()
+        if clean:
+            seen.setdefault(clean, None)
+    return list(seen)[:EXPLICIT_SYMBOL_LIMIT]
 
-    # trendforge_latest: READY / PRIORITY_RADAR candidates from latest accepted intake
-    from .. import storage
 
-    intakes = storage.list_trendforge_intakes(limit=5)
+def _scan_trendforge_intakes(intakes: list[dict]) -> tuple[list[str], dict | None]:
+    """Legacy intake scan: first intake with READY/PRIORITY_RADAR symbols.
+
+    Returns (symbols, chosen_intake). Empty symbols + None when no intake
+    qualifies. Mirrors the historical resolve_symbols() scan exactly.
+    """
     for intake in intakes:
         packet = intake.get("packet") if isinstance(intake, dict) else None
         evidence = packet.get("evidence") if isinstance(packet, dict) else None
@@ -74,8 +87,202 @@ def resolve_symbols(request: OrbTimingResearchRequest) -> list[str]:
                 if symbol and symbol not in symbols:
                     symbols.append(symbol)
         if symbols:
-            return symbols[:50]
+            return symbols[:EXPLICIT_SYMBOL_LIMIT], intake if isinstance(intake, dict) else None
+    return [], None
+
+
+def _load_recent_intakes() -> list[dict]:
+    from .. import storage
+
+    return storage.list_trendforge_intakes(limit=TRENDFORGE_INTAKE_SCAN_LIMIT)
+
+
+def resolve_symbols(request: OrbTimingResearchRequest) -> list[str]:
+    if request.symbols_source == "explicit":
+        return _explicit_symbols(request.symbols)
+
+    # trendforge_latest: READY / PRIORITY_RADAR candidates from latest accepted intake
+    symbols, _ = _scan_trendforge_intakes(_load_recent_intakes())
+    if symbols:
+        return symbols
     raise ValueError("trendforge_latest found no READY/PRIORITY_RADAR candidates in recent intakes")
+
+
+# ---------------------------------------------------------------------------
+# BUILD-1 shadow: canonical candidate intake in parallel with legacy resolution.
+#
+# Research-only. Legacy resolve_symbols() / run_timing_research() behavior is
+# unchanged: legacy symbols still feed every run until shadow parity is proven
+# and a separately approved migration consumes the canonical projection.
+# The shadow path never substitutes, filters, or reorders legacy output;
+# safety-related differences are recorded as explicit mismatches.
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class OrbSymbolShadowReceiptV1:
+    """Point-in-time receipt comparing legacy vs canonical symbol resolution."""
+
+    shadow_version: str
+    symbols_source: str
+    selection_cutoff: str  # UTC ISO instant captured once per resolution
+    legacy_symbols: tuple[str, ...]
+    canonical_symbols: tuple[str, ...]
+    parity: bool
+    mismatches: tuple[str, ...]  # LEGACY_ONLY:<SYM> / CANONICAL_ONLY:<SYM>
+    candidate_hashes: tuple[str, ...]
+    provenance: str  # "manual" or the TrendForge intakeId
+    shadow_error: str | None  # canonical-build failure; legacy output unaffected
+    receipt_hash: str = ""
+
+
+def _receipt_hash(payload: dict) -> str:
+    return _hash(payload)
+
+
+def _finalize_shadow_receipt(
+    *,
+    symbols_source: str,
+    selection_cutoff: str,
+    legacy_symbols: list[str],
+    canonical_symbols: list[str],
+    mismatches: list[str],
+    candidate_hashes: list[str],
+    provenance: str,
+    shadow_error: str | None,
+    parity: bool,
+) -> OrbSymbolShadowReceiptV1:
+    payload = {
+        "shadow_version": ORB_SYMBOL_SHADOW_VERSION,
+        "symbols_source": symbols_source,
+        "selection_cutoff": selection_cutoff,
+        "legacy_symbols": list(legacy_symbols),
+        "canonical_symbols": list(canonical_symbols),
+        "parity": parity,
+        "mismatches": list(mismatches),
+        "candidate_hashes": list(candidate_hashes),
+        "provenance": provenance,
+        "shadow_error": shadow_error,
+    }
+    return OrbSymbolShadowReceiptV1(
+        shadow_version=payload["shadow_version"],
+        symbols_source=payload["symbols_source"],
+        selection_cutoff=payload["selection_cutoff"],
+        legacy_symbols=tuple(payload["legacy_symbols"]),
+        canonical_symbols=tuple(payload["canonical_symbols"]),
+        parity=payload["parity"],
+        mismatches=tuple(payload["mismatches"]),
+        candidate_hashes=tuple(payload["candidate_hashes"]),
+        provenance=payload["provenance"],
+        shadow_error=payload["shadow_error"],
+        receipt_hash=_receipt_hash(payload),
+    )
+
+
+def manual_shadow_candidates(
+    symbols: list[str], *, selection_cutoff: datetime
+) -> list[OrbCandidateIntakeV1]:
+    """Deterministic manual receipts for legacy explicit symbols.
+
+    One captured cutoff serves every symbol, so replay with the identical
+    cutoff reproduces identical candidate hashes.
+    """
+    if selection_cutoff.tzinfo is None or selection_cutoff.utcoffset() is None:
+        raise ValueError("selection_cutoff must be timezone-aware")
+    cutoff = selection_cutoff.astimezone(timezone.utc)
+    return [manual_candidate_intake(symbol, selected_at=cutoff) for symbol in _explicit_symbols(symbols)]
+
+
+def compare_symbol_shadow(
+    legacy_symbols: list[str], canonical_symbols: list[str]
+) -> tuple[bool, list[str]]:
+    """Exact-order parity check. Differences become explicit mismatch codes."""
+    mismatches: list[str] = []
+    legacy_set = set(legacy_symbols)
+    canonical_set = set(canonical_symbols)
+    for symbol in legacy_symbols:
+        if symbol not in canonical_set:
+            mismatches.append(f"LEGACY_ONLY:{symbol}")
+    for symbol in canonical_symbols:
+        if symbol not in legacy_set:
+            mismatches.append(f"CANONICAL_ONLY:{symbol}")
+    if not mismatches and list(canonical_symbols) != list(legacy_symbols):
+        mismatches.append("ORDER_DIVERGENCE")
+    return (not mismatches, mismatches)
+
+
+def resolve_symbols_with_shadow(
+    request: OrbTimingResearchRequest,
+    *,
+    selection_cutoff: datetime | None = None,
+    intakes: list[dict] | None = None,
+) -> tuple[list[str], list[OrbCandidateIntakeV1], OrbSymbolShadowReceiptV1]:
+    """Legacy symbols plus parallel canonical candidates plus parity receipt.
+
+    Legacy errors propagate exactly as resolve_symbols() raises them today.
+    A canonical-build failure is recorded on the receipt (parity False) and
+    never alters the returned legacy symbols.
+    """
+    if request.symbols_source == "explicit":
+        legacy_symbols = _explicit_symbols(request.symbols)
+        cutoff = (selection_cutoff or datetime.now(timezone.utc)).astimezone(timezone.utc)
+        try:
+            candidates = manual_shadow_candidates(request.symbols, selection_cutoff=cutoff)
+            canonical_symbols = project_eligible_symbols(candidates)
+            shadow_error: str | None = None
+        except Exception as exc:  # noqa: BLE001 - shadow must not break legacy resolution
+            candidates = []
+            canonical_symbols = []
+            shadow_error = f"{type(exc).__name__}: {exc}"
+        parity, mismatches = compare_symbol_shadow(legacy_symbols, canonical_symbols)
+        if shadow_error is not None:
+            parity = False
+            mismatches = [*mismatches, f"SHADOW_ERROR:{shadow_error}"]
+        receipt = _finalize_shadow_receipt(
+            symbols_source="explicit",
+            selection_cutoff=cutoff.isoformat(),
+            legacy_symbols=legacy_symbols,
+            canonical_symbols=canonical_symbols,
+            mismatches=mismatches,
+            candidate_hashes=[c.candidate_hash for c in candidates],
+            provenance="manual",
+            shadow_error=shadow_error,
+            parity=parity,
+        )
+        return legacy_symbols, candidates, receipt
+
+    scanned = _load_recent_intakes() if intakes is None else intakes
+    legacy_symbols, chosen = _scan_trendforge_intakes(scanned)
+    if not legacy_symbols:
+        raise ValueError("trendforge_latest found no READY/PRIORITY_RADAR candidates in recent intakes")
+    provenance = str((chosen or {}).get("intakeId") or "trendforge-unknown")
+    try:
+        candidates = trendforge_candidate_intakes(chosen or {})
+        canonical_symbols = project_eligible_symbols(candidates)
+        shadow_error = None
+    except Exception as exc:  # noqa: BLE001 - shadow must not break legacy resolution
+        candidates = []
+        canonical_symbols = []
+        shadow_error = f"{type(exc).__name__}: {exc}"
+    parity, mismatches = compare_symbol_shadow(legacy_symbols, canonical_symbols)
+    if shadow_error is not None:
+        parity = False
+        mismatches = [*mismatches, f"SHADOW_ERROR:{shadow_error}"]
+    cutoff_iso = ""
+    if candidates:
+        cutoff_iso = candidates[0].selection_cutoff.astimezone(timezone.utc).isoformat()
+    receipt = _finalize_shadow_receipt(
+        symbols_source="trendforge_latest",
+        selection_cutoff=cutoff_iso,
+        legacy_symbols=legacy_symbols,
+        canonical_symbols=canonical_symbols,
+        mismatches=mismatches,
+        candidate_hashes=[c.candidate_hash for c in candidates],
+        provenance=provenance,
+        shadow_error=shadow_error,
+        parity=parity,
+    )
+    return legacy_symbols, candidates, receipt
 
 
 def _checkpoint_path(request_hash: str) -> Path:
