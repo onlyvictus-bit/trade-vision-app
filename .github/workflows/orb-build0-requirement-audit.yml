@@ -1,0 +1,127 @@
+name: ORB BUILD-0 Requirement Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - m4-d6-orchestration-redesign
+    paths:
+      - .github/workflows/orb-build0-requirement-audit.yml
+      - apps/api/app/behavior/orb_requirement_audit.py
+      - apps/api/app/behavior/orb_requirement_audit_core.py
+      - apps/api/app/behavior/orb_build0_requirement_catalog.py
+      - apps/api/app/behavior/orb_build0_manifest.py
+      - apps/api/app/behavior/paper_guidance_config.py
+      - apps/api/app/behavior/paper_guidance_spine_legacy.py
+      - apps/api/app/behavior/decision_spine/authority_registry.py
+      - apps/api/app/orb/**
+      - apps/api/tests/test_orb_build0_requirement_audit.py
+      - apps/api/tests/test_orb_*.py
+      - apps/api/tests/test_reconstruction_v200.py
+      - apps/api/tests/test_trendforge_bridge.py
+      - apps/api/tests/decision_spine/test_stage2_integrity.py
+      - apps/api/tests/decision_spine/test_m3_3_authority_complete.py
+      - docs/ORB_*.md
+      - docs/M4_*.md
+      - docs/CANONICAL_BUILD_STATUS.md
+      - docs/plans/ORB_*.md
+      - docs/plans/FINAL_REQUIRED_FLOW.md
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch head
+        uses: actions/checkout@v4
+        with:
+          ref: m4-d6-orchestration-redesign
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install API test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r apps/api/requirements.txt
+
+      - name: Compile BUILD-0 audit modules
+        run: |
+          python -m py_compile \
+            apps/api/app/behavior/orb_requirement_audit_core.py \
+            apps/api/app/behavior/orb_requirement_audit.py \
+            apps/api/app/behavior/orb_build0_requirement_catalog.py \
+            apps/api/app/behavior/orb_build0_manifest.py
+
+      - name: BUILD-0 adversarial audit suite
+        working-directory: apps/api
+        run: pytest -q tests/test_orb_build0_requirement_audit.py
+
+      - name: Current ORB regression suite
+        working-directory: apps/api
+        run: |
+          pytest -q \
+            tests/test_orb_v189.py \
+            tests/test_orb_v190.py \
+            tests/test_orb_v191.py \
+            tests/test_orb_guidance_v192.py \
+            tests/test_orb_paper_ledger_v193.py \
+            tests/test_orb_feedback_hardening_v194.py \
+            tests/test_orb_timing_v197.py \
+            tests/test_reconstruction_v200.py \
+            tests/test_orb_opening_scenarios_v201.py \
+            tests/test_trendforge_bridge.py
+
+      - name: Decision Spine safety and authority regression
+        working-directory: apps/api
+        run: |
+          pytest -q \
+            tests/decision_spine/test_stage2_integrity.py \
+            tests/decision_spine/test_m3_3_authority_complete.py
+
+      - name: Full API regression file
+        working-directory: apps/api
+        run: pytest -q tests/test_api.py
+
+      - name: Generate deterministic BUILD-0 coverage report
+        env:
+          PYTHONPATH: apps/api
+        run: |
+          mkdir -p artifacts/orb-build0
+          python -m app.behavior.orb_requirement_audit \
+            --dump-manifest-json artifacts/orb-build0/manifest.json \
+            --report-json artifacts/orb-build0/coverage.json \
+            --report-md artifacts/orb-build0/coverage.md
+
+      - name: Verify only the registered source blocker remains
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('artifacts/orb-build0/coverage.json').read_text(encoding='utf-8'))
+          assert report['coverage']['coverage_pct'] == 100.0, report
+          assert report['coverage']['hard_finding_count'] == 0, report
+          assert report['status'] in {'PASS', 'BLOCKED'}, report
+          blockers = [row['requirement_id'] for row in report['findings'] if row['exit_class'] == 'BLOCKED_NEEDS_AUDIT']
+          assert blockers in ([], ['BLOCKER-12D-001']), blockers
+          if blockers:
+              assert report['lock_eligible'] is False
+          print(f"ORB BUILD-0 audit implementation verified: status={report['status']} blockers={blockers}")
+          PY
+
+      - name: Verify immutable safety authority rules
+        working-directory: apps/api
+        run: |
+          python - <<'PY'
+          from app.behavior.decision_spine.authority_registry import FINAL_BAND_AUTHORITY, all_engine_authorities, validate_authority_registry
+          assert validate_authority_registry() == ()
+          assert [e.engine_id for e in all_engine_authorities() if e.may_set_final_band] == [FINAL_BAND_AUTHORITY]
+          assert all(not e.may_execute for e in all_engine_authorities())
+          print('ORB BUILD-0 authority invariants verified')
+          PY
