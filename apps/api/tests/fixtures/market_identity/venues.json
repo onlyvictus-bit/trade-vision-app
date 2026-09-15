@@ -1,0 +1,57 @@
+{
+  "provenance": "TEST_ARCHITECTURE_FIXTURE — synthetic values for architecture proof only; not official exchange data, not a live feed",
+  "venues": [
+    {
+      "venue_id": "NSE",
+      "operating_venue_id": "NSE",
+      "mic_or_registered_venue_code": "XNSE",
+      "exchange_code": "NSE",
+      "segment_code": "CASH",
+      "country_code": "IN",
+      "venue_timezone": "Asia/Kolkata",
+      "provider_aliases": [
+        {"alias": "NSE", "provider": "hstry", "effective_from": "2020-01-01T00:00:00+00:00", "effective_to": null}
+      ],
+      "source_receipt_ids": ["TEST-SRC-NSE-MASTER"],
+      "availability": "AVAILABLE",
+      "effective_from": "2020-01-01T00:00:00+00:00",
+      "effective_to": null,
+      "published_at": "2026-09-01T00:00:00+00:00",
+      "available_at": "2026-09-01T00:00:00+00:00"
+    },
+    {
+      "venue_id": "NSE",
+      "operating_venue_id": "NSE",
+      "mic_or_registered_venue_code": "XNSE",
+      "exchange_code": "NSE",
+      "segment_code": "DERIVATIVES",
+      "country_code": "IN",
+      "venue_timezone": "Asia/Kolkata",
+      "provider_aliases": [],
+      "source_receipt_ids": ["TEST-SRC-NSE-MASTER"],
+      "availability": "AVAILABLE",
+      "effective_from": "2020-01-01T00:00:00+00:00",
+      "effective_to": null,
+      "published_at": "2026-09-01T00:00:00+00:00",
+      "available_at": "2026-09-01T00:00:00+00:00"
+    },
+    {
+      "venue_id": "MCX",
+      "operating_venue_id": "MCX",
+      "mic_or_registered_venue_code": "XMCX",
+      "exchange_code": "MCX",
+      "segment_code": "COMMODITY",
+      "country_code": "IN",
+      "venue_timezone": "Asia/Kolkata",
+      "provider_aliases": [
+        {"alias": "MCX", "provider": "hstry", "effective_from": "2020-01-01T00:00:00+00:00", "effective_to": null}
+      ],
+      "source_receipt_ids": ["TEST-SRC-MCX-MASTER"],
+      "availability": "AVAILABLE",
+      "effective_from": "2020-01-01T00:00:00+00:00",
+      "effective_to": null,
+      "published_at": "2026-09-01T00:00:00+00:00",
+      "available_at": "2026-09-01T00:00:00+00:00"
+    }
+  ]
+}

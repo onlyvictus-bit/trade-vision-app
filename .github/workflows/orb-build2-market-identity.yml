@@ -1,0 +1,95 @@
+name: ORB BUILD-2 Market Identity
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - m4-d6-orb-build2-market-identity
+      - m4-d6-orchestration-redesign
+    paths:
+      - .github/workflows/orb-build2-market-identity.yml
+      - apps/api/app/orb/market_identity/**
+      - apps/api/app/orb/candidate_intake.py
+      - apps/api/app/orb/timing_research.py
+      - apps/api/app/models.py
+      - apps/api/app/behavior/trendforge_bridge.py
+      - apps/api/tests/test_orb_market_identity_build2.py
+      - apps/api/tests/test_orb_market_identity_hardening_build2.py
+      - apps/api/tests/test_orb_market_identity_official_build2.py
+      - apps/api/tests/market_identity_support.py
+      - apps/api/tests/official_support.py
+      - apps/api/tests/fixtures/market_identity/**
+      - apps/api/tests/test_orb_candidate_intake_build1.py
+      - apps/api/tests/test_orb_timing_shadow_build1.py
+      - apps/api/tests/test_orb_timing_v197.py
+      - apps/api/tests/test_trendforge_bridge.py
+      - apps/api/app/behavior/decision_spine/authority_registry.py
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact event SHA
+        uses: actions/checkout@v4
+        with:
+          # Exact-head verdicts only: never substitute the planning branch for
+          # the pushed/dispatched commit. ${{ github.sha }} is the push SHA on
+          # push events and the selected ref's SHA on workflow_dispatch.
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install API test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r apps/api/requirements.txt
+
+      - name: Compile BUILD-2 modules
+        run: |
+          python -m py_compile apps/api/app/orb/market_identity/contracts.py
+          python -m py_compile apps/api/app/orb/market_identity/session.py
+          python -m py_compile apps/api/app/orb/market_identity/price_rules.py
+          python -m py_compile apps/api/app/orb/market_identity/registry.py
+          python -m py_compile apps/api/app/orb/market_identity/resolver.py
+          python -m py_compile apps/api/app/orb/market_identity/compatibility.py
+          python -m py_compile apps/api/app/orb/market_identity/source_receipts.py
+
+      - name: BUILD-2 market identity suite
+        working-directory: apps/api
+        run: pytest -q tests/test_orb_market_identity_build2.py tests/test_orb_market_identity_hardening_build2.py tests/test_orb_market_identity_official_build2.py
+
+      - name: BUILD-1 candidate intake regression
+        working-directory: apps/api
+        run: pytest -q tests/test_orb_candidate_intake_build1.py tests/test_orb_timing_shadow_build1.py
+
+      - name: Intake seam regressions
+        working-directory: apps/api
+        run: pytest -q tests/test_orb_timing_v197.py tests/test_trendforge_bridge.py
+
+      - name: BUILD-0 source and invariant lock remains green
+        env:
+          PYTHONPATH: apps/api
+        run: |
+          python -m app.behavior.orb_requirement_audit --require-lock
+
+      - name: Decision Spine immutable authority rules
+        working-directory: apps/api
+        run: |
+          python - <<'PY'
+          from app.behavior.decision_spine.authority_registry import FINAL_BAND_AUTHORITY, all_engine_authorities, validate_authority_registry
+          assert validate_authority_registry() == ()
+          assert [e.engine_id for e in all_engine_authorities() if e.may_set_final_band] == [FINAL_BAND_AUTHORITY]
+          assert all(not e.may_execute for e in all_engine_authorities())
+          print('ORB BUILD-2 authority invariants verified')
+          PY
+
+      - name: Full API regression file
+        working-directory: apps/api
+        run: pytest -q tests/test_api.py
