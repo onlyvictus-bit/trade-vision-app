@@ -1,0 +1,68 @@
+MCX official observed text — verbatim excerpts retrieved 2026-09-15
+==============================================================================
+Source A: https://www.mcxindia.com/market-operations/trading-surveillance/trading-holidays
+("Trading Holidays" page, Multi Commodity Exchange of India Ltd.)
+
+> ## Trading Holidays
+>
+> -   Trading Sessions
+>
+>     Morning Session
+>
+>     9:00am - 5:00pm
+>
+>     Evening Session
+>
+>     5:00pm - 11:30 /11:55pm
+
+Holiday rows (SR | Holidays | Date (Day) | Morning Session | Evening Session):
+
+>     01 NEW YEAR DAY 01 Jan 2026 (Thu) Open Closed
+>     02 REPUBLIC DAY 26 Jan 2026 (Mon) Closed Closed
+>     03 HOLI 03 Mar 2026 (Tue) Closed Open
+>     04 SHRI RAM NAVMI 26 Mar 2026 (Thu) Closed Open
+>     05 SHRI MAHAVIR JAYANTI 31 Mar 2026 (Tue) Closed Open
+>     06 GOOD FRIDAY 03 Apr 2026 (Fri) Closed Closed
+>     07 DR. BABA SAHEB AMBEDKAR JAYANTI 14 Apr 2026 (Tue) Closed Open
+>     08 MAHARASHTRA DAY 01 May 2026 (Fri) Closed Open
+>     09 BAKRI ID 28 May 2026 (Thu) Closed Open
+>     10 MOHARRAM 26 Jun 2026 (Fri) Closed Open
+>     11 GANESH CHATURTHI 14 Sep 2026 (Mon) Closed Open
+>     12 MAHATMA GANDHI JAYANTI 02 Oct 2026 (Fri) Closed Closed
+>     13 DASSERA 20 Oct 2026 (Tue) Closed Open
+>     14 DIWALI-BALIPRATIPADA 10 Nov 2026 (Tue) Closed Open
+>     15 GURU NANAK JAYANTI 24 Nov 2026 (Tue) Closed Open
+>     16 CHRISTMAS 25 Dec 2026 (Fri) Closed Closed
+
+> -   5:00 PM to 9:00 PM for Internationally linked agricultural commodities.
+>
+> -   Muhurat trading will be conducted on Sunday, November 08, 2026. Timings of Muhurat trading shall be notified subsequently.
+
+Source B: https://www.mcxindia.com/products/energy/crude-oil
+("Crude Oil" product page, Multi Commodity Exchange of India Ltd.)
+
+> ## Crude Oil
+>
+> MCX crude-oil futures having its underlying as CME Group's NYMEX Division, benchmark WTI crude oil — enables market participants to trade and hedge on global crude dynamics.
+
+>         CrudeOil (100 Barrels) Options March 2026 Contract Onwards
+>         CrudeOil (100 Barrels) Options January 2026 Contract Onwards
+
+Contract series listed (futures):
+
+>         Crude Oil March 2027 Contract Onwards
+>         Crude Oil January 2027 Contract Onwards
+>         Crude Oil January 2026 Contract Onwards
+
+> Disclaimer: The users are also advised to refer to latest circular issued by the Exchange.
+
+Scope notes (parser: official-extract.v1):
+- Session hours above are the only intraday time facts asserted from MCX text.
+- "100 Barrels" is observed on the options series titles; the futures trading
+  unit is recorded as observed-from-options-title, NOT as a parsed futures
+  specification field.
+- Tick size, expiry/last-trade instants, settlement references, lot rules and
+  price precision for crude futures were NOT observed on this page and are
+  therefore absent (explicit missingness, never defaults).
+- The January-2026 series row proves series existence only, not any
+  contract-month identity, expiry, or listing date.

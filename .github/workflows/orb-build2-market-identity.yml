@@ -15,7 +15,9 @@ on:
       - apps/api/app/behavior/trendforge_bridge.py
       - apps/api/tests/test_orb_market_identity_build2.py
       - apps/api/tests/test_orb_market_identity_hardening_build2.py
+      - apps/api/tests/test_orb_market_identity_official_build2.py
       - apps/api/tests/market_identity_support.py
+      - apps/api/tests/official_support.py
       - apps/api/tests/fixtures/market_identity/**
       - apps/api/tests/test_orb_candidate_intake_build1.py
       - apps/api/tests/test_orb_timing_shadow_build1.py
@@ -61,7 +63,7 @@ jobs:
 
       - name: BUILD-2 market identity suite
         working-directory: apps/api
-        run: pytest -q tests/test_orb_market_identity_build2.py tests/test_orb_market_identity_hardening_build2.py
+        run: pytest -q tests/test_orb_market_identity_build2.py tests/test_orb_market_identity_hardening_build2.py tests/test_orb_market_identity_official_build2.py
 
       - name: BUILD-1 candidate intake regression
         working-directory: apps/api
