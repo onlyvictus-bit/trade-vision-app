@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import fields
+from dataclasses import fields, replace
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -268,3 +268,143 @@ def test_reference_price_rejects_zero_nan_and_bad_hash() -> None:
         OrbCandidateReferencePriceV1(value=float("nan"), **base)
     with pytest.raises(ValueError, match="SHA-256"):
         OrbCandidateReferencePriceV1(value=1.0, **{**base, "source_hash": "bad"})
+
+
+# Gap-fill: a candidate must answer its selection reason -----------------------
+def test_candidate_without_selection_reason_fails_closed() -> None:
+    candidate = _build(reasons=[])
+    assert candidate.state is CandidateState.REJECTED
+    assert "MISSING_SELECTION_REASON" in candidate.rejection_reasons
+
+
+# Gap-fill: reference identity mismatch ----------------------------------------
+def _reference(
+    *,
+    reference_type: ReferenceType = ReferenceType.CLOSE,
+    session: str = "NSE:2026-09-12",
+    basis: str = "close",
+) -> OrbCandidateReferencePriceV1:
+    return OrbCandidateReferencePriceV1(
+        reference_type=reference_type,
+        reference_session_id=session,
+        price_basis=basis,
+        value=1500.25,
+        units="INR",
+        source_id="official-close",
+        source_hash=SHA_B,
+        observed_at=T0,
+        available_at=T0,
+    )
+
+
+def _reason_expecting(
+    *,
+    reference_type: ReferenceType = ReferenceType.CLOSE,
+    session: str = "NSE:2026-09-12",
+    basis: str = "close",
+) -> OrbCandidateReasonV1:
+    return OrbCandidateReasonV1(
+        reason_id="r1",
+        reason_code="REFERENCE_REASON",
+        truth=TruthState.TRUE,
+        requires_reference_price=True,
+        evidence_fact_ids=("f1",),
+        expected_reference_type=reference_type,
+        expected_reference_session_id=session,
+        expected_price_basis=basis,
+    )
+
+
+def test_matching_reference_identity_stays_eligible() -> None:
+    candidate = _build(reasons=[_reason_expecting()], reference_price_identity=_reference())
+    assert candidate.state is CandidateState.ELIGIBLE_FOR_STUDY
+
+
+def test_wrong_reference_session_fails_closed() -> None:
+    candidate = _build(
+        reasons=[_reason_expecting(session="NSE:2026-09-12")],
+        reference_price_identity=_reference(session="NSE:2026-09-11"),
+    )
+    assert candidate.state is CandidateState.REJECTED
+    assert "REFERENCE_IDENTITY_MISMATCH:r1:reference_session_id" in candidate.rejection_reasons
+
+
+def test_wrong_reference_type_fails_closed() -> None:
+    candidate = _build(
+        reasons=[_reason_expecting(reference_type=ReferenceType.SETTLEMENT)],
+        reference_price_identity=_reference(reference_type=ReferenceType.CLOSE),
+    )
+    assert candidate.state is CandidateState.REJECTED
+    assert "REFERENCE_IDENTITY_MISMATCH:r1:reference_type" in candidate.rejection_reasons
+
+
+def test_wrong_price_basis_fails_closed() -> None:
+    candidate = _build(
+        reasons=[_reason_expecting(basis="settlement")],
+        reference_price_identity=_reference(basis="close"),
+    )
+    assert candidate.state is CandidateState.REJECTED
+    assert "REFERENCE_IDENTITY_MISMATCH:r1:price_basis" in candidate.rejection_reasons
+
+
+# Gap-fill: constructor authority invariants ------------------------------------
+def test_hostile_direct_construction_cannot_gain_authority() -> None:
+    good = _build()
+    hostile = {
+        "research_only": False,
+        "trade_allowed": True,
+        "order_routing_enabled": True,
+        "live_trading_blocked": False,
+        "may_set_final_band": True,
+        "may_execute": True,
+    }
+    for field_name, bad_value in hostile.items():
+        with pytest.raises(ValueError):
+            replace(good, **{field_name: bad_value})
+
+
+# Gap-fill: historical reconstruction proof --------------------------------------
+def test_historical_scope_without_record_proof_fails_closed() -> None:
+    candidate = _build(universe_scope=UniverseScope.HISTORICAL_RECONSTRUCTED_SELECTION)
+    assert candidate.state is CandidateState.REJECTED
+    assert "HISTORICAL_RECORD_PROOF_MISSING" in candidate.rejection_reasons
+
+
+def test_historical_scope_with_proof_and_matching_selector_is_eligible() -> None:
+    policy = OrbHistoricalReconstructionPolicyV1(
+        policy_id="policy",
+        policy_version="v1",
+        selector_version="selector.v1",
+        selection_cutoff_rule="available by cutoff",
+        universe_rule="replay same selector",
+        historical_record_proof="stored-record:2026-09-12:selector.v1",
+    )
+    candidate = _build(
+        universe_scope=UniverseScope.HISTORICAL_RECONSTRUCTED_SELECTION,
+        reconstruction_policy=policy,
+    )
+    assert candidate.state is CandidateState.ELIGIBLE_FOR_STUDY
+
+
+def test_manual_historical_intake_requires_record_id() -> None:
+    with pytest.raises(ValueError, match="historical_record_id"):
+        manual_candidate_intake(
+            "RELIANCE",
+            selected_at=T0,
+            universe_scope=UniverseScope.HISTORICAL_RECONSTRUCTED_SELECTION,
+        )
+    candidate = manual_candidate_intake(
+        "RELIANCE",
+        selected_at=T0,
+        universe_scope=UniverseScope.HISTORICAL_RECONSTRUCTED_SELECTION,
+        historical_record_id="stored-record:manual-7",
+    )
+    assert candidate.state is CandidateState.ELIGIBLE_FOR_STUDY
+    assert candidate.reconstruction_policy.historical_record_proof == "stored-record:manual-7"
+
+
+def test_offline_universe_scope_is_labelled_and_projectable() -> None:
+    candidate = _build(universe_scope=UniverseScope.OFFLINE_RESEARCH_UNIVERSE)
+    assert candidate.state is CandidateState.ELIGIBLE_FOR_STUDY
+    assert candidate.universe_scope is UniverseScope.OFFLINE_RESEARCH_UNIVERSE
+    assert project_eligible_symbols([candidate]) == ["RELIANCE"]

@@ -1,7 +1,9 @@
 """ORB BUILD-1 shadow parity: legacy resolve_symbols() vs canonical intake projection.
 
-Research-only. The legacy path still feeds run_timing_research(); this suite
-proves the canonical shadow matches it on valid inputs and records explicit
+Research-only. run_timing_research() resolves symbols through
+resolve_symbols_with_shadow(): legacy symbols still drive the run, the canonical
+shadow observes every resolution, and a trendforge_latest divergence fails the
+run closed. This suite proves parity on valid inputs and explicit recorded
 mismatches (never silent substitution) on safety-related divergences.
 """
 
@@ -12,6 +14,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from app.models import OrbTimingResearchRequest
+from app.orb import timing_research as tr
 from app.orb.candidate_intake import (
     MANUAL_SELECTOR_VERSION,
     TRENDFORGE_SELECTOR_VERSION,
@@ -277,3 +280,89 @@ def test_legacy_resolve_symbols_unchanged_by_shadow() -> None:
     legacy_tf, _, receipt = resolve_symbols_with_shadow(trendforge, intakes=[intake])
     assert legacy_tf == ["RELIANCE"]
     assert receipt.parity is True
+
+
+# Gap-fill: shadow on the active runtime path -----------------------------------
+class _StubDiscovery:
+    def model_dump(self, mode: str = "json") -> dict:
+        return {"ranked_combinations": [], "trades": [], "no_future_leakage": True}
+
+
+def test_active_run_resolves_through_shadow_and_attaches_receipt(tmp_path, monkeypatch) -> None:
+    # Discovery internals are covered by the v197 suite; here only the intake
+    # seam is under test, so both seams are stubbed past validation.
+    monkeypatch.setattr(tr, "run_orb_discovery", lambda request_model: _StubDiscovery())
+    monkeypatch.setattr(tr, "load_hstry_series", lambda *args, **kwargs: object())
+    monkeypatch.setattr(tr, "OrbDiscoveryRequest", lambda **kwargs: object())
+    monkeypatch.setattr(tr, "_checkpoint_path", lambda request_hash: tmp_path / f"cp_{request_hash[:16]}.json")
+    request = OrbTimingResearchRequest(symbols_source="explicit", symbols=["RELIANCE"])
+    result = tr.run_timing_research(request, base_dir=tmp_path)
+    assert result.symbols_requested == ["RELIANCE"]
+    assert result.symbols_completed == ["RELIANCE"]
+    shadow = result.symbol_shadow
+    assert shadow is not None
+    assert shadow["parity"] is True
+    assert shadow["mismatches"] == []
+    assert shadow["provenance"] == "manual"
+    assert shadow["counts"]["candidate_count"] == 1
+    assert shadow["counts"]["eligible_count"] == 1
+
+
+def test_active_run_fails_closed_on_stale_trendforge_intake(monkeypatch) -> None:
+    intake = _trendforge_intake(
+        [_row("RELIANCE", "READY")],
+        intake_state="WAIT_STALE_TRENDFORGE_EVIDENCE",
+    )
+    monkeypatch.setattr(tr, "_load_recent_intakes", lambda: [intake])
+    request = OrbTimingResearchRequest(symbols_source="trendforge_latest")
+    with pytest.raises(ValueError, match="failed closed"):
+        tr.run_timing_research(request)
+
+
+def test_active_run_fails_closed_on_shadow_error_for_trendforge(monkeypatch) -> None:
+    intake = _trendforge_intake([_row("RELIANCE", "READY")])
+    monkeypatch.setattr(tr, "_load_recent_intakes", lambda: [intake])
+    monkeypatch.setattr(
+        tr, "project_eligible_symbols", lambda candidates, **kwargs: (_ for _ in ()).throw(RuntimeError("boom"))
+    )
+    request = OrbTimingResearchRequest(symbols_source="trendforge_latest")
+    with pytest.raises(ValueError, match="failed closed"):
+        tr.run_timing_research(request)
+
+
+# Gap-fill: cutoff preserved on empty canonical sets ------------------------------
+def test_stale_receipt_preserves_pit_cutoff() -> None:
+    intake = _trendforge_intake(
+        [_row("RELIANCE", "READY")],
+        intake_state="WAIT_STALE_TRENDFORGE_EVIDENCE",
+    )
+    request = OrbTimingResearchRequest(symbols_source="trendforge_latest")
+    _, candidates, receipt = resolve_symbols_with_shadow(request, intakes=[intake])
+    assert candidates == []
+    assert receipt.selection_cutoff == T0.isoformat()
+
+
+# Gap-fill: observability counters and latency --------------------------------------
+def test_receipt_carries_observability_counts_and_latency() -> None:
+    intake = _trendforge_intake(
+        [_row("RELIANCE", "READY"), _row("TCS", "PRIORITY_RADAR", record_id=2)],
+    )
+    request = OrbTimingResearchRequest(symbols_source="trendforge_latest")
+    _, candidates, receipt = resolve_symbols_with_shadow(request, intakes=[intake])
+    assert receipt.candidate_count == 2
+    assert receipt.eligible_count == 2
+    assert receipt.source_count == 2
+    assert receipt.reason_count == 2
+    assert receipt.instrument_type_counts == (("NSE_EQUITY", 2),)
+    assert receipt.universe_scope_counts == (("ONLINE_SELECTED", 2),)
+    assert receipt.availability_counts == (("AVAILABLE", 2),)
+    assert receipt.latency_ms >= 0.0
+    # Latency is wall-clock: it must not enter the deterministic receipt hash.
+    assert len(candidates) == 2
+
+
+def test_receipt_hash_is_stable_across_runs_with_identical_cutoff() -> None:
+    request = OrbTimingResearchRequest(symbols_source="explicit", symbols=["RELIANCE"])
+    first = resolve_symbols_with_shadow(request, selection_cutoff=T0)[2]
+    second = resolve_symbols_with_shadow(request, selection_cutoff=T0)[2]
+    assert first.receipt_hash == second.receipt_hash

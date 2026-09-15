@@ -90,6 +90,21 @@ class AuditFinding:
     detail: str = ""
 
 
+# BUILD-0 requirement lifecycle state machine. Promotion beyond MAPPED is only
+# meaningful with stage evidence; the auditor enforces both the vocabulary and
+# the evidence for terminal promotion claims.
+_LIFECYCLE_STATUSES = frozenset({
+    "DISCOVERED",
+    "CLASSIFIED",
+    "MAPPED",
+    "VERIFIED",
+    "GOLDEN_CAPTURED",
+    "CI_VERIFIED",
+    "LOCKED",
+    "COMPLETE",
+})
+
+
 def _norm(value: str) -> str:
     return " ".join(str(value).strip().split())
 
@@ -330,8 +345,14 @@ def _validate_requirements(
                 _finding(findings, AuditExitClass.REGISTRY_ERROR, "UNKNOWN_FIXTURE_ID", requirement_id=requirement_id, detail=str(fixture_id))
 
         status = str(req.get("status", ""))
+        if status not in _LIFECYCLE_STATUSES:
+            _finding(findings, AuditExitClass.INVALID_DISPOSITION, "LIFECYCLE_STATUS_UNKNOWN", requirement_id=requirement_id, detail=status)
         if status in {"VERIFIED", "GOLDEN_CAPTURED", "CI_VERIFIED", "LOCKED", "COMPLETE"} and not req.get("implementation_evidence"):
             _finding(findings, AuditExitClass.UNMAPPED_REQUIREMENT, "COMPLETION_WITHOUT_IMPLEMENTATION_EVIDENCE", requirement_id=requirement_id)
+        if status == "CI_VERIFIED" and not str(req.get("ci_sha", "")).strip():
+            _finding(findings, AuditExitClass.INVALID_DISPOSITION, "CI_VERIFIED_WITHOUT_CI_SHA", requirement_id=requirement_id)
+        if status == "LOCKED" and not isinstance(req.get("lock_receipt"), dict):
+            _finding(findings, AuditExitClass.INVALID_DISPOSITION, "LOCKED_WITHOUT_LOCK_RECEIPT", requirement_id=requirement_id)
 
         if disposition is RequirementDisposition.TARGET_REQUIRED and not req.get("test_ids"):
             _finding(findings, AuditExitClass.MISSING_TEST_LINK, "TARGET_REQUIRED_MISSING_TEST", requirement_id=requirement_id, source_path=source_path)
@@ -405,3 +426,174 @@ def _validate_canaries(manifest: Mapping[str, Any], source_texts: Mapping[str, s
                 _finding(findings, AuditExitClass.CANARY_MISSING, "CANARY_TERM_NOT_MAPPED", detail=f"{canary_id}:{text}")
             if canary.get("require_source_presence", True) and text not in source_joined and text not in baseline_text:
                 _finding(findings, AuditExitClass.CANARY_MISSING, "CANARY_TERM_NOT_IN_SOURCE", detail=f"{canary_id}:{text}")
+
+
+def _requirement_manifest_hash(manifest: Mapping[str, Any]) -> str:
+    return hashlib.sha256(canonical_json_bytes({
+        "sources": manifest.get("sources", []),
+        "requirements": manifest.get("requirements", []),
+        "canaries": manifest.get("canaries", []),
+        "registries": manifest.get("registries", {}),
+        "source_readiness": manifest.get("source_readiness", []),
+        "coverage_policy": manifest.get("coverage_policy", {}),
+    })).hexdigest()
+
+
+def _baseline_manifest_hash(manifest: Mapping[str, Any]) -> str:
+    return hashlib.sha256(canonical_json_bytes(manifest.get("baseline", {}))).hexdigest()
+
+
+def _validate_golden_baseline(repo_root: Path, manifest: Mapping[str, Any], findings: list[AuditFinding]) -> None:
+    """The committed golden semantic-output and benchmark baselines must exist
+    and must describe the current manifest. Any manifest change without a golden
+    re-capture fails here, which is exactly the point of a golden."""
+    golden = manifest.get("baseline", {}).get("semantic_golden", {})
+    if not isinstance(golden, dict) or not golden.get("enabled", False):
+        return
+    goldens_path = str(golden.get("goldens_path", ""))
+    benchmarks_path = str(golden.get("benchmarks_path", ""))
+    if not goldens_path or not benchmarks_path:
+        _finding(findings, AuditExitClass.BASELINE_DRIFT, "GOLDEN_BASELINE_PATH_MISSING")
+        return
+    goldens_file = repo_root / goldens_path
+    benchmarks_file = repo_root / benchmarks_path
+    if not goldens_file.is_file():
+        _finding(findings, AuditExitClass.BASELINE_DRIFT, "GOLDEN_FILE_MISSING", source_path=goldens_path)
+    if not benchmarks_file.is_file():
+        _finding(findings, AuditExitClass.BASELINE_DRIFT, "GOLDEN_FILE_MISSING", source_path=benchmarks_path)
+    if not goldens_file.is_file() or not benchmarks_file.is_file():
+        return
+    try:
+        goldens = json.loads(goldens_file.read_text(encoding="utf-8"))
+        benchmarks = json.loads(benchmarks_file.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError, UnicodeDecodeError):
+        _finding(findings, AuditExitClass.BASELINE_DRIFT, "GOLDEN_FILE_INVALID")
+        return
+    if not isinstance(goldens, dict) or not isinstance(benchmarks, dict):
+        _finding(findings, AuditExitClass.BASELINE_DRIFT, "GOLDEN_FILE_INVALID")
+        return
+    for key in ("schema_version", "requirement_manifest_hash", "baseline_manifest_hash", "fixtures"):
+        if key not in goldens:
+            _finding(findings, AuditExitClass.BASELINE_DRIFT, "GOLDEN_FILE_INVALID", detail=f"missing:{key}")
+    if goldens.get("requirement_manifest_hash") != _requirement_manifest_hash(manifest):
+        _finding(findings, AuditExitClass.BASELINE_DRIFT, "GOLDEN_MANIFEST_HASH_DRIFT", detail="requirement manifest changed without golden re-capture")
+    if goldens.get("baseline_manifest_hash") != _baseline_manifest_hash(manifest):
+        _finding(findings, AuditExitClass.BASELINE_DRIFT, "GOLDEN_BASELINE_HASH_DRIFT", detail="baseline changed without golden re-capture")
+    suites = benchmarks.get("suites", {})
+    if not isinstance(suites, dict) or not suites:
+        _finding(findings, AuditExitClass.BASELINE_DRIFT, "GOLDEN_FILE_INVALID", detail="missing:suites")
+        return
+    for suite, row in suites.items():
+        ceiling = row.get("ceiling_s") if isinstance(row, dict) else None
+        if not isinstance(ceiling, (int, float)) or not (0 < ceiling <= 3600):
+            _finding(findings, AuditExitClass.BASELINE_DRIFT, "GOLDEN_FILE_INVALID", detail=f"bad-ceiling:{suite}")
+
+
+def _split_numbered_sections(source_text: str) -> dict[str, list[str]]:
+    sections: dict[str, list[str]] = {}
+    current: str | None = None
+    for line in source_text.splitlines():
+        match = re.match(r"^#\s*(\d+)\.", _norm(line))
+        if match:
+            current = match.group(1)
+            sections[current] = []
+        elif current is not None:
+            sections[current].append(line)
+    return sections
+
+
+def _table_data_row_hashes(section_lines: list[str]) -> set[str]:
+    """Normalized hashes of binding-matrix data rows. The header row of each
+    table block (rows before the first separator) is structural, not normative."""
+    hashes: set[str] = set()
+    block: list[tuple[str, bool]] = []
+
+    def flush() -> None:
+        data_started = False
+        for line, is_separator in block:
+            if is_separator:
+                data_started = True
+                continue
+            if data_started:
+                hashes.add(_sha256_text(_norm(line)))
+        del block[:]
+
+    for line in section_lines:
+        normalized = _norm(line)
+        if normalized.startswith("|"):
+            cells = [cell.strip() for cell in normalized.strip("|").split("|")]
+            is_separator = bool(cells) and all(re.fullmatch(r":?-{2,}:?", cell) for cell in cells)
+            block.append((line, is_separator))
+        else:
+            flush()
+    flush()
+    return hashes
+
+
+def _validate_source_completeness(
+    manifest: Mapping[str, Any],
+    source_texts: Mapping[str, str],
+    findings: list[AuditFinding],
+) -> None:
+    """Close the registered-rows-only blind spot: every data row of the binding
+    matrices (sections 47/52/54) and every Section-50 uncertainty bullet in the
+    canonical MASTER spec must be mapped to a requirement locator, tracked to a
+    readiness capability, or explicitly acknowledged. Anything else — including a
+    silently added row — fails the gate. Stale acknowledgments fail too, so
+    deleted lines cannot vanish quietly either."""
+    policy = manifest.get("coverage_policy", {})
+    master_path = None
+    for row in manifest.get("sources", []):
+        if str(row.get("source_id", "")) == "SRC-MASTER":
+            master_path = str(row.get("path", ""))
+            break
+    if not master_path or master_path not in source_texts:
+        return
+    master_text = source_texts[master_path]
+    locator_hashes = {
+        str(req.get("source_locator", {}).get("normalized_text_hash", ""))
+        for req in manifest.get("requirements", [])
+        if isinstance(req, dict) and isinstance(req.get("source_locator"), dict)
+    }
+    sections = _split_numbered_sections(master_text)
+    binding_sections = policy.get("binding_matrix_sections", ["47", "52", "54"])
+    for section in binding_sections:
+        for row_hash in _table_data_row_hashes(sections.get(str(section), [])):
+            if row_hash not in locator_hashes:
+                _finding(findings, AuditExitClass.UNMAPPED_REQUIREMENT, "BINDING_MATRIX_ROW_UNMAPPED", source_path=master_path, detail=f"section:{section}:{row_hash[:12]}")
+
+    tracked = policy.get("section50_blocker_tracking", {})
+    if not isinstance(tracked, dict):
+        tracked = {}
+    capabilities = {
+        str(row.get("capability_id", ""))
+        for row in manifest.get("source_readiness", [])
+        if isinstance(row, dict)
+    }
+    for bullet_hash, capability_ids in tracked.items():
+        names = [capability_ids] if isinstance(capability_ids, str) else list(capability_ids or [])
+        for name in names:
+            if name not in capabilities:
+                _finding(findings, AuditExitClass.REGISTRY_ERROR, "SECTION50_TRACKING_UNKNOWN_CAPABILITY", detail=f"{str(bullet_hash)[:12]}:{name}")
+    acknowledged: dict[str, dict] = {}
+    for entry in policy.get("acknowledged_unmapped_blocks", []):
+        if not isinstance(entry, dict):
+            _finding(findings, AuditExitClass.REGISTRY_ERROR, "BLOCK_ACK_MALFORMED", detail=repr(entry)[:80])
+            continue
+        block_hash = str(entry.get("block_hash", ""))
+        if not re.fullmatch(r"[0-9a-f]{64}", block_hash) or not str(entry.get("reason", "")).strip():
+            _finding(findings, AuditExitClass.REGISTRY_ERROR, "BLOCK_ACK_MALFORMED", detail=block_hash[:12])
+            continue
+        acknowledged[block_hash] = entry
+    master_line_hashes = _line_hashes(master_text)
+    for block_hash in acknowledged:
+        if block_hash not in master_line_hashes:
+            _finding(findings, AuditExitClass.UNMAPPED_REQUIREMENT, "STALE_UNMAPPED_BLOCK_ACK", source_path=master_path, detail=block_hash[:12])
+    for line in sections.get("50", []):
+        normalized = _norm(line)
+        if not normalized.startswith("- "):
+            continue
+        bullet_hash = _sha256_text(normalized)
+        if bullet_hash in locator_hashes or bullet_hash in tracked or bullet_hash in acknowledged:
+            continue
+        _finding(findings, AuditExitClass.UNMAPPED_REQUIREMENT, "SECTION50_BULLET_UNTRACKED", source_path=master_path, detail=bullet_hash[:12])

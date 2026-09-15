@@ -5,10 +5,12 @@ on:
   push:
     branches:
       - m4-d6-orchestration-redesign
+      - m4-d6-orb-build1-shadow
     paths:
       - .github/workflows/orb-build1-candidate-intake.yml
       - apps/api/app/orb/candidate_intake.py
       - apps/api/app/orb/timing_research.py
+      - apps/api/app/models.py
       - apps/api/app/behavior/trendforge_bridge.py
       - apps/api/tests/test_orb_candidate_intake_build1.py
       - apps/api/tests/test_orb_timing_shadow_build1.py
@@ -23,10 +25,13 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout exact branch head
+      - name: Checkout exact event SHA
         uses: actions/checkout@v4
         with:
-          ref: m4-d6-orchestration-redesign
+          # Exact-head verdicts only: never substitute the planning branch for
+          # the pushed/dispatched commit. ${{ github.sha }} is the push SHA on
+          # push events and the selected ref's SHA on workflow_dispatch.
+          ref: ${{ github.sha }}
           fetch-depth: 0
 
       - name: Setup Python

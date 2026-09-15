@@ -1,0 +1,31 @@
+{
+  "note": "Ceilings guard against pathological slowdown, not fine performance regression. Observed timings captured on gap-fill commit hardware; ceilings carry wide margins.",
+  "schema_version": "OrbBuild0BenchmarksV1",
+  "suites": {
+    "test_orb_build0_goldens.py": {
+      "ceiling_s": 300,
+      "observed_s": 6.0
+    },
+    "test_orb_build0_requirement_audit.py": {
+      "ceiling_s": 300,
+      "observed_s": 18.05
+    },
+    "test_orb_candidate_intake_build1.py": {
+      "ceiling_s": 120,
+      "observed_s": 5.55
+    },
+    "test_orb_timing_shadow_build1.py": {
+      "ceiling_s": 120,
+      "observed_s": 5.52
+    },
+    "test_orb_timing_v197.py": {
+      "ceiling_s": 300,
+      "observed_s": 8.91
+    },
+    "test_trendforge_bridge.py": {
+      "ceiling_s": 120,
+      "observed_s": 3.89
+    }
+  },
+  "unit_op_ceiling_ms": 5000
+}

@@ -5,8 +5,10 @@ on:
   push:
     branches:
       - m4-d6-orchestration-redesign
+      - m4-d6-orb-build1-shadow
     paths:
       - .github/workflows/orb-build0-requirement-audit.yml
+      - .github/workflows/orb-build1-candidate-intake.yml
       - apps/api/app/behavior/orb_requirement_audit.py
       - apps/api/app/behavior/orb_requirement_audit_core.py
       - apps/api/app/behavior/orb_build0_requirement_catalog.py
@@ -15,12 +17,16 @@ on:
       - apps/api/app/behavior/paper_guidance_spine_legacy.py
       - apps/api/app/behavior/decision_spine/authority_registry.py
       - apps/api/app/orb/**
+      - apps/api/app/models.py
       - apps/api/tests/test_orb_build0_requirement_audit.py
+      - apps/api/tests/test_orb_build0_goldens.py
       - apps/api/tests/test_orb_*.py
       - apps/api/tests/test_reconstruction_v200.py
       - apps/api/tests/test_trendforge_bridge.py
       - apps/api/tests/decision_spine/test_stage2_integrity.py
       - apps/api/tests/decision_spine/test_m3_3_authority_complete.py
+      - apps/api/tests/fixtures/orb_build0_goldens.json
+      - apps/api/tests/fixtures/orb_build0_benchmarks.json
       - docs/ORB_*.md
       - docs/M4_*.md
       - docs/CANONICAL_BUILD_STATUS.md
@@ -34,10 +40,13 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout exact branch head
+      - name: Checkout exact event SHA
         uses: actions/checkout@v4
         with:
-          ref: m4-d6-orchestration-redesign
+          # Exact-head verdicts only: never substitute the planning branch for
+          # the pushed/dispatched commit. ${{ github.sha }} is the push SHA on
+          # push events and the selected ref's SHA on workflow_dispatch.
+          ref: ${{ github.sha }}
           fetch-depth: 0
 
       - name: Setup Python
@@ -60,7 +69,7 @@ jobs:
 
       - name: BUILD-0 adversarial audit suite
         working-directory: apps/api
-        run: pytest -q tests/test_orb_build0_requirement_audit.py
+        run: pytest -q tests/test_orb_build0_requirement_audit.py tests/test_orb_build0_goldens.py
 
       - name: Current ORB regression suite
         working-directory: apps/api
