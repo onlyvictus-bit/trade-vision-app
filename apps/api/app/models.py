@@ -4711,6 +4711,10 @@ class OrbTimingResearchResult(BaseModel):
     order_routing_enabled: Literal[False] = False
     live_trading_blocked: Literal[True] = True
     deterministic_hash: str = Field(min_length=64, max_length=64)
+    # BUILD-1 intake shadow receipt summary. Set post-hash: it carries the
+    # wall-clock selection cutoff and latency, so it must not enter the
+    # deterministic hash (identical requests replay identically).
+    symbol_shadow: dict | None = None
 
 
 class OrbTimingResearchJob(BaseModel):

@@ -1,0 +1,20 @@
+{
+  "baseline_manifest_hash": "5c620883655be6c24280ed529d1855b58234220ba47d12a1d50ecc026a51dd65",
+  "captured_from": "m4-d6-orb-build1-shadow gap-fill; regenerate on any manifest/code-contract change",
+  "fixtures": {
+    "manual_candidate_hash": "80d1b61eb597bc77aa3e7913955238e091d4cadec7cadb7821f6a2c4908a24d0",
+    "shadow_receipt_counts": {
+      "candidate_count": 2,
+      "eligible_count": 2,
+      "reason_count": 2,
+      "source_count": 2
+    },
+    "shadow_receipt_hash_explicit": "815d7d1fb88bc036c888adc25273fe36f341b2046624c25150ae778253a2fbe1",
+    "trendforge_candidate_hashes": [
+      "1afced2096cd1800b6ef8d42052682ee07802897a9ba8ac9de56e1f3bbc3f6c4",
+      "930a0ab76fc5eaa75b18ce694314681c796a55ae4523052da3935a4fe30269f9"
+    ]
+  },
+  "requirement_manifest_hash": "5e169a107cf8f75559a00f8cf173c16d75e3874d8bbced05261f72f117d39d14",
+  "schema_version": "OrbBuild0GoldensV1"
+}

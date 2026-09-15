@@ -150,6 +150,24 @@ def build_manifest() -> dict[str, Any]:
     )
     requirements.append(historical)
 
+    golden_section = "54. BUILD-0 golden semantic-output and benchmark baselines"
+    golden_rows = (
+        ("G001", "Semantic golden baseline: committed deterministic hashes of canonical BUILD-1 intake fixtures and the requirement manifest hash; drift fails the BUILD-0 gate."),
+        ("G002", "Benchmark baseline: committed per-suite runtime ceilings with observed capture timings; pathological slowdown fails the gate."),
+    )
+    for rid, text in golden_rows:
+        line = f"| {rid} | {text} | BUILD-0 |"
+        # NOTE: the section-54 table rows in MASTER carry shorter artifact
+        # labels; the locator below pins the exact committed row text.
+        doc_lines = {
+            "G001": "| G001 | committed deterministic hashes of canonical BUILD-1 intake fixtures and the requirement manifest hash | BUILD-0 |",
+            "G002": "| G002 | committed per-suite runtime ceilings with observed capture timings | BUILD-0 |",
+        }
+        item = _row(rid, text, "BUILD-0", golden_section, doc_lines[rid], "TARGET_REQUIRED", requirement_class="GOLDEN_BASELINE")
+        item["test_ids"] = ["ORB-B0-GOLDEN-BASELINE" if rid == "G001" else "ORB-B0-BENCHMARK-BASELINE"]
+        item["notes"] = "BUILD-0 golden artifact; validated by the golden baseline test and the auditor's golden drift check."
+        requirements.append(item)
+
     test_ids = {test_id for item in requirements for test_id in item.get("test_ids", [])}
     test_ids |= {"ORB-B0-MANIFEST-SCHEMA","ORB-B0-SOURCE-DRIFT","ORB-B0-CANARY-GUARD","ORB-B0-DETERMINISM","ORB-B0-D1-DRIFT","ORB-B0-CONFIG-DRIFT","ORB-B0-AUTHORITY-LOCK","ORB-B0-REGRESSION-BASELINE"}
 
@@ -160,7 +178,8 @@ def build_manifest() -> dict[str, Any]:
         "d1_gate_inventory":{"enabled":True,"path":"apps/api/app/behavior/paper_guidance_spine_legacy.py","function":"build_d1_safety_gate","checks":[
             {"check_id":"PG-D1-001","name":"Research-only system mode"},{"check_id":"PG-D1-002","name":"Kill switch is armed"},{"check_id":"PG-D1-003","name":"Symbol identity matches candle series"},{"check_id":"PG-D1-004","name":"Timeframe identity matches candle series"},{"check_id":"PG-D1-005","name":"Input bar count is bounded"},{"check_id":"PG-D1-006","name":"OHLCV values are finite"},{"check_id":"PG-D1-007","name":"Data quality meets threshold"},{"check_id":"PG-D1-008","name":"All supplied candles are closed and point-in-time safe"},{"check_id":"PG-D1-009","name":"Broker credentials and routing are unavailable"}]},
         "config_defaults":{"enabled":True,"path":"apps/api/app/behavior/paper_guidance_config.py","classes":{"PaperGuidanceConfig":{"minimum_data_quality_score":0.85,"minimum_evidence_count":30,"low_evidence_confidence_cap":0.55,"p0_confidence_cap":0.60,"maximum_input_bars":5000},"PaperGuidanceStorageConfig":{"maximum_ticket_age_seconds":900,"retention_days":365,"maximum_observation_bars":500,"spread_bps":1.0,"slippage_bps":1.0,"impact_bps":0.5,"brokerage_bps":1.0,"feedback_minimum_samples":30,"feedback_quarantine_win_rate":0.35}}},
-        "regression_test_paths":["apps/api/tests/test_orb_v189.py","apps/api/tests/test_orb_v190.py","apps/api/tests/test_orb_v191.py","apps/api/tests/test_orb_guidance_v192.py","apps/api/tests/test_orb_paper_ledger_v193.py","apps/api/tests/test_orb_feedback_hardening_v194.py","apps/api/tests/test_orb_timing_v197.py","apps/api/tests/test_reconstruction_v200.py","apps/api/tests/test_orb_opening_scenarios_v201.py","apps/api/tests/test_trendforge_bridge.py","apps/api/tests/decision_spine/test_stage2_integrity.py","apps/api/tests/decision_spine/test_m3_3_authority_complete.py","apps/api/tests/test_api.py"],
+        "regression_test_paths":["apps/api/tests/test_orb_v189.py","apps/api/tests/test_orb_v190.py","apps/api/tests/test_orb_v191.py","apps/api/tests/test_orb_guidance_v192.py","apps/api/tests/test_orb_paper_ledger_v193.py","apps/api/tests/test_orb_feedback_hardening_v194.py","apps/api/tests/test_orb_timing_v197.py","apps/api/tests/test_reconstruction_v200.py","apps/api/tests/test_orb_opening_scenarios_v201.py","apps/api/tests/test_trendforge_bridge.py","apps/api/tests/decision_spine/test_stage2_integrity.py","apps/api/tests/decision_spine/test_m3_3_authority_complete.py","apps/api/tests/test_api.py","apps/api/tests/test_orb_build0_goldens.py"],
+        "semantic_golden":{"enabled":True,"goldens_path":"apps/api/tests/fixtures/orb_build0_goldens.json","benchmarks_path":"apps/api/tests/fixtures/orb_build0_benchmarks.json"},
     }
     readiness = [
         {"capability_id":"LOCAL_OHLCV_DERIVED_FACTS","state":"COMPUTABLE_LOCAL","provenance":"Master plan Section 49: locally computable OHLCV-derived facts remain distinct from feed requirements."},
@@ -189,5 +208,20 @@ def build_manifest() -> dict[str, Any]:
         "baseline":baseline, "sources":sources,
         "registries":{"stages":[{"stage_id":f"BUILD-{i}"} for i in range(15)]+[{"stage_id":"D6"},{"stage_id":"GLOBAL"}],"contracts":[{"contract_id":"OrbBaselineManifestV1","owner":"BUILD-0"},{"contract_id":"OrbRequirementManifestV1","owner":"BUILD-0"},{"contract_id":"OrbRequirementCoverageReportV1","owner":"BUILD-0"},{"contract_id":"OrbSourceReadinessV1","owner":"BUILD-0"}],"calculations":[],"tests":[{"test_id":value,"owner":"BUILD-0" if value.startswith("ORB-B0") else "FUTURE_STAGE_CONTRACT"} for value in sorted(test_ids)],"fixtures":[{"fixture_id":"FIXTURE-MEMORY-30"},{"fixture_id":"FIXTURE-PAPER-CONFIG-DEFAULTS"},{"fixture_id":"FIXTURE-D1-GATE-INVENTORY"}]},
         "source_readiness":readiness, "canaries":canaries, "requirements":requirements,
-        "coverage_policy":{"required_pct":100.0,"orphan_targets_allowed":0,"unexplained_source_drift_allowed":0,"hidden_conflicts_allowed":0,"missing_canaries_allowed":0,"research_priors_authoritative_without_proof":False,"deterministic_replay_required":True,"registered_blockers_prevent_lock":True,"require_r1_r105":True,"allowed_lock_blockers":[]},
+        "coverage_policy":{"required_pct":100.0,"orphan_targets_allowed":0,"unexplained_source_drift_allowed":0,"hidden_conflicts_allowed":0,"missing_canaries_allowed":0,"research_priors_authoritative_without_proof":False,"deterministic_replay_required":True,"registered_blockers_prevent_lock":True,"require_r1_r105":True,"allowed_lock_blockers":[],
+        "binding_matrix_sections":["47","52","54"],
+        "section50_blocker_tracking":{
+            "463246a26b2bdecfc546f3b575a97cd5b1958f47712ebfdc2bb00f1982e983d4":["COMMODITY_INSTRUMENT_MASTER"],
+            "f7e894c618d0e262a970067bd960e65a3eda70d47b441093a5863c9eeaf01cb5":["EXCHANGE_CALENDAR_HISTORY"],
+            "9e194c82c2db8aeebd9f51f1afefe1fe0db9ac3816cd629049e08933fcb6c47c":["SETTLEMENT_CONTEXT"],
+            "0aa9166609a03d39169a2bb44de626b839bafd5332dbd4f1a3166a80c13ca2b5":["TRENDFORGE_HISTORICAL_SELECTOR"],
+            "1abee4d39ff8eb179f41ff39333d1653aa2f3dbeaed79f297b6a9fb3a566b4c9":["EVENT_NEWS_CONTEXT","DERIVATIVES_OI_CONTEXT"]},
+        "acknowledged_unmapped_blocks":[
+            {"block_hash":"de8a7d52b35dc390d8e1c0ae8d9cf0efff157590ee9ffd6faace85eb85b0ea22","section":"50","reason":"Accepted open uncertainty: no empirical cost/slippage/liquidity feed contract exists; blocks authority by default."},
+            {"block_hash":"c528293efbb2eff859145f57a361b5f3bcc8eed947ac02ffeee3fc67521df6bd","section":"50","reason":"Accepted open uncertainty: final locked M4/D6 receipt schema pending M4/D6 lock; blocks authority by default."},
+            {"block_hash":"46a10a04102fe1e0b346438dd3885b9f7a32b078db3522be85aa68790fdb70fc","section":"50","reason":"Accepted open uncertainty: 1m/3m/commodity/OI/event/settlement source coverage pending feed contracts; blocks authority by default."},
+            {"block_hash":"02105981cba7511a9b87ca6b922e32396cff9b831df2f5b88a30827fac867112","section":"50","reason":"Accepted open uncertainty: practical-effect/sample-support/multiple-testing policy versions pending BUILD-8; blocks authority by default."},
+            {"block_hash":"f77759eec5d834e2046fccb18e320a6f2b4308b2230a640768fd27e6aa4cb31e","section":"50","reason":"Tracked via baseline d1_gate_inventory code-truth check; prose-vs-code reconciliation owned by D022."},
+            {"block_hash":"bcfe50bcc2c42787892ce0c87a5435d0c749661692d42adc4e9a1202e169995c","section":"50","reason":"Initial runtime ceilings recorded in benchmark baseline G002; hardware-specific SLO remains open."},
+            {"block_hash":"400acd3840178d8c5658899854e7ba121a1663b2a60604e062d67db9df456d7f","section":"50","reason":"Reconciliation note for BLOCKER-12D-001: historical 12-dimension definition verified as HISTORICAL_EVIDENCE; live feed readiness stays tracked via OrbSourceReadinessV1."}]},
     }

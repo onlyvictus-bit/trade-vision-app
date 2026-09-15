@@ -12,6 +12,8 @@ from app.behavior.orb_requirement_audit_core import (
     AUDIT_TOOL_VERSION, DEFAULT_MANIFEST_PATH, AuditExitClass, AuditFinding, ERROR_EXIT_CODES,
     SourceReadiness, canonical_json_bytes, load_default_manifest, load_manifest, _finding, _git_blob_sha, _sha256_text,
     _resolve_repo_root, _git_identity, _validate_sources, _validate_requirements, _validate_canaries,
+    _validate_source_completeness, _validate_golden_baseline,
+    _requirement_manifest_hash, _baseline_manifest_hash,
 )
 
 def _extract_d1_inventory(path: Path, function_name: str) -> list[tuple[str, str]]:
@@ -151,9 +153,11 @@ def audit_manifest(
     source_texts = _validate_sources(repo_root, manifest, findings)
     total, mapped = _validate_requirements(manifest, source_texts, findings)
     _validate_canaries(manifest, source_texts, findings)
+    _validate_source_completeness(manifest, source_texts, findings)
     _validate_code_baselines(repo_root, manifest, findings)
     _validate_readiness(manifest, findings)
     _validate_regression_paths(repo_root, manifest, findings)
+    _validate_golden_baseline(repo_root, manifest, findings)
 
     findings_sorted = sorted(set(findings))
     hard_findings = [f for f in findings_sorted if f.exit_class != AuditExitClass.BLOCKED_NEEDS_AUDIT.value]
@@ -174,15 +178,8 @@ def audit_manifest(
         "audit_tool_version": AUDIT_TOOL_VERSION,
         "manifest_version": manifest.get("manifest_version"),
         "baseline_version": manifest.get("baseline", {}).get("baseline_version"),
-        "baseline_manifest_hash": hashlib.sha256(canonical_json_bytes(manifest.get("baseline", {}))).hexdigest(),
-        "requirement_manifest_hash": hashlib.sha256(canonical_json_bytes({
-            "sources": manifest.get("sources", []),
-            "requirements": manifest.get("requirements", []),
-            "canaries": manifest.get("canaries", []),
-            "registries": manifest.get("registries", {}),
-            "source_readiness": manifest.get("source_readiness", []),
-            "coverage_policy": manifest.get("coverage_policy", {}),
-        })).hexdigest(),
+        "baseline_manifest_hash": _baseline_manifest_hash(manifest),
+        "requirement_manifest_hash": _requirement_manifest_hash(manifest),
         "exact_git_sha": exact_git_sha,
         "branch": branch,
         "status": status,

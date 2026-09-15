@@ -167,7 +167,9 @@ def test_real_build0_manifest_is_lock_eligible_after_12_dimension_source_verific
     assert report["status"] == "PASS"
     assert report["lock_eligible"] is True
     assert report["coverage"]["coverage_pct"] == 100.0
-    assert report["coverage"]["requirement_count"] == 129
+    # 105 accumulated (R1-R105) + 23 second-audit delta + 1 historical 12D
+    # contract + 2 golden baselines (G001/G002).
+    assert report["coverage"]["requirement_count"] == 131
     assert report["coverage"]["blocked_count"] == 0
     assert report["coverage"]["hard_finding_count"] == 0
     assert report["findings"] == []
@@ -257,3 +259,128 @@ def test_real_manifest_reorder_keeps_report_hash_identical() -> None:
     second = _real_audit(shuffled)
     assert first["report_hash"] == second["report_hash"]
     assert canonical_json_bytes(first) == canonical_json_bytes(second)
+
+
+def test_unknown_lifecycle_status_is_rejected(tmp_path: Path) -> None:
+    root, manifest = _minimal_repo(tmp_path)
+    manifest["requirements"][0]["status"] = "GREEN"
+    assert "LIFECYCLE_STATUS_UNKNOWN" in _codes(_audit(root, manifest))
+
+
+def test_ci_verified_without_ci_sha_is_rejected(tmp_path: Path) -> None:
+    root, manifest = _minimal_repo(tmp_path)
+    manifest["requirements"][0].update({"status": "CI_VERIFIED", "implementation_evidence": ["ci-run-1"]})
+    assert "CI_VERIFIED_WITHOUT_CI_SHA" in _codes(_audit(root, manifest))
+
+
+def test_locked_without_lock_receipt_is_rejected(tmp_path: Path) -> None:
+    root, manifest = _minimal_repo(tmp_path)
+    manifest["requirements"][0].update({"status": "LOCKED", "implementation_evidence": ["evidence"]})
+    assert "LOCKED_WITHOUT_LOCK_RECEIPT" in _codes(_audit(root, manifest))
+
+
+def _completeness_repo(tmp_path: Path) -> tuple[Path, dict]:
+    master = tmp_path / "master.md"
+    master.write_text(
+        "# 47. Matrix\n\n"
+        "| ID | Text |\n"
+        "|---|---|\n"
+        "| R1 | alpha |\n"
+        "| R2 | beta |\n"
+        "\n# 50. Uncertainties\n\n"
+        "- first open uncertainty;\n"
+        "- second open uncertainty;\n",
+        encoding="utf-8",
+    )
+    blob = _git_blob_sha(master.read_bytes())
+
+    def _req(rid: str, text: str, line: str) -> dict:
+        return {
+            "requirement_id": rid, "source_doc_path": "master.md", "source_blob_sha": blob,
+            "source_section": "Matrix", "source_line_range_or_text_hash": _hash(line),
+            "requirement_text": text, "requirement_text_hash": _hash(text),
+            "requirement_class": "TEST", "stage_owner": "BUILD-0",
+            "target_section": "unit", "contract_ids": ["OrbRequirementManifestV1"],
+            "calculation_ids": [], "test_ids": ["UNIT-TEST"], "fixture_ids": [],
+            "disposition": "TARGET_REQUIRED", "supersedes": [], "implementation_evidence": [],
+            "status": "MAPPED", "notes": "",
+            "source_locator": {"nearest_heading_path": ["Matrix"], "source_block_kind": "TABLE_ROW",
+                               "normalized_text_hash": _hash(line), "optional_rule_id": rid},
+        }
+
+    manifest = {
+        "schema_version": "OrbRequirementManifestV1", "manifest_version": "unit-v1",
+        "baseline": {"schema_version": "OrbBaselineManifestV1", "baseline_version": "unit-baseline",
+                     "d1_gate_inventory": {"enabled": False}, "config_defaults": {"enabled": False},
+                     "authority": {"enabled": False, "final_band_authority": "FINAL_CONFLUENCE_ARBITER"},
+                     "semantic_golden": {"enabled": False}, "regression_test_paths": []},
+        "sources": [{"source_id": "SRC-MASTER", "path": "master.md", "blob_sha": blob, "requires_review_receipt": False}],
+        "registries": {"contracts": [{"contract_id": "OrbRequirementManifestV1"}], "calculations": [],
+                       "tests": [{"test_id": "UNIT-TEST"}], "fixtures": []},
+        "source_readiness": [], "canaries": [], "requirements": [_req("R1", "alpha", "| R1 | alpha |")],
+        "coverage_policy": {"require_r1_r105": False, "binding_matrix_sections": ["47"],
+                            "section50_blocker_tracking": {}, "acknowledged_unmapped_blocks": []},
+    }
+    return tmp_path, manifest
+
+
+def test_unmapped_binding_matrix_row_is_detected() -> None:
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root, manifest = _completeness_repo(Path(tmp))
+        assert "BINDING_MATRIX_ROW_UNMAPPED" in _codes(_audit(root, manifest))
+
+
+def test_untracked_section50_bullet_is_detected() -> None:
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root, manifest = _completeness_repo(Path(tmp))
+        assert "SECTION50_BULLET_UNTRACKED" in _codes(_audit(root, manifest))
+
+
+def test_acknowledged_blocks_close_completeness() -> None:
+    import tempfile
+
+    from app.behavior.orb_requirement_audit_core import _line_hashes, _norm, _sha256_text
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root, manifest = _completeness_repo(Path(tmp))
+        master_text = (Path(tmp) / "master.md").read_text(encoding="utf-8")
+        line_hashes = _line_hashes(master_text)
+        locator = manifest["requirements"][0]["source_locator"]["normalized_text_hash"]
+        assert locator in line_hashes
+        manifest["requirements"].append(copy.deepcopy(manifest["requirements"][0]))
+        manifest["requirements"][1]["requirement_id"] = "R2"
+        manifest["requirements"][1]["requirement_text"] = "beta"
+        manifest["requirements"][1]["requirement_text_hash"] = _hash("beta")
+        beta_line = "| R2 | beta |"
+        manifest["requirements"][1]["source_line_range_or_text_hash"] = _hash(beta_line)
+        manifest["requirements"][1]["source_locator"]["normalized_text_hash"] = _hash(beta_line)
+        manifest["requirements"][1]["source_locator"]["optional_rule_id"] = "R2"
+        bullets = [line for line in master_text.splitlines() if _norm(line).startswith("- ")]
+        manifest["coverage_policy"]["acknowledged_unmapped_blocks"] = [
+            {"block_hash": _sha256_text(_norm(line)), "section": "50", "reason": "accepted open uncertainty"}
+            for line in bullets
+        ]
+        report = _audit(root, manifest)
+        assert "BINDING_MATRIX_ROW_UNMAPPED" not in _codes(report)
+        assert "SECTION50_BULLET_UNTRACKED" not in _codes(report)
+
+
+def test_stale_acknowledgment_is_detected() -> None:
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root, manifest = _completeness_repo(Path(tmp))
+        manifest["coverage_policy"]["acknowledged_unmapped_blocks"] = [
+            {"block_hash": "0" * 64, "section": "50", "reason": "no longer present"}
+        ]
+        assert "STALE_UNMAPPED_BLOCK_ACK" in _codes(_audit(root, manifest))
+
+
+def test_golden_drift_is_detected_on_undocumented_manifest_change() -> None:
+    manifest = _real_manifest()
+    manifest["requirements"][0]["notes"] = "undocumented edit without golden re-capture"
+    assert "GOLDEN_MANIFEST_HASH_DRIFT" in _codes(_real_audit(manifest))

@@ -202,11 +202,21 @@ class OrbCandidateReasonV1:
     truth: TruthState
     requires_reference_price: bool = False
     evidence_fact_ids: tuple[str, ...] = ()
+    # Optional expected reference identity. When any of these is set on a TRUE
+    # reason, the supplied reference_price_identity must match exactly; a wrong
+    # session/type/basis fails closed instead of silently attaching.
+    expected_reference_type: ReferenceType | None = None
+    expected_reference_session_id: str | None = None
+    expected_price_basis: str | None = None
 
     def __post_init__(self) -> None:
         if not self.reason_id.strip() or not self.reason_code.strip():
             raise ValueError("reason_id and reason_code are required")
         object.__setattr__(self, "evidence_fact_ids", tuple(sorted(set(self.evidence_fact_ids))))
+        if self.expected_reference_session_id is not None and not self.expected_reference_session_id.strip():
+            raise ValueError("expected_reference_session_id must be non-empty when set")
+        if self.expected_price_basis is not None and not self.expected_price_basis.strip():
+            raise ValueError("expected_price_basis must be non-empty when set")
 
 
 @dataclass(frozen=True, slots=True)
@@ -217,6 +227,10 @@ class OrbHistoricalReconstructionPolicyV1:
     selection_cutoff_rule: str
     universe_rule: str
     comparable_performance_requires_reconstruction: bool = True
+    # Immutable proof of a stored historical selection record. A HISTORICAL_
+    # RECONSTRUCTED_SELECTION candidate without this proof is a post-hoc
+    # self-declaration and fails closed in build_candidate_intake().
+    historical_record_proof: str | None = None
 
     def __post_init__(self) -> None:
         required = (
@@ -228,6 +242,8 @@ class OrbHistoricalReconstructionPolicyV1:
         )
         if any(not str(item).strip() for item in required):
             raise ValueError("historical reconstruction policy fields are required")
+        if self.historical_record_proof is not None and not str(self.historical_record_proof).strip():
+            raise ValueError("historical_record_proof must be non-empty when set")
 
 
 @dataclass(frozen=True, slots=True)
@@ -254,6 +270,22 @@ class OrbCandidateIntakeV1:
     live_trading_blocked: bool = True
     may_set_final_band: bool = False
     may_execute: bool = False
+
+    def __post_init__(self) -> None:
+        # Immutable safety authority: safe defaults are not enough, because
+        # direct construction could supply unsafe flags. Fail construction.
+        if self.research_only is not True:
+            raise ValueError("OrbCandidateIntakeV1 is research-only; research_only must be True")
+        if self.trade_allowed is not False:
+            raise ValueError("OrbCandidateIntakeV1 cannot allow trading; trade_allowed must be False")
+        if self.order_routing_enabled is not False:
+            raise ValueError("OrbCandidateIntakeV1 cannot route orders; order_routing_enabled must be False")
+        if self.live_trading_blocked is not True:
+            raise ValueError("OrbCandidateIntakeV1 must block live trading; live_trading_blocked must be True")
+        if self.may_set_final_band is not False:
+            raise ValueError("OrbCandidateIntakeV1 cannot set the final band; may_set_final_band must be False")
+        if self.may_execute is not False:
+            raise ValueError("OrbCandidateIntakeV1 cannot execute; may_execute must be False")
 
 
 def _dedupe_facts(facts: Iterable[OrbCandidateSourceFactV1]) -> tuple[OrbCandidateSourceFactV1, ...]:
@@ -303,6 +335,11 @@ def build_candidate_intake(
     failures: list[str] = []
     quarantine = False
 
+    if not canonical_reasons:
+        # A candidate must answer why it was selected. Zero reasons can never
+        # be eligible for study, even if every fact is valid.
+        failures.append("MISSING_SELECTION_REASON")
+
     for fact in canonical_facts:
         if fact.available_at is not None and fact.available_at > cutoff:
             quarantine = True
@@ -320,12 +357,42 @@ def build_candidate_intake(
             failures.append(f"UNKNOWN_REASON_FACT:{reason.reason_id}:{','.join(sorted(unknown_fact_ids))}")
         if reason.truth is TruthState.TRUE and reason.requires_reference_price and reference_price_identity is None:
             failures.append(f"REFERENCE_PRICE_REQUIRED:{reason.reason_id}")
+        if (
+            reason.truth is TruthState.TRUE
+            and reference_price_identity is not None
+            and (
+                reason.expected_reference_type is not None
+                or reason.expected_reference_session_id is not None
+                or reason.expected_price_basis is not None
+            )
+        ):
+            # The reason names the exact reference it needs; a supplied but
+            # wrong session/type/basis is a different reference, not evidence.
+            if (
+                reason.expected_reference_type is not None
+                and reference_price_identity.reference_type is not reason.expected_reference_type
+            ):
+                failures.append(f"REFERENCE_IDENTITY_MISMATCH:{reason.reason_id}:reference_type")
+            if (
+                reason.expected_reference_session_id is not None
+                and reference_price_identity.reference_session_id != reason.expected_reference_session_id
+            ):
+                failures.append(f"REFERENCE_IDENTITY_MISMATCH:{reason.reason_id}:reference_session_id")
+            if (
+                reason.expected_price_basis is not None
+                and reference_price_identity.price_basis != reason.expected_price_basis
+            ):
+                failures.append(f"REFERENCE_IDENTITY_MISMATCH:{reason.reason_id}:price_basis")
 
     if universe_scope is UniverseScope.HISTORICAL_RECONSTRUCTED_SELECTION:
         if not reconstruction_policy.comparable_performance_requires_reconstruction:
             failures.append("HISTORICAL_RECONSTRUCTION_POLICY_WEAKENED")
         if reconstruction_policy.selector_version != selection_rule_version:
             failures.append("HISTORICAL_SELECTOR_VERSION_MISMATCH")
+        if not (reconstruction_policy.historical_record_proof or "").strip():
+            # Without immutable proof of a stored historical selection record,
+            # a historical label is a post-hoc self-declaration.
+            failures.append("HISTORICAL_RECORD_PROOF_MISSING")
 
     if quarantine:
         state = CandidateState.QUARANTINED
@@ -377,16 +444,20 @@ def manual_candidate_intake(
     universe_scope: UniverseScope = UniverseScope.ONLINE_SELECTED,
     source_record_id: str | None = None,
     reference_price_identity: OrbCandidateReferencePriceV1 | None = None,
+    historical_record_id: str | None = None,
 ) -> OrbCandidateIntakeV1:
     selected_at = _utc(selected_at, field_name="selected_at")
     clean_symbol = _clean_symbol(symbol)
     record_id = source_record_id or f"manual:{clean_symbol}:{selected_at.isoformat()}"
+    if universe_scope is UniverseScope.HISTORICAL_RECONSTRUCTED_SELECTION and not (historical_record_id or "").strip():
+        raise ValueError("manual historical reconstruction requires historical_record_id proof of a stored selection record")
     policy = OrbHistoricalReconstructionPolicyV1(
         policy_id="manual-research-candidate-reconstruction",
         policy_version="v1",
         selector_version=MANUAL_SELECTOR_VERSION,
         selection_cutoff_rule="selected_at is the point-in-time cutoff; facts available later are forbidden",
         universe_rule="manual selections are comparable only to a stored historical manual-selection record; no hindsight recreation",
+        historical_record_proof=(historical_record_id.strip() if historical_record_id else None),
     )
     reason = OrbCandidateReasonV1(
         reason_id="manual-research-candidate",
@@ -427,6 +498,7 @@ def trendforge_candidate_intakes(
     *,
     instrument_type: InstrumentType = InstrumentType.NSE_EQUITY,
     universe_scope: UniverseScope = UniverseScope.ONLINE_SELECTED,
+    historical_record_proof: str | None = None,
 ) -> list[OrbCandidateIntakeV1]:
     """Adapt one already-validated TrendForge bridge intake without inventing facts.
 
@@ -464,6 +536,7 @@ def trendforge_candidate_intakes(
         selector_version=TRENDFORGE_SELECTOR_VERSION,
         selection_cutoff_rule="candidate must have been available in the accepted TrendForge packet by receivedAt",
         universe_rule="historical comparable performance must replay the same READY/PRIORITY_RADAR selector from retained PIT packets",
+        historical_record_proof=(historical_record_proof.strip() if historical_record_proof else None),
     )
 
     outputs: list[OrbCandidateIntakeV1] = []

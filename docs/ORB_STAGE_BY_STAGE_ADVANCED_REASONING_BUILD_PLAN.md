@@ -2593,6 +2593,7 @@ Implementation-stage blockers/unknowns include:
 - exact code-defined current D1 gate inventory if it differs from the old “nine checks” prose;
 - hardware-specific performance SLO;
 - exact source of any previously referenced “12-dimension readiness matrix” not yet verified by this re-audit.
+- historical “12-dimension readiness matrix” definition recovered and verified as BLOCKER-12D-001 HISTORICAL_EVIDENCE (211-link activation contract: 12 assessment dimensions plus separate live proof); the “not yet verified” entry above is superseded for the historical definition only, and live feed readiness stays tracked via OrbSourceReadinessV1.
 
 Unknowns remain unknown; they are not permission to invent.
 
@@ -2730,3 +2731,14 @@ D6 FINAL GUIDANCE AUTHORITY
 ```
 
 This document is the code-build specification. It implements none of the above by itself and makes no stage GREEN merely by existing.
+
+---
+
+# 54. BUILD-0 golden semantic-output and benchmark baselines
+
+Golden baselines pin the deterministic meaning of “done” so later edits cannot silently change outputs. Both artifacts are committed and drift-checked by the BUILD-0 auditor.
+
+| ID | Baseline artifact | Owner |
+|---|---|---|
+| G001 | committed deterministic hashes of canonical BUILD-1 intake fixtures and the requirement manifest hash | BUILD-0 |
+| G002 | committed per-suite runtime ceilings with observed capture timings | BUILD-0 |
