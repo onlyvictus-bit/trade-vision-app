@@ -42,11 +42,16 @@ def effective_intervals(
     profile: SessionProfileV1,
     calendar: CalendarRecordV1 | None = None,
 ) -> tuple[TradingIntervalV1, ...]:
-    """Calendar-record interval overrides win over the profile when present."""
-    if calendar is not None and calendar.tradable_intervals_override is not None:
-        if not calendar.tradable_intervals_override:
-            raise ValueError("calendar interval override must not be empty")
-        return tuple(calendar.tradable_intervals_override)
+    """Calendar-record interval overrides win over the profile when present.
+    A CLOSED_HOLIDAY record without an explicit override contributes no
+    intervals: holidays never inherit normal trading hours."""
+    if calendar is not None:
+        if calendar.tradable_intervals_override is not None:
+            if not calendar.tradable_intervals_override:
+                raise ValueError("calendar interval override must not be empty")
+            return tuple(calendar.tradable_intervals_override)
+        if calendar.session_type is SessionType.CLOSED_HOLIDAY:
+            return ()
     return tuple(profile.tradable_intervals)
 
 
@@ -74,18 +79,25 @@ def locate_timestamp(
     intervals = effective_intervals(profile, calendar)
     for index, interval in enumerate(intervals):
         if _interval_contains(_minutes(interval.start_local), _minutes(interval.end_local), minute):
-            return {
+            hit: dict[str, object] = {
                 "in_session": True,
                 "interval_index": index,
                 "phase": interval.phase,
+                "in_break": False,
                 "session_label": _session_label(profile, local, interval),
                 "interval_start_utc": _interval_edge_utc(profile, local, interval, edge="start").isoformat(),
                 "interval_end_utc": _interval_edge_utc(profile, local, interval, edge="end").isoformat(),
             }
+            for gap in profile.break_intervals:
+                if _interval_contains(_minutes(gap.start_local), _minutes(gap.end_local), minute):
+                    hit["phase"] = gap.phase
+                    hit["in_break"] = True
+            return hit
     return {
         "in_session": False,
         "interval_index": -1,
         "phase": SessionPhase.CLOSED,
+        "in_break": False,
         "session_label": "",
         "interval_start_utc": None,
         "interval_end_utc": None,

@@ -75,7 +75,7 @@ class MarketIdentityRegistry:
             raise ValueError("cache_size cannot be negative")
         self._registry_id = clean
         self._cache_size = cache_size
-        self._venues: dict[str, VenueIdentityV1] = {}
+        self._venues: dict[tuple[str, str], VenueIdentityV1] = {}
         self._instruments: dict[str, InstrumentProfileV1] = {}
         self._alias_index: dict[tuple[str, str], list[str]] = {}
         self._sessions: dict[str, SessionProfileV1] = {}
@@ -97,7 +97,7 @@ class MarketIdentityRegistry:
 
         return canonical_sha256(
             {
-                "venues": sorted(self._venues),
+                "venues": sorted(f"{v}|{s}" for v, s in self._venues),
                 "instruments": sorted(self._instruments),
                 "sessions": sorted(self._sessions),
                 "contracts": sorted(self._contracts),
@@ -109,26 +109,31 @@ class MarketIdentityRegistry:
 
     # -- ingestion ---------------------------------------------------------
     def add_venue(self, venue: VenueIdentityV1) -> None:
-        if venue.venue_id in self._venues:
-            raise RegistryError(f"duplicate venue: {venue.venue_id}")
-        self._venues[venue.venue_id] = venue
+        key = (venue.venue_id, venue.segment_code)
+        if key in self._venues:
+            raise RegistryError(f"duplicate venue: {venue.venue_id}|{venue.segment_code}")
+        self._venues[key] = venue
         for alias in venue.provider_aliases:
-            self._alias_index.setdefault((alias.provider, alias.alias), []).append(venue.venue_id)
+            self._alias_index.setdefault((alias.provider, alias.alias), []).append(key)
         self._bump()
+
+    def _require_venue(self, venue_id: str, segment_id: str, *, role: str) -> VenueIdentityV1:
+        try:
+            return self._venues[(venue_id, segment_id)]
+        except KeyError as exc:
+            raise RegistryError(f"{role} venue unknown: {venue_id}|{segment_id}") from exc
 
     def add_instrument(self, instrument: InstrumentProfileV1) -> None:
         if instrument.instrument_key in self._instruments:
             raise RegistryError(f"duplicate instrument: {instrument.instrument_key}")
-        if instrument.venue_id not in self._venues:
-            raise RegistryError(f"instrument venue unknown: {instrument.venue_id}")
+        self._require_venue(instrument.venue_id, instrument.segment_id, role="instrument")
         self._instruments[instrument.instrument_key] = instrument
         self._bump()
 
     def add_session_profile(self, profile: SessionProfileV1) -> None:
         if profile.profile_id in self._sessions:
             raise RegistryError(f"duplicate session profile: {profile.profile_id}")
-        if profile.venue_id not in self._venues:
-            raise RegistryError(f"session venue unknown: {profile.venue_id}")
+        self._require_venue(profile.venue_id, profile.segment_scope, role="session")
         self._sessions[profile.profile_id] = profile
         self._bump()
 
@@ -236,11 +241,21 @@ class MarketIdentityRegistry:
         return eligible
 
     # -- lookups -------------------------------------------------------------
-    def venue(self, venue_id: str) -> VenueIdentityV1:
-        try:
-            return self._venues[venue_id]
-        except KeyError as exc:
-            raise RegistryError(f"venue not found: {venue_id}") from exc
+    def venue(self, venue_id: str, segment_code: str | None = None) -> VenueIdentityV1:
+        if segment_code is not None:
+            try:
+                return self._venues[(venue_id, segment_code)]
+            except KeyError as exc:
+                raise RegistryError(f"venue not found: {venue_id}|{segment_code}") from exc
+        matches = sorted(
+            (venue for (vid, _seg), venue in self._venues.items() if vid == venue_id),
+            key=lambda venue: venue.segment_code,
+        )
+        if not matches:
+            raise RegistryError(f"venue not found: {venue_id}")
+        if len(matches) > 1:
+            raise RegistryError(f"VENUE_CONFLICT: {venue_id} spans segments; pass segment_code")
+        return matches[0]
 
     def instrument(self, instrument_key: str) -> InstrumentProfileV1:
         try:
@@ -251,8 +266,8 @@ class MarketIdentityRegistry:
     def venues_for_alias(self, provider: str, alias: str, moment: datetime) -> list[VenueIdentityV1]:
         moment = _require_aware(moment, field_name="moment")
         out = []
-        for venue_id in sorted(set(self._alias_index.get((provider, alias), []))):
-            venue = self._venues[venue_id]
+        for key in sorted(set(self._alias_index.get((provider, alias), []))):
+            venue = self._venues[key]
             for mapping in venue.provider_aliases:
                 if mapping.provider != provider or mapping.alias != alias:
                     continue

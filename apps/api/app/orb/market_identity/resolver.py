@@ -67,6 +67,14 @@ def resolve_market_identity(
     started = time.perf_counter()
     as_of = _require_aware(as_of, field_name="as_of")
     knowledge_cutoff = _require_aware(knowledge_cutoff, field_name="knowledge_cutoff")
+    # Normalize textual identity inputs before hashing: " reliance " and
+    # "RELIANCE" are the same claim and must replay to the same receipt.
+    instrument_key = instrument_key.strip() if instrument_key else None
+    provider = provider.strip() if provider else None
+    provider_alias = provider_alias.strip().upper() if provider_alias else None
+    venue_id = venue_id.strip() if venue_id else None
+    segment_id = segment_id.strip() if segment_id else None
+    contract_key = contract_key.strip() if contract_key else None
     cache_key = (
         registry.registry_id,
         registry.registry_version_hash(),
@@ -100,12 +108,8 @@ def resolve_market_identity(
             cache_key=cache_key,
         )
     except RegistryError as exc:
-        resolution = _unresolved(
-            state=ResolutionState.UNAVAILABLE,
-            as_of=as_of,
-            knowledge_cutoff=knowledge_cutoff,
-            cache_key=cache_key,
-            reason_codes=(str(exc),),
+        resolution = _unresolved_from_registry_error(
+            exc, as_of=as_of, knowledge_cutoff=knowledge_cutoff, cache_key=cache_key
         )
     except Exception:  # noqa: BLE001 - resolver boundary must stay machine-readable
         resolution = _unresolved(
@@ -123,6 +127,31 @@ def resolve_market_identity(
 
 def _input_hash(cache_key: tuple[str, ...]) -> str:
     return canonical_sha256({"resolver": "resolve_market_identity.v1", "inputs": list(cache_key)})
+
+
+def _state_for_reason(reason: str) -> ResolutionState:
+    if "STALE" in reason:
+        return ResolutionState.STALE
+    if "AMBIGUOUS" in reason or "CONFLICT" in reason:
+        return ResolutionState.AMBIGUOUS
+    return ResolutionState.UNAVAILABLE
+
+
+def _unresolved_from_registry_error(
+    exc: RegistryError,
+    *,
+    as_of: datetime,
+    knowledge_cutoff: datetime,
+    cache_key: tuple[str, ...],
+) -> MarketIdentityResolutionV1:
+    reason = str(exc)
+    return _unresolved(
+        state=_state_for_reason(reason),
+        as_of=as_of,
+        knowledge_cutoff=knowledge_cutoff,
+        cache_key=cache_key,
+        reason_codes=(reason,),
+    )
 
 
 def _unresolved(
@@ -180,7 +209,7 @@ def _resolve(
     )
     if isinstance(instrument, MarketIdentityResolutionV1):
         return instrument
-    venue = registry.venue(instrument.venue_id)
+    venue = registry.venue(instrument.venue_id, instrument.segment_id)
     receipts.extend(venue.source_receipt_ids)
     receipts.extend(instrument.source_receipt_ids)
 
@@ -274,6 +303,16 @@ def _resolve_instrument(
                 cache_key=cache_key,
                 reason_codes=("IDENTITY_NOT_FOUND",),
             )
+        if not MarketIdentityRegistry._market_effective(
+            candidate.effective_from, candidate.effective_to, as_of
+        ) or not MarketIdentityRegistry._knowable(candidate.available_at, knowledge_cutoff):
+            return _unresolved(
+                state=ResolutionState.UNAVAILABLE,
+                as_of=as_of,
+                knowledge_cutoff=knowledge_cutoff,
+                cache_key=cache_key,
+                reason_codes=("IDENTITY_NOT_FOUND",),
+            )
         if venue_id is not None and candidate.venue_id != venue_id:
             return _unresolved(
                 state=ResolutionState.AMBIGUOUS,
@@ -302,9 +341,21 @@ def _resolve_instrument(
             reason_codes=("IDENTITY_NOT_FOUND",),
         )
     matches = registry.instruments_for_symbol(provider_alias)
+    matches = [
+        item
+        for item in matches
+        if MarketIdentityRegistry._market_effective(item.effective_from, item.effective_to, as_of)
+        and MarketIdentityRegistry._knowable(item.available_at, knowledge_cutoff)
+    ]
     if provider is not None:
-        venue_ids = {venue.venue_id for venue in registry.venues_for_alias(provider, provider_alias.strip(), as_of)}
-        matches = [item for item in matches if item.venue_id in venue_ids]
+        # Provider namespace disambiguation: the alias must be claimed under
+        # this provider's identifiers (e.g. "hstry:NSE:RELIANCE"). An alias
+        # claimed by two instruments under the same provider stays ambiguous.
+        matches = [
+            item
+            for item in matches
+            if any(pid == provider or pid.startswith(provider + ":") for pid in item.provider_identifiers)
+        ]
     if venue_id is not None:
         matches = [item for item in matches if item.venue_id == venue_id]
     if segment_id is not None:
@@ -420,18 +471,24 @@ def _resolve_session(
     groups: dict[str, list[CalendarRecordV1]] = {}
     for record in dated:
         located = session_math.locate_timestamp(profile, as_of, record)
-        if located["in_session"]:
-            key = canonical_sha256(
-                {
-                    "session_type": record.session_type.value,
-                    "profile": record.profile_id,
-                    "intervals": [
-                        [i.start_local, i.end_local, i.phase.value]
-                        for i in session_math.effective_intervals(profile, record)
-                    ],
-                }
-            )
-            groups.setdefault(key, []).append(record)
+        if not located["in_session"]:
+            continue
+        # Date consistency: a record governs only the session on its own
+        # effective date. Without this, yesterday's record would also match
+        # today's time-of-day and every date would be a conflict.
+        if str(located["session_label"] or "") != record.effective_date.isoformat():
+            continue
+        key = canonical_sha256(
+            {
+                "session_type": record.session_type.value,
+                "profile": record.profile_id,
+                "intervals": [
+                    [i.start_local, i.end_local, i.phase.value]
+                    for i in session_math.effective_intervals(profile, record)
+                ],
+            }
+        )
+        groups.setdefault(key, []).append(record)
     if not groups:
         raise RegistryError("SESSION_NOT_RESOLVED")
     if len(groups) > 1:

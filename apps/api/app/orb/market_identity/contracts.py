@@ -649,13 +649,16 @@ class MarketIdentityV1:
     def __post_init__(self) -> None:
         for name in (
             "market_identity_id",
-            "market_identity_hash",
             "venue_id",
             "instrument_key",
             "session_profile_id",
             "calendar_record_id",
         ):
             object.__setattr__(self, name, _non_empty(getattr(self, name), field_name=name))
+        if self.market_identity_hash:
+            from ..candidate_intake import _validate_sha256 as _check_sha
+
+            object.__setattr__(self, "market_identity_hash", _check_sha(self.market_identity_hash, field_name="market_identity_hash"))
         object.__setattr__(self, "as_of", _utc(self.as_of, field_name="as_of"))
         object.__setattr__(self, "knowledge_cutoff", _utc(self.knowledge_cutoff, field_name="knowledge_cutoff"))
         object.__setattr__(self, "source_receipt_ids", tuple(self.source_receipt_ids))

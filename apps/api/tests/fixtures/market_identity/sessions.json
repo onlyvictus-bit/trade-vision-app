@@ -1,0 +1,101 @@
+{
+  "provenance": "TEST_ARCHITECTURE_FIXTURE — synthetic session shapes for architecture proof only; interval shapes inspired by public session knowledge, not official circulars",
+  "sessions": [
+    {
+      "profile_id": "NSE-CASH-REGULAR-V1",
+      "venue_id": "NSE",
+      "segment_scope": "CASH",
+      "timezone_name": "Asia/Kolkata",
+      "trading_date_convention": "EXCHANGE_SESSION_LABEL_EQUALS_LOCAL_DATE_FOR_SAME_DAY_SESSIONS",
+      "session_type": "REGULAR",
+      "opening_anchor_local": "09:15",
+      "trading_phases": ["PRE_OPEN", "REGULAR", "POST_CLOSE", "CLOSED"],
+      "tradable_intervals": [
+        {"start_local": "09:15", "end_local": "15:30", "phase": "REGULAR"}
+      ],
+      "break_intervals": [],
+      "close_semantics": "LAST_TRADED_PRICE_AT_15_30_IST",
+      "settlement_semantics": "UNSPECIFIED_FOR_EQUITY_CASH",
+      "calendar_rule_id": "NSE-CAL-RULE-V1",
+      "exception_rule_ids": [],
+      "effective_from": "2020-01-01T00:00:00+00:00",
+      "effective_to": null,
+      "published_at": "2026-09-01T00:00:00+00:00",
+      "available_at": "2026-09-01T00:00:00+00:00",
+      "source_receipt_ids": ["TEST-SRC-NSE-MASTER"]
+    },
+    {
+      "profile_id": "MCX-COMM-LONG-V1",
+      "venue_id": "MCX",
+      "segment_scope": "COMMODITY",
+      "timezone_name": "Asia/Kolkata",
+      "trading_date_convention": "SESSION_LABEL_EQUALS_LOCAL_DATE_OF_SESSION_START_CROSS_MIDNIGHT_SESSIONS_LABELLED_BY_START_DAY",
+      "session_type": "REGULAR",
+      "opening_anchor_local": "09:00",
+      "trading_phases": ["REGULAR", "CLOSED"],
+      "tradable_intervals": [
+        {"start_local": "09:00", "end_local": "17:00", "phase": "REGULAR"},
+        {"start_local": "17:00", "end_local": "23:55", "phase": "REGULAR"}
+      ],
+      "break_intervals": [],
+      "close_semantics": "LAST_TRADED_PRICE_AT_SESSION_END",
+      "settlement_semantics": "CASH_SETTLED_AGAINST_DAILY_SETTLEMENT_REFERENCE",
+      "calendar_rule_id": "MCX-CAL-RULE-V1",
+      "exception_rule_ids": [],
+      "effective_from": "2020-01-01T00:00:00+00:00",
+      "effective_to": null,
+      "published_at": "2026-09-01T00:00:00+00:00",
+      "available_at": "2026-09-01T00:00:00+00:00",
+      "source_receipt_ids": ["TEST-SRC-MCX-MASTER"]
+    },
+    {
+      "profile_id": "MCX-COMM-LONG-WINTER-V1",
+      "venue_id": "MCX",
+      "segment_scope": "COMMODITY",
+      "timezone_name": "Asia/Kolkata",
+      "trading_date_convention": "SESSION_LABEL_EQUALS_LOCAL_DATE_OF_SESSION_START_CROSS_MIDNIGHT_SESSIONS_LABELLED_BY_START_DAY",
+      "session_type": "REGULAR",
+      "opening_anchor_local": "09:00",
+      "trading_phases": ["REGULAR", "CLOSED"],
+      "tradable_intervals": [
+        {"start_local": "09:00", "end_local": "17:00", "phase": "REGULAR"},
+        {"start_local": "17:00", "end_local": "23:30", "phase": "REGULAR"}
+      ],
+      "break_intervals": [],
+      "close_semantics": "LAST_TRADED_PRICE_AT_SESSION_END",
+      "settlement_semantics": "CASH_SETTLED_AGAINST_DAILY_SETTLEMENT_REFERENCE",
+      "calendar_rule_id": "MCX-CAL-RULE-V1",
+      "exception_rule_ids": [],
+      "effective_from": "2026-11-01T00:00:00+00:00",
+      "effective_to": null,
+      "published_at": "2026-09-01T00:00:00+00:00",
+      "available_at": "2026-09-01T00:00:00+00:00",
+      "source_receipt_ids": ["TEST-SRC-MCX-MASTER"]
+    },
+    {
+      "profile_id": "MCX-AGRI-SHORT-V1",
+      "venue_id": "MCX",
+      "segment_scope": "COMMODITY",
+      "timezone_name": "Asia/Kolkata",
+      "trading_date_convention": "EXCHANGE_SESSION_LABEL_EQUALS_LOCAL_DATE_FOR_SAME_DAY_SESSIONS",
+      "session_type": "REGULAR",
+      "opening_anchor_local": "09:00",
+      "trading_phases": ["REGULAR", "MID_SESSION_BREAK", "CLOSED"],
+      "tradable_intervals": [
+        {"start_local": "09:00", "end_local": "17:00", "phase": "REGULAR"}
+      ],
+      "break_intervals": [
+        {"start_local": "13:00", "end_local": "13:30", "phase": "MID_SESSION_BREAK"}
+      ],
+      "close_semantics": "LAST_TRADED_PRICE_AT_SESSION_END",
+      "settlement_semantics": "CASH_SETTLED_AGAINST_DAILY_SETTLEMENT_REFERENCE",
+      "calendar_rule_id": "MCX-CAL-RULE-V1",
+      "exception_rule_ids": [],
+      "effective_from": "2020-01-01T00:00:00+00:00",
+      "effective_to": null,
+      "published_at": "2026-09-01T00:00:00+00:00",
+      "available_at": "2026-09-01T00:00:00+00:00",
+      "source_receipt_ids": ["TEST-SRC-MCX-MASTER"]
+    }
+  ]
+}
