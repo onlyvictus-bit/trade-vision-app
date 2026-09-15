@@ -430,6 +430,23 @@ def test_fixture_provenance_is_explicit_test_data() -> None:
         assert payload["provenance"].startswith("TEST_"), name
 
 
+def test_provider_alias_change_is_effective_dated() -> None:
+    registry = build_fixture_registry()
+    early = datetime(2019, 6, 1, tzinfo=timezone.utc)
+    assert registry.venues_for_alias("hstry", "NSE", early) == []
+    assert [v.segment_code for v in registry.venues_for_alias("hstry", "NSE", NSE_MORNING)] == ["CASH"]
+
+
+def test_unavailable_identity_never_falls_back_to_nse() -> None:
+    registry = build_fixture_registry()
+    resolution = resolve_market_identity(
+        registry, provider_alias="XYZUNKNOWN", venue_id="NSE", as_of=NSE_MORNING, knowledge_cutoff=K
+    )
+    assert resolution.state is C.ResolutionState.UNAVAILABLE
+    assert "IDENTITY_NOT_FOUND" in resolution.reason_codes
+    assert resolution.identity is None
+
+
 def test_venue_conflict_requires_segment() -> None:
     registry = build_fixture_registry()
     with pytest.raises(RegistryError, match="VENUE_CONFLICT"):
