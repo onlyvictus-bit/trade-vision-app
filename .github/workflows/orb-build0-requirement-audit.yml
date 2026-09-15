@@ -69,7 +69,7 @@ jobs:
 
       - name: BUILD-0 adversarial audit suite
         working-directory: apps/api
-        run: pytest -q tests/test_orb_build0_requirement_audit.py tests/test_orb_build0_goldens.py
+        run: pytest -q tests/test_orb_build0_requirement_audit.py tests/test_orb_build0_goldens.py tests/test_orb_build0_audit_portability.py
 
       - name: Current ORB regression suite
         working-directory: apps/api

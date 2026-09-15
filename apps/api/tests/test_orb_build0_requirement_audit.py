@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -158,8 +159,22 @@ def _real_manifest() -> dict:
     return build_manifest()
 
 
+def _real_sha() -> str:
+    """The audited commit under test. Source identity is git-object identity,
+    so placeholder SHAs cannot resolve; pin the real checkout HEAD."""
+    completed = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=_repo_root(),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=True,
+    )
+    return completed.stdout.strip()
+
+
 def _real_audit(manifest: dict) -> dict:
-    return audit_manifest(_repo_root(), manifest, exact_git_sha="b" * 40, branch="m4-d6-orchestration-redesign")
+    return audit_manifest(_repo_root(), manifest, exact_git_sha=_real_sha(), branch="m4-d6-orchestration-redesign")
 
 
 def test_real_build0_manifest_is_lock_eligible_after_12_dimension_source_verification() -> None:
