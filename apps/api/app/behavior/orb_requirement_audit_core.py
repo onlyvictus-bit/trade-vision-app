@@ -194,6 +194,77 @@ def _run_git(repo_root: Path, *args: str) -> str:
     return completed.stdout.strip()
 
 
+def _is_git_checkout(repo_root: Path) -> bool:
+    """True when repo_root looks like a git working tree. Hermetic unit
+    fixtures (plain temp dirs) take the legacy worktree-bytes path."""
+    try:
+        return (repo_root / ".git").exists()
+    except OSError:
+        return False
+
+
+def _run_git_bytes(repo_root: Path, *args: str) -> bytes | None:
+    """Non-raising git plumbing runner. None means the object does not exist
+    (or git is unavailable); callers fail closed from there."""
+    try:
+        completed = subprocess.run(
+            ["git", *args],
+            cwd=repo_root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    except OSError:
+        return None
+    return completed.stdout if completed.returncode == 0 else None
+
+
+def _commit_exists(repo_root: Path, exact_git_sha: str) -> bool:
+    return _run_git_bytes(repo_root, "cat-file", "-e", f"{exact_git_sha.strip()}^{{commit}}") is not None
+
+
+def _committed_source_bytes(repo_root: Path, exact_git_sha: str, path_text: str) -> bytes | None:
+    """Canonical source bytes for the audited commit. Never worktree bytes:
+    OS checkout materialization (LF vs CRLF) must not read as source drift."""
+    return _run_git_bytes(repo_root, "cat-file", "-p", f"{exact_git_sha.strip()}:{path_text}")
+
+
+def _worktree_dirty_states(repo_root: Path, paths: Sequence[str]) -> Mapping[str, str]:
+    """Staged/unstaged dirtiness per manifest path using diff content truth
+    (renormalized, so CRLF materialization is clean). Values: 'staged',
+    'unstaged', or 'both'. Absent means clean.
+
+    NOTE: ``git status --porcelain`` is deliberately NOT used here: it can
+    report EOL-only materialization as modified when the index stat cache is
+    stale, which would reintroduce the false-positive class this fix removes.
+    """
+    paths = [path for path in paths if path]
+    if not paths:
+        return {}
+    staged_out = _run_git_bytes(repo_root, "diff", "--cached", "--name-only", "-z", "--", *paths)
+    unstaged_out = _run_git_bytes(repo_root, "diff", "--name-only", "-z", "--", *paths)
+    if staged_out is None or unstaged_out is None:
+        return {}
+    staged = set(_split_nul_paths(staged_out))
+    unstaged = set(_split_nul_paths(unstaged_out))
+    states: dict[str, str] = {}
+    for name in sorted(staged | unstaged):
+        if name in staged and name in unstaged:
+            states[name] = "both"
+        elif name in staged:
+            states[name] = "staged"
+        else:
+            states[name] = "unstaged"
+    return states
+
+
+def _split_nul_paths(data: bytes) -> list[str]:
+    return [
+        item.decode("utf-8", "replace")
+        for item in data.split(b"\x00")
+        if item
+    ]
+
+
 def _finding(
     findings: list[AuditFinding],
     exit_class: AuditExitClass,
@@ -206,9 +277,44 @@ def _finding(
     findings.append(AuditFinding(exit_class.value, code, requirement_id, source_path, detail))
 
 
-def _validate_sources(repo_root: Path, manifest: Mapping[str, Any], findings: list[AuditFinding]) -> dict[str, str]:
+def _validate_sources(
+    repo_root: Path,
+    manifest: Mapping[str, Any],
+    findings: list[AuditFinding],
+    *,
+    exact_git_sha: str,
+) -> dict[str, str]:
+    """Two separate checks that must never be merged:
+
+    1. COMMITTED SOURCE DRIFT -- the manifest blob SHA is compared against the
+       git object at ``exact_git_sha:path`` (plus canonical bytes from that
+       object feed locator validation). Checkout materialization can never
+       read as drift.
+    2. LOCAL DIRTY WORKTREE -- staged/unstaged semantic edits are reported
+       with their own codes, via index semantics.
+
+    Non-git roots (hermetic unit fixtures) keep the legacy worktree-bytes
+    comparison; that path is never taken for a real audited commit.
+    """
     texts: dict[str, str] = {}
     seen_ids: set[str] = set()
+    git_mode = _is_git_checkout(repo_root)
+    if git_mode and not _commit_exists(repo_root, exact_git_sha):
+        _finding(
+            findings,
+            AuditExitClass.REGISTRY_ERROR,
+            "GIT_COMMIT_UNRESOLVABLE",
+            detail=exact_git_sha.strip(),
+        )
+        return texts
+    dirty: Mapping[str, str] = (
+        _worktree_dirty_states(
+            repo_root,
+            [str(row.get("path", "")) for row in manifest.get("sources", []) if isinstance(row, dict)],
+        )
+        if git_mode
+        else {}
+    )
     for row in manifest.get("sources", []):
         source_id = str(row.get("source_id", ""))
         path_text = str(row.get("path", ""))
@@ -217,11 +323,17 @@ def _validate_sources(repo_root: Path, manifest: Mapping[str, Any], findings: li
             _finding(findings, AuditExitClass.REGISTRY_ERROR, "SOURCE_ID_INVALID_OR_DUPLICATE", source_path=path_text, detail=source_id)
             continue
         seen_ids.add(source_id)
-        path = repo_root / path_text
-        if not path.is_file():
-            _finding(findings, AuditExitClass.SOURCE_DRIFT, "SOURCE_MISSING", source_path=path_text)
-            continue
-        data = path.read_bytes()
+        if git_mode:
+            data = _committed_source_bytes(repo_root, exact_git_sha, path_text)
+            if data is None:
+                _finding(findings, AuditExitClass.SOURCE_DRIFT, "SOURCE_MISSING", source_path=path_text)
+                continue
+        else:
+            path = repo_root / path_text
+            if not path.is_file():
+                _finding(findings, AuditExitClass.SOURCE_DRIFT, "SOURCE_MISSING", source_path=path_text)
+                continue
+            data = path.read_bytes()
         actual_sha = _git_blob_sha(data)
         if actual_sha != expected_sha:
             _finding(
@@ -235,6 +347,23 @@ def _validate_sources(repo_root: Path, manifest: Mapping[str, Any], findings: li
             texts[path_text] = data.decode("utf-8")
         except UnicodeDecodeError:
             _finding(findings, AuditExitClass.SOURCE_DRIFT, "SOURCE_NOT_UTF8", source_path=path_text)
+        state = dirty.get(path_text)
+        if state in ("staged", "both"):
+            _finding(
+                findings,
+                AuditExitClass.SOURCE_DRIFT,
+                "LOCAL_DIRTY_SOURCE_STAGED",
+                source_path=path_text,
+                detail="staged semantic modification vs HEAD; committed-identity check above is unaffected",
+            )
+        if state in ("unstaged", "both"):
+            _finding(
+                findings,
+                AuditExitClass.SOURCE_DRIFT,
+                "LOCAL_DIRTY_SOURCE_UNSTAGED",
+                source_path=path_text,
+                detail="unstaged semantic modification vs HEAD; committed-identity check above is unaffected",
+            )
 
         receipt = row.get("review_receipt")
         if row.get("requires_review_receipt", False):

@@ -150,7 +150,7 @@ def audit_manifest(
     if manifest.get("baseline", {}).get("schema_version") != "OrbBaselineManifestV1":
         _finding(findings, AuditExitClass.REGISTRY_ERROR, "BASELINE_SCHEMA_INVALID")
 
-    source_texts = _validate_sources(repo_root, manifest, findings)
+    source_texts = _validate_sources(repo_root, manifest, findings, exact_git_sha=exact_git_sha)
     total, mapped = _validate_requirements(manifest, source_texts, findings)
     _validate_canaries(manifest, source_texts, findings)
     _validate_source_completeness(manifest, source_texts, findings)
