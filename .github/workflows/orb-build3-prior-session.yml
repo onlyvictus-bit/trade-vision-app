@@ -1,0 +1,109 @@
+name: ORB BUILD-3 Previous Session Reconstruction
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - m4-d6-orb-build3-prior-session
+      - m4-d6-orchestration-redesign
+    paths:
+      - .github/workflows/orb-build3-prior-session.yml
+      - apps/api/app/orb/prior_session/**
+      - apps/api/app/orb/market_identity/**
+      - apps/api/app/orb/candidate_intake.py
+      - apps/api/tests/test_orb_prior_session_build3.py
+      - apps/api/tests/test_orb_market_identity_build2.py
+      - apps/api/tests/test_orb_market_identity_hardening_build2.py
+      - apps/api/tests/test_orb_market_identity_official_build2.py
+      - apps/api/tests/market_identity_support.py
+      - apps/api/tests/test_orb_candidate_intake_build1.py
+      - apps/api/tests/test_orb_timing_shadow_build1.py
+      - apps/api/tests/test_orb_timing_v197.py
+      - apps/api/app/behavior/decision_spine/authority_registry.py
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact event SHA
+        uses: actions/checkout@v4
+        with:
+          # Exact-head verdicts only: never substitute the planning branch for
+          # the pushed/dispatched commit. ${{ github.sha }} is the push SHA on
+          # push events and the selected ref's SHA on workflow_dispatch.
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install API test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r apps/api/requirements.txt
+
+      - name: Compile BUILD-3 modules
+        run: |
+          python -m py_compile apps/api/app/orb/prior_session/__init__.py
+          python -m py_compile apps/api/app/orb/prior_session/contracts.py
+          python -m py_compile apps/api/app/orb/prior_session/grid.py
+          python -m py_compile apps/api/app/orb/prior_session/kernel.py
+          python -m py_compile apps/api/app/orb/prior_session/references.py
+          python -m py_compile apps/api/app/orb/prior_session/snapshot.py
+
+      - name: BUILD-3 session reconstruction suite
+        working-directory: apps/api
+        run: pytest -q tests/test_orb_prior_session_build3.py
+
+      - name: BUILD-2 market identity regression
+        working-directory: apps/api
+        run: pytest -q tests/test_orb_market_identity_build2.py tests/test_orb_market_identity_hardening_build2.py tests/test_orb_market_identity_official_build2.py
+
+      - name: BUILD-1 candidate intake regression
+        working-directory: apps/api
+        run: pytest -q tests/test_orb_candidate_intake_build1.py tests/test_orb_timing_shadow_build1.py
+
+      - name: Intake seam regressions
+        working-directory: apps/api
+        run: pytest -q tests/test_orb_timing_v197.py
+
+      - name: Current ORB regression suite
+        working-directory: apps/api
+        run: |
+          pytest -q \
+            tests/test_orb_v189.py \
+            tests/test_orb_v190.py \
+            tests/test_orb_v191.py \
+            tests/test_orb_guidance_v192.py \
+            tests/test_orb_paper_ledger_v193.py \
+            tests/test_orb_feedback_hardening_v194.py \
+            tests/test_orb_timing_v197.py \
+            tests/test_reconstruction_v200.py \
+            tests/test_orb_opening_scenarios_v201.py \
+            tests/test_trendforge_bridge.py
+
+      - name: BUILD-0 source and invariant lock remains green
+        env:
+          PYTHONPATH: apps/api
+        run: |
+          python -m app.behavior.orb_requirement_audit --require-lock
+
+      - name: Decision Spine immutable authority rules
+        working-directory: apps/api
+        run: |
+          python - <<'PY'
+          from app.behavior.decision_spine.authority_registry import FINAL_BAND_AUTHORITY, all_engine_authorities, validate_authority_registry
+          assert validate_authority_registry() == ()
+          assert [e.engine_id for e in all_engine_authorities() if e.may_set_final_band] == [FINAL_BAND_AUTHORITY]
+          assert all(not e.may_execute for e in all_engine_authorities())
+          print('ORB BUILD-3 authority invariants verified')
+          PY
+
+      - name: Full API regression file
+        working-directory: apps/api
+        run: pytest -q tests/test_api.py
