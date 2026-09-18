@@ -1,0 +1,2669 @@
+# ORB_BUILD_CHANGE — B1/B2/B3 opening-sequence re-audit (saved detail)
+
+I re-audited the exact repository state, the BUILD-4 plan branch, the existing ORB code, the M3.1/M3.3 pattern infrastructure, and the open-source options.
+
+The previous plan is directionally correct, but there is one major architectural correction that makes it substantially safer:
+
+> **Do not build a brand-new `OpeningSequenceFactsV1` calculator.**
+>
+> Most of the raw candle work already exists in canonical M3.1.
+>
+> Build a thin **`OrbOpeningSequenceViewV1`** that composes existing canonical facts into an ORB-specific B1 → B2 → B3 sequence.
+
+That avoids rewriting BUILD-0/1/2/3, avoids recalculating candle anatomy, avoids importing unsafe chart-pattern code into live ORB, and fits the repository's existing M3/M4 architecture.
+
+## 1. First: BUILD-0 → BUILD-3 status is much better than it looked
+
+I checked the actual Git history.
+
+The current architectural base is:
+
+```text
+BUILD-1 head
+d641f942...
+       ↓
+BUILD-2 head
+7c6a208b...
+       ↓
+BUILD-3 head
+ee040c66...
+       ↓
+BUILD-3 merged
+29e9e126401a512c13743871206c2ee6b22772b3
+       ↓
+BUILD-4 detailed PLAN only
+9ca03ef6a988e0c16a6d8260c169ba144894f87b
+```
+
+The BUILD-4 plan branch is only **one documentation commit on top of the merged BUILD-3 base**. It is not missing BUILD-1/2/3.
+
+I also checked Actions:
+
+| Gate                                         | Result   |
+| -------------------------------------------- | -------- |
+| BUILD-1 candidate intake workflow            | PASS     |
+| BUILD-1 AFRE CI                              | PASS     |
+| BUILD-2 market identity workflow             | PASS     |
+| BUILD-2 AFRE CI                              | PASS     |
+| BUILD-3 branch workflow                      | PASS     |
+| BUILD-3 AFRE CI                              | PASS     |
+| BUILD-3 **post-merge** workflow on `29e9...` | **PASS** |
+| BUILD-0 requirement audit on `29e9...`       | **PASS** |
+
+The important post-merge runs are:
+
+[BUILD-3 post-merge CI run](https://github.com/onlyvictus-bit/trade-vision-app/actions/runs/35217658093?utm_source=chatgpt.com)
+
+[BUILD-0 post-merge requirement audit](https://github.com/onlyvictus-bit/trade-vision-app/actions/runs/35217658088?utm_source=chatgpt.com)
+
+So for this feature, **I would not reopen BUILD-0, BUILD-1, BUILD-2 or BUILD-3 code.**
+
+One small qualification: the BUILD-4 plan-only head `9ca03ef...` itself has no Actions run recorded. Since that commit only adds the planning document, it does not change runtime code, but the future BUILD-4 implementation branch should rerun the protected regression/BUILD-0 gates before code is promoted.
+
+## 2. The biggest thing the earlier analysis missed
+
+Your repository already contains much more of this idea than the earlier plan recognized.
+
+### A. Candle anatomy already exists
+
+`apps/api/app/behavior/candle_anatomy.py`
+
+already calculates:
+
+* body size
+* body %
+* upper/lower wick %
+* close location
+* range normalization
+* volume z-score
+* inside/outside bars
+* follow-through
+* failed follow-through
+* wick clusters
+* candle structure types
+
+And the M3.1 architecture explicitly says:
+
+```text
+D2 CLOSED SNAPSHOT
+       ↓
+SNAPSHOT FEATURE KERNEL
+       ↓ calculate once
+CANDLE ANATOMY
+       ↓
+multiple consumers
+```
+
+Therefore this would be wrong:
+
+```text
+NEW ORB opening sequence
+    ↓
+recalculate B1 range
+recalculate B1 body
+recalculate B1 wick
+recalculate B2 wick
+recalculate volume
+recalculate candle type
+```
+
+Correct:
+
+```text
+M3.1 canonical Candle Anatomy
+           ↓ READ ONLY
+ORB Opening Sequence View
+```
+
+This obeys the existing **calculate once / reuse everywhere** law.
+
+## 3. I found an especially important semantic trap
+
+This could otherwise create a very subtle bug.
+
+The existing field:
+
+```text
+range_atr
+```
+
+inside `candle_anatomy.py` is **not Wilder ATR**.
+
+The canonical `snapshot_feature_kernel.py` explicitly documents that the historical candle-anatomy implementation uses:
+
+```text
+rolling mean candle range
+```
+
+and preserves it under `average_range`.
+
+The file explicitly warns that a future true ATR must be separately versioned instead of silently changing the math.
+
+So this would be dangerous:
+
+```text
+B1_range_atr = 2.8
+→ interpret as B1 = 2.8 × daily ATR
+```
+
+That is not necessarily what the current field means.
+
+The new ORB sequence must distinguish:
+
+```text
+range_vs_mean_intraday_range
+```
+
+from:
+
+```text
+range_vs_canonical_ATR
+```
+
+They are different facts.
+
+**Do not change the existing M3.1 field.** Preserve compatibility and make the ORB view explicitly record the normalization basis.
+
+That is exactly the kind of hidden semantic bug your “do not modify old working code” policy is meant to prevent.
+
+## 4. There is already a pattern vocabulary for exactly this idea
+
+`apps/api/app/behavior/pattern_taxonomy.py` already defines candle/sequence concepts including:
+
+```text
+body_size
+body_pct_of_range
+upper_wick_size
+lower_wick_size
+close_location_value
+
+same_direction_body_sequence
+opposite_direction_body_sequence
+
+body_expansion_sequence
+body_compression_sequence
+
+wick_expansion_sequence
+wick_compression_sequence
+
+nearby_candle_confirmation
+nearby_candle_rejection
+nearby_candle_absorption
+nearby_candle_exhaustion
+```
+
+It even declares neighbor windows:
+
+```text
+previous_1_candle
+previous_2_candles
+previous_3_candles
+previous_5_candles
+```
+
+So we should not invent another generic candle-pattern vocabulary.
+
+Instead:
+
+```text
+existing Pattern Taxonomy vocabulary
+              +
+existing M3.1 Candle Anatomy facts
+              +
+B2 session identity
+              +
+B3 PDH/PDL/PDC/settlement facts
+              ↓
+ORB-specific opening sequence view
+```
+
+This is much cleaner.
+
+## 5. The higher-level architecture already anticipated your idea
+
+This is a major confirmation.
+
+`M4_TRADING_COGNITIVE_ARCHITECTURE_REFERENCE_2026-09-10.md` already has a section called **Pattern Sequence Intelligence**.
+
+It explicitly says to model:
+
+```text
+previous 9 candles
+opening sequence
+level-interaction sequence
+volume sequence
+structure-transition sequence
+failure-transition sequence
+```
+
+and its goal is essentially:
+
+```text
+recognize trajectories and failure paths
+instead of recognizing pictures only
+```
+
+So your B1/B2/B3 idea is **not an alien new feature that needs a new brain**.
+
+It is an ORB-specific implementation of an architectural capability already expected by M4.
+
+That changes the safest design substantially.
+
+## 6. There is also existing opening-drive logic — but do not blindly promote it
+
+`condition_classifier.py` already contains:
+
+```text
+opening_drive_continuation
+opening_drive_reversal
+breakout_day
+fake_breakout
+vwap_rejection
+distribution
+accumulation
+compression_before_expansion
+```
+
+However, it currently contains historical fixed thresholds such as body %, wick %, range conditions and a numeric `trap_probability`.
+
+That means:
+
+```text
+M3.1 condition classifier
+=
+useful existing interpretation evidence
+```
+
+but not:
+
+```text
+M3.1 condition classifier
+=
+proven ORB trading truth
+```
+
+Especially this should not happen:
+
+```text
+trap_probability = 0.72
+↓
+72% real probability of trap
+```
+
+Your M4 laws explicitly prohibit publishing uncalibrated probabilities.
+
+For BUILD-4, treat these as versioned interpretation evidence, not calibrated probability.
+
+BUILD-7/8 decides whether those thresholds actually work for ORB.
+
+## 7. The correct new component
+
+I would therefore change the earlier proposed name from:
+
+```text
+OpeningSequenceFactsV1
+```
+
+to:
+
+```text
+OrbOpeningSequenceViewV1
+```
+
+The word **View** is important.
+
+It communicates:
+
+> “I do not own/recalculate the underlying truth. I compose existing truth for ORB.”
+
+Architecture:
+
+```text
+                         EXISTING / PROTECTED
+┌────────────────────────────────────────────────────────┐
+│ B1 candidate intake                                    │
+│ B2 market/session/contract identity                    │
+│ B3 prior completed-session facts                       │
+│                                                        │
+│ D2 closed candles                                      │
+│ M3.1 Candle Anatomy                                    │
+│ M3.1 Level / price intelligence                        │
+│ M3.1 volume / volatility facts                         │
+└────────────────────────┬───────────────────────────────┘
+                         │ READ ONLY
+                         ▼
+              ┌────────────────────────┐
+              │ OrbOpeningSequenceView │
+              │          V1            │
+              └────────────┬───────────┘
+                           │
+                           ▼
+              B4-F context world
+                           │
+                           ▼
+              competing hypotheses
+                           │
+                           ▼
+             B5 timing / TF research
+                           │
+                           ▼
+               B6 state machine
+                           │
+                           ▼
+               B7 parameters
+                           │
+                           ▼
+               B8 OOS proof
+                           │
+                           ▼
+       B9 existing M3.3 analogue memory
+                           │
+                  optional challengers
+                    STUMPY → DTW
+                           │
+                           ▼
+                  B10 → B11 → D6
+```
+
+This is the design I would freeze.
+
+## 8. What `OrbOpeningSequenceViewV1` should contain
+
+It should not copy hundreds of values from M3.1.
+
+Keep it bounded.
+
+Conceptually:
+
+```text
+OrbOpeningSequenceViewV1
+
+IDENTITY
+    symbol
+    exchange
+    instrument_id
+    contract_id if applicable
+    session_id
+    session_open
+    decision_time
+    D2_snapshot_hash
+
+FORMATION IDENTITY
+    source_timeframe
+    formation_timeframe
+    expected_prefix_bars
+    observed_prefix_bars
+    bar_anchor_policy_version
+    resample_policy_version
+
+PREFIX QUALITY
+    all_bars_closed
+    contiguous
+    duplicate_free
+    revision_free
+    source_consistent
+    completeness_state
+
+OR TIMING
+    or_start
+    or_lock
+    B1 relative to OR lock
+    B2 relative to OR lock
+    B3 relative to OR lock
+    crosses_or_lock flag
+
+BAR REFERENCES
+    B1 → canonical M3.1 anatomy reference/hash
+    B2 → canonical M3.1 anatomy reference/hash
+    B3 → canonical M3.1 anatomy reference/hash
+
+SEQUENCE RELATIONSHIPS
+    B2 vs B1
+    B3 vs B2
+    B3 vs B1
+
+    high_extension
+    low_extension
+    close_progression
+    overlap
+    retracement
+    net_displacement
+    path_efficiency
+
+    consecutive_higher_high
+    consecutive_lower_high
+    consecutive_higher_low
+    consecutive_lower_low
+    consecutive_higher_close
+    consecutive_lower_close
+
+LEVEL INTERACTION
+    PDH
+    PDL
+    PDC
+    settlement where applicable
+    ORH
+    ORL
+    VWAP
+    canonical S/R when available
+
+PARTICIPATION REFERENCES
+    canonical volume facts
+    same-time RVOL if actually available
+    volume availability state
+
+EPISTEMIC STATE
+    AVAILABLE
+    PARTIAL
+    INSUFFICIENT
+    STALE
+    INVALID
+    UNKNOWN
+
+AUTHORITY
+    NONE
+```
+
+Notice what is **not** being recalculated:
+
+```text
+body %
+wick %
+close location
+raw volume statistics
+ATR
+VWAP
+PDH
+PDL
+PDC
+```
+
+Those already have owners.
+
+## 9. B1/B2/B3 should not automatically mean “first three 3-minute candles”
+
+This remains important.
+
+The research candidate can be:
+
+```text
+formation_tf = 3m
+N = 3
+```
+
+but the architecture should support:
+
+```text
+1m × N
+3m × N
+5m × N
+15m × N
+```
+
+BUILD-5 should determine whether there is evidence that a particular configuration works.
+
+For example:
+
+```text
+Stock A
+OR = 15m
+formation = 3m × 3
+
+Stock B
+OR = 10m
+formation = 5m × 2
+```
+
+The system should not be permanently coded around three 3-minute candles just because our initial chart looked useful on 3m.
+
+## 10. A major timing problem needs first-class handling
+
+Assume session open is 09:15.
+
+Three-minute bars:
+
+```text
+B1 09:15–09:18
+B2 09:18–09:21
+B3 09:21–09:24
+B4 09:24–09:27
+B5 09:27–09:30
+```
+
+Now:
+
+```text
+ORB5  locks 09:20
+```
+
+B2 straddles the OR lock.
+
+It is neither:
+
+```text
+pure opening-range candle
+```
+
+nor:
+
+```text
+pure post-range confirmation candle
+```
+
+So add:
+
+```text
+PRE_OR_LOCK
+POST_OR_LOCK
+CROSSES_OR_LOCK
+```
+
+at the bar/reference level.
+
+A `CROSSES_OR_LOCK` candle must not masquerade as a clean post-break confirmation.
+
+That detail will remove many false historical “perfect confirmation” results.
+
+## 11. The 3-minute bar itself needs exact identity
+
+Do not assume vendor 3m candles are session-aligned.
+
+The valid NSE aggregation may be:
+
+```text
+09:15–09:18
+09:18–09:21
+09:21–09:24
+```
+
+Another feed could align its global 3m buckets differently.
+
+Store:
+
+```text
+source_timeframe
+session_anchor
+bar_open_ns
+bar_close_ns
+available_at
+aggregation_policy
+aggregation_version
+source_snapshot_hash
+```
+
+If 1m data is the canonical source:
+
+```text
+validated 1m
+   ↓
+session-aware 3m resample
+```
+
+is safer than silently mixing independently supplied 3m bars.
+
+If the required alignment cannot be established:
+
+```text
+UNKNOWN / UNAVAILABLE
+```
+
+not a guessed pattern.
+
+## 12. The chain of research questions I would use
+
+This is the auditable reasoning chain for every developing ORB sequence:
+
+1. **Are we looking at the correct instrument, contract and exchange session?** If not, stop.
+2. **Are B1/B2/B3 completely closed, contiguous and available by the decision timestamp?** If not, the sequence is incomplete.
+3. **How were the candles anchored and aggregated?** If the bar boundary is ambiguous, do not compare it with historical sequences.
+4. **Where does each candle sit relative to OR lock?** Pre-lock, post-lock or straddling the lock have different meanings.
+5. **What facts already exist in M3.1/B3?** Reuse them; do not recalculate candle anatomy, PDH/PDL/PDC, VWAP or established price facts.
+6. **What changed from B1 → B2 → B3?** Extension, retracement, overlap, higher/lower highs/lows/closes and level interactions.
+7. **Was an important level merely touched/wicked through, or did price actually close and remain beyond it?** These are different states.
+8. **Which competing path currently fits?** Continuation, rejection/failure, pullback-and-reclaim, or balance/no-edge.
+9. **What must happen next for each hypothesis to remain valid?** Register those observations before seeing the next candle.
+10. **Does B1/B2/B3 add information beyond existing ORB/gap/PDH/RVOL/structure facts?** BUILD-8 must prove that.
+11. **Can existing M3.3 bounded analog retrieval explain similar historical situations?** Test that before introducing another library.
+12. **Does a new metric such as STUMPY or DTW improve unseen results after costs and independent-episode controls?** If not, remove it.
+
+That is the reasoning loop I would encode in the research plan.
+
+## 13. How to describe the “pattern” without prematurely hard-coding a pattern
+
+This is another improvement.
+
+Instead of immediately declaring:
+
+```text
+PDH_OPENING_SPIKE_REJECTION
+```
+
+store deterministic events first.
+
+Example:
+
+```text
+B1
+CLOSE_ABOVE_PDH
+NEW_SESSION_HIGH
+
+B2
+NO_NEW_SESSION_HIGH
+CLOSE_INSIDE_B1_RANGE
+LOWER_CLOSE_THAN_B1
+
+B3
+LOWER_HIGH_THAN_B2
+LOWER_CLOSE_THAN_B2
+```
+
+That exact sequence can have a deterministic identity.
+
+Then a human-facing research alias could be:
+
+```text
+PDH_OPENING_REJECTION_CANDIDATE
+```
+
+Later, if price actually closes through the required boundary:
+
+```text
+PDH_FAILED_BREAK
+```
+
+Only after that should the higher-level family become something like:
+
+```text
+PDH_FAILED_BREAK_FADE
+```
+
+This prevents:
+
+```text
+looks like failure
+```
+
+from becoming:
+
+```text
+failure already happened
+```
+
+## 14. Four competing hypotheses are sufficient initially
+
+After the opening prefix:
+
+```text
+H1 = BREAKOUT_ACCEPTANCE_CONTINUATION
+
+H2 = BREAKOUT_REJECTION_FAILURE
+
+H3 = PULLBACK_RECLAIM_CONTINUATION
+
+H4 = OPENING_BALANCE_NO_EDGE
+```
+
+Do not require one to “win” immediately.
+
+Example after B2:
+
+```text
+H1: weakened
+H2: strengthened
+H3: active
+H4: possible
+```
+
+Then pre-register next observations.
+
+For H2:
+
+```text
+expected:
+- failure to make a new high
+- increasing giveback
+- return through important boundary
+- weakening participation
+- possible VWAP/PDC approach
+
+failure of H2:
+- clean reclaim
+- accepted new session high
+- expansion resumes
+```
+
+For H3:
+
+```text
+expected:
+- pullback remains structurally contained
+- key level holds/reclaims
+- higher low develops
+- new session high follows
+
+failure:
+- accepted close back into prior range
+```
+
+This fits the existing Hypothesis Box almost perfectly.
+
+## 15. Correct build placement after the re-audit
+
+| Stage           | What this feature should do                                                                                                                                                   |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **B4-D0**       | Register opening-sequence requirement, existing owners, duplicate calculations, authority boundary and test matrix. **No runtime code.**                                      |
+| **B4-A**        | Only add a source/fixture contract if exact bar aggregation or availability semantics are not already covered by D2/B2. Do not create a new market-data source unnecessarily. |
+| **B4-B → E**    | No opening-sequence implementation responsibility. Continue derivatives build as planned.                                                                                     |
+| **B4-F**        | Add `OrbOpeningSequenceViewV1` to the new `context_intelligence` world and use it in competing hypotheses.                                                                    |
+| **B4-LOCK**     | PIT, replay, future-candle, missing-bar, bar-alignment, regression, performance and protected-file tests.                                                                     |
+| **BUILD-5**     | Research TF, N, OR clock and confirmation timing.                                                                                                                             |
+| **BUILD-6**     | Own evolving ORB/formation state transitions.                                                                                                                                 |
+| **BUILD-7**     | Research cutoffs such as expansion, retracement, wick, RVOL and acceptance requirements.                                                                                      |
+| **BUILD-8**     | Prove incremental value on unseen chronological data.                                                                                                                         |
+| **BUILD-9**     | Add the sequence feature view to existing M3.3 analogue retrieval. Only then test external similarity challengers.                                                            |
+| **BUILD-10**    | Freeze proven sequence configurations in the playbook.                                                                                                                        |
+| **BUILD-11**    | Convert them into FOR / AGAINST / UNKNOWN evidence; D6 remains final authority.                                                                                               |
+| **BUILD-12**    | Only here publish calibrated probabilities if enough evidence exists.                                                                                                         |
+| **BUILD-13/14** | Matured outcome feedback, shadow/live parity, replay, adversarial and release locks.                                                                                          |
+
+This is more precise than simply saying “put it in BUILD-4.”
+
+The detailed BUILD-4 plan itself gives the intended new package:
+
+```text
+apps/api/app/orb/context_intelligence/
+    contracts.py
+    sources.py
+    futures.py
+    option_chain.py
+    volatility.py
+    advanced.py
+    world.py
+    hypotheses.py
+```
+
+So I would add only one justified module:
+
+```text
+apps/api/app/orb/context_intelligence/
+    opening_sequence.py
+```
+
+and put the contract itself in existing planned:
+
+```text
+contracts.py
+```
+
+Then:
+
+```text
+opening_sequence.py
+       ↓
+world.py
+       ↓
+hypotheses.py
+```
+
+No separate competing “pattern brain.”
+
+## 16. Another important discovery: M3.3 already solves much of BUILD-9
+
+You already have:
+
+```text
+canonical_pattern_memory.py
+canonical_nine_candle_memory.py
+canonical_analog_memory.py
+canonical_memory_world.py
+m3_3_memory_wiring.py
+```
+
+`canonical_pattern_memory.py` already includes:
+
+```text
+gap_pct
+first15_return_pct
+first15_range_pct
+first15_close_location
+
+first30_return_pct
+first30_range_pct
+first30_close_location
+
+session_return_pct
+session_range_pct
+realized_step_volatility
+trend_efficiency
+volume_impulse_ratio
+```
+
+It keeps:
+
+```text
+missing_mask
+source_snapshot_hash
+decision_time
+bounded matches
+OOD
+```
+
+`canonical_analog_memory.py` already has:
+
+```text
+versioned feature manifest
+bounded MAX_ANALOGS
+raw nearest neighbours
+independent analogue count
+PIT corpus cutoff
+OOD
+used_for_probability = False
+```
+
+Therefore the previous plan was too eager to introduce STUMPY.
+
+The first BUILD-9 experiment should be:
+
+```text
+existing M3.3 fixed feature-vector distance
+        +
+new ORB opening-sequence feature manifest
+```
+
+not:
+
+```text
+install STUMPY immediately
+```
+
+This is both safer and more efficient.
+
+## 17. STUMPY becomes a challenger, not the default
+
+STUMPY is genuinely useful. It is designed for matrix-profile time-series analysis, motif discovery, multidimensional motifs and streaming updates. Its standard matrix-profile distance is based on z-normalized subsequence comparison. ([Stumpy Documentation][1])
+
+But your repository already says:
+
+> reuse canonical analogue distance unless another metric is separately proven.
+
+So the correct sequence is:
+
+```text
+B9-A
+existing M3.3 fixed feature-vector distance
+
+        ↓ if inadequate
+
+B9-B
+STUMPY research challenger
+
+        ↓ only if incremental benefit exists
+
+B9-C
+DTW top-K reranker
+```
+
+DTAIDistance supports multidimensional DTW and is Apache-2.0 licensed, making it technically suitable as an isolated research challenger. ([DTAIDistance][2])
+
+Do not run DTW over the entire historical corpus every 3 minutes.
+
+Use:
+
+```text
+cheap canonical retrieval
+        ↓
+top 20 / top K independent episodes
+        ↓
+optional DTW reranking
+```
+
+## 18. My updated open-source decision
+
+| Project                       | Safe role in your ORB                                                                                                                                                                                                                                                             |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Precise Patterns**          | Architecture/reference only. Its event-driven candle-close and aggregation architecture is relevant, but the project explicitly says it is early/WIP and uses GPL-3.0. ([GitHub][3])                                                                                              |
+| **stock-pattern**             | Offline/reference for later classical structures. It explicitly says it detects patterns rather than buy/sell signals. Its pivot confirmation may require bars on both sides; the author describes six bars before/after under the default discussed configuration. ([GitHub][4]) |
+| **zeta-zetra/chart_patterns** | Offline/reference only. Current pivot code accepts `left_count` and `right_count` and inspects the right side of a candidate pivot. Do not make it causal authority without retiming confirmation. GitHub currently reports no recognized repository license metadata.            |
+| **PatternPy**                 | Do not vendor into the production product. Its current license is CC BY-NC-SA 4.0, which includes a non-commercial restriction, and current detectors use future-facing `shift(-1)` operations. ([GitHub][5])                                                                     |
+| **crypto-chart-patterns**     | MIT makes experimentation easier, but its extrema routine examines a window surrounding the candidate point, so use it only for offline labels unless rewritten/retimed causally. ([GitHub][6])                                                                                   |
+| **SciPy `find_peaks`**        | Useful primitive later for causal-confirmed swing structure. It supports distance, prominence and width filters. Confirmation time still has to be handled correctly by your code. ([SciPy Documentation][7])                                                                     |
+| **STUMPY**                    | Best external BUILD-9 motif challenger after existing M3.3 has been tested.                                                                                                                                                                                                       |
+| **DTAIDistance**              | Optional bounded DTW reranker after shortlist retrieval.                                                                                                                                                                                                                          |
+
+So I would **not copy any of the classical chart-pattern repositories directly into BUILD-4 or BUILD-6**.
+
+## 19. There are two existing internal modules I would explicitly quarantine from this feature
+
+This is another important finding.
+
+`pattern_by_timeframe.py` currently generates research-style outcome records using deterministic pseudo-random/generated values.
+
+`event_sequence_mining.py` contains predefined sequence/outcome distributions and support counts.
+
+Those can be useful as UI/test/research scaffolding, but they must **not become historical evidence for the new ORB feature**.
+
+The new sequence engine must use:
+
+```text
+real D2 closed bars
++
+real B2 session identity
++
+real B3 previous-session snapshot
++
+real M3.1 facts
++
+real matured historical labels
+```
+
+Never generated outcome numbers.
+
+This deserves an explicit BUILD-4-D0 exclusion rule.
+
+## 20. The adaptive ORB track also contains useful ideas — but should not become another source of truth
+
+`apps/api/app/orb/adaptive/features.py` already has concepts such as:
+
+```text
+first_bar_range_atr
+failure_count
+retest_ready
+fade_ready
+chop_risk
+OR width
+gap
+VWAP
+```
+
+and `adaptive/scenario_detection.py` has first-bar anomaly and OR width rules.
+
+Do not import that engine wholesale into the new B4 path.
+
+Instead classify it as:
+
+```text
+LEGACY / PARALLEL IMPLEMENTATION EVIDENCE
+```
+
+Use its tests and failure cases to challenge the new implementation.
+
+This gives you a useful differential test:
+
+```text
+same input
+       ↓
+legacy adaptive interpretation
+       +
+new canonical sequence view
+       ↓
+compare
+
+difference?
+    ↓
+explain it explicitly
+```
+
+Never silently make one overwrite the other.
+
+## 21. The sequence feature should be symmetric from day one
+
+Not only:
+
+```text
+PDH break
+→ rejection
+→ fade
+```
+
+Also:
+
+```text
+PDL break
+→ rejection/reclaim
+→ reversal
+```
+
+A clean internal representation is direction-normalized geometry.
+
+Conceptually:
+
+```text
+UPPER anchor family:
+PDH / ORH / resistance
+
+LOWER anchor family:
+PDL / ORL / support
+```
+
+Then use mirrored calculations.
+
+This reduces duplicate long/short code and makes BUILD-14 symmetry testing much stronger.
+
+## 22. What should be learned after B3?
+
+Do not begin with:
+
+```text
+Will this stock fall?
+```
+
+Use deterministic path questions.
+
+For example:
+
+```text
+NEW_SESSION_HIGH_BEFORE_PDH_TOUCH
+
+PDH_TOUCH_BEFORE_NEW_SESSION_HIGH
+
+CLOSE_BACK_BELOW_PDH_BEFORE_NEW_HIGH
+
+PDC_TOUCH_BEFORE_NEW_HIGH
+
+ORH_RECLAIM_AFTER_REENTRY
+
+VWAP_TOUCH_BEFORE_NEW_HIGH
+
+MFE_N_BARS
+MAE_N_BARS
+
+TIME_TO_NEW_EXTREME
+TIME_TO_PDH
+TIME_TO_PDC
+
+UNRESOLVED_BY_HORIZON
+```
+
+Then evaluate at:
+
+```text
+next 1 bar
+next 3 bars
+next 9 bars
+fixed clock horizon
+session cutoff
+```
+
+This aligns directly with the M4 Hypothesis Box horizons.
+
+## 23. BUILD-8 should answer one very specific question
+
+The critical question is not:
+
+> “Does this pattern have a 68% success rate?”
+
+It is:
+
+> **Does knowing the B1→B2→B3 sequence improve ORB decisions beyond information ORB already has?**
+
+Use an ablation ladder:
+
+```text
+A0 existing ORB baseline
+
+A1 A0
+   + existing M3.1 candle anatomy references
+
+A2 A1
+   + PDH/PDL/PDC interaction sequence
+
+A3 A2
+   + B1→B2→B3 transition/giveback features
+
+A4 A3
+   + valid same-time RVOL/participation
+
+A5 A4
+   + index/sector/regime context
+
+A6 A5
+   + B6 formation-state abstraction
+
+A7 A6
+   + existing M3.3 analog evidence
+
+A8 A7
+   + STUMPY challenger
+
+A9 A8
+   + DTW top-K reranking
+```
+
+And each step needs:
+
+```text
+chronological holdout
+walk-forward
+costs/slippage
+independent sessions
+regime slices
+stock slices
+sample counts
+confidence intervals
+MFE/MAE
+false-break discrimination
+continuation discrimination
+stability
+```
+
+If:
+
+```text
+A3 ≈ A2
+```
+
+then B1/B2/B3 transitions have added complexity without evidence.
+
+If:
+
+```text
+A7 ≈ A8
+```
+
+STUMPY is removed.
+
+If:
+
+```text
+A8 ≈ A9
+```
+
+DTW is removed.
+
+This is how to build a stronger system rather than simply a larger one.
+
+## 24. Protected-code gate should be stronger than “please don't edit it”
+
+For AI coding, verbal instructions are insufficient.
+
+Create a protected baseline manifest for:
+
+```text
+BUILD-0 requirement/manifest files
+BUILD-1 candidate intake
+BUILD-2 market_identity/**
+BUILD-3 prior_session/**
+orb/core.py
+orb/context.py
+orb/discovery.py
+orb/proof.py
+orb/timing_research.py
+```
+
+Record their hashes at the approved base.
+
+Then CI checks:
+
+```text
+git diff protected baseline
+```
+
+Any unauthorized modification:
+
+```text
+FAIL
+```
+
+That turns your concern:
+
+> “AI may accidentally change old code”
+
+into an enforceable machine rule.
+
+Much safer.
+
+## 25. Most important causal test
+
+At the B3 close time, suppose:
+
+```text
+09:24
+
+B1 known
+B2 known
+B3 known
+
+OrbOpeningSequenceView hash =
+ABC123
+```
+
+Now append future candles:
+
+```text
+09:27
+09:30
+09:45
+10:00
+```
+
+and rerun:
+
+```text
+as_of = 09:24
+```
+
+Required:
+
+```text
+hash = ABC123
+```
+
+exactly.
+
+If it changes:
+
+```text
+BUILD FAIL
+FUTURE LEAKAGE
+```
+
+The same test should work for every B1/B2/B3 prefix.
+
+## 26. Additional safety cases I would require before B4-LOCK
+
+The highest-risk cases are:
+
+```text
+missing B2
+duplicate B2
+revised B2
+out-of-order B3
+unfinished B3
+future candle injected
+
+3m candle crosses OR lock
+wrong 3m anchor
+different vendor aggregation
+
+PDH missing
+PDL missing
+PDC missing
+settlement missing
+
+adjusted/unadjusted basis mismatch
+corporate action
+special session
+
+volume = 0
+volume = missing
+RVOL history insufficient
+
+commodity midnight session
+contract rollover
+settlement != close
+
+wick above PDH
+but no close above PDH
+
+close above PDH
+but immediate re-entry
+
+healthy pullback
+vs actual failed breakout
+
+PDL mirror case
+
+bad first candle/data spike
+
+analog copies from same session
+overlapping outcome windows
+all analogs from one regime
+
+external research library unavailable
+
+feature OFF
+→ old ORB result exactly unchanged
+```
+
+That final test is particularly important.
+
+## 27. Efficiency target
+
+The live sequence calculation should be tiny.
+
+Per newly closed candle:
+
+```text
+read existing anatomy
+read existing levels
+update a few transition facts
+update state
+hash receipt
+```
+
+Complexity should effectively be:
+
+```text
+O(1) per closed bar
+```
+
+No:
+
+```text
+scan 10 years
+run 8 pattern libraries
+recompute ATR
+recompute VWAP
+run STUMPY
+run DTW
+```
+
+on every candle.
+
+Historical mining stays offline.
+
+M3.3 runtime retrieval stays bounded.
+
+That is the most efficient architecture.
+
+## Final re-baselined design
+
+The strongest version is:
+
+```text
+LOCKED / DO NOT MODIFY
+──────────────────────────────────
+BUILD-0
+BUILD-1 candidate intake
+BUILD-2 identity/session
+BUILD-3 prior-session truth
+
+EXISTING CANONICAL PERCEPTION
+──────────────────────────────────
+D2 closed candle snapshot
+M3.1 feature kernel
+M3.1 candle anatomy
+M3.1 levels/context
+M3.3 memory
+
+                │
+                │ READ ONLY
+                ▼
+
+NEW B4-F ORB VIEW
+──────────────────────────────────
+OrbOpeningSequenceViewV1
+
+B1/B2/B3 identity
+sequence relationships
+level-interaction transitions
+OR-lock phase
+missingness
+provenance
+hashes
+NO authority
+
+                ▼
+
+B4 HYPOTHESES
+──────────────────────────────────
+continuation
+failure/rejection
+pullback/reclaim
+balance/no-edge
+
+expected next observations
+failure observations
+anti-thesis
+OOD
+VOI
+
+                ▼
+
+B5
+TF + N + OR-clock research
+
+                ▼
+
+B6
+causal ORB formation state machine
+
+                ▼
+
+B7
+threshold research
+
+                ▼
+
+B8
+incremental OOS proof
+
+                ▼
+
+B9
+EXISTING M3.3 first
+        │
+        ├── sequence feature manifest
+        ├── independent analogues
+        ├── OOD
+        │
+        └── optional challenger:
+             STUMPY
+                ↓
+             optional DTW top-K
+
+                ▼
+
+B10 frozen playbook
+                ↓
+B11 evidence package
+                ↓
+D6
+WAIT / WATCH / PAPER-CANDIDATE
+```
+
+### The key change from the previous proposal
+
+**Do not build another candle-pattern calculator.**
+
+Build an **ORB-specific sequence composition layer over facts you already successfully built**.
+
+That gives you the new “B1 → B2 → B3 shape forming intelligence” while keeping BUILD-0/1/2/3 untouched, minimizing new code, avoiding duplicate calculations, avoiding lookahead-heavy third-party detectors, preserving M3.3 as the single memory owner, and making open-source similarity algorithms optional challengers rather than new dependencies that can destabilize ORB.
+
+Repository state was read-only during this audit; I made no GitHub changes.
+
+[1]: https://stumpy.readthedocs.io/en/latest/?utm_source=chatgpt.com "STUMPY documentation — stumpy 1.14.1 documentation"
+[2]: https://dtaidistance.readthedocs.io/en/latest/modules/dtw_ndim.html?utm_source=chatgpt.com "dtaidistance.dtw_ndim — DTAIDistance 2.3.9 documentation"
+[3]: https://github.com/BennyThadikaran/precise-patterns?utm_source=chatgpt.com "GitHub - BennyThadikaran/precise-patterns: Real time chart pattern detection library · GitHub"
+[4]: https://github.com/BennyThadikaran/stock-pattern?utm_source=chatgpt.com "GitHub - BennyThadikaran/stock-pattern: A Python CLI tool to scan, detect, and plot stock chart patterns · GitHub"
+[5]: https://github.com/keithorange/PatternPy/blob/main/LICENSE.md?utm_source=chatgpt.com "PatternPy/LICENSE.md at main · keithorange/PatternPy: Real time chart pattern detection library · GitHub"
+[6]: https://github.com/tysoncung/crypto-chart-patterns?utm_source=chatgpt.com "GitHub - tysoncung/crypto-chart-patterns: 📈 Machine learning for cryptocurrency chart pattern detection and technical analysis using Python and deep learning models · GitHub"
+[7]: https://docs.scipy.org/doc/scipy-1.17.0/reference/generated/scipy.signal.find_peaks.html?utm_source=chatgpt.com "find_peaks — SciPy v1.17.0 Manual"
+
+## Appendix: assessment for reference (new thin view vs old broad plan)
+
+Verdict: adopt the thin `OrbOpeningSequenceViewV1` as a safer implementation inside the old broad BUILD-4 plan, not as a replacement for it.
+
+File/reference check: this file was created locally and read back; key markers verified (`OrbOpeningSequenceViewV1`, `range_vs_canonical_ATR`, `CROSSES_OR_LOCK`, `A3 ≈ A2`, `FUTURE LEAKAGE`, `O(1) per closed bar`). Repo preflight verified `candle_anatomy.py`, `pattern_taxonomy.py`, `condition_classifier.py`, `decision_spine/snapshot_feature_kernel.py`, M3.3 memory files, adaptive ORB files, quarantine candidates, and `prior_session/*.py`; planned `context_intelligence/*.py` is still absent locally. The ATR trap is supported by code: `candle_anatomy.py:42` uses `feature_kernel.average_range`, `candle_anatomy.py:87` computes `range_atr` from it, and `snapshot_feature_kernel.py:12-13` says it is not Wilder true range. External library/license claims and cited Actions runs were not re-verified in the assessment turn.
+
+Chain of questioning, trading POV:
+1. Real decision? Opening drive can condition day-type, but only if B1–B3 changes acceptance/rejection odds after OR lock.
+2. Causality? Strong: closed/contiguous bars, OR-lock phase, bar identity, touch-vs-close, and as-of hash discipline remove common false-confirmation backtest bias.
+3. Duplication? Low by design through read-only reuse of M3.1/B2/B3.
+4. Hidden trap? `range_atr` versus true ATR is the key catch; record the normalization basis.
+5. Overfit? Configurable TF×N avoids hard-coding 3m×3, but remains unproven until BUILD-5/BUILD-8 tests it.
+6. Incremental edge? Unknown until ablation; if `A3 ≈ A2`, drop the extra transitions.
+7. Cost/runtime? O(1) per closed bar is credible for the thin view; mining stays offline; STUMPY/DTW only as gated challengers.
+8. Probability discipline? Correctly deferred: interpretation evidence now, calibrated probabilities only at BUILD-12.
+
+Where the new change is better: engineering safety and trading validity — reuse over recalculation, ATR semantic honesty, OR-lock straddle handling, bar-aggregation identity, deterministic events before named patterns, long/short symmetry, protected baseline, causal hash test, ablation-first proof, M3.3-first memory, quarantining generated/unsafe modules.
+
+Where the old plan is best and must be kept: breadth and completeness — full non-derivatives context, mandatory pattern registry, PDC/CPR semantics, commodity routing, events, derivatives OBSERVED→DERIVED→INFERRED→HYPOTHESIS discipline with `ALERT_ONLY` limits, hypothesis lifecycle/OOD/VOI/surprise revision, Kronos boundary, and M3 regressions in B4-LOCK.
+
+Grade: TARGET thin-view adoption / FAMILIES repo-reuse ∩ trading-causality ∩ old-plan-breadth / OVERLAP PARTIAL-TIGHT / GRADE B / RECOMMENDATION adopt thin View inside old plan and require ablation/OOS before size/authority / WEAKNESS no measured incremental edge yet.
+
+Next gate: approval to implement `opening_sequence.py` under planned `context_intelligence/`; no code was changed, committed, pushed, or merged for this file append.
+
+## Appendix: chart-specific PDH opening spike-and-fade analysis (added — not previously present)
+
+Verification note: only generic overlaps existed in this file (one `PDH_OPENING_SPIKE_REJECTION` mention at line 638, `OPENING_BALANCE_NO_EDGE`, `MFE_N_BARS`). The candle-by-candle numeric walkthrough, state names, Path A/B diagrams, state machine, B1 metrics, giveback math, CLV formula, PDH geometry, canonical taxonomy IDs, tool star table, event architecture, STUMPY staging correction, normalized similarity vector, DTW sequencing, outcome probabilities, and TrendForge architecture below were absent and are now preserved verbatim.
+
+Yes. The chart is showing something useful, but I would **not give it a normal textbook pattern name yet**. For your trading engine, it is better treated as a **context-aware opening structure**.
+
+From the screenshot, the structure is approximately:
+
+```text
+Previous day
+                         Day 18
+                            │
+                            │   B1
+                            │   █████  ← very strong opening impulse
+                            │   █████     far above previous prices
+                            │     │
+                            │     ▼ B2 bearish rejection
+                            │      ███
+                            │       ▼ B3 bearish follow-through
+                            │        ██
+                            │         \
+                            │          \
+                            │           \ lower highs / lower lows
+                            │            \
+                            │             balance/consolidation
+```
+
+The important part is not simply:
+
+> "three candles made a pattern."
+
+It is:
+
+> **Where did those three candles form relative to Previous Close + PDH, how abnormal was candle 1, and what did candles 2 and 3 do to candle 1?**
+
+That is a much stronger detector.
+
+### 1. What I would call this pattern
+
+For TrendForge, I would create a custom family:
+
+#### `PDH_OPENING_SPIKE_REJECTION`
+
+And use states rather than immediately declaring one final pattern:
+
+```text
+BAR 1
+PDH_OPENING_DRIVE
+
+        ↓
+
+BAR 2
+PDH_OPENING_DRIVE_REJECTION
+
+        ↓
+
+BAR 3
+PDH_OPENING_2BAR_REJECTION
+
+        ↓
+
+later closes back below PDH
+PDH_FAILED_BREAKOUT_FADE
+```
+
+This distinction is important.
+
+I would **not** call the pattern a `PDH_FAILED_BREAKOUT` after only the third candle.
+
+Why?
+
+Because after candle 3, price could still do this:
+
+```text
+               / new high
+      B1      /
+      │\     /
+      │ \___/
+──────┴──────── PDH
+```
+
+The pullback might simply be a pause before another rally.
+
+Only later can the system know whether the opening move actually failed.
+
+### 2. What I see in your chart
+
+Visually, the first candle of day 18 appears to be extremely large compared with the surrounding 3-minute candles.
+
+It does approximately this:
+
+```text
+             HIGH
+              │
+              │
+              █
+              █
+              █
+              █
+              █
+              │
+             LOW
+```
+
+That is an **opening expansion/drive candle**.
+
+Then candle 2 is strongly bearish:
+
+```text
+          B1
+          ███
+          ███
+            \
+             █ B2
+             █
+```
+
+Then candle 3 continues rejecting the high.
+
+So after three candles, I would classify the market as:
+
+> **Opening upside expansion with immediate two-bar rejection**
+
+or in machine-readable form:
+
+```text
+PDH_OPENING_SPIKE_2BAR_REJECTION
+```
+
+If your data confirms that candle 1 started above/broke PDH, the name becomes even more useful:
+
+```text
+PDH_BREAKOUT_SPIKE_2BAR_REJECTION
+```
+
+### 3. The whole chart later tells us more
+
+Looking beyond those first three candles, something important happened.
+
+The opening high was not recovered.
+
+Instead, price starts producing something approximately like:
+
+```text
+HIGH
+   X
+    \
+     X
+      \
+       X
+        \
+         X
+          \
+           X
+```
+
+That means:
+
+```text
+Lower highs
++
+generally lower prices
++
+failure to reclaim opening extreme
+```
+
+So with hindsight, the session developed much more like an:
+
+#### **Opening spike → rejection → fade**
+
+rather than:
+
+#### opening breakout → pullback → continuation.
+
+The general market term would therefore be something like:
+
+**Opening Spike-and-Fade**
+
+or, if PDH was genuinely broken:
+
+**Failed PDH Breakout / PDH Spike-and-Fade**
+
+I prefer the second terminology for your engine because it records **why the structure matters**.
+
+### 4. I would NOT call it these patterns
+
+It does not look like a clean textbook:
+
+* Head & Shoulders
+* Double Top
+* Evening Star
+* Three Black Crows
+* VCP
+* Triangle
+
+That matters because forcing it into one of those names throws away information.
+
+Your system knows something much more valuable:
+
+```text
+Previous close
+      ↓
+Previous-day high
+      ↓
+Opening location
+      ↓
+abnormally large candle
+      ↓
+immediate rejection
+      ↓
+failure/retest/continuation
+```
+
+A generic candlestick library doesn't understand all of that.
+
+### 5. Candle-by-candle thinking is exactly what you should build
+
+This is the powerful part.
+
+Instead of waiting until the complete chart exists, TrendForge can update the hypothesis after every closed candle.
+
+For an NSE stock on a 3-minute timeframe:
+
+```text
+09:15–09:18 = Candle 1
+09:18–09:21 = Candle 2
+09:21–09:24 = Candle 3
+```
+
+#### After Candle 1
+
+Suppose:
+
+```text
+Previous close = 1239
+PDH            = 1243
+
+Candle 1
+Open           = 1244
+High           = 1250
+Close          = 1249.5
+```
+
+The engine should NOT say:
+
+```text
+SHORT
+```
+
+It should say:
+
+```text
+State:
+PDH_OPENING_EXPANSION
+
+Possible futures:
+
+A. breakout continuation
+B. opening exhaustion
+C. pullback/retest of PDH
+D. gap-and-fade
+```
+
+The system has insufficient evidence.
+
+### 6. Candle 2 changes the hypothesis
+
+Suppose:
+
+```text
+B1 close = 1249.5
+
+B2:
+open  = 1249
+high  = 1249.1
+low   = 1246.8
+close = 1247.4
+```
+
+Now the system observes:
+
+```text
+Strong opening drive
++
+failure to extend high
++
+large giveback
+```
+
+Change the state to:
+
+```text
+PDH_OPENING_REJECTION_CANDIDATE
+```
+
+Still not a short signal.
+
+### 7. Candle 3 becomes much more interesting
+
+Suppose candle 3 creates:
+
+```text
+lower high
+lower low
+lower close
+```
+
+Now:
+
+```text
+B1 = huge bullish expansion
+B2 = bearish rejection
+B3 = bearish follow-through
+```
+
+The engine changes state:
+
+```text
+PDH_OPENING_2BAR_REJECTION
+```
+
+Now we can ask a much more interesting question:
+
+> When this exact behaviour happened historically, what usually happened next?
+
+That is the part of your architecture I think is more important than trying to find a textbook name.
+
+### 8. But there are TWO possible shapes after candle 3
+
+This is critical.
+
+#### Path A — opening fade
+
+```text
+        B1
+        /\
+       /  \
+PDH --    \ B2
+           \ B3
+            \
+             \
+              ↓
+             PDH
+              ↓
+         BELOW PDH
+```
+
+Classification eventually becomes:
+
+```text
+PDH_FAILED_BREAKOUT_FADE
+```
+
+#### Path B — bullish continuation
+
+```text
+        B1
+        /\
+       /  \
+PDH --    \ B2
+           \ B3
+            \
+             └─────
+                   \
+                    ↑
+                    ↑
+                 NEW HIGH
+```
+
+This is:
+
+```text
+PDH_BREAKOUT_PULLBACK_CONTINUATION
+```
+
+The **same first candle** can produce completely different trades.
+
+That is why Candle 1 alone cannot predict the shape.
+
+### 9. Build this as a state machine
+
+This would be much stronger than:
+
+```python
+if pattern == "evening_star":
+    short()
+```
+
+Use something conceptually like:
+
+```text
+START
+ │
+ ├── Price below PDH
+ │
+ └── Price reaches/breaks PDH
+             │
+             ▼
+       PDH_BREAK
+             │
+             ▼
+      OPENING_EXPANSION
+             │
+       ┌─────┴─────┐
+       │           │
+       ▼           ▼
+    HOLD        REJECTION
+       │           │
+       ▼           ▼
+ CONTINUATION    B2 rejection
+                   │
+                   ▼
+              B3 confirms
+                   │
+          ┌────────┴─────────┐
+          ▼                  ▼
+       HOLD PDH          BREAK PDH
+          │                  │
+          ▼                  ▼
+       WATCH        FAILED_BREAKOUT_FADE
+```
+
+This is closer to how a competent trader actually interprets developing price structure.
+
+### 10. The first candle needs much more information than OHLC
+
+For Candle 1 calculate:
+
+```text
+B1_range
+B1_body
+upper_wick
+lower_wick
+
+body / range
+
+B1 range / ATR
+
+B1 range /
+median opening-3m range
+
+volume
+opening RVOL
+
+open - previous close
+open - PDH
+high - PDH
+close - PDH
+
+close location inside candle
+```
+
+For example:
+
+```text
+range = ₹6
+
+normal 3-minute ATR = ₹1.4
+
+6 / 1.4 = 4.28
+```
+
+That says:
+
+> This wasn't an ordinary green candle. It was a ~4.3 ATR expansion event.
+
+That's far more useful.
+
+### 11. Candle 2 should measure how much of Candle 1 was surrendered
+
+For example:
+
+```text
+B1 range = ₹6
+
+B2 causes ₹2.2 giveback
+
+giveback =
+2.2 / 6
+= 36.7%
+```
+
+Now compare historical behaviour.
+
+Perhaps your research eventually discovers:
+
+```text
+B1 > 3 ATR
++
+gap above PDH
++
+B2 giveback > 35%
++
+B3 lower low
+```
+
+historically behaves very differently from:
+
+```text
+B1 > 3 ATR
++
+B2 giveback only 10%
++
+volume falls
++
+price remains near B1 high
+```
+
+The second case may represent a healthy continuation rather than exhaustion.
+
+Don't hard-code those thresholds yet. Learn them from your historical data.
+
+### 12. One of the best features will be the first-bar Close Location Value
+
+For each candle:
+
+```text
+CLV =
+(Close - Low)
+─────────────
+(High - Low)
+```
+
+Rough interpretation:
+
+```text
+CLV ≈ 1.0
+close near high
+
+CLV ≈ 0.5
+close around middle
+
+CLV ≈ 0
+close near low
+```
+
+For your first candle:
+
+```text
+huge range
++
+CLV near 1
+```
+
+means buyers controlled the candle right into the close.
+
+Then Candle 2 immediately reversing that tells us something more significant than a random red candle.
+
+### 13. Previous close + PDH create a very useful geometry
+
+I'd represent the setup like this:
+
+```text
+                 Opening extension
+                       │
+                       ▼
+                  ┌──────────┐
+                  │ B1 HIGH  │
+                  └──────────┘
+                       │
+                       │ extension_from_PDH
+                       │
+PDH ───────────────────┼────────────
+                       │
+                       │ gap_above_PDH
+                       │
+Previous Close ────────┼────────────
+```
+
+Now you can answer questions like:
+
+```text
+Was the open already overextended?
+
+Was B1's high extremely far above PDH?
+
+Did B2 return into the PDH extension zone?
+
+How quickly did price give back 25%, 50%, 75%?
+
+Did price eventually touch PDH?
+
+Did price close below PDH?
+
+Did it instead make another high?
+```
+
+Those are excellent research labels.
+
+### 14. This gives you a better pattern name than "Evening Star"
+
+I'd create this taxonomy:
+
+```text
+Family:
+OPENING_LOCATION_STRUCTURE
+
+Context:
+ABOVE_PDH
+
+Event:
+EXPANSION
+
+Reaction:
+REJECTION
+
+Confirmation:
+2_BAR_FOLLOW_THROUGH
+```
+
+Canonical ID:
+
+```text
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION
+```
+
+Then later:
+
+```text
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_HOLD
+```
+
+or:
+
+```text
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_FAIL
+```
+
+This design is excellent for machine research because you don't destroy information by giving everything one vague pattern name.
+
+### 15. Which open-source project should detect THIS?
+
+This is the important answer:
+
+#### Don't use any of the classical chart-pattern repos as the main detector.
+
+Build this exact detector yourself.
+
+The repositories can supply components.
+
+For this specific problem, my order would be:
+
+| Tool                  | Usefulness for this setup | Role                                              |
+| --------------------- | ------------------------: | ------------------------------------------------- |
+| **Precise Patterns**  |                     ★★★★★ | Live 3m candle/event architecture                 |
+| **STUMPY**            |                     ★★★★★ | Find similar historical behaviour                 |
+| **DTW**               |                     ★★★★☆ | Match similar behaviour occurring faster/slower   |
+| **SciPy find_peaks**  |                     ★★★★☆ | Later swing-high/swing-low structure              |
+| stock-pattern         |                     ★★★☆☆ | Reference for larger chart structures             |
+| chart_patterns        |                     ★★★☆☆ | Classical pattern algorithms                      |
+| PatternPy             |                     ★★☆☆☆ | Support/resistance/trendline features             |
+| crypto-chart-patterns |                     ★★☆☆☆ | Pattern-rule research examples                    |
+| ZigZag                |                     ★★☆☆☆ | Historical swing simplification, not live trigger |
+
+The new Precise Patterns project is particularly relevant because its architecture emits candle-close events and then feeds pivot/pattern components, including custom intraday aggregations. It is explicitly aimed at real-time pattern detection, although its author still labels it early development/WIP. ([GitHub][1])
+
+### 16. Why Precise Patterns is useful
+
+Not because it already knows your pattern.
+
+Because it gives you architecture like:
+
+```text
+1m incoming data
+      ↓
+3m CandleBuilder
+      ↓
+3m candle CLOSED
+      ↓
+event:
+candle.close
+      ↓
+Your PDHOpeningDetector
+      ↓
+state transition
+```
+
+For example:
+
+```text
+09:18
+
+candle.close
+↓
+B1 detected
+↓
+state = OPENING_EXPANSION
+```
+
+Then:
+
+```text
+09:21
+
+candle.close
+↓
+B2 evaluated
+↓
+state = REJECTION_CANDIDATE
+```
+
+Then:
+
+```text
+09:24
+
+candle.close
+↓
+B3 evaluated
+↓
+state = TWO_BAR_REJECTION
+```
+
+No future candle is required.
+
+That's exactly what you want.
+
+### 17. STUMPY should NOT identify the first three candles alone
+
+This is one correction I would make to the earlier proposal.
+
+STUMPY is powerful for motif/similar-sequence discovery, including multidimensional time series, and its documentation supports motif discovery, online/streaming applications and multidimensional comparisons. ([Stumpy Documentation][2])
+
+But:
+
+```text
+Only 3 candles
+```
+
+is often too little information for reliable shape similarity.
+
+Three candles can accidentally resemble thousands of unrelated events.
+
+Instead use:
+
+#### Stage 1 — rules
+
+```text
+B1/B2/B3
++
+PDH
++
+previous close
++
+ATR
++
+volume
+```
+
+to identify the candidate.
+
+#### Stage 2 — STUMPY
+
+As more bars arrive:
+
+```text
+B1 B2 B3 B4 B5 B6 B7 B8 B9...
+```
+
+ask:
+
+> Where have we seen this developing path before?
+
+That is much stronger.
+
+### 18. And don't feed STUMPY raw ₹ prices
+
+Suppose:
+
+```text
+INFY = ₹1500
+
+RELIANCE = ₹3000
+```
+
+Absolute prices don't matter.
+
+Transform the sequence.
+
+For example:
+
+```text
+distance from PDH / ATR
+```
+
+Your chart becomes something like:
+
+```text
+PDH = 0
+
+B1:
++0.4
++1.8
++3.7
+
+B2:
++2.5
+
+B3:
++1.9
+```
+
+Now another ₹500 stock could produce:
+
+```text
+0
++0.5
++1.9
++3.5
++2.4
++1.8
+```
+
+and STUMPY/DTW can recognize that the **behaviour** is similar even though prices are completely different.
+
+STUMPY also supports multidimensional motif discovery, which makes it possible to compare price plus other synchronized dimensions rather than only closing price. ([Stumpy Documentation][2])
+
+### 19. Your similarity vector could eventually contain
+
+```text
+PRICE
+distance_from_PDH_ATR
+
+VOLUME
+RVOL
+
+VOLATILITY
+ATR-normalized range
+
+VWAP
+distance_from_VWAP
+
+INDEX
+Nifty return
+
+SECTOR
+sector return
+
+STRUCTURE
+distance_from_opening_high
+```
+
+Then you're no longer asking:
+
+> "Does today's chart look similar?"
+
+You're asking:
+
+> "Does today's market behaviour look similar?"
+
+Much more powerful.
+
+### 20. DTW comes after the initial detector
+
+Imagine historical failure:
+
+```text
+B1 spike
+B2 down
+B3 down
+B4 retest
+B5 down
+B6 PDH fail
+```
+
+Today:
+
+```text
+B1 spike
+B2 down
+B3 small pause
+B4 small pause
+B5 down
+B6 retest
+B7 down
+B8 PDH fail
+```
+
+The same process happened more slowly.
+
+DTW can help match those sequences despite the different timing.
+
+So:
+
+```text
+Rules
+   ↓
+candidate event
+   ↓
+STUMPY nearest motifs
+   ↓
+DTW fine comparison
+```
+
+is a sensible architecture.
+
+### 21. SciPy `find_peaks` becomes useful AFTER more candles exist
+
+It isn't the main tool for Candle 1–3.
+
+Once the chart develops:
+
+```text
+        X
+       / \
+      /   \
+     /     X
+    /     / \
+   /     /   X
+```
+
+you need important swing highs.
+
+SciPy `find_peaks` supports controls such as peak distance, width and prominence, which makes it useful for filtering insignificant fluctuations. ([Stumpy Documentation][3])
+
+Then the system can detect:
+
+```text
+opening high
+
+lower high #1
+
+lower high #2
+```
+
+which is another important clue that the opening move is failing.
+
+### 22. Stock-pattern becomes useful later
+
+The original `stock-pattern` repository can detect classical structures such as VCP, doubles, triangles and harmonic patterns, but its own documentation says it detects patterns rather than providing buy/sell decisions. ([GitHub][4])
+
+Therefore use it for this:
+
+```text
+Opening-event detector
+        +
+later classical structure detector
+```
+
+Example:
+
+```text
+09:15
+opening spike/rejection
+
+10:15+
+descending triangle begins forming
+
+11:00
+triangle detector identifies compression
+```
+
+Now the engine has both:
+
+```text
+CAUSE / CONTEXT
+opening spike failure
+
+STRUCTURE
+descending compression
+```
+
+That's considerably more useful.
+
+### 23. PatternPy is not where I would start
+
+PatternPy can provide support/resistance and structural feature ideas, but I would not make it a core dependency for this engine.
+
+It also carries a CC BY-NC-SA 4.0 licence with a non-commercial restriction, which matters if TrendForge may become commercial. ([GitHub][5])
+
+Use mathematical ideas where appropriate, but don't unnecessarily couple your production engine to it.
+
+### 24. The most important prediction to create
+
+Do **not** train:
+
+```text
+Will price go DOWN?
+```
+
+That's too vague.
+
+Train several concrete outcomes.
+
+At the close of B3 ask:
+
+```text
+P(touch PDH within next 5 candles)
+
+P(close below PDH within next 10 candles)
+
+P(recover B1 high before touching PDH)
+
+P(make new session high within 30 minutes)
+
+P(move -1 ATR before +1 ATR)
+
+P(move -2 ATR before +1 ATR)
+```
+
+And record:
+
+```text
+MFE
+MAE
+time-to-PDH
+time-to-new-high
+time-to-failure
+maximum subsequent drawdown
+maximum subsequent rally
+```
+
+Now TrendForge can learn the actual **future behaviour of the shape**.
+
+### 25. This image provides a good example of the concept
+
+Your screenshot can conceptually become:
+
+```text
+            H1
+             ▲
+             │
+         ███████   ← abnormal B1
+         ███████
+PDH ────────┼─────────────────
+            │ \
+            │  █ B2
+            │   \
+            │    █ B3
+            │     \
+            │      \
+            │       \ lower highs
+            │        \
+            │         \____ balance
+```
+
+At B1:
+
+```text
+UNKNOWN
+```
+
+At B2:
+
+```text
+REJECTION WARNING
+```
+
+At B3:
+
+```text
+FADE CANDIDATE
+```
+
+When subsequent structure fails:
+
+```text
+OPENING SPIKE-AND-FADE
+```
+
+If price additionally closes back beneath PDH:
+
+```text
+PDH FAILED BREAKOUT / OPENING SPIKE-AND-FADE
+```
+
+That is the naming distinction I would use.
+
+### 26. The stronger TrendForge architecture
+
+I would build this:
+
+```text
+                    1m MARKET DATA
+                          │
+                          ▼
+                   3m BAR BUILDER
+                          │
+                    BAR CLOSE ONLY
+                          │
+                          ▼
+                ┌───────────────────┐
+                │ SESSION CONTEXT   │
+                │ PDC / PDH / PDL   │
+                │ gap / ORB / VWAP  │
+                         │
+                         ▼
+                OPENING EVENT ENGINE
+                         │
+        ┌────────────────┼────────────────┐
+        │                │                │
+   EXPANSION         REJECTION       CONTINUATION
+        │                │                │
+        └────────────────┼────────────────┘
+                         ▼
+                  STATE MACHINE
+                         │
+                         ▼
+             B1 → B2 → B3 → B4...
+                         │
+                ┌────────┴────────┐
+                ▼                 ▼
+            RULE MATCH        SHAPE MATCH
+                               STUMPY
+                                  │
+                                  ▼
+                                 DTW
+                │                 │
+                └────────┬────────┘
+                         ▼
+                HISTORICAL ANALOGS
+                         │
+                         ▼
+                  OUTCOME ENGINE
+                         │
+         ┌───────────────┼────────────────┐
+         ▼               ▼                ▼
+       PDH FAIL      NEW HIGH         RANGE
+       probability   probability      probability
+                         │
+                         ▼
+                   TRADE GATING
+                         │
+              ┌──────────┼───────────┐
+              ▼          ▼           ▼
+             WAIT       WATCH    PAPER-CANDIDATE
+```
+
+#### Main conclusion
+
+For **this exact chart**, I would not try to teach TrendForge:
+
+> "Find an Evening Star."
+
+I would teach it:
+
+```text
+Where did we open?
+        ↓
+Were we above PDH?
+        ↓
+How extreme was candle 1?
+        ↓
+Did candle 2 accept or reject that move?
+        ↓
+Did candle 3 confirm the rejection?
+        ↓
+Is PDH still holding?
+        ↓
+Are lower highs beginning?
+        ↓
+Which historical opening events looked like this?
+        ↓
+What happened after them?
+```
+
+That moves you from **pattern recognition** toward a **developing-pattern prediction engine**.
+
+And for the screenshot, the best working label at the third candle is:
+
+#### `PDH_OPENING_SPIKE_2BAR_REJECTION_CANDIDATE`
+
+If later price loses PDH:
+
+#### `PDH_FAILED_BREAKOUT_SPIKE_AND_FADE`
+
+That naming and state separation is much safer than declaring the final pattern after only three candles.
+
+[1]: https://github.com/BennyThadikaran/precise-patterns?utm_source=chatgpt.com "GitHub - BennyThadikaran/precise-patterns: Real time chart pattern detection library · GitHub"
+[2]: https://stumpy.readthedocs.io/en/latest/Tutorial_Multidimensional_Motif_Discovery.html?utm_source=chatgpt.com "Multidimensional Motif Discovery — stumpy 1.14.1 documentation"
+[3]: https://stumpy.readthedocs.io/en/latest/?utm_source=chatgpt.com "STUMPY documentation — stumpy 1.14.1 documentation"
+[4]: https://github.com/BennyThadikaran/stock-pattern?utm_source=chatgpt.com "GitHub - BennyThadikaran/stock-pattern: A Python CLI tool to scan, detect, and plot stock chart patterns · GitHub"
+[5]: https://github.com/keithorange/PatternPy/blob/main/LICENSE.md?utm_source=chatgpt.com "PatternPy/LICENSE.md at main · keithorange/PatternPy · GitHub"
