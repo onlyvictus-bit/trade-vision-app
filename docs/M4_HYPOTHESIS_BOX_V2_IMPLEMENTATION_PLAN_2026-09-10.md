@@ -1689,3 +1689,401 @@ Same canonical source snapshot + same `decision_as_of`/knowledge cutoff + same g
 ## Probability / authority
 
 No raw formation score is a probability. No formation hypothesis may set the final guidance band or execute. D6 remains final authority.
+
+# 2026-09-19 ORB_BUILD_CHANGE final M4 reconciliation addendum
+
+Status: `DOCUMENTATION_RECONCILIATION_ONLY`.
+
+Historical M4 content above remains unchanged. This addendum closes only M4-owned or M4-consumed gaps found in the full `ORB_BUILD_CHANGE.txt` re-audit. It does not create a second market-data calculator, redefine lower-stage ownership, freeze unproven thresholds, install third-party tools, claim runtime implementation, or alter D6 authority.
+
+## M4 ownership boundary for ORB opening / formation reasoning
+
+M4 owns deliberation over already-canonical evidence:
+
+- competing hypotheses and anti-theses;
+- support / opposition / unknown and critical-missing evidence;
+- expected and failure sequences;
+- next discriminating observation;
+- confirmation / weakening / invalidation / expiry interpretation;
+- dependency-aware confluence;
+- contradiction and uncertainty;
+- multi-scale coexistence;
+- causal hypothesis evolution;
+- abstention / OOD / `NO_STABLE_FORMATION`;
+- structured handoff to D6.
+
+M4 consumes but does not calculate:
+
+- `OrbOpeningSequenceViewV1`;
+- `OrbIntradayFormationViewV1`;
+- candle anatomy / CLV;
+- PDH / PDL / PDC / ORH / ORL / VWAP / session identity;
+- formation geometry and lifecycle state;
+- giveback and other B7 research metrics;
+- M3.3 analogue receipts;
+- source event IDs / dependency lineage;
+- matured outcomes and any later calibrated probability.
+
+Current cross-stage ownership remains:
+
+```text
+B4-F  compose causal ORB views / initial competing hypotheses
+B5    formation timeframe / N / OR-clock research
+B6    formation lifecycle / state transitions
+B7    metric / geometry / tolerance semantics
+B8    chronological incremental proof
+B9    M3.3-first analogue research + optional challengers
+B10   freeze proven configuration only
+B11   FOR / AGAINST / UNKNOWN evidence packaging + dependency lineage
+B12   calibrated event/horizon probability only after proof
+B13   matured outcomes
+B14   replay / adversarial / release lock
+M4    bounded deliberation over immutable receipts
+D6    FINAL_CONFLUENCE_ARBITER
+```
+
+No stage leakage is authorized by this addendum.
+
+## B4-OS receipt semantics M4 must preserve
+
+`OrbOpeningSequenceViewV1` is an immutable, read-only causal receipt. M4 must not reconstruct its bars or recalculate its price facts.
+
+The M4-consumed receipt keeps exact causal identity, where supplied by canonical owners:
+
+```text
+instrument / contract / exchange / session identity
+decision_as_of
+knowledge_cutoff
+source_snapshot_hash
+source_timeframe
+formation_timeframe
+session/bar anchor
+bar_open / bar_close
+available_at
+aggregation_policy / aggregation_version
+resample_policy / resample_policy_version
+revision / sequence identity
+normalization_basis
+normalization_version
+composition / schema version
+receipt hash
+```
+
+`B1/B2/B3` mean ordinal sequence positions under the registered formation policy. They are not permanently the first three 3-minute candles.
+
+Every opening bar retains one OR-lock relation:
+
+```text
+PRE_OR_LOCK
+CROSSES_OR_LOCK
+POST_OR_LOCK
+```
+
+A `CROSSES_OR_LOCK` bar cannot be interpreted by M4 as a clean post-lock confirmation.
+
+If upstream alignment or identity is unresolved, M4 keeps the evidence `UNKNOWN` / `UNAVAILABLE` / invalid according to the canonical receipt. M4 does not repair, guess, re-anchor or resample the sequence itself.
+
+Historical M3.1 `range_atr` means rolling mean candle range, not Wilder ATR. M4 must keep the normalization basis/version visible when normalized magnitude matters and must not treat all fields labelled “ATR-normalized” as semantically interchangeable.
+
+Current M3.1 pattern-taxonomy primitives may appear as evidence references, not M4 calculations:
+
+```text
+body_size
+body_pct_of_range
+upper_wick_size
+lower_wick_size
+close_location_value
+same_direction_body_sequence
+opposite_direction_body_sequence
+body_expansion_sequence
+body_compression_sequence
+wick_expansion_sequence
+wick_compression_sequence
+nearby_candle_confirmation
+nearby_candle_rejection
+nearby_candle_absorption
+nearby_candle_exhaustion
+previous_1_candle
+previous_2_candles
+previous_3_candles
+previous_5_candles
+```
+
+M4 reasons from deterministic events before optional human aliases. Touch, wick-through, close-through, acceptance, hold, reclaim and failure remain distinct evidence states.
+
+## B4 opening hypotheses — complete M4 receipt
+
+The existing initial set remains:
+
+```text
+H1 BREAKOUT_ACCEPTANCE_CONTINUATION
+H2 BREAKOUT_REJECTION_FAILURE
+H3 PULLBACK_RECLAIM_CONTINUATION
+H4 OPENING_BALANCE_NO_EDGE
+```
+
+For every material active hypothesis, M4 preserves:
+
+```text
+support[]
+opposition[]
+unknown[]
+critical_missing_evidence[]
+expected_sequence[]
+failure_sequence[]
+next_discriminating_observation
+confirmation_condition
+weakening_condition
+invalidation_condition
+expiry_condition
+hypothesis_state
+scope
+horizon
+anchor
+source_event_ids[]
+dependency_family
+derived_from[]
+```
+
+No hypothesis is forced to win merely because one pattern alias is present. The same evidence can support one hypothesis, oppose another and remain non-discriminating for a third.
+
+Raw formation strength, analogue similarity, pattern score, confluence count or alias count is descriptive evidence, not probability.
+
+## FORM-001 ... FORM-010 — exact M4 consumption contract
+
+The FORM identifiers improve traceability between M4 and the canonical formation architecture. M4 consumes these contracts; it does not take over their upstream owners.
+
+- **FORM-001 — arbitrary `as_of`:** bind `decision_as_of`, `knowledge_cutoff`, `source_snapshot_hash` and `formation_snapshot_hash`. Required: `information_used_at <= knowledge_cutoff <= decision_as_of`.
+- **FORM-002 — deterministic causal anchor:** M4 preserves the anchor chosen by the canonical formation layer. It cannot choose a hindsight anchor because the completed day later looks cleaner.
+- **FORM-003 — multi-scale identity:** preserve `source_timeframe`, `formation_timeframe`, `scope`, `horizon` and `anchor`. `MICRO`, `LOCAL_SWING`, `OPENING_SEQUENCE`, `INTRADAY` and `SESSION` interpretations may coexist without automatic contradiction.
+- **FORM-004 — formation lifecycle:** M4 may consume upstream `SEED / DEVELOPING / TESTING_BOUNDARY / CONFIRMED / FAILED / EXPIRED / AMBIGUOUS`. These are **formation states owned by B6** and are distinct from M4 hypothesis states such as `CANDIDATE / ACTIVE / STRENGTHENED / WEAKENED / INVALIDATED`.
+- **FORM-005 — discriminator-complete hypothesis:** preserve support, opposition, unknown, expected/failure sequences, next discriminator, confirmation, weakening, invalidation and expiry.
+- **FORM-006 — prefix-safe analogue retrieval:** M4 consumes analogue IDs only after historical matching was performed using the same causal prefix. Required order: match historical prefix -> freeze episode IDs -> only then reveal future outcomes.
+- **FORM-007 — versioned behavioural grammar:** `CANDLE FACTS -> RELATIONSHIPS -> SEQUENCE BEHAVIOUR -> STRUCTURAL FORMATION -> OPTIONAL HUMAN ALIAS`. M4 reasons from the underlying facts/behaviour and never treats an alias as a new raw fact.
+- **FORM-008 — transition diary:** M4 may consume `previous_state`, `current_state`, `changed_at`, `evidence_added[]`, `evidence_removed[]`, `reason`, `snapshot_hash` and transition identity so it can explain how a formation evolved.
+- **FORM-009 — dependency lineage:** preserve `source_event_ids[]`, `dependency_family` and `derived_from[]`. Multiple aliases from the same price sequence do not become independent votes.
+- **FORM-010 — versioned geometry/tolerance policy:** M4 consumes, but does not invent or retune, fields such as `boundary_tolerance_basis`, `pivot_prominence_basis`, `minimum_touch_count`, `slope_policy`, `compression_policy`, `overlap_policy`, `retracement_policy`, `normalization_basis` and `parameter_version`. B7 defines/researches, B8 proves, B10 freezes only proven policy.
+
+`NO_STABLE_FORMATION`, `UNRESOLVED` and `AMBIGUOUS` remain legal. An unfinished higher-timeframe formation may be `PROVISIONAL` only and has zero confirmation authority before the registered close.
+
+Screenshots and worked chart examples may motivate a research requirement but are not canonical market facts. Pattern-search grammar/search spaces belong to versioned B8 research governance, not ad-hoc M4 adaptation after outcomes are visible.
+
+## Fixed-as-of replay and adversarial failure semantics
+
+At a fixed historical decision time, future data must not alter the earlier M4 state.
+
+Example:
+
+```text
+decision_as_of = 09:24
+freeze:
+- opening receipt/hash
+- formation receipt/hash
+- M4 evidence set
+- hypothesis set/state
+
+append:
+09:27
+09:30
+10:00
+rest of session
+
+replay decision_as_of = 09:24
+
+required:
+same opening/formation receipt hashes
+same M4 evidence
+same hypothesis set/state
+
+otherwise:
+FUTURE_DEPENDENCY_DETECTED
+```
+
+The same rule applies to anchor identity and analogue episode selection.
+
+M4's adversarial expectations include:
+
+```text
+PDH <-> PDL symmetry where semantics permit
+price x10 -> equivalent normalized geometry
+missing RVOL -> UNKNOWN, never zero
+missing PDH -> no PDH-derived event
+wick-through != close-beyond
+future append -> earlier state unchanged
+hindsight anchor -> forbidden
+analogue outcome reveal -> selected IDs unchanged
+correlated aliases -> one dependency family
+incomplete HTF -> PROVISIONAL, not CONFIRMED
+feature OFF -> legacy M4/ORB semantics unchanged
+```
+
+## Source-preserved PDH opening evidence and competing paths
+
+The following source names are preserved as **research/event vocabulary consumed by M4**, not automatically proven runtime enum IDs:
+
+```text
+PDH_OPENING_SPIKE_REJECTION
+PDH_OPENING_DRIVE
+PDH_OPENING_DRIVE_REJECTION
+PDH_OPENING_REJECTION_CANDIDATE
+PDH_OPENING_2BAR_REJECTION
+PDH_FAILED_BREAKOUT_FADE
+PDH_BREAKOUT_PULLBACK_CONTINUATION
+```
+
+Source event examples may include:
+
+```text
+B1:
+  CLOSE_ABOVE_PDH
+  NEW_SESSION_HIGH
+
+B2:
+  NO_NEW_SESSION_HIGH
+  CLOSE_INSIDE_B1_RANGE
+  LOWER_CLOSE_THAN_B1
+
+B3:
+  LOWER_HIGH_THAN_B2
+  LOWER_CLOSE_THAN_B2
+```
+
+M4 consumes these deterministic events if upstream produces them. M4 does not calculate them from raw candles.
+
+Critical anti-hindsight law:
+
+```text
+B3 rejection
+!=
+confirmed PDH_FAILED_BREAKOUT_FADE
+```
+
+A rejection candidate can still resolve into `PDH_BREAKOUT_PULLBACK_CONTINUATION`. M4 must preserve both explanations until later causal confirmation/failure evidence arrives.
+
+The source-proposed taxonomy IDs remain research aliases unless separately registered:
+
+```text
+OPENING_LOCATION_STRUCTURE
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_HOLD
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_FAIL
+```
+
+M4 may consume a registered alias, but its reasoning remains grounded in the underlying evidence and dependency lineage.
+
+## B1 / giveback / CLV / PDH geometry — evidence only
+
+When upstream receipts provide them, M4 may reason from source-preserved evidence such as:
+
+```text
+B1_range
+B1_body
+upper_wick_size
+lower_wick_size
+body_pct_of_range
+volume
+opening_RVOL
+open_minus_previous_close
+open_minus_PDH
+high_minus_PDH
+close_minus_PDH
+close_location_value
+extension_from_PDH
+gap_above_PDH
+```
+
+M4 must not become the calculator for those values.
+
+CLV is descriptive candle evidence:
+
+```text
+CLV = (Close - Low) / (High - Low)
+```
+
+M4 consumes canonical `close_location_value` and canonical zero-range/missingness semantics. CLV is not a prediction or probability.
+
+`giveback` / `giveback_ratio` are versioned research metrics. Before M4 consumes them, their numerator basis, denominator basis, measurement start/end, availability timestamp and metric/parameter version must be registered by the proper owner.
+
+Worked values such as `3 ATR`, `35%`, `10%`, and `25% / 50% / 75%` checkpoints remain `RESEARCH_CANDIDATE` examples only. They are not M4 thresholds, triggers or probabilities.
+
+## M3.3 first; STUMPY / DTW remain optional challengers
+
+M4 does not own similarity computation. It consumes M3.3/B9 receipts under this ordering:
+
+```text
+canonical M3.3 analogue retrieval
+        ->
+measure a concrete limitation
+        ->
+optional STUMPY challenger
+        ->
+only if incremental value remains:
+optional bounded DTW reranking of a shortlist
+```
+
+STUMPY is not a three-candle oracle and does not replace deterministic event/context definition. DTW does not scan the full historical corpus inside M4.
+
+Any third-party challenger must pass the owning B8/B9 governance for licence compatibility, PIT/causality, maintenance/dependency risk, runtime suitability, deterministic/replay requirements where applicable, data requirements and incremental OOS proof.
+
+M4 consumes the resulting receipt and uncertainty; it does not install, choose or operate the similarity library.
+
+## A0 -> A9 proof boundary
+
+The source-preserved adjacent ablation ladder is B8/Research-Engine proof evidence, not an M4-owned statistics engine:
+
+```text
+A0 existing ORB
+A1 + canonical M3.1 candle anatomy
+A2 + level-interaction sequence
+A3 + B1/B2/B3 transition / giveback features
+A4 + valid same-time RVOL / participation
+A5 + benchmark / sector / regime context
+A6 + B6 formation-state abstraction
+A7 + canonical M3.3 analogues
+A8 + STUMPY challenger
+A9 + DTW top-K reranking
+```
+
+M4 may consume only evidence families/promoted configurations allowed by the owning proof/version contracts. Every `A[n]` must earn incremental unseen-data value over `A[n-1]`; failure to do so means reject, remove, demote or retain research-only rather than silently increasing M4 complexity.
+
+## Epistemic, dependency and probability boundary
+
+The existing M4 missingness laws are extended explicitly:
+
+```text
+missing != neutral
+unknown != false
+unavailable != safe
+synthetic != real
+error != zero
+no_signal != unavailable
+no_output != neutral
+```
+
+Correlated labels do not manufacture confluence:
+
+```text
+correlated evidence != independent evidence
+```
+
+A bull flag, bullish pullback, higher-low continuation and ascending micro-channel derived from the same source events remain one dependency family unless independent evidence exists.
+
+M4 must never convert a pattern score, formation strength, analogue distance, similarity score, raw support count or confluence count into calibrated probability. Probability remains a separate B12-calibrated event/horizon output after the required proof.
+
+## Explicit authority lock
+
+Current authority remains:
+
+```text
+research_only = true
+authority = NONE
+may_execute = false
+may_set_final_band = false
+order_routing_enabled = false
+live_trading_blocked = true
+human_approval_required = true
+```
+
+M4 can deliberate and produce a structured evidence/hypothesis receipt. It cannot route an order, set a live position, bypass D6, or own the final WAIT / WATCH / PAPER-CANDIDATE band.
+
+D6 `FINAL_CONFLUENCE_ARBITER` remains the sole final guidance-band authority.
