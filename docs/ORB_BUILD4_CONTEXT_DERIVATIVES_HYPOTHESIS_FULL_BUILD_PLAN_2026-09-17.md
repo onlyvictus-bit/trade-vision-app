@@ -2642,3 +2642,237 @@ B14 must prove at least:
 - feature-OFF legacy parity.
 
 A documentation change does not satisfy these tests. Runtime implementation remains a later build.
+
+# 66. 2026-09-19 source-detail preservation — PDH opening expansion / rejection research contract
+
+Status: \`SOURCE_DERIVED_RESEARCH_DETAIL\`; additive to Sections 64–65. This section preserves the lower-level details in committed \`ORB_BUILD_CHANGE.txt\` without turning chart-specific examples into frozen runtime rules.
+
+## 66.1 Sequence positions, not a fixed 3-minute contract
+
+\`B1/B2/B3\` are ordinal positions under the registered formation policy. The source's 3-minute examples are explanatory fixtures only. BUILD-5 owns the eventual formation timeframe, N and OR-window/clock policy.
+
+Required property:
+
+\`\`\`text
+same registered formation policy
++ same closed source bars
++ same decision_as_of
+    -> same B1/B2/B3 identity
+\`\`\`
+
+Changing the later session or appending future candles may not re-select earlier B1/B2/B3.
+
+## 66.2 Canonical primitive reuse
+
+BUILD-4 must consume canonical M3.1 / pattern-taxonomy facts instead of creating duplicate candle mathematics. Verified reusable taxonomy concepts include:
+
+\`\`\`text
+body_size
+body_pct_of_range
+upper_wick_size
+lower_wick_size
+close_location_value
+same_direction_body_sequence
+opposite_direction_body_sequence
+body_expansion_sequence
+body_compression_sequence
+wick_expansion_sequence
+wick_compression_sequence
+nearby_candle_confirmation
+nearby_candle_rejection
+nearby_candle_absorption
+nearby_candle_exhaustion
+previous_1_candle
+previous_2_candles
+previous_3_candles
+previous_5_candles
+\`\`\`
+
+If a required primitive is unavailable, BUILD-4 exposes unavailable/unknown rather than calculating a private substitute.
+
+## 66.3 Opening-expansion detail fields
+
+For B1, the composed view may expose canonical references/derived relations for:
+
+\`\`\`text
+B1_range
+B1_body
+upper_wick
+lower_wick
+body_to_range
+
+normalized_range_value
+normalization_basis
+normalization_version
+
+volume
+opening_RVOL
+volume_availability
+
+open_minus_previous_close
+open_minus_PDH
+high_minus_PDH
+close_minus_PDH
+close_location_value
+\`\`\`
+
+No field above gains authority by being present.
+
+The source's \`B1 range / ATR\` example is retained only with an explicit normalization basis. It must not reuse legacy \`range_atr\` semantics when the denominator is actually Wilder ATR.
+
+## 66.4 Giveback contract
+
+Giveback must be a typed/versioned research metric, because the source appendix demonstrates the ratio but does not fully freeze the numerator convention.
+
+At minimum a giveback observation must identify:
+
+\`\`\`text
+giveback_value
+giveback_ratio
+giveback_numerator_basis
+giveback_denominator_basis
+measurement_start
+measurement_end
+available_at
+metric_version
+\`\`\`
+
+Historical example retained for regression/documentation:
+
+\`\`\`text
+B1 range = 6
+measured giveback = 2.2
+giveback_ratio = 2.2 / 6 = 36.7%
+\`\`\`
+
+Examples such as \`B2 giveback > 35%\` and 10% giveback remain research candidates only. They are forbidden as hidden defaults until B7 registers the policy and B8 proves it.
+
+## 66.5 CLV contract
+
+The source formula is:
+
+\`\`\`text
+CLV = (Close - Low) / (High - Low)
+\`\`\`
+
+The ORB view should consume the canonical \`close_location_value\` fact where available rather than recalculate it.
+
+Historical interpretation retained only as descriptive semantics:
+
+\`\`\`text
+near 1.0 -> close near high
+near 0.5 -> close near middle
+near 0.0 -> close near low
+\`\`\`
+
+CLV alone cannot confirm continuation/reversal and cannot become a probability.
+
+## 66.6 PDH opening geometry
+
+Preserve the source's exact opening-location relationships:
+
+\`\`\`text
+previous_close
+PDH
+B1_open
+B1_high
+B1_close
+extension_from_PDH
+gap_above_PDH
+\`\`\`
+
+Derived research observations may include time/sequence to 25%, 50% and 75% registered giveback; PDH touch; accepted close below PDH; PDH reclaim; and new-session-high continuation. Each requires event-time, knowledge-time and level/reference lineage.
+
+Touch, wick-through, close-below, acceptance, hold, reclaim and failure remain separate events.
+
+## 66.7 Event-first state progression
+
+The source-specific family \`PDH_OPENING_SPIKE_REJECTION\` is not emitted from appearance alone.
+
+Preferred event progression:
+
+\`\`\`text
+B1:
+  CLOSE_ABOVE_PDH
+  NEW_SESSION_HIGH
+
+B2:
+  NO_NEW_SESSION_HIGH
+  CLOSE_INSIDE_B1_RANGE
+  LOWER_CLOSE_THAN_B1
+
+B3:
+  LOWER_HIGH_THAN_B2
+  LOWER_CLOSE_THAN_B2
+\`\`\`
+
+Possible research states/aliases, in order:
+
+\`\`\`text
+PDH_OPENING_DRIVE
+PDH_OPENING_DRIVE_REJECTION
+PDH_OPENING_REJECTION_CANDIDATE
+PDH_OPENING_2BAR_REJECTION
+\`\`\`
+
+\`PDH_FAILED_BREAKOUT_FADE\` is **not legal after B3 merely because the chart looks bearish**. It requires the later registered failure condition, such as the required closed-candle loss/acceptance below PDH under the versioned state policy.
+
+The competing continuation family remains live, including the source-preserved \`PDH_BREAKOUT_PULLBACK_CONTINUATION\` path.
+
+## 66.8 Source-preserved higher-level taxonomy
+
+Research decomposition:
+
+\`\`\`text
+Family:       OPENING_LOCATION_STRUCTURE
+Context:      ABOVE_PDH
+Event:        EXPANSION
+Reaction:     REJECTION
+Confirmation: 2_BAR_FOLLOW_THROUGH
+\`\`\`
+
+Source-proposed IDs retained for traceability:
+
+\`\`\`text
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_HOLD
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_FAIL
+\`\`\`
+
+These are proposed research identifiers, not automatically current runtime enum members. Before promotion, B6/B7/B8 must bind lifecycle meaning, geometry, symmetry, missingness, versioning and proof.
+
+## 66.9 Required competing-path behavior
+
+After a strong B1 expansion and B2/B3 rejection sequence, the engine must preserve at least the competing possibilities already represented by the canonical hypothesis layer:
+
+\`\`\`text
+breakout acceptance / continuation
+opening rejection / failure
+pullback-reclaim continuation
+balance / no-edge
+\`\`\`
+
+The source-specific state names may enrich these hypotheses but may not force one to win early.
+
+## 66.10 Adversarial checks added by this detail bridge
+
+BUILD-8/B14 verification must include:
+
+1. **B1 ordinal invariance** — changing the configured formation timeframe changes policy identity, not the meaning of ordinal B1/B2/B3.
+2. **No premature failed-break label** — B3 rejection alone cannot emit \`PDH_FAILED_BREAKOUT_FADE\`.
+3. **Continuation coexistence** — the same B1 may still mature into \`PDH_BREAKOUT_PULLBACK_CONTINUATION\`.
+4. **Giveback-policy identity** — changing numerator/denominator policy changes metric version/hash; no silent semantic reuse.
+5. **No hard-coded source examples** — 3 ATR, 35%, 10%, 25/50/75 are not defaults unless separately registered/proven.
+6. **CLV lineage** — ORB consumes canonical close-location fact and cannot privately redefine it.
+7. **PDH event separation** — touch, wick, close, acceptance, hold, reclaim and fail remain distinct.
+8. **Alias de-duplication** — \`PDH_OPENING_SPIKE_REJECTION\` and its descendant labels do not multiply one price sequence into multiple independent votes.
+9. **PDH/PDL symmetry test** — mirror only where the registered market semantics are symmetric.
+10. **Future-append invariance** — later session data cannot rewrite the earlier state, metric policy, taxonomy candidate or hypothesis evidence.
+11. **Feature-off parity** — disabling the new detail layer preserves legacy ORB semantics.
+12. **Zero authority** — every detail remains research-only and cannot execute or set D6's final band.
+
+## 66.11 Completion boundary
+
+This section is complete as a **documentation contract** only when all source-preserved items above are traceable to canonical owners and tests. It is not implementation proof. No threshold, pattern alias or taxonomy ID is promoted merely because it appears in this plan.
+
+\`authority=NONE\`, \`may_execute=false\`, \`may_set_final_band=false\`. D6 remains final authority.

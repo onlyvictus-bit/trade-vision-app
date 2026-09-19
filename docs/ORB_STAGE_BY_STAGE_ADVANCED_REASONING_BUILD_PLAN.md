@@ -2793,6 +2793,241 @@ Primary evidence is canonical candle/level/context fact lineage. Human aliases (
 
 Authority remains `NONE`; `may_execute=false`; `may_set_final_band=false`; D6 `FINAL_CONFLUENCE_ARBITER` remains unchanged.
 
+
+## 52.3 2026-09-19 ORB_BUILD_CHANGE source-detail preservation bridge
+
+Status: \`SOURCE_DERIVED_RESEARCH_DETAIL\`; additive documentation only. This subsection preserves lower-level opening-sequence details from the committed \`ORB_BUILD_CHANGE.txt\` source that are useful for later BUILD-4/B6/B7/B8 implementation. It does **not** promote any example timeframe, numeric threshold, alias or outcome statistic into a proven runtime default.
+
+### Ordinal sequence law
+
+\`B1/B2/B3\` are ordinal sequence positions, not fixed 3-minute candle identities. The historical source uses 09:15–09:18 / 09:18–09:21 / 09:21–09:24 as an explanatory example only. BUILD-5 still owns formation-timeframe, sequence-length and OR-clock research. BUILD-4 consumes the registered policy and must remain valid if the eventual proven formation timeframe is not 3 minutes.
+
+### Reuse the existing canonical candle / pattern vocabulary
+
+Repository code in \`apps/api/app/behavior/pattern_taxonomy.py\` already provides reusable primitive concepts:
+
+\`\`\`text
+body_size
+body_pct_of_range
+upper_wick_size
+lower_wick_size
+close_location_value
+
+same_direction_body_sequence
+opposite_direction_body_sequence
+
+body_expansion_sequence
+body_compression_sequence
+
+wick_expansion_sequence
+wick_compression_sequence
+
+nearby_candle_confirmation
+nearby_candle_rejection
+nearby_candle_absorption
+nearby_candle_exhaustion
+
+previous_1_candle
+previous_2_candles
+previous_3_candles
+previous_5_candles
+\`\`\`
+
+The ORB layer must reference these/canonical M3.1 facts rather than inventing a second generic candle-pattern calculator.
+
+### Event-first PDH opening progression
+
+The source-preserved higher-level research family is \`PDH_OPENING_SPIKE_REJECTION\`, but aliases come **after** deterministic events and state progression.
+
+Historical/source progression:
+
+\`\`\`text
+B1
+PDH_OPENING_DRIVE
+
+        ↓
+
+B2
+PDH_OPENING_DRIVE_REJECTION
+PDH_OPENING_REJECTION_CANDIDATE
+
+        ↓
+
+B3
+PDH_OPENING_2BAR_REJECTION
+
+        ↓ only after later causal evidence
+later close back below PDH
+PDH_FAILED_BREAKOUT_FADE
+\`\`\`
+
+After B3 alone the system must **not** declare \`PDH_FAILED_BREAKOUT_FADE\`. The competing continuation path remains possible, including \`PDH_BREAKOUT_PULLBACK_CONTINUATION\`. This detail is an explicit anti-hindsight requirement: the same B1 expansion can lead to either failure or continuation.
+
+The deterministic-event version remains preferred:
+
+\`\`\`text
+B1:
+CLOSE_ABOVE_PDH
+NEW_SESSION_HIGH
+
+B2:
+NO_NEW_SESSION_HIGH
+CLOSE_INSIDE_B1_RANGE
+LOWER_CLOSE_THAN_B1
+
+B3:
+LOWER_HIGH_THAN_B2
+LOWER_CLOSE_THAN_B2
+\`\`\`
+
+Human-facing aliases are derived from these events plus lineage; aliases are never raw facts and never extra independent votes.
+
+### B1 opening-expansion feature set
+
+The source appendix requires the opening bar to preserve or reference, where available and canonically owned:
+
+\`\`\`text
+B1_range
+B1_body
+upper_wick
+lower_wick
+body / range
+
+normalized B1 range with explicit normalization_basis
+volume
+opening RVOL
+
+open - previous close
+open - PDH
+high - PDH
+close - PDH
+
+close location inside candle
+\`\`\`
+
+The historical source also illustrates \`B1 range / ATR\`. Under the reconciled architecture this must never silently reuse the legacy \`range_atr\` name: mean-range normalization and canonical Wilder-ATR normalization remain separately named and versioned.
+
+### Giveback is a research variable, not a hard-coded threshold
+
+The source example measures how much of B1 was surrendered after B2:
+
+\`\`\`text
+B1 range = 6
+measured giveback = 2.2
+
+giveback_ratio
+= 2.2 / 6
+= 36.7%
+\`\`\`
+
+The exact numerator convention must be registered/versioned by B7 before implementation; the documentation example does not silently define whether giveback is high-to-close, high-to-low, close-to-close or another basis.
+
+The source also contains illustrative comparisons such as \`B1 > 3 ATR\`, \`B2 giveback > 35%\` versus a 10% giveback case. Those are **research examples only**. They are not frozen thresholds, not evidence of edge, and may enter B10 only after B8 chronological/OOS proof.
+
+### Close Location Value (CLV)
+
+The source-preserved research formula is:
+
+\`\`\`text
+CLV = (Close - Low) / (High - Low)
+\`\`\`
+
+Interpretation in the historical example:
+
+\`\`\`text
+CLV near 1.0 -> close near high
+CLV near 0.5 -> close near middle
+CLV near 0.0 -> close near low
+\`\`\`
+
+CLV is a descriptive candle-location fact, not a direction verdict or probability. Any zero-range/missingness behavior must follow the canonical M3.1/missingness contract rather than inventing a fallback value in ORB.
+
+### Previous-close / PDH geometry
+
+The source requires explicit geometric relationships around the opening move:
+
+\`\`\`text
+previous close
+PDH
+B1 open
+B1 high
+B1 close
+extension_from_PDH
+gap_above_PDH
+\`\`\`
+
+Research questions include:
+
+- was the open already extended relative to PDH/previous close;
+- how far did B1 extend above PDH;
+- did B2 return into the PDH-extension zone;
+- how quickly did the path give back 25% / 50% / 75% of the registered move;
+- did price later touch PDH;
+- did a **closed** candle accept below PDH;
+- or did price instead make a new session high.
+
+The 25/50/75 observations are research labels/checkpoints, not automatic trading thresholds.
+
+### Source-proposed ORB taxonomy identifiers
+
+The source preserves the following research taxonomy decomposition:
+
+\`\`\`text
+Family:       OPENING_LOCATION_STRUCTURE
+Context:      ABOVE_PDH
+Event:        EXPANSION
+Reaction:     REJECTION
+Confirmation: 2_BAR_FOLLOW_THROUGH
+\`\`\`
+
+Source-proposed identifiers:
+
+\`\`\`text
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_HOLD
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_FAIL
+\`\`\`
+
+These strings are preserved for research traceability. They do not become canonical runtime IDs until their producing events, registry/version, lifecycle semantics, symmetry policy and B8 proof are explicitly accepted. PDL/downside counterparts must be handled by the registered symmetry policy rather than copied by assumption.
+
+### State-machine interpretation
+
+The source-specific state concept is preserved as:
+
+\`\`\`text
+PDH_BREAK
+    ↓
+OPENING_EXPANSION
+    ├─ HOLD      -> continuation remains viable
+    └─ REJECTION
+          ↓
+       B2 rejection
+          ↓
+       B3 follow-through
+          ├─ PDH holds  -> WATCH / continuation still possible
+          └─ PDH fails  -> failure/fade hypothesis may mature
+\`\`\`
+
+This is a reasoning/state model only. It does not create BUY/SELL authority.
+
+### Proof and authority guard
+
+All detail in this subsection remains subordinate to the existing stage ownership:
+
+- B4 composes canonical facts/events;
+- B5 researches timeframe/N/clock;
+- B6 owns lifecycle/state;
+- B7 owns metric definitions, geometry/tolerances and threshold policies;
+- B8 proves incremental value chronologically and out-of-sample;
+- B9/M3.3 owns prefix-safe historical analogues;
+- B10 freezes only proven settings;
+- B11 de-duplicates correlated evidence;
+- B12 alone may host separately calibrated probability;
+- B14 attacks hindsight, future leakage and semantic drift.
+
+\`authority=NONE\`, \`may_execute=false\`, \`may_set_final_band=false\`, and D6 remains the sole \`FINAL_CONFLUENCE_ARBITER\`.
+
+
 ---
 
 # 53. Definition of a complete ORB build
