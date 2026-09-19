@@ -1110,3 +1110,74 @@ An incomplete higher-timeframe candle may support only a `PROVISIONAL` zero-auth
 ## Stock / futures and reference-basis law
 
 Formation identity must retain instrument class and the exact prior-session reference basis. Equity session close must not be silently substituted for futures settlement, and missing/unsupported references remain unavailable. Symmetric upside/downside semantics are mirror-tested where the underlying market contract permits symmetry.
+
+# 2026-09-19 source-detail / stock-commodity scope reconciliation
+
+Status: `SOURCE-DETAIL / SCOPE RECONCILIATION`.
+
+All historical text above remains authoritative evidence and is retained unchanged. This block closes only scope, identity, applicability, provenance, missingness and authority details from `ORB_BUILD_CHANGE.txt`. It does not make this file the owner of BUILD-4 hypothesis mechanics, BUILD-5 timing winners, BUILD-6 formation-state transitions, BUILD-7 metric thresholds, BUILD-8 incremental proof, BUILD-9/M3.3 analogue retrieval, probability calibration, M4 deliberation or D6 confluence calculations.
+
+## Opening-sequence ownership and ordinal identity
+
+`OrbOpeningSequenceViewV1` is a read-only ORB composition over canonical BUILD-1 candidate identity, BUILD-2 market/session/contract identity, BUILD-3 prior-session facts, and D2/M3.1 closed-candle/price/volume/volatility facts. It must not become a second calculator or pattern taxonomy for body/wick/close-location, volume statistics, ATR, VWAP, PDH/PDL/PDC, settlement, levels, or any other fact already owned canonically. Each B-position points to the canonical bar/anatomy fact identity and hash/lineage required for replay instead of copying or privately recomputing that fact.
+
+`B1/B2/B3` (that is, `B1`, `B2` and `B3`) are ordinal positions in the selected opening formation sequence when those positions exist. They are not canonically synonymous with the first three 3-minute candles. `formation_timeframe`, researched sequence length `N`, OR clock/window and confirmation timing remain explicit research dimensions owned by BUILD-5; this scope document promotes no timeframe or sequence-length winner.
+
+A usable opening prefix may contain only bars that are closed and available by `decision_as_of`, with exact instrument/contract/session identity, source cadence, session/bar anchor, bar open/close, `available_at`, source/resample policy and source snapshot lineage. The expected prefix must be contiguous under that registered policy, with duplicates, conflicting revisions, out-of-order bars and source inconsistencies exposed rather than silently repaired. If the required alignment cannot be established, the canonical availability/completeness contract must fail closed; no replacement bar may be guessed or synthesized.
+
+Each referenced formation bar retains exactly one OR-lock relation: `PRE_OR_LOCK`, `CROSSES_OR_LOCK`, or `POST_OR_LOCK`. A `CROSSES_OR_LOCK` bar is not a clean post-lock confirmation and must never be presented as one.
+
+## Measurement and normalization identity
+
+Every normalized opening/formation measure must retain the exact canonical metric identity/version and denominator basis. In particular, the historical M3.1 `range_atr` field identified by `ORB_BUILD_CHANGE.txt` is tied to the feature kernel's `average_range` / rolling mean candle range; it must not be silently interpreted as Wilder ATR. A true ATR normalization requires its own canonical owner/version. This scope layer consumes those facts and does not recalculate either metric.
+
+## Reference-price and futures identity binding
+
+Reference consumers preserve the registered BUILD-1/BUILD-3 reference type together with the BUILD-2 data basis and provenance. `SESSION_CLOSE`, `OFFICIAL_DAILY_SETTLEMENT`, `ADJUSTED_CLOSE`, `LAST_COMPLETED_BAR_CLOSE` and another registered reference are not interchangeable. `RAW_CASH`, `RAW_CONTRACT`, corporate-action-adjusted and continuous-series bases are not interchangeable. A current-session opening price remains a session/bar fact unless a canonical registered reference contract explicitly owns that use; it is not an implicit PDC or settlement. A selector-specific reference remains source/version specific rather than being silently retyped as close or settlement.
+
+PDH/PDL/PDC and any settlement/reference comparison must therefore retain the exact previous completed exchange session, instrument/contract, venue, price/data basis, effective date, market/event timestamp, knowledge/availability timestamp, source/version and provenance required by its canonical owner.
+
+For futures/derivatives, contract month, expiry, multiplier, lot size, tick rule/size, price precision, roll identity and settlement semantics may be consumed only when resolved by the canonical BUILD-2 market identity applicable at that historical `decision_as_of` / `knowledge_cutoff`. Missing or ambiguous metadata remains unresolved/unavailable. Nothing may be inferred from ticker text, a present-day contract master, weekday memory, a current calendar or another instrument's conventions.
+
+## Applicability, missingness and causal anchors
+
+`OrbOpeningSequenceViewV1` and `OrbIntradayFormationViewV1` reuse canonical availability/completeness contracts; they do not mint a competing formation-only missingness enum. Canonical states such as `AVAILABLE`, `MISSING`, `UNKNOWN`, `UNAVAILABLE`, `STALE`, `SUSPECT`, `NOT_APPLICABLE` and `ERROR` retain their owning-contract meanings. If another canonical owner emits `INVALID` or `INSUFFICIENT_HISTORY`, that state is preserved at the handoff. No state is collapsed into numeric zero, false, neutral, safe, `NO_SIGNAL` or `NO_OUTPUT` merely to keep a pipeline moving.
+
+Concept applicability remains separate from source availability. OI, option-chain, settlement, expiry, basis, roll, benchmark/sector and derivatives context may be `NOT_APPLICABLE` for one market and `UNAVAILABLE`/`UNKNOWN` for another. Commodity studies do not inherit NSE/Nifty/sector meaning unless a separately registered PIT-safe benchmark/context contract exists.
+
+Session open, OR lock, PDH/PDL/ORH/ORL interaction, canonical pivot, canonical structure break, expansion start and reclaim may be formation anchors only when the canonical owner has produced the underlying event from facts available by `decision_as_of`. A hindsight-selected completed-day pivot, reclaim, structure event or other future-known event is not a causal anchor. Touch, wick-through, close-through, acceptance, hold, reclaim and failure remain distinct owner-produced events; this scope layer preserves their identity but does not define their state-machine thresholds.
+
+## Historical PIT reconstruction and no-substitution law
+
+Historical reconstruction binds the effective instrument and contract identity, session/calendar policy, prior-session reference/data basis, benchmark/sector membership where applicable, roll/expiry state, source cadence/version, bar-anchor/resample policy and `knowledge_cutoff` that were knowable for that historical decision. Look-ahead is forbidden: information published, revised, inferred or discovered only after the historical cutoff cannot enter the reconstructed state.
+
+The following remain identity/applicability failures, not weak evidence and not permissible fallbacks:
+
+- cash/session close substituted for futures settlement;
+- adjusted close substituted for raw/session close;
+- continuous-series price substituted for a raw contract price;
+- a present-day contract master substituted for historical contract identity;
+- a current session calendar substituted for the historically effective calendar;
+- NSE cash-session open substituted for a commodity session anchor;
+- current benchmark/sector membership substituted for PIT historical membership;
+- a different source cadence, anchor or resample policy substituted for the registered source;
+- missing OI/derivatives/context data substituted with zero or neutral evidence.
+
+Long/short geometry is mirror-tested where the registered market semantics support symmetry (`PDH` ↔ `PDL`, upside ↔ downside, higher ↔ lower, break/reclaim ↔ the registered opposite-side counterpart). Symmetry never authorizes cross-market substitution or invents a market-specific counterpart that the registered contract does not support.
+
+## Explicit zero-authority binding
+
+This scope layer and both formation views remain identity/evidence only:
+
+```text
+research_only = true
+trade_allowed = false
+order_routing_enabled = false
+live_trading_blocked = true
+
+authority = NONE
+may_execute = false
+may_set_final_band = false
+```
+
+The canonical authority registry's `FINAL_CONFLUENCE_ARBITER` remains the sole final guidance-band authority. Nothing in this reconciliation creates BUY/SELL, paper-ticket, order-routing or live-execution authority.
