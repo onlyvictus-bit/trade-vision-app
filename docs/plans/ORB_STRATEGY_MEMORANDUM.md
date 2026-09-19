@@ -388,3 +388,121 @@ The v2.0 ladder claimed top-down first-match-wins, but the trap overrides must b
 - B8: EXIT-05 `large_gap_stop` config key replaces the silent LARGE-gap stop cliff.
 - S-A/S-B adopted as CPR-04 derived law + pre-test H3.
 - S1–S10 decisions closed (§10); P1–P3 and V1–V4 landed in the plan doc.
+
+---
+
+# CURRENT ARCHITECTURE RECONCILIATION — 2026-09-18 opening-sequence work
+
+This strategy memorandum is preserved as historical/rule-level research provenance. The rules, thresholds, examples and pattern names above are not being deleted or rewritten. The current canonical interpretation is narrower than some of the original language.
+
+## Historical thresholds remain research candidates
+
+Any fixed OR width, ATR multiple, volume cutoff, candle count, time window, stop/target, zone, trap score, B1/B2/B3 threshold or pattern trigger in this memorandum remains a `RESEARCH_CANDIDATE` unless BUILD-7 registers the parameter and BUILD-8 proves it chronologically with costs, walk-forward and untouched holdout evidence. An old worked example is not proof of a universal rule.
+
+`B1/B2/B3` in current opening-sequence architecture are ordinal sequence positions. They do not canonically mean the first three 3-minute candles. Formation timeframe, N and OR duration/lock policy belong to BUILD-5 research.
+
+## Deterministic facts before pattern aliases
+
+Current opening-sequence research begins with reproducible event tuples, for example:
+
+```text
+OPENING_LOCATION_STRUCTURE
+ABOVE_PDH
+EXPANSION
+REJECTION
+2_BAR_FOLLOW_THROUGH
+```
+
+More specific deterministic events may include `CLOSE_ABOVE_PDH`, `NEW_SESSION_HIGH`, `LOWER_CLOSE`, `LOWER_HIGH`, `CLOSE_INSIDE_B1_RANGE`, `WICK_THROUGH_PDH` and their PDL mirrors.
+
+Human-facing labels such as “opening rejection”, “trap”, “drive”, “hammer”, “failed breakout” or `PDH_OPENING_REJECTION_CANDIDATE` are interpretations derived after the underlying events exist. They do not create missing facts and may not reverse-engineer price evidence to fit a preferred name.
+
+Touch, wick-through, close-beyond, acceptance, failure and reclaim remain separate facts. In particular:
+
+```text
+TOUCH_PDH != WICK_THROUGH_PDH != CLOSE_ABOVE_PDH != ACCEPTANCE_ABOVE_PDH
+TOUCH_PDL != WICK_THROUGH_PDL != CLOSE_BELOW_PDL != ACCEPTANCE_BELOW_PDL
+```
+
+PDH upside and PDL downside cases require mirror/symmetry tests where the underlying market semantics are symmetric.
+
+## Legacy probability-like numbers
+
+Legacy fields or prose such as `trap_probability`, confidence percentages or similar heuristic numbers are **not calibrated event probabilities** merely because they are numeric. Current B4 opening-sequence receipts contain no uncalibrated probability. Calibrated probability is a BUILD-12 capability only after deterministic labels and BUILD-8-style chronological proof.
+
+## Current canonical owners supersede duplicate-calculation proposals
+
+Where the memorandum proposed computing a fact locally, current canonical ownership governs:
+
+- D2 owns closed-candle snapshot truth;
+- BUILD-1 owns candidate identity/provenance;
+- BUILD-2 owns market/session/contract identity;
+- BUILD-3 owns raw prior-session PDH/PDL/session-close/settlement reference semantics;
+- M3.1 owns canonical candle/price/level calculations;
+- M3.3 owns canonical historical memory/analogue evidence;
+- BUILD-4 composes and interprets these facts;
+- D6 owns final guidance-band authority.
+
+The old calculation proposal remains useful historical context but is `SUPERSEDED` as an ownership instruction when it conflicts with these owners.
+
+## Execution-shaped historical language
+
+Older broker/margin/flatten wording remains visible as historical provenance but is not a current ORB runtime instruction. `EXEC-01` margin checks and `EXEC-02` broker/API handling are `HISTORICAL_REFERENCE`/outside current ORB authority; “flatten everything” and market-square-off language is `OUT_OF_SCOPE_FOR_ORB` as a command. The current ORB equivalent may only be a blocker/invalidation/safety evidence receipt for D6 or a separately authorized human-paper layer. Nothing in this memorandum authorizes broker connectivity, order routing, cancellation or live position management.
+
+## Range-normalization semantic correction
+
+Historical uses of “ATR” must be read against the calculation owner/version. The current M3.1 candle-anatomy `range_atr` field is based on rolling mean candle range, not canonical Wilder true range. Opening-sequence work therefore records `normalization_basis` and `normalization_version` and keeps `range_vs_mean_intraday_range` separate from `range_vs_canonical_wilder_atr` when both are available.
+
+## Research-only pattern taxonomy
+
+Pattern aliases remain useful for analyst communication and experiment registration, but they have no independent authority. The canonical sequence is:
+
+```text
+observed/derived deterministic events
+        ↓
+optional human-facing alias
+        ↓
+competing hypotheses with FOR / AGAINST / UNKNOWN evidence
+        ↓
+chronological proof before any promotion
+```
+
+Nothing in this reconciliation turns a historical rule into a BUY/SELL instruction, a probability, a final band, or an execution permission.
+
+# CURRENT ARCHITECTURE RECONCILIATION — 2026-09-19 intraday formation intelligence
+
+`OrbOpeningSequenceViewV1` remains the opening-specific read-only composer. `OrbIntradayFormationViewV1` is its causal all-session extension. This memorandum supplies strategy/research interpretation only; it does not own either view or recalculate their canonical facts.
+
+Status: `PROPOSED_DOCUMENTATION_CONTRACT`.
+
+## Mechanism before pattern name
+
+Classical names such as flag, triangle, VCP, wedge, double top/bottom or head-and-shoulders remain optional human aliases. They are not raw facts and must not become independent votes merely because several labels describe the same candles.
+
+The preferred reasoning order is:
+
+```text
+candle/level facts
+→ relationships
+→ behaviour
+→ structural formation
+→ optional human alias
+```
+
+## Formation is an evolving hypothesis
+
+Use lifecycle states such as `SEED`, `DEVELOPING`, `TESTING_BOUNDARY`, `CONFIRMED`, `FAILED`, `EXPIRED`, and `AMBIGUOUS`. `NO_STABLE_FORMATION` is explicitly valid; the engine is not required to name a chart pattern.
+
+Each live interpretation must state what would strengthen/confirm it, what weakens it, what invalidates it, when it expires, and what next observable event best discriminates it from alternatives.
+
+## Parameter humility
+
+Terms such as “roughly equal”, “tight”, “rising slope”, “small retracement” or “clean breakout” are not fixed truth. Their geometry/tolerance definitions belong to versioned B7 research policies and require B8 proof before B10 freeze.
+
+## No hindsight / no fake probability
+
+Anchors, candidate windows and aliases must be reconstructible from information known at the original decision time. Historical outcomes cannot choose the match. No visual-strength score becomes a probability without later calibrated evidence.
+
+## Research-only authority
+
+Nothing in this formation vocabulary authorizes BUY/SELL, broker routing, position management, final-band setting or automatic strategy execution. D6 remains final guidance authority and human paper approval remains separate.

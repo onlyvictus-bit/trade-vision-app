@@ -1030,3 +1030,83 @@ The correct first implementation target is:
 These stages create the safe foundation for everything that follows. Timing research, combination research, playbook v2, AFRE integration and ML should build on those contracts rather than being implemented ahead of them.
 
 Therefore the ORB build is **code-ready now**, with the condition that implementation starts by verifying the exact branch head and current tests, then proceeds stage by stage without breaking the already-working ORB research/proof/guidance path.
+---
+
+# 2026-09-18 opening-sequence scope / identity reconciliation
+
+This note adds only identity, applicability and session-policy constraints required by `ORB_BUILD_CHANGE.txt`. It does not define BUILD-4 hypotheses, BUILD-5 timing winners, BUILD-7 thresholds, BUILD-8 value claims or BUILD-9 similarity implementation.
+
+## Exact session and formation anchoring
+
+`OrbOpeningSequenceViewV1` may exist only after the instrument has an exact BUILD-2 market identity and the current session can be resolved under the effective session/calendar policy. Each formation bar must retain the canonical session label/ID and session-open identity together with:
+
+- source timeframe and formation timeframe;
+- bar open/close and `available_at`;
+- source/resample/anchor policy identity;
+- source ID and source snapshot hash;
+- revision/sequence identity;
+- OR-lock relation (`PRE_OR_LOCK`, `CROSSES_OR_LOCK`, `POST_OR_LOCK`).
+
+A stock 09:15 anchor cannot be transplanted to a commodity contract whose registered session has different start/break/cross-midnight semantics. Historical reconstruction must use the same effective session, calendar, source cadence, bar anchor and resample policy that the study claims to use, with all source information knowable by the historical cutoff.
+
+## Reference-price semantics
+
+Opening-sequence level interactions consume typed BUILD-3/BUILD-2 references; they do not reinterpret them:
+
+- cash-equity session close/PDC is distinct from adjusted close;
+- futures session close is distinct from daily settlement and final settlement unless the registered market contract explicitly says otherwise;
+- PDH/PDL are bound to the exact prior completed session and price/data basis;
+- continuous-series values are not silently substituted for raw-contract values;
+- settlement unavailable remains unavailable; session close is not a fallback settlement value.
+
+A sequence fact must carry the relevant level/reference source identity so a PDH/PDL/PDC/settlement comparison can be replayed without guessing which basis was used.
+
+## Stock versus futures applicability
+
+For `NSE_EQUITY`, stock/sector/benchmark context may be applicable when its own source contract is valid. For `NSE_DERIVATIVE` or `COMMODITY_FUTURE`, contract, expiry, roll, multiplier/lot, settlement and raw-vs-continuous identity remain explicit and versioned. A futures opening sequence cannot omit its contract identity and later be compared as though ticker identity were sufficient.
+
+OI, option-chain, expiry, basis, benchmark or sector evidence is `NOT_APPLICABLE` where the instrument/venue does not support the concept; it is `UNAVAILABLE`/`UNKNOWN` where the concept applies but a valid source is missing. Neither state becomes numeric zero or affirmative evidence.
+
+Benchmark/sector applicability is market-specific. Nifty/sector semantics are not transplanted by name into commodity studies. A commodity benchmark or cross-asset context requires its own registered identity/source contract before use.
+
+## Symmetry and no-substitution law
+
+Where the market semantics are symmetric, long/short geometry must be mirror-testable: PDH upside interactions have a PDL downside counterpart and normalized price geometry is scale-invariant. This symmetry does not authorize substituting one market's session, benchmark, settlement or derivative conventions for another's.
+
+No opening-sequence composer may silently substitute:
+
+- a cash close for futures settlement;
+- a modern contract master for historical contract identity;
+- a current session calendar for a historical effective calendar;
+- an NSE stock open for a commodity session anchor;
+- a modern benchmark/sector membership for PIT historical membership;
+- missing derivatives/OI data with zero;
+- a bar from a different source/resample policy merely because timestamps appear close.
+
+These are identity/applicability failures, not weak evidence. Silent cross-market substitution is forbidden even when symbol names, clock times or normalized geometry look similar.
+
+# 2026-09-19 intraday formation scope / identity extension
+
+Status: `PROPOSED_DOCUMENTATION_CONTRACT`.
+
+`OrbIntradayFormationViewV1` extends the opening-sequence view across the session while preserving exact BUILD-2 market/session/contract identity and BUILD-3 reference semantics.
+
+## Causal time identity
+
+Every formation binds `decision_as_of`, `knowledge_cutoff`, `source_timeframe`, `formation_timeframe`, `scope`, `horizon`, `anchor`, `source_snapshot_hash`, and `formation_snapshot_hash`. Cross-session or future-known anchors are invalid.
+
+## Multi-scale identity
+
+`MICRO`, `LOCAL_SWING`, `OPENING_SEQUENCE`, `INTRADAY` and `SESSION` interpretations may coexist. Timeframes are explicit; a lower-timeframe counter-move does not silently overwrite a larger-scale state.
+
+## Anchor applicability
+
+Anchor types such as session open, OR lock, PDH/PDL/ORH/ORL interaction, canonical pivot/structure break or expansion start may be used only when their underlying event and market identity are available from a canonical owner. No contract, expiry, settlement, level or venue metadata may be guessed to manufacture an anchor.
+
+## Incomplete-bar rule
+
+An incomplete higher-timeframe candle may support only a `PROVISIONAL` zero-authority interpretation from closed lower-timeframe evidence. It cannot become a confirmed higher-timeframe formation until the required close exists.
+
+## Stock / futures and reference-basis law
+
+Formation identity must retain instrument class and the exact prior-session reference basis. Equity session close must not be silently substituted for futures settlement, and missing/unsupported references remain unavailable. Symmetric upside/downside semantics are mirror-tested where the underlying market contract permits symmetry.

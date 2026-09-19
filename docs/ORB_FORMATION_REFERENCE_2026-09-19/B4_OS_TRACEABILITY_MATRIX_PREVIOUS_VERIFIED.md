@@ -1,0 +1,59 @@
+# ORB_BUILD_CHANGE Opening-Sequence Reconciliation Matrix
+
+Evidence base:
+- Planning base: `m4-d6-orchestration-redesign@29e9e126401a512c13743871206c2ee6b22772b3`
+- Effective documentation base recommended for local reconciliation: `plan/orb-build4-d0-lock-full-plan@9ca03ef6a988e0c16a6d8260c169ba144894f87b` (one documentation-only commit above the planning base)
+- Source: `m4-d6-orb-build3-prior-session@8ba2de96c875b02defe8f3645acbf82584f830b8:ORB_BUILD_CHANGE.txt`
+- Source blob: `cde19d0859cc84a87f4672a58e218cea84401b61`
+
+Status vocabulary follows the campaign request. `ALREADY_COVERED` means the invariant already exists canonically but still needs opening-sequence binding/traceability; it does not authorize duplicate implementation.
+
+| CHANGE_ID | SOURCE_TEXT_SUMMARY | EXISTING_COVERAGE | STATUS | OWNER | BUILD_STAGE | PRIMARY TARGET | ACTION | WHY / PURPOSE | TEST / PROOF | CONFLICT / NOTES |
+|---|---|---|---|---|---|---|---|---|---|---|
+| B4-OS-001 | `OrbOpeningSequenceViewV1` is a view/composer, never an independent calculator | Calculate-once architecture and B4 world composition already exist | PARTIAL | ORB B4 context composer | B4-F | Master + B4 plan | Bind named view contract and no-calculator invariant | Prevent a second source of price/session/candle truth | B4 unit contract; duplicate-owner audit; feature-OFF parity | Old direct calculators in `orb/context.py` are compatibility/legacy, not new authority |
+| B4-OS-002 | Reuse D2/B1/B2/B3/M3.1/M3.3/D6 canonical owners | Owners exist and are implemented | PARTIAL | Cross-stage ownership map | B4-F / GLOBAL | Master + B4 plan + AFRE + cognitive | Add exact reuse map; forbid copying source truth | Make composition traceable and stop semantic drift | Source-owner wiring tests; lineage receipt audit | Older plans proposing local recomputation are partially/superseded |
+| B4-OS-003 | Protect historical `range_atr`; distinguish mean-range normalization from Wilder ATR | `snapshot_feature_kernel.py` explicitly says candle anatomy `range_atr` is mean candle range, not Wilder ATR | MISSING | M3.1 calculation semantics; B4 consumes | B4-F | Master + B4 plan + strategy/context notes | Require `normalization_basis` + `normalization_version`; distinct fields when available | Prevent silent semantic substitution | Semantic fixture; normalization identity test; x10 metamorphic test | Direct `range_atr == Wilder ATR` wording is conflicting and must be superseded, not erased |
+| B4-OS-004 | Exact formation-bar identity (TF/session/open-close/availability/anchor/resample/source/hash/revision/sequence) | D2/B2/B3 provide most primitives; no opening-sequence receipt bundles them | PARTIAL | D2/B2 identities, B4 composition | B4-F | B4 plan + scope | Define composition identity requirements without recalculating bars | Fixed-as-of replay and cross-market correctness | Identity validation; wrong-session/source/revision rejection | B4 must not invent calendar or contract identity |
+| B4-OS-005 | Every formation bar is PRE_OR_LOCK / CROSSES_OR_LOCK / POST_OR_LOCK | Core separates post-lock bars but no explicit straddle identity | MISSING | B4 composer, OR clock from canonical OR identity | B4-F | Master + B4 plan | Add phase enum/invariant | A straddling bar cannot masquerade as post-lock confirmation | Exact-boundary and straddle tests | BUILD-5 still owns timing research, not B4 |
+| B4-OS-006 | B1/B2/B3 are sequence positions, not permanently first three 3-minute candles | B5 already owns TF/N/OR timing research | PARTIAL | B5 research; B4 uses configured positions | B4-F/B5 | Master + B4 plan + strategy memo | Bind semantic distinction; demote fixed 3m examples | Preserve research freedom and avoid parameter leakage | Parameterization tests in B5; feature-off parity | Adaptive 3m/5m policy and source appendix 3m examples are research candidates |
+| B4-OS-007 | Deterministic events before human aliases | Raw-facts-first architecture exists | PARTIAL | B4 event composer | B4-F | Master + B4 plan + strategy + cognitive | Define event-first tuple contract and alias derivation order | Reason from observable facts, not labels | Event derivation tests; missing-source suppression; wick-v-close test | Legacy pattern labels remain historical interpretation |
+| B4-OS-008 | H1 continuation, H2 rejection, H3 pullback-reclaim, H4 balance/no-edge | Generic hypothesis architecture exists; names absent | MISSING | B4 hypotheses / M4 consumption | B4-F | B4 plan + M4 hypothesis | Add initial bounded competing hypothesis set | Force alternatives rather than one-way pattern voting | Hypothesis completeness and symmetry tests | Names are hypotheses, not signals or probabilities |
+| B4-OS-009 | Each hypothesis carries support/opposition/missing/expected/failure/invalidation/expiry/state | M4/B4 hypothesis receipt already has almost all fields | ALREADY_COVERED | M4 hypothesis contract, B4 producer | B4-F | Master + B4 plan + M4 hypothesis | Add opening-sequence binding only; do not duplicate generic contract | Preserve consistent reasoning shape | Existing M4 receipt tests + OS mapping test | Reuse generic M4 contract semantics |
+| B4-OS-010 | No uncalibrated probability | Master/M4 already forbid raw probability; M3.3 used_for_probability false | ALREADY_COVERED | B12 calibration boundary | B4-F/B12 | Master + B4 plan + strategy + M4 | Make OS-specific prohibition explicit | Prevent heuristic confidence masquerading as probability | Schema forbids probability in OS receipt; B12 calibration tests later | Legacy `trap_probability` is heuristic/historical, not calibrated probability |
+| B4-OS-011 | Fixed-as-of replay invariance; later bars cannot change earlier sequence hash | Generic deterministic replay exists, exact OS invariant absent | MISSING | B4 composer; B14 release lock | B4-F/B14 | Master + B4 plan + M4 hypothesis | Add fixed-as-of hash invariant and `FUTURE_DEPENDENCY_DETECTED` failure | Direct no-lookahead proof | 09:24 reconstruction test after appending later bars | Any dynamic resample using future bar boundaries would fail |
+| B4-OS-012 | PDH↔PDL symmetry, price×10 invariance, missing RVOL unknown, missing PDH no event, wick != close | Generic B14 symmetry/missingness exists | PARTIAL | B4 facts + B14 adversarial | B4-F/B14 | Master + B4 plan + scope + M4 | Add exact metamorphic cases | Catch directional/scale/missingness bugs | Mirror/metamorphic/adversarial suite | Never coerce missing volume/RVOL to zero |
+| B4-OS-013 | M3.3 first; STUMPY only after limitation; DTW only after incremental value | Canonical M3.3 analog/pattern/nine-candle systems already exist | PARTIAL | M3.3/B9 research | B9 | Master + B4 plan + research + cognitive | Bind retrieval ordering and challenger gates | Avoid redundant similarity stack/dependency bloat | M3.3 baseline benchmark; limitation receipt; B8 challenger proof | Late source appendix direct STUMPY/DTW path is RESEARCH_CANDIDATE only |
+| B4-OS-014 | Exact A0-A9 adjacent ablation ladder | B8 proof exists generically; exact ladder absent | MISSING | B8 research proof | B8 | Master + B4 plan + research | Add A0-A9 and adjacent-comparison law | Measure incremental value instead of decorative complexity | Chronological WF/OOS/holdout ablation report; multiple-testing controls | A8/A9 remain optional unless prior rung earns progression |
+| B4-OS-015 | Initial implementation additive/shadow; feature OFF preserves legacy semantics | Strangler/shadow migration exists | PARTIAL | B4-F migration / B14 lock | B4-F/B14 | Master + B4 plan + AFRE | Add explicit feature-OFF semantic parity invariant | Protect existing ORB behavior | Golden legacy parity / shadow differential test | No B0-B3 runtime edit in this campaign |
+| B4-OS-016 | Third-party adoption requires license, PIT, maintenance, runtime, incremental B8 proof | General source/dependency governance exists | PARTIAL | B9/B8 governance | B9/B8 | Master + B4 plan + research | Add all-five adoption gate | Prevent unsafe/unlicensed/noncausal dependency adoption | License receipt; causality tests; benchmark; incremental proof | STUMPY/DTW/etc not installed here |
+| B4-OS-017 | Opening-sequence authority NONE, `may_execute=false`, `may_set_final_band=false` | D6 registry and M3/B1-B3 already enforce zero authority | ALREADY_COVERED | D6 authority registry / B4 evidence | B4-F/D6 | Master + B4 plan + AFRE + M4 | Add explicit OS authority fields/invariant | Prevent authority creep | Authority registry / contract tests | FINAL_CONFLUENCE_ARBITER remains sole final-band authority |
+| B4-OS-018 | Ownership boundary B4-F→B5→B6→B7→B8→B9→B10→B11→B12→B13→B14 | Master stage map already has owners | PARTIAL | Cross-stage architecture | B4-B14 | Master + B4 plan + AFRE | Add explicit OS ownership line and prohibit stage leakage | Keep one responsibility per stage | Traceability audit; stage-contract tests | No threshold promotion before B7/B8; no probability before B12 |
+
+## Cross-file abstraction map
+
+- **Master plan:** owner + invariant + stage boundary + binding B4-OS traceability.
+- **B4 full plan:** detailed composition/view contract, D0 locks, B4-F wiring, B4-LOCK tests.
+- **Scope hardening:** instrument/session/contract/reference applicability only.
+- **AFRE future plan:** end-to-end ORB→M4/D6 integration only.
+- **Strategy memorandum:** preserve historical rules; mark aliases/thresholds as research candidates.
+- **Context Native V2:** preserve history; classify superseded duplicate-calculator and fail-open ideas.
+- **Research Engine:** variables, outcomes, A0-A9, chronology, WF/OOS/holdout, challenger proof.
+- **M4 Hypothesis Box:** immutable receipt consumption and H1-H4 reasoning, never bar recomputation.
+- **M4 Cognitive:** trajectory/sequence conceptual mapping, not a new calculator or authority.
+- **Runtime ORB/M3:** observed implementation truth, audit only in this campaign.
+- **BUILD-0 catalog/manifest:** traceability + source-lock only after docs stabilize.
+
+## Source-of-truth map frozen from repository evidence
+
+| Fact / capability | Canonical owner to reuse | B4 treatment | Duplication to avoid |
+|---|---|---|---|
+| Closed candles and snapshot identity | D2 / snapshot feature kernel | consume snapshot lineage | rebuilding candle truth from an alternate feed/window |
+| Candidate identity/provenance | BUILD-1 `candidate_intake.py` | consume immutable candidate receipt | symbol-only candidate reconstruction |
+| Venue/instrument/session/contract/calendar/data basis | BUILD-2 `market_identity/**` | consume exact identity | fixed-clock market assumptions / guessed contract metadata |
+| PDH/PDL/session close/settlement/raw prior-session facts | BUILD-3 `prior_session/**` | consume raw typed facts | recomputing prior day locally; close-as-settlement substitution |
+| Candle anatomy normalization | M3.1 `candle_anatomy.py` + `snapshot_feature_kernel.py` | preserve exact semantic basis/version | treating `range_atr` as Wilder ATR |
+| Historical analogues/pattern/nine-candle memory | M3.3 canonical memory modules | baseline retrieval first | creating a parallel similarity memory before proving limitation |
+| OR range legacy runtime | `orb/core.py` | shadow/feature-off parity reference | changing legacy OR behavior in docs campaign |
+| Legacy context calculations | `orb/context.py` | compatibility/history evidence only | making it the new B4 canonical calculator |
+| Adaptive ORB features/scenarios | `orb/adaptive/**` | research/reference evidence; many rules explicitly unverified | promoting fixed 3m/5m/ATR thresholds into B4 truth |
+| Final guidance band | D6 `FINAL_CONFLUENCE_ARBITER` | receive evidence only | any B4 final-band or execution authority |

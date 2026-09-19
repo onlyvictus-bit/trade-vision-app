@@ -2643,6 +2643,155 @@ This matrix records the concrete omissions found when the already-reconciled mas
 | current paper config | minimum evidence 30 / feedback minimum 30 | BUILD-0/13 regression fixtures | `CURRENT_REGRESSION_BASELINE` |
 | simple-flow D1 | “nine safety checks” | BUILD-0 actual-code inventory/reconcile, no invented names | `CURRENT_REGRESSION_BASELINE` / drift check |
 | strategy memo broker/margin/flatten rules | execution wording could violate new authority law | Section 51 out-of-scope/safety evidence translation | `OUT_OF_SCOPE_FOR_ORB` |
+| ORB_BUILD_CHANGE `B4-OS-001` | opening-sequence intelligence needs one named composition receipt, not another calculator | BUILD-4 `OrbOpeningSequenceViewV1`; compose canonical owners only | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-002` | D2/B1/B2/B3/M3.1/M3.3/D6 ownership must be explicit for the opening sequence | BUILD-4 consumes canonical receipts; D6 remains final authority | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-003` | historical candle-anatomy `range_atr` can be confused with Wilder ATR | BUILD-4 preserves `normalization_basis` + `normalization_version`; mean-range and canonical-Wilder-ATR facts stay distinct | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-004` | formation bars need exact timeframe/session/availability/resample/source/revision identity | BUILD-4 immutable formation-bar identity over D2/BUILD-2 source truth | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-005` | an OR-lock-straddling bar can be mistaken for clean post-lock evidence | BUILD-4 explicit `PRE_OR_LOCK/CROSSES_OR_LOCK/POST_OR_LOCK` relation | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-006` | B1/B2/B3 labels can accidentally freeze a 3-minute/three-bar research choice | BUILD-4 sequence-position semantics; BUILD-5 owns timeframe/N/OR-clock research | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-007` | human pattern aliases can hide/reverse-engineer underlying facts | BUILD-4 deterministic event tuples first; aliases are derived interpretation | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-008` | opening path needs explicit competing explanations rather than one-way pattern voting | BUILD-4 initial H1 continuation / H2 rejection / H3 pullback-reclaim / H4 balance-no-edge set | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-009` | opening-sequence hypotheses must use the full canonical hypothesis receipt shape | BUILD-4 reuses support/opposition/missing/expected/failure/invalidation/expiry/state fields | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-010` | sequence strength must not become an uncalibrated probability | BUILD-4 has no probability field; calibrated event/horizon probability remains BUILD-12-only | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-011` | ordinary replay language is too weak to prove prefix invariance | BUILD-4/B14 fixed-`as_of` sequence-hash invariance; future dependence is an explicit failure | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-012` | generic symmetry tests do not cover sequence-specific scale/missingness/level semantics | BUILD-4/B14 PDH↔PDL mirror, price×10 normalization, missing RVOL/PDH, wick-vs-close metamorphic cases | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-013` | a new similarity library could bypass existing canonical M3.3 memory | BUILD-9 order: canonical M3.3 → feature-manifest limitation proof → optional STUMPY → optional bounded DTW | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-014` | feature bundles could claim value only against the old baseline | BUILD-8 adjacent A0→A9 ablation; every rung must justify itself against the preceding rung | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-015` | additive migration needs a falsifiable legacy-preservation contract | BUILD-4/B14 feature OFF => legacy ORB semantically unchanged | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-016` | third-party pattern/similarity code needs one adoption gate | BUILD-8/9 require licence + PIT/causality + maintenance/dependency + runtime + incremental-proof receipts | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-017` | opening-sequence evidence needs explicit zero-authority semantics | BUILD-4 `authority=NONE`, `may_execute=false`, `may_set_final_band=false`; D6 unchanged | `TARGET_REQUIRED` |
+| ORB_BUILD_CHANGE `B4-OS-018` | opening-sequence scope can leak timing/state/threshold/proof/calibration work into BUILD-4 | B4-F composer+hypotheses; B5 timing; B6 state; B7 parameters; B8 proof; B9/M3.3 analogues; B10 freeze; B11 evidence; B12 calibration; B13 outcomes; B14 lock | `TARGET_REQUIRED` |
+
+## 52.1 2026-09-18 ORB_BUILD_CHANGE / OPENING-SEQUENCE RECONCILIATION
+
+This subsection binds the exact source `ORB_BUILD_CHANGE.txt` from source commit `8ba2de96c875b02defe8f3645acbf82584f830b8`, source blob `cde19d0859cc84a87f4672a58e218cea84401b61`. It is an additive architecture reconciliation, not evidence that BUILD-4 is implemented or GREEN.
+
+### Ownership and composition law
+
+`OrbOpeningSequenceViewV1` is a read-only ORB-specific **view/composer**. It may align and expose already-canonical receipts, but it may not become an independent source-of-truth calculator. It reuses D2 closed candles; BUILD-1 candidate identity/provenance; BUILD-2 market/session/contract identity; BUILD-3 PDH/PDL/PDC-or-session-close/settlement reference semantics; M3.1 candle anatomy plus price/level facts; M3.3 memory/analogue evidence; and the existing D6 final-authority boundary. Facts remain owned by their canonical producers.
+
+The current `orb/context.py` and adaptive ORB feature paths are compatibility/research evidence during migration, not permission to clone their direct ATR/CPR/gap/sequence calculations into this view. Legacy NSE behavior remains protected until a separately proven migration replaces a seam.
+
+### Normalization and formation-bar identity
+
+The historical candle-anatomy field named `range_atr` is not silently redefined. Repository truth records it as range divided by rolling mean candle range, while a canonical Wilder true-range ATR is a different basis. Any opening-sequence normalized-range fact therefore carries `normalization_basis` and `normalization_version`; when both exist, use separately named semantics such as `range_vs_mean_intraday_range` and `range_vs_canonical_wilder_atr` rather than substituting one for the other.
+
+Every formation bar consumed by the sequence view must retain at least: `source_timeframe`, `formation_timeframe`, `session_id`, `session_open`, `bar_open`, `bar_close`, `available_at`, `bar_anchor_policy`, `resample_policy`, `source_id`, `source_snapshot_hash`, and revision/sequence identity. Each also carries exactly one relation to the OR lock: `PRE_OR_LOCK`, `CROSSES_OR_LOCK`, or `POST_OR_LOCK`. A bar that crosses the lock cannot be represented as clean post-lock confirmation.
+
+`B1/B2/B3` mean sequence positions only. They do not canonically mean “the first three 3-minute candles.” BUILD-5 owns research over formation timeframe, sequence length N and OR-clock/window choices; BUILD-4 consumes the registered choice without promoting it.
+
+### Event-first sequence evidence and hypotheses
+
+Opening-sequence reasoning starts from deterministic events such as `CLOSE_ABOVE_PDH`, `NEW_SESSION_HIGH`, `LOWER_CLOSE`, `LOWER_HIGH`, and `CLOSE_INSIDE_B1_RANGE`. Human-facing aliases such as `PDH_OPENING_REJECTION_CANDIDATE` may be derived only after their source events and lineage exist. Touch, wick-through, close-beyond, acceptance and reclaim remain separate facts.
+
+The initial bounded competing set is:
+
+- `H1 BREAKOUT_ACCEPTANCE_CONTINUATION`;
+- `H2 BREAKOUT_REJECTION_FAILURE`;
+- `H3 PULLBACK_RECLAIM_CONTINUATION`;
+- `H4 OPENING_BALANCE_NO_EDGE`.
+
+Each reuses `OrbHypothesisReceiptV1` semantics for supporting evidence, opposing evidence, critical/missing evidence, expected sequence, failure sequence, invalidation, expiry and state. The opening-sequence receipt itself contains no uncalibrated probability. Any event/horizon probability remains a separately calibrated BUILD-12 concern.
+
+### Causality, symmetry and migration proof
+
+Fixed-`as_of` replay is a binding invariant. If `as_of=09:24` creates a B1/B2/B3 sequence receipt/hash `H`, appending 09:27, 09:30 or 10:00 data and reconstructing the same `as_of=09:24` must reproduce `H`; otherwise report `FUTURE_DEPENDENCY_DETECTED` and fail the feature.
+
+BUILD-14 adversarial coverage must include the PDH-upside↔PDL-downside mirror, price×10 normalized-geometry invariance, missing RVOL→`UNKNOWN` rather than zero, missing PDH→no PDH-derived event, and wick-through != close-beyond. The initial migration is additive/shadow: feature OFF must reproduce legacy ORB semantics.
+
+### Analogue and proof order
+
+Historical retrieval order is canonical M3.3 first, then an opening-sequence feature manifest and measured limitation. STUMPY is only an optional BUILD-9 challenger after that limitation is demonstrated; bounded DTW reranking is considered only after additional incremental value is demonstrated. Adoption of any third-party library requires licence compatibility, PIT/causality compatibility, dependency/maintenance review, runtime suitability, and incremental BUILD-8 evidence. This reconciliation installs or vendors nothing.
+
+BUILD-8 evaluates the adjacent ladder:
+
+`A0 existing ORB → A1 + canonical candle anatomy → A2 + level-interaction sequence → A3 + B1/B2/B3 transition facts → A4 + valid RVOL/participation → A5 + benchmark/sector/context → A6 + B6 formation state → A7 + canonical M3.3 analogues → A8 + STUMPY → A9 + DTW reranking`.
+
+Every `A[n]` must justify itself against `A[n-1]`, not merely against A0. Unsupported rungs stop progression and remain research-only.
+
+### Stage and authority boundary
+
+- **B4-F:** compose `OrbOpeningSequenceViewV1` into `OrbContextWorldV1` and bounded hypotheses.
+- **B5:** timeframe / N / OR-clock research.
+- **B6:** formation/signal state machine.
+- **B7:** thresholds and parameter research.
+- **B8:** chronological incremental/OOS proof including the ablation ladder.
+- **B9 / M3.3:** analogue research and optional challengers.
+- **B10:** freeze only proven configuration.
+- **B11:** FOR / AGAINST / UNKNOWN evidence package and dependency lineage.
+- **B12:** calibrated prediction only after proof.
+- **B13:** matured outcomes only.
+- **B14:** causal replay, symmetry/metamorphic, parity and release lock.
+
+Opening-sequence intelligence has `authority=NONE`, `may_execute=false`, `may_set_final_band=false`. `FINAL_CONFLUENCE_ARBITER` remains the sole final guidance-band authority, and human paper approval remains mandatory.
+
+## 52.2 2026-09-19 continuous intraday formation intelligence extension
+
+Status: `PROPOSED_DOCUMENTATION_CONTRACT`; not implementation proof and not GREEN.
+
+The opening-sequence contract is extended through the full intraday session by a read-only `OrbIntradayFormationViewV1`. The view composes canonical facts and state receipts at an arbitrary causal `decision_as_of`; it does not become a new D2/M3/BUILD-1/2/3 calculator, a memory owner, a predictor, a final arbiter, or an execution engine.
+
+| ID | Binding requirement | Owner / stage | Status |
+|---|---|---|---|
+| `FORM-001` | arbitrary-`as_of` result binds `decision_as_of`, `knowledge_cutoff`, source/formation hashes; future append cannot alter the earlier receipt | B4-F / B14 | `TARGET_REQUIRED` |
+| `FORM-002` | deterministic anchor known by `decision_as_of`; no completed-day/hindsight anchor selection | B4 composition over canonical events / B14 | `TARGET_REQUIRED` |
+| `FORM-003` | every formation carries source TF, formation TF, scope, horizon and anchor; multiple scales may coexist | B4-F / B6 | `TARGET_REQUIRED` |
+| `FORM-004` | lifecycle is explicit: `SEED/DEVELOPING/TESTING_BOUNDARY/CONFIRMED/FAILED/EXPIRED/AMBIGUOUS` | B6 | `TARGET_REQUIRED` |
+| `FORM-005` | each active hypothesis exposes support/opposition/unknown/expected/failure plus next discriminator, confirm, weaken, invalidate and expiry rules | B4 hypotheses / M4 | `TARGET_REQUIRED` |
+| `FORM-006` | historical analogues are prefix-safe; episode IDs are frozen before future outcomes are revealed | M3.3 / B9 / B14 | `TARGET_REQUIRED` |
+| `FORM-007` | behavioural grammar is facts → relationships → behaviour → structural formation → optional alias | B4/B6 with version registry | `TARGET_REQUIRED` |
+| `FORM-008` | formation state transitions have deterministic identity and evidence-added/removed lineage | B6 / M3.3 diary consumption | `TARGET_REQUIRED` |
+| `FORM-009` | aliases/hypotheses carry source-event and dependency-family lineage so correlated descendants are not independent votes | B11 / D6 consumption | `TARGET_REQUIRED` |
+| `FORM-010` | geometry/tolerance policy is versioned; B7 owns parameters, B8 proves them, B10 freezes only proven settings | B7/B8/B10 | `TARGET_REQUIRED` |
+
+### Formation-view identity and causal law
+
+At minimum:
+
+```text
+instrument/session/contract identity
+decision_as_of
+knowledge_cutoff
+source_timeframe
+formation_timeframe
+scope
+horizon
+anchor identity
+grammar_version
+parameter_version
+source_snapshot_hash
+formation_snapshot_hash
+composition_version
+availability
+```
+
+The hard causal relation is `information_used_at <= knowledge_cutoff <= decision_as_of`. Appending post-`decision_as_of` candles may not change an earlier anchor, candidate set, alias set, parameter/grammar version, formation hash or hypothesis evidence.
+
+### No forced-pattern law
+
+`NO_STABLE_FORMATION` / `UNRESOLVED` is a legal outcome. `AMBIGUOUS` is a legal lifecycle state. Missing volume/context remains unknown/unavailable. The engine must not invent a named formation merely to satisfy a caller.
+
+Incomplete higher-timeframe bars may support a zero-authority `PROVISIONAL` interpretation from closed sub-bars, but cannot create a `CONFIRMED` higher-timeframe formation before the required close.
+
+### Behavioural grammar and de-duplication
+
+Primary evidence is canonical candle/level/context fact lineage. Human aliases (`FLAG`, `TRIANGLE`, `VCP`, etc.) are optional derived descriptions. Multiple labels derived from the same candles/events remain one dependency family for confluence purposes. `correlated evidence != independent evidence` remains binding.
+
+### Stage boundary
+
+- **B4-F:** compose opening/intraday views and bounded hypotheses; no new raw calculations.
+- **B5:** timing, timeframe, N and OR-window research.
+- **B6:** formation lifecycle and transition state.
+- **B7:** geometry/tolerance/search parameter policies.
+- **B8:** chronological incremental proof and pattern-fishing controls.
+- **B9/M3.3:** prefix-safe analogues; external similarity challengers only after a measured M3.3 limitation.
+- **B10:** freeze only proven configuration.
+- **B11:** dependency-aware FOR/AGAINST/UNKNOWN evidence package.
+- **B12:** calibrated probabilities only after separate proof.
+- **B13:** matured outcomes.
+- **B14:** future-append, hindsight-anchor, analogue-outcome, time-scale, alias-independence, incomplete-candle, pattern-search-leakage, missingness and no-stable-formation attacks.
+
+Authority remains `NONE`; `may_execute=false`; `may_set_final_band=false`; D6 `FINAL_CONFLUENCE_ARBITER` remains unchanged.
 
 ---
 

@@ -1569,3 +1569,123 @@ BOUNDED HIGH-INTELLIGENCE MARKET DELIBERATION
 ```
 
 This file is the formal engineering plan for the future code build. Implementation must proceed stage-by-stage, with repository truth, tests, replay, authority and exact-head verification deciding whether each stage can lock.
+---
+
+# 2026-09-18 integration note — `OrbOpeningSequenceViewV1`
+
+M4 consumes opening-sequence intelligence as an **immutable evidence receipt**. It does not resample bars, rebuild PDH/PDL/PDC, recalculate candle anatomy, select formation timeframe, infer OR-lock identity or re-run an ORB sequence calculator.
+
+## Input contract
+
+The accepted input is a validated `OrbOpeningSequenceViewV1` rooted in the same causal snapshot/session/policy identity as the hypothesis evaluation. At minimum M4 checks:
+
+- source snapshot / decision `as_of` identity;
+- session / contract identity;
+- formation-policy and OR-lock identity;
+- output hash and composition version;
+- availability / missing evidence;
+- source/dependency lineage;
+- zero-authority fields.
+
+A mismatched or future receipt is rejected/degraded rather than recomputed locally.
+
+## Initial hypothesis mapping
+
+Opening-sequence evidence may support, oppose or leave unknown the initial bounded set:
+
+```text
+H1 BREAKOUT_ACCEPTANCE_CONTINUATION
+H2 BREAKOUT_REJECTION_FAILURE
+H3 PULLBACK_RECLAIM_CONTINUATION
+H4 OPENING_BALANCE_NO_EDGE
+```
+
+For each, M4 preserves the existing hypothesis architecture:
+
+- supporting evidence;
+- opposing evidence;
+- unknown/critical missing evidence;
+- anti-thesis / alternatives;
+- expected sequence;
+- failure sequence;
+- invalidation;
+- expiry;
+- state transitions;
+- OOD / insufficient-support handling;
+- correlation/dependency lineage.
+
+Sequence events are evidence, not votes. Correlated descendants of the same candle/level/volume source do not multiply independent evidence count merely because they have separate labels.
+
+## Deterministic replay
+
+Binding invariant:
+
+```text
+same canonical source snapshot
++ same decision as_of / knowledge cutoff
++ same formation and OR-lock policies
++ same opening-sequence composition version
+        ↓
+same OrbOpeningSequenceViewV1 receipt/hash
+        ↓
+same opening-sequence-derived M4 hypothesis evidence
+```
+
+Appending later bars and reconstructing the earlier `as_of` must not change the receipt or downstream evidence. If it does, the path is rejected as future-dependent.
+
+PDH/PDL upside/downside cases are mirror-tested where semantics are symmetric; missing RVOL remains unknown; absent PDH emits no PDH-derived event; wick-through remains distinct from close-beyond.
+
+## Probability and authority boundary
+
+No raw probability is added to M4 because an opening sequence “looks strong”. Probability remains absent/uncalibrated until a separately proven BUILD-12 event/horizon model exists. Opening-sequence evidence may not set the final guidance band and may not execute. D6 remains final authority.
+
+# 2026-09-19 M4 integration note — continuous intraday formation hypotheses
+
+This dated integration note extends the earlier `# 32. Final implementation target`; it does not erase that historical section. Where the older final-target wording is less specific, this dated causal-formation contract governs the ORB formation seam.
+
+Status: `PROPOSED_DOCUMENTATION_CONTRACT`.
+
+M4 may consume a validated `OrbIntradayFormationViewV1`; it does not choose hindsight anchors, recalculate formations from raw bars, repair missing facts locally, or convert aliases into extra votes.
+
+## Required formation-hypothesis fields
+
+For each active hypothesis M4 expects:
+
+```text
+hypothesis_id
+scope
+horizon
+anchor
+state
+support[]
+opposition[]
+unknown[]
+expected_sequence[]
+failure_sequence[]
+next_discriminating_observation
+confirmation_condition
+weakening_condition
+invalidation_condition
+expiry_condition
+source_event_ids[]
+dependency_family
+derived_from[]
+```
+
+`NO_STABLE_FORMATION`, `AMBIGUOUS`, `FAILED` and `EXPIRED` are valid inputs, not errors requiring a forced directional replacement.
+
+## Multi-scale reasoning
+
+M4 preserves source/formation timeframe, scope and horizon. Different valid scales may coexist; a micro pullback does not automatically cancel a session trend. Any contradiction must be about the same semantic claim, scale and horizon.
+
+## Dependency-aware confluence
+
+Aliases and formations derived from one underlying price sequence share a dependency family. M4/B11 may describe all of them but may not count them as independent corroboration.
+
+## Replay / provisional guard
+
+Same canonical source snapshot + same `decision_as_of`/knowledge cutoff + same grammar/parameter/anchor policies must yield the same formation receipt and M4 evidence after later bars are appended. Incomplete higher-timeframe formations may be `PROVISIONAL` only and carry no confirmation authority.
+
+## Probability / authority
+
+No raw formation score is a probability. No formation hypothesis may set the final guidance band or execute. D6 remains final authority.

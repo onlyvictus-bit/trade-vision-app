@@ -2752,3 +2752,109 @@ the previous completed DAILY high/low before any trade parameter is chosen:
 Layers A and B obey all Section 42 invariants: D2/PIT causality, missing stays
 missing, deterministic replay, zero live-trading authority, human approval
 required.
+
+---
+
+# 2026-09-18 current-architecture note — opening-sequence evidence
+
+This note reconciles the older future-plan narrative with the current B0→B14 master. Existing historical stage descriptions and research thresholds above remain visible as provenance; where stage ownership differs, the current master and its BUILD-0 requirement manifest govern.
+
+## Placement in the current ORB → AFRE / M4 / D6 flow
+
+Opening-sequence intelligence is not a separate trading brain. Its current-architecture placement is:
+
+```text
+D2 closed-candle snapshot
++ BUILD-1 candidate identity
++ BUILD-2 instrument/session/contract identity
++ BUILD-3 prior-session references
++ M3.1 canonical price/candle/level facts
++ M3.3 canonical memory receipts where available
+        ↓
+BUILD-4-F OrbOpeningSequenceViewV1
+(read-only composition view; deterministic events first)
+        ↓
+OrbContextWorldV1 + bounded competing hypotheses
+        ↓
+BUILD-5 timing research / BUILD-6 formation state / BUILD-7 parameter research
+        ↓
+BUILD-8 chronological incremental proof
+        ↓
+BUILD-9/M3.3 analogue research, if needed
+        ↓
+BUILD-10 proven configuration freeze
+        ↓
+BUILD-11 FOR + AGAINST + UNKNOWN evidence package
+        ↓
+AFRE / M4 scenario and counterfactual reasoning
+        ↓
+D6 FINAL_CONFLUENCE_ARBITER
+```
+
+`OrbOpeningSequenceViewV1` composes facts; it does not recalculate M3.1, rebuild BUILD-3 levels, infer a new market session or run an independent final decision.
+
+## Stage ownership guard
+
+- BUILD-4-F owns the sequence composition view and contextual hypotheses only.
+- BUILD-5 owns formation timeframe, N and OR-clock/window research.
+- BUILD-6 owns the formation/signal state machine.
+- BUILD-7 owns threshold and parameter research.
+- BUILD-8 owns incremental chronological OOS/WF/holdout proof, including adjacent ablations.
+- BUILD-9/M3.3 owns analogue research; canonical M3.3 is the first retrieval baseline before optional challengers.
+- BUILD-10 freezes only proven configuration.
+- BUILD-11 packages structured FOR/AGAINST/UNKNOWN evidence with dependencies.
+- BUILD-12 is the first place a calibrated event/horizon probability may appear, and only after proof.
+- BUILD-13 consumes matured outcomes only.
+- BUILD-14 owns adversarial causality, fixed-as-of replay, symmetry/metamorphic and release lock.
+
+Historical fixed B1/B2/B3 timeframes, thresholds, trap scores or pattern names in this document remain research candidates unless later BUILD-5/7/8 proof binds them into a versioned playbook. They are not canonical merely because they were proposed here.
+
+## Authority
+
+Opening-sequence evidence has `authority=NONE`, `may_execute=false`, `may_set_final_band=false`. It may strengthen, weaken, contradict or leave unknown a market hypothesis, but it cannot emit a final band or execution instruction. D6 remains the sole final guidance-band authority; human paper approval remains separate and mandatory.
+
+# 2026-09-19 current-architecture note — continuous intraday formation evidence
+
+Status: `PROPOSED_DOCUMENTATION_CONTRACT`.
+
+## Placement in ORB → M4 / AFRE → D6
+
+```text
+canonical facts / context / identities
+        ↓
+OrbOpeningSequenceViewV1
+        +
+OrbIntradayFormationViewV1
+        ↓
+B6 lifecycle + competing hypotheses
+        ↓
+M3.3 prefix-safe analogue evidence
+        ↓
+B11 dependency-aware FOR / AGAINST / UNKNOWN
+        ↓
+M4 / AFRE
+        ↓
+D6 FINAL_CONFLUENCE_ARBITER
+```
+
+The intraday view contributes causal sequence evidence throughout the session; it does not become another final-decision layer.
+
+## Reasoning contract
+
+M4/AFRE may consume:
+
+- explicit formation scale/scope/horizon/anchor;
+- lifecycle state including ambiguity/failure/expiry;
+- support/opposition/unknown evidence;
+- next discriminator plus confirm/weaken/invalidate/expiry conditions;
+- transition history;
+- prefix-safe analogue evidence;
+- dependency-family lineage.
+
+It must not turn several aliases derived from one price sequence into several independent votes.
+
+## Causal and authority guard
+
+Future append may not alter an earlier fixed-`as_of` formation receipt or downstream evidence. `NO_STABLE_FORMATION` is a valid input state. `PROVISIONAL` incomplete-bar interpretations have zero authority.
+
+The intraday formation layer has `authority=NONE`, `may_execute=false`, `may_set_final_band=false`; D6 remains the sole final guidance-band authority.

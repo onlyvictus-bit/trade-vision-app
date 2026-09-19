@@ -2317,3 +2317,126 @@ TRUTHFUL DATA
 
 This section is a research/design source. It does not claim these enhancements are implemented or GREEN/LOCKED until code, tests, adversarial replay and exact-head CI prove them.
 
+
+---
+
+# 2026-09-18 cognitive mapping — ORB opening-sequence composition
+
+The existing Pattern Sequence Intelligence concepts in this reference remain valid at the conceptual level. `OrbOpeningSequenceViewV1` is the ORB-specific composition seam that makes those concepts auditable without creating another M3 calculator or another decision authority.
+
+## Current evidence flow
+
+```text
+M3.1 canonical price / candle / level facts
++
+M3.2 canonical context where available
++
+M3.3 canonical memory / analogue evidence
++
+BUILD-1/2/3 ORB candidate + session/contract + prior-session identity
+        ↓
+OrbOpeningSequenceViewV1
+(deterministic events + exact formation/OR-lock identity)
+        ↓
+structured sequence evidence
+        ↓
+competing market hypotheses
+        ↓
+FOR / AGAINST / UNKNOWN + expected/failure paths
+        ↓
+D6 final guidance authority
+```
+
+The view does not own the underlying facts. It composes a trajectory-specific ORB receipt rooted in canonical hashes and availability states.
+
+## Sequence intelligence means trajectory recognition
+
+For ORB, useful sequence cognition is not “this picture resembles a candlestick pattern.” It is the ordered evolution of facts such as:
+
+- **trajectory recognition:** displacement, stall, reversal, reclaim and continuation through time;
+- **level-interaction sequence:** approach → touch/wick → close-beyond → acceptance/failure → reclaim;
+- **volume/participation sequence:** only when valid volume/RVOL evidence is available; missing remains unknown;
+- **structure-transition sequence:** higher/lower closes/highs/lows, compression→expansion, balance→escape;
+- **failure-transition sequence:** breakout attempt → no follow-through → re-entry → opposite-side pressure.
+
+Human aliases may summarize these trajectories only after deterministic events exist. They are not the primary evidence representation.
+
+## Identity, replay and symmetry
+
+The cognitive layer must be able to state which source timeframe, formation timeframe, session, bar anchor/resample policy, revision sequence and OR-lock relation produced every sequence claim. B1/B2/B3 are ordinal positions, not permanent 3-minute candles.
+
+A fixed `as_of` must reconstruct the same sequence receipt after later data is appended. PDH-upside and PDL-downside cases require mirror testing where semantics are symmetric, and normalized geometry must remain stable under price scaling.
+
+## Memory-first analogue discipline
+
+Canonical M3.3 is the first historical retrieval system. Opening-sequence feature manifests extend what M3.3 may compare; they do not justify bypassing it. STUMPY and bounded DTW remain optional BUILD-9 challengers only after a measured canonical limitation and subsequent incremental proof.
+
+## Cognitive and authority boundary
+
+`OrbOpeningSequenceViewV1` is neither:
+
+- an M3 source-of-truth calculator;
+- a timing optimizer;
+- a formation state machine;
+- a threshold selector;
+- a calibrated predictor;
+- a final arbiter;
+- an execution engine.
+
+Its purpose is to let higher reasoning consume an evolving, provenance-bound market path rather than a static pattern picture. It has `authority=NONE`, `may_execute=false`, `may_set_final_band=false`; D6 remains the sole final guidance-band authority.
+
+# 2026-09-19 cognitive mapping — continuous causal formation reasoning
+
+This dated mapping extends the earlier `## 31.31 Final merged design principle`; it preserves the historical text while adding the current ORB formation seam and causal safeguards.
+
+Status: `PROPOSED_DOCUMENTATION_CONTRACT`.
+
+The cognitive objective is not to name a completed chart after seeing its right-hand side. It is to maintain a causal story of what is currently forming, what alternatives remain viable, and what observation would discriminate them next.
+
+## Continuous reasoning flow
+
+```text
+canonical facts / identities / context
+        ↓
+deterministic event grammar
+        ↓
+OrbIntradayFormationViewV1
+        ↓
+multi-scale state + optional aliases
+        ↓
+competing hypotheses
+  support / opposition / unknown
+  expected / failure paths
+  next discriminator
+  confirm / weaken / invalidate / expire
+        ↓
+formation transition diary
+        ↓
+M3.3 prefix-safe analogues
+        ↓
+B11 dependency-aware evidence
+        ↓
+M4 / AFRE
+        ↓
+D6
+```
+
+## Formation intelligence is stateful, not pictorial
+
+A useful cognitive record includes how an interpretation moved from `SEED` to `DEVELOPING`, perhaps to `TESTING_BOUNDARY`, `CONFIRMED`, `FAILED`, `EXPIRED`, or `AMBIGUOUS`, together with the evidence added/removed at each transition.
+
+## Multi-scale coexistence
+
+The engine can hold different valid interpretations on MICRO, LOCAL_SWING, OPENING_SEQUENCE, INTRADAY and SESSION scopes. Conflict is assessed only after scale/horizon identity is aligned.
+
+## Behaviour before alias
+
+Human aliases are optional summaries layered after facts → relationships → behaviour → structure. When no stable structure exists, `NO_STABLE_FORMATION` is the correct cognitive answer.
+
+## Causality and memory
+
+Anchors must have been known at the original decision time. M3.3 analogue retrieval freezes episode identity before future outcomes are exposed. Later bars/outcomes cannot revise what the engine claims it knew earlier.
+
+## Anti-double-counting and authority
+
+Every interpretation retains source-event/dependency lineage. Correlated aliases remain correlated evidence. The formation cognition layer has no execution or final-band authority; D6 remains the sole final guidance-band authority.

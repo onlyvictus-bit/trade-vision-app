@@ -790,3 +790,194 @@ NOT: auto live trading from the winner.
 
 **Path:** `trade-vision-app/docs/plans/ORB_RESEARCH_ENGINE_PLAN.md`  
 **AI reference section for flows/influence:** **§0.8**  
+
+---
+
+# CURRENT ARCHITECTURE RESEARCH ADDENDUM — opening-sequence intelligence (2026-09-18)
+
+The original research-engine plan remains historical methodology/provenance. The current master owns stage boundaries and canonical calculation ownership. This addendum defines how opening-sequence intelligence is researched **without creating a second production calculator stack**.
+
+## Research question
+
+The primary falsifiable question is:
+
+> Does opening-sequence information such as B1→B2→B3 transitions and level interaction add incremental unseen-data value beyond facts the existing ORB already knows?
+
+A prettier representation, better narrative or in-sample separation is not sufficient.
+
+## Registered research variables
+
+Variables are versioned and sourced from canonical receipts where possible:
+
+- formation timeframe;
+- sequence length `N`;
+- OR duration / lock policy;
+- each bar's `PRE_OR_LOCK/CROSSES_OR_LOCK/POST_OR_LOCK` relation;
+- deterministic sequence-transition events;
+- PDH/PDL/PDC/settlement and canonical level interactions;
+- candle anatomy with explicit normalization basis/version;
+- valid participation/RVOL/volume facts with explicit missingness;
+- benchmark / sector / relative-strength context where applicable;
+- BUILD-6 formation state only after BUILD-6 exists;
+- M3.3 analogue/pattern evidence after the deterministic sequence manifest is frozen.
+
+BUILD-5 owns timeframe/N/OR-window search. BUILD-7 owns thresholds. The research engine does not smuggle those choices into BUILD-4 implementation constants.
+
+## Outcome labels
+
+Outcome construction must be causal, deterministic and matured before use. Candidate outcomes include:
+
+- touch PDH/PDL within registered N bars/time;
+- close beyond a referenced level;
+- re-entry/reclaim after a close beyond;
+- new session high/low before the opposite boundary;
+- `+1R` versus `-1R` ordering under a separately registered execution-free outcome geometry;
+- MFE and MAE;
+- time-to-level;
+- time-to-new-session-high/low;
+- failure time;
+- reclaim time.
+
+Every label records event time, availability/maturity time, source snapshots, reference-price identity, session/contract identity and label version. Outcomes unavailable at the study cutoff remain unknown; they are not dropped into the winning class.
+
+## Mandatory adjacent ablation ladder
+
+Register exactly:
+
+```text
+A0 existing ORB
+A1 + canonical candle anatomy
+A2 + level-interaction sequence
+A3 + B1/B2/B3 transition facts
+A4 + valid RVOL/participation
+A5 + benchmark/sector/context
+A6 + B6 formation state
+A7 + canonical M3.3 analogues
+A8 + STUMPY
+A9 + DTW reranking
+```
+
+Each `A[n]` must justify itself against `A[n-1]` under equivalent samples, chronology, costs and decision times. A8 is not run merely because STUMPY exists; A9 is not run merely because DTW is expressive. Unsupported rungs stop progression.
+
+## Proof protocol
+
+At minimum, every serious opening-sequence study records:
+
+- chronological development/train period;
+- expanding/rolling walk-forward folds;
+- untouched final holdout sealed before selection;
+- all searched feature sets, thresholds and parameter variants;
+- multiple-testing / repeated-consultation controls;
+- independent session/episode counts distinct from raw row counts;
+- regime slices;
+- symbol/instrument slices;
+- stock-versus-futures applicability slices;
+- realistic cost/slippage assumptions where the outcome requires them;
+- latency/availability assumptions;
+- sample counts and missing/unknown counts;
+- uncertainty / confidence intervals appropriate to the statistic;
+- failure rate, OOD rate and abstention rate;
+- comparison to the immediately preceding ablation rung;
+- code/data/feature-manifest/source hashes.
+
+Train/test rows from one market session are not treated as independent merely because there are multiple candles or labels. Future constituents, future liquidity, future corporate actions, future contract masters or reconstructed winners are forbidden.
+
+## M3.3 first, external similarity challengers later
+
+Historical retrieval order is:
+
+```text
+canonical M3.3 baseline
+        ↓
+freeze opening-sequence feature manifest
+        ↓
+measure a concrete retrieval/representation limitation
+        ↓
+optional STUMPY challenger
+        ↓
+only if incremental value remains: bounded DTW reranker
+```
+
+STUMPY/DTW are not production dependencies in this campaign. Any later adoption requires licence compatibility, PIT/causality compatibility, dependency/maintenance review, runtime suitability and incremental BUILD-8 proof. Reference-only libraries with uncertain licences remain reference-only.
+
+## Research/runtime boundary
+
+The older `research/orb/*` ideas are retained as historical design context, not a mandate to duplicate D2/B1/B2/B3/M3 calculations. Current experiments should call/replay canonical owners or frozen research extracts carrying equivalent identity and provenance. Research may produce a challenger configuration; it cannot mutate the live/shadow policy, final band or execution authority automatically.
+
+A BUILD-8 success claim means only that a registered incremental study passed its declared evidence gate. It does not make B4 code green, does not prove future profitability and does not authorize trading.
+
+# CURRENT ARCHITECTURE RESEARCH ADDENDUM — continuous intraday formation intelligence (2026-09-19)
+
+`OrbOpeningSequenceViewV1` remains the opening-specific composer; `OrbIntradayFormationViewV1` is the continuous causal view under research. Neither is reimplemented here.
+
+Status: `PROPOSED_RESEARCH_CONTRACT`; no claim of measured edge.
+
+## Research target
+
+Test whether causal formation-state, transition, discriminator and dependency-lineage features add incremental explanatory/predictive value over the already registered ORB baselines without using future information or post-hoc pattern fishing.
+
+Research features must be derived from registered `OrbIntradayFormationViewV1`, B6 lifecycle/state, canonical M3.1/M3.2 facts, and M3.3 prefix-safe memory receipts. The research engine must not create a parallel raw-bar calculator or second formation truth owner.
+
+## Frozen research identities
+
+Before holdout consultation, register at minimum:
+
+```text
+formation_feature_manifest_version
+grammar_version
+anchor_policy_version
+candidate_formation_families
+parameter_search_space
+source_timeframe_set
+formation_timeframe_set
+scope/horizon set
+train period
+walk-forward periods
+untouched holdout
+outcome specification
+```
+
+## Prefix-safe analogue rule
+
+Historical candidate retrieval uses only historical prefixes available at the equivalent cutoff. Freeze episode IDs/rank/retrieval version before revealing matured outcomes. Outcome fields may not participate in retrieval, feature construction, anchor choice, tie-breaks or hyperparameter selection.
+
+## Formation research variables
+
+Candidate variables may include versioned, source-backed representations of:
+
+- lifecycle state and duration;
+- transition counts/sequence;
+- anchor-relative displacement;
+- compression/expansion behaviour;
+- boundary tests and rejections;
+- next-discriminator state;
+- dependency-family counts;
+- multi-scale agreement/conflict descriptors;
+- explicit missingness/availability.
+
+These are research candidates until the owner/stage contract and feature lineage are frozen. Human aliases alone are insufficient features unless their deterministic underlying grammar is retained.
+
+## Pattern-fishing controls
+
+The study log records every searched anchor, window, timeframe, grammar family, tolerance policy, threshold and normalization. New variants discovered after holdout inspection require a new sealed holdout or later prospective sample; they may not be reported as untouched confirmation.
+
+## Adjacent proof ladder remains
+
+Keep A0→A9 adjacency. `A6 + formation state` must earn its step over A5. `A7 + M3.3 prefix analogues` must earn its step over A6. STUMPY (A8) and bounded DTW reranking (A9) remain optional challengers only after the preceding system demonstrates a concrete limitation and after dependency/licence/runtime/PIT review.
+
+## Required adversarial research checks
+
+At minimum:
+
+1. future-append invariance;
+2. hindsight-anchor attack;
+3. historical-analogue outcome attack;
+4. multi-timeframe coexistence;
+5. alias-independence/dependency-family attack;
+6. incomplete-candle cannot confirm;
+7. pattern-search leakage;
+8. `NO_STABLE_FORMATION` abstention case;
+9. missingness preservation;
+10. feature-OFF legacy parity.
+
+A statistically interesting study result does not authorize B10 freeze, B12 probability, final guidance, or trading.

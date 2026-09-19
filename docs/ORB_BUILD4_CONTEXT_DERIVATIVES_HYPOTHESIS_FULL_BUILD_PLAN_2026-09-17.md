@@ -2077,3 +2077,568 @@ Therefore BUILD-4 abstains from stronger interpretation.
 ```
 
 That is the BUILD-4 standard.
+
+---
+
+# 64. 2026-09-18 ORB_BUILD_CHANGE opening-sequence binding reconciliation
+
+This section is a binding companion to the existing BUILD-4 plan. It reconciles `ORB_BUILD_CHANGE.txt` from commit `8ba2de96c875b02defe8f3645acbf82584f830b8`, blob `cde19d0859cc84a87f4672a58e218cea84401b61`, without changing the BUILD-4 boundary in Sections 55–63 above.
+
+The opening-sequence capability is **not implemented by this documentation change**. It remains a future additive/shadow BUILD-4-F component and has no execution or final-band authority.
+
+## 64.1 Binding companion/source set
+
+BUILD-4 D0 must record, hash and reconcile at least:
+
+- the canonical master `docs/ORB_STAGE_BY_STAGE_ADVANCED_REASONING_BUILD_PLAN.md`;
+- this detailed BUILD-4 plan;
+- the exact `ORB_BUILD_CHANGE.txt` source blob above;
+- the protected B0–B3 baseline/source-lock receipts;
+- any separately approved B00 baseline or opening-sequence addendum if one is later created.
+
+A companion source is not automatically a BUILD-0 canonical source. BUILD-0 registration remains a deliberate source-role decision after content audit and source-lock reconciliation.
+
+## 64.2 B4-D0 opening-sequence locks
+
+Before B4-F implementation, B4-D0 must add an `OPENING_SEQUENCE_REQUIREMENT_MAP` covering `B4-OS-001` through `B4-OS-018` and freeze these facts:
+
+1. **Input inventory.** Enumerate every proposed sequence input and its exact canonical owner, source receipt, availability semantics and version.
+2. **Duplicate-calculation audit.** Search D2, B1, B2, B3, M3.1, M3.3, `orb/context.py`, `orb/core.py` and `orb/adaptive/**`; mark each proposed calculation `REUSE_CANONICAL`, `COMPATIBILITY_ONLY`, `RESEARCH_CANDIDATE`, or `MISSING_OWNER`.
+3. **Protected baseline.** Freeze the B0/B1/B2/B3 and legacy-ORB regression set before any B4-F code.
+4. **Bar identity policy.** Freeze source/formation timeframe, session anchor, availability time, resample/anchor policy and revision/sequence semantics. B4 may not infer them.
+5. **OR-lock policy.** Freeze `PRE_OR_LOCK`, `CROSSES_OR_LOCK`, `POST_OR_LOCK`; a crossing bar cannot be promoted to pure post-lock evidence.
+6. **Normalization semantics.** Freeze every normalized range field by calculation ID, basis and version. Historical candle-anatomy `range_atr` remains mean-candle-range normalization and is not renamed into Wilder ATR.
+7. **Third-party disposition.** M3.3 remains first. STUMPY/DTW and other libraries remain optional challengers only; no install/vendor action occurs in B4-D0.
+8. **Authority lock.** `authority=NONE`, `may_execute=false`, `may_set_final_band=false`.
+
+D0 stops if a proposed sequence field requires changing a B0–B3 owner, duplicating a canonical M3 calculation, guessing session/contract identity, weakening a protected test, or inventing a probability.
+
+## 64.3 Contract-family addition: `OrbOpeningSequenceViewV1`
+
+`OrbOpeningSequenceViewV1` is a frozen, deterministic **composition view** over canonical receipts. It is not an independent calculator, pattern engine, timing optimizer, state machine, playbook, predictor, or authority.
+
+Conceptual minimum contract:
+
+```text
+OrbOpeningSequenceViewV1
+  schema_version
+  calculation/composition_version
+  candidate_identity_ref              # BUILD-1
+  market_identity_ref                 # BUILD-2
+  prior_session_ref                   # BUILD-3
+  d2_snapshot_hash
+  decision_as_of / knowledge_cutoff
+  session_id / session_open
+  or_lock_identity / or_lock_time
+  formation_policy_ref
+  bars[]                               # immutable aligned bar receipts
+  events[]                             # deterministic observed/derived events
+  aliases[]                            # optional interpretation, lineage-bound
+  level_interactions[]
+  participation_facts[]
+  missing_evidence[]
+  dependency_ids[]
+  source_snapshot_hashes[]
+  output_hash
+  availability
+  authority = NONE
+  may_set_final_band = false
+  may_execute = false
+```
+
+Supporting enums/contracts should be introduced only when they own a unique invariant. Do not manufacture a large parallel type hierarchy merely to mirror existing D2/B1/B2/B3/M3 contracts.
+
+### Formation-bar identity
+
+Each consumed formation bar must preserve:
+
+```text
+source_timeframe
+formation_timeframe
+session_id
+session_open
+bar_open
+bar_close
+available_at
+bar_anchor_policy
+resample_policy
+source_id
+source_snapshot_hash
+revision_id_or_sequence_identity
+or_lock_relation = PRE_OR_LOCK | CROSSES_OR_LOCK | POST_OR_LOCK
+```
+
+The receipt rejects mixed session identity, future `available_at`, inconsistent source snapshots, ambiguous resampling, duplicate/reordered sequence identities, or a claimed `POST_OR_LOCK` bar whose interval crosses the lock.
+
+### Normalized range semantics
+
+Do not emit a bare ambiguous “ATR-normalized range” field. Every normalized range carries:
+
+```text
+normalization_basis
+normalization_version
+source_calculation_id
+```
+
+When present, the preferred distinct semantics are:
+
+```text
+range_vs_mean_intraday_range
+range_vs_canonical_wilder_atr
+```
+
+The first may reuse the historical M3.1 candle-anatomy mean-range basis. The second is emitted only if an independently canonical Wilder-ATR owner/receipt is available. They are never substituted for each other.
+
+## 64.4 Sequence positions, deterministic events and aliases
+
+`B1`, `B2`, `B3` are **ordinal sequence positions**, not permanent names for the first three 3-minute candles. BUILD-5 owns research over formation timeframe, N and OR duration/lock policy. B4-F consumes a registered formation policy and never promotes one timing choice by implementation convenience.
+
+Sequence representation is event-first. Examples of deterministic event facts include:
+
+```text
+CLOSE_ABOVE_PDH
+CLOSE_BELOW_PDL
+NEW_SESSION_HIGH
+NEW_SESSION_LOW
+LOWER_CLOSE
+HIGHER_CLOSE
+LOWER_HIGH
+HIGHER_LOW
+CLOSE_INSIDE_B1_RANGE
+WICK_THROUGH_PDH
+WICK_THROUGH_PDL
+```
+
+Only after source events exist may an interpretation alias such as `PDH_OPENING_REJECTION_CANDIDATE` be derived. Aliases carry the source event IDs and cannot reverse-engineer or overwrite facts. Touch, wick-through, close-beyond, acceptance, reclaim and failure remain separate semantics.
+
+## 64.5 Initial opening-sequence hypotheses
+
+B4-F initially maps opening-sequence evidence into four bounded competing hypotheses:
+
+```text
+H1 BREAKOUT_ACCEPTANCE_CONTINUATION
+H2 BREAKOUT_REJECTION_FAILURE
+H3 PULLBACK_RECLAIM_CONTINUATION
+H4 OPENING_BALANCE_NO_EDGE
+```
+
+Each is represented through the existing `OrbHypothesisReceiptV1` shape and must contain, where applicable:
+
+- supporting evidence;
+- opposing evidence;
+- missing/critical evidence;
+- expected sequence;
+- failure sequence;
+- invalidation;
+- expiry;
+- state;
+- dependencies/correlation lineage;
+- OOD/insufficient-evidence handling.
+
+No opening-sequence contract contains an uncalibrated probability. A future calibrated event/horizon probability remains BUILD-12-only and cannot bypass B4 missingness/blockers.
+
+## 64.6 B4-F composition seam
+
+Candidate future package seam:
+
+```text
+apps/api/app/orb/context_intelligence/
+    __init__.py
+    contracts.py
+    sources.py
+    futures.py
+    option_chain.py
+    volatility.py
+    advanced.py
+    world.py
+    hypotheses.py
+    opening_sequence.py
+```
+
+`opening_sequence.py` is a **composer/validator**, not a new raw-price or indicator calculator. B4-F composes its immutable receipt into `OrbContextWorldV1`; the hypothesis layer consumes that receipt and emits bounded hypotheses. M4 may later consume the receipt/hypothesis evidence but must not rebuild the sequence.
+
+Feature OFF is a binding migration invariant: the legacy ORB path and outputs remain semantically unchanged. No B0/B1/B2/B3 runtime module is edited merely to make B4-F easier.
+
+## 64.7 Fixed-`as_of` replay and causal invariance
+
+Required adversarial test:
+
+```text
+construct at as_of = 09:24
+  B1/B2/B3 + events + receipt hash = H
+append later source data:
+  09:27
+  09:30
+  10:00
+reconstruct at as_of = 09:24 under identical policies
+required:
+  receipt hash == H
+otherwise:
+  FUTURE_DEPENDENCY_DETECTED
+```
+
+The test must exercise both source bars and any resampled/derived formation view. Cache keys include all causal identity needed to prevent cross-session, cross-symbol, cross-policy or later-revision leakage.
+
+## 64.8 Symmetry and metamorphic requirements
+
+B4-F/B4-LOCK must test at minimum:
+
+- PDH upside evidence mirrored to PDL downside evidence;
+- price scale ×10 leaves normalized geometry unchanged while absolute prices scale;
+- missing RVOL/participation remains `UNKNOWN`/unavailable, never numeric zero;
+- missing PDH prevents PDH-derived events instead of inventing a neutral event;
+- wick-through is not close-beyond;
+- OR-lock exact-boundary and straddle cases;
+- reversed/duplicate/revised formation-bar identity fails closed;
+- long/short alias derivation is symmetric where market semantics are symmetric.
+
+## 64.9 M3.3-first analogue/challenger order
+
+Opening-sequence history research follows this order:
+
+1. existing canonical M3.3 memory/analogue/pattern/nine-candle retrieval;
+2. register an opening-sequence feature manifest over canonical facts;
+3. measure and document a concrete limitation;
+4. only if the limitation is demonstrated, evaluate STUMPY as an optional BUILD-9 challenger;
+5. only if additional value is demonstrated, evaluate bounded DTW reranking.
+
+Third-party adoption requires **all** of:
+
+- licence compatibility;
+- PIT/causality compatibility;
+- dependency and maintenance assessment;
+- runtime suitability;
+- incremental BUILD-8 proof.
+
+This plan does not install STUMPY, DTAIDistance/DTW, PatternPy, stock-pattern, precise-patterns or any other new dependency.
+
+## 64.10 BUILD-8 adjacent ablation ladder
+
+BUILD-8 must register and evaluate:
+
+```text
+A0 existing ORB
+A1 + canonical candle anatomy
+A2 + level-interaction sequence
+A3 + B1/B2/B3 transition facts
+A4 + valid RVOL/participation
+A5 + benchmark/sector/context
+A6 + B6 formation state
+A7 + canonical M3.3 analogues
+A8 + STUMPY
+A9 + DTW reranking
+```
+
+Every `A[n]` is compared against `A[n-1]` under equivalent chronological splits, costs, support requirements and multiple-testing governance. A later rung does not earn adoption merely by outperforming A0. A8/A9 remain optional and stop if their prerequisites or incremental value are absent.
+
+## 64.11 B4-LOCK opening-sequence gate
+
+In addition to Section 57, B4-LOCK requires observed green results for:
+
+- B4-OS-001…018 traceability;
+- view-not-calculator / canonical-owner audit;
+- normalization-basis/version semantics;
+- exact formation-bar identity;
+- OR-lock PRE/CROSSES/POST classification;
+- event-before-alias derivation;
+- H1–H4 receipt completeness;
+- fixed-`as_of` replay invariance;
+- PDH/PDL and long/short symmetry;
+- price-scale and missingness metamorphic cases;
+- feature-OFF legacy parity;
+- protected B0/B1/B2/B3 regressions;
+- affected M3.1/M3.3 regressions;
+- D6/authority regression;
+- no new dependency;
+- exact-head CI.
+
+No BUILD-8 trading-value claim is required for B4 CODE GREEN. Conversely, B4 CODE GREEN is not evidence that the sequence feature adds trading value.
+
+## 64.12 Completion-receipt extension
+
+The Section 59 receipt must additionally state:
+
+```text
+B00 BASELINE RESULT
+OPENING-SEQUENCE REQUIREMENT COVERAGE
+CANONICAL-OWNER / DUPLICATION AUDIT RESULT
+NORMALIZATION SEMANTICS RESULT
+FIXED-AS_OF REPLAY RESULT
+OR-LOCK STRADDLE RESULT
+SYMMETRY / METAMORPHIC RESULT
+FEATURE-OFF PARITY RESULT
+PROTECTED-SURFACE RESULT
+THIRD-PARTY DISPOSITION RESULT
+RUNTIME CODE CHANGED DURING DOC RECONCILIATION? MUST BE NO
+DEPENDENCIES ADDED DURING DOC RECONCILIATION? MUST BE NO
+TRADING AUTHORITY CHANGED? MUST BE NO
+```
+
+Proof levels remain distinct: plan traceability, BUILD-0 source-lock proof, B4-D0 lock, B4-F implementation proof, and BUILD-8 incremental trading-value proof are not interchangeable.
+
+# 65. 2026-09-19 continuous intraday formation intelligence extension
+
+Status: `PROPOSED_DOCUMENTATION_CONTRACT`; not implemented and not GREEN.
+
+This section extends `OrbOpeningSequenceViewV1` without replacing it. Opening-sequence reasoning remains the opening-specific view; `OrbIntradayFormationViewV1` generalizes the same causal composition discipline to arbitrary intraday `decision_as_of` times.
+
+## 65.1 Contract role
+
+`OrbIntradayFormationViewV1` is a deterministic, read-only **VIEW / COMPOSER** over canonical receipts. It may align already-owned facts and B6 state; it may not resample a second candle truth, recalculate M3.1 structure/levels, recreate BUILD-2 market identity, rebuild BUILD-3 references, own M3.3 memory, emit uncalibrated probabilities, set a final band, or execute.
+
+Mandatory authority:
+
+```text
+authority = NONE
+may_execute = false
+may_set_final_band = false
+```
+
+## 65.2 FORM-001 — arbitrary-`as_of` identity
+
+Every view binds:
+
+```text
+decision_as_of
+knowledge_cutoff
+source_snapshot_hash
+formation_snapshot_hash
+composition_version
+availability
+```
+
+All facts used must have been available no later than the knowledge cutoff. Fixed-`as_of` reconstruction after later data is appended must reproduce the same causal receipt.
+
+## 65.3 FORM-002 — deterministic anchor registry
+
+A formation may start only from an anchor whose underlying event is canonical, provenance-bound, and already known by `decision_as_of`.
+
+Candidate anchor families:
+
+```text
+SESSION_OPEN
+OR_LOCK
+CAUSAL_PIVOT
+PDH_INTERACTION
+PDL_INTERACTION
+ORH_INTERACTION
+ORL_INTERACTION
+VWAP_RECLAIM
+STRUCTURE_BREAK
+EXPANSION_START
+```
+
+These names are registry candidates, not proof that each producer already exists. Unsupported/unavailable candidates stay unavailable.
+
+Anchor identity:
+
+```text
+anchor_type
+anchor_event_id
+anchor_owner
+anchor_market_time
+anchor_known_at
+anchor_source_snapshot_hash
+anchor_policy_version
+```
+
+Hard invariant: `anchor_known_at <= decision_as_of`. Later candles may not cause the historical replay to choose a prettier anchor.
+
+## 65.4 FORM-003 — multi-scale formation identity
+
+Every active formation/hypothesis records:
+
+```text
+source_timeframe
+formation_timeframe
+scope
+horizon
+anchor
+```
+
+Initial scope vocabulary:
+
+```text
+MICRO
+LOCAL_SWING
+OPENING_SEQUENCE
+INTRADAY
+SESSION
+```
+
+Different scales can coexist. A micro bearish pullback does not automatically contradict a larger bullish continuation.
+
+## 65.5 FORM-004 — B6 lifecycle contract
+
+B6 owns lifecycle semantics:
+
+```text
+SEED
+DEVELOPING
+TESTING_BOUNDARY
+CONFIRMED
+FAILED
+EXPIRED
+AMBIGUOUS
+```
+
+B4 composes the B6 state; it does not create a competing state machine. `CONFIRMED` requires registered confirmation evidence. `AMBIGUOUS` and `NO_STABLE_FORMATION` are valid outputs.
+
+Incomplete higher-timeframe candles may yield only a `PROVISIONAL` zero-authority view until the required candle closes.
+
+## 65.6 FORM-005 — discriminator-complete hypotheses
+
+Every active hypothesis must include:
+
+```text
+support[]
+opposition[]
+unknown[]
+expected_sequence[]
+failure_sequence[]
+next_discriminating_observation
+confirmation_condition
+weakening_condition
+invalidation_condition
+expiry_condition
+```
+
+Discriminators and conditions must resolve to deterministic events or versioned research rules. Phrases such as “looks stronger” are not machine contracts.
+
+## 65.7 FORM-006 — prefix-safe historical analogue seam
+
+For a current `decision_as_of=T`:
+
+```text
+current prefix through T
+        ↓
+historical prefixes through equivalent cutoff only
+        ↓
+freeze episode IDs + feature manifest + retrieval version
+        ↓
+reveal matured future outcomes only after retrieval is frozen
+```
+
+Historical outcomes may never influence retrieval candidates, rank, anchor, feature construction or tie-breaking. M3.3 remains the first retrieval owner. B9 may challenge it only after a concrete limitation is demonstrated.
+
+## 65.8 FORM-007 — versioned behavioural grammar
+
+Required derivation order:
+
+```text
+CANDLE FACTS
+    ↓
+RELATIONSHIPS
+    ↓
+SEQUENCE BEHAVIOUR
+    ↓
+STRUCTURAL FORMATION
+    ↓
+OPTIONAL HUMAN ALIAS
+```
+
+Example relationships/behaviours/aliases are descriptive vocabulary, not automatically canonical features. Every promoted grammar element requires a version and source-event lineage.
+
+## 65.9 FORM-008 — transition diary
+
+Formation evolution is replayable. Each state transition records:
+
+```text
+formation_id
+previous_state
+current_state
+changed_at
+evidence_added[]
+evidence_removed[]
+reason
+source_snapshot_hash
+formation_snapshot_hash
+transition_version
+```
+
+Corrections use replacement/supersession lineage; prior transitions are not silently rewritten.
+
+## 65.10 FORM-009 — dependency lineage
+
+Every alias/hypothesis carries:
+
+```text
+source_event_ids[]
+dependency_family
+derived_from[]
+```
+
+If several labels derive from one underlying candle/structure sequence, B11/D6 receives one correlated family, not multiple independent votes.
+
+## 65.11 FORM-010 — geometry/tolerance policy
+
+B7 owns versioned policies including, where applicable:
+
+```text
+boundary_tolerance_basis
+pivot_prominence_basis
+minimum_touch_count
+slope_policy
+compression_policy
+overlap_policy
+retracement_policy
+normalization_basis
+parameter_version
+```
+
+B4/B6 consume the registered version. B8 proves it. B10 freezes only evidence-supported settings. No threshold is promoted here merely because it is visually plausible.
+
+## 65.12 Mandatory hard-safety outcomes
+
+1. `NO_STABLE_FORMATION` / `UNRESOLVED` must be legal.
+2. Missing evidence remains unknown/unavailable; never zero/neutral by coercion.
+3. Incomplete higher-timeframe interpretations are `PROVISIONAL`, zero-authority, never `CONFIRMED` before close.
+4. Screenshots are scenario/example material only; canonical reasoning uses numerical timestamped source data and hashes.
+5. Pattern-fishing controls freeze grammar, candidate families, anchor/search space, train/walk-forward periods and untouched holdout before evaluation.
+
+## 65.13 Mandatory receipt shape
+
+```text
+OrbIntradayFormationViewV1
+  identity:
+    instrument/session/contract
+    decision_as_of
+    knowledge_cutoff
+    source_timeframe
+    formation_timeframe
+    scope
+    horizon
+    anchor
+    grammar_version
+    parameter_version
+    source_snapshot_hash
+    formation_snapshot_hash
+    composition_version
+  observed_behaviour[]
+  active_formations[]
+  competing_hypotheses[]
+  transition_history_ref
+  historical_prefix_analogue_ref
+  missing_or_unknown_evidence[]
+  dependency_lineage[]
+  authority = NONE
+  may_execute = false
+  may_set_final_band = false
+```
+
+## 65.14 B14 adversarial lock set
+
+B14 must prove at least:
+
+- future-append invariance;
+- hindsight-anchor invariance;
+- historical-analogue outcome non-interference;
+- multi-timeframe coexistence without false contradiction;
+- alias-independence/dependency-family de-duplication;
+- incomplete-candle cannot confirm;
+- pattern-search leakage invariance;
+- legal `NO_STABLE_FORMATION` outcome;
+- missingness remains explicit;
+- feature-OFF legacy parity.
+
+A documentation change does not satisfy these tests. Runtime implementation remains a later build.

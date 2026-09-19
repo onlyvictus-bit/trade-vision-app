@@ -561,3 +561,63 @@ reference implementation of this path. Unproven windows never reach the core.
 6 future-leak indicators never promoted · proxies blocked from production ·
 `usable_for_probability` False everywhere · live trading blocked on every
 surface · no order routing from any path in this plan.
+
+---
+
+# CURRENT-ARCHITECTURE RECONCILIATION / SUPERSESSION NOTE — 2026-09-18
+
+This document records an important earlier context-native design step. Its original implementation suggestions remain visible so audits can reconstruct the evolution. They must not be followed literally where newer B1/B2/B3/D2/M3/BUILD-4 ownership supersedes them.
+
+## Instruction-by-instruction disposition
+
+| Older context-native instruction / idea | Current disposition | Current owner / interpretation | Current proof requirement |
+|---|---|---|---|
+| create/recompute ORB context inside `orb/context.py` | `PARTIALLY_SUPERSEDED` | BUILD-4 may compose a context world, but canonical raw/derived facts remain with their current owners | duplicate-owner audit + feature-OFF legacy parity |
+| derive previous-day OHLC locally/calendar-day resample | `SUPERSEDED` as canonical ownership | BUILD-3 session-aware prior-session reconstruction | BUILD-3 session/coverage/PIT regressions |
+| calculate PDH/PDL/PDC locally | `SUPERSEDED` as canonical ownership | BUILD-3 typed prior-session references | BUILD-3 reference identity tests |
+| treat close and settlement interchangeably | `SUPERSEDED` | BUILD-2/3 explicit close/settlement semantics | stock/futures identity + missing-settlement tests |
+| calculate ATR locally for context | `PARTIALLY_SUPERSEDED` | use a canonical calculation ID/basis/version; do not assume candle-anatomy `range_atr` is Wilder ATR | calculation-registry and normalization-semantic tests |
+| calculate CPR locally | `PARTIALLY_SUPERSEDED` | canonical calculation owner/registry; BUILD-4 consumes receipt | duplicate-calculation test + ancestry/correlation test |
+| calculate VWAP locally | `PARTIALLY_SUPERSEDED` | canonical session/price calculation owner; missing volume remains missing | M3/registry tests + missing-volume tests |
+| gap logic from any convenient prior close | `SUPERSEDED` | typed BUILD-1/3 reference-price identity and exact prior session/basis | wrong-session/basis/reference rejection |
+| context fields may fail open when unavailable | `SUPERSEDED` | explicit availability; missing required facts degrade/abstain and never create permission | missingness/fail-closed tests |
+| fixed threshold/gate examples | `RESEARCH_CANDIDATE` | BUILD-7 parameter research, BUILD-8 proof | chronological WF/OOS/holdout proof |
+| historical `P(success) ≈ 78%` / forecaster confidence language | `HISTORICAL_REFERENCE` | not a calibrated market probability and not current architecture authority | may only reappear through BUILD-12 calibrated event/horizon evidence after proof |
+| separate meta-strategy/parallel calculator proposal | `SUPERSEDED` for current ownership | preserve as design-history alternative; current architecture uses one canonical owner graph and a B4 composition view | duplicate-calculator/source-of-truth audit |
+| historical H1/H2/H3 pretests that found no gate value | `HISTORICAL_REFERENCE` | retained as prior NO-GO evidence, not erased | new study must register why/re-test without consulting final holdout |
+| context persistence with provenance | `STILL_VALID` | immutable typed receipts / D-1 snapshot / B4 world | deterministic hash + PIT lineage tests |
+| rollback a feature if walk-forward/holdout degrades | `STILL_VALID` | BUILD-8 feature-merge governance | adjacent ablation + rollback receipt |
+
+## Opening-sequence consequence
+
+`OrbOpeningSequenceViewV1` must **not resurrect** the old direct-calculator model. It consumes D2 closed candles, B1 candidate identity, B2 session/contract identity, B3 prior-session references, M3.1 price/candle/level facts and M3.3 memory. `orb/context.py` may remain a compatibility/regression surface until a separately proven seam migration, but its formulas do not become new B4 canonical truth.
+
+Formation-bar identity, OR-lock relation and normalization basis/version are explicit. A bar crossing OR lock is `CROSSES_OR_LOCK`; historical `range_atr` mean-range normalization is not renamed into Wilder ATR.
+
+## Live/fail-open correction
+
+Any older “fail open” wording is historical only. `UNAVAILABLE`, `UNKNOWN`, `STALE`, `ERROR` and `NOT_APPLICABLE` remain distinct; absence of context is never “safe”, zero, or affirmative evidence. Optional unavailable evidence may be omitted from a hypothesis only under its registered applicability rules, and cannot gain veto/final-band/execution authority.
+
+The current opening-sequence feature remains additive/shadow and zero-authority. No runtime behavior is changed by this reconciliation.
+
+# CURRENT-ARCHITECTURE RECONCILIATION / SUPERSESSION NOTE — 2026-09-19 intraday formation view
+
+Status: `PROPOSED_DOCUMENTATION_CONTRACT`.
+
+`OrbIntradayFormationViewV1` must not revive the old “context module calculates everything” model. It composes canonical D2/B1/B2/B3/M3.1/M3.2/M3.3 receipts and B6 state where available.
+
+## Arbitrary-`as_of` context
+
+Context consumed for a formation must carry an explicit `knowledge_cutoff` plus availability timing no later than the formation `decision_as_of`. Late-arriving benchmark/sector/volume context cannot rewrite an earlier replay unless the replay explicitly models that original availability.
+
+## Multi-scale / missingness discipline
+
+Context may differ by scale and horizon. Missing benchmark, sector, RVOL or other context remains `UNKNOWN`/`UNAVAILABLE`; it is not treated as bearish, bullish, false, zero or neutral.
+
+## Provisional higher-timeframe context
+
+Closed sub-bars may support a `PROVISIONAL` description of an unfinished higher-timeframe formation. The context layer may describe the provisional evidence but may not upgrade the formation to confirmed.
+
+## No duplicate calculation owner
+
+The formation view may expose deterministic event/grammar results and lineage, but it may not reimplement ATR, candle anatomy, structure, levels, session identity, prior-session levels, or memory retrieval behind a new context API.
