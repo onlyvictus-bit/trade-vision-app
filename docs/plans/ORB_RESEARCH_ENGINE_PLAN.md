@@ -821,6 +821,142 @@ Variables are versioned and sourced from canonical receipts where possible:
 - BUILD-6 formation state only after BUILD-6 exists;
 - M3.3 analogue/pattern evidence after the deterministic sequence manifest is frozen.
 
+### Source-detail opening-sequence research manifest
+
+`OrbOpeningSequenceViewV1` is a read-only composed evidence view. Research consumes its registered/canonical receipts and may derive study features from them; it must not create a competing raw-bar, candle-anatomy, ATR, VWAP, PDH/PDL/PDC, session, contract, or market-data calculator.
+
+`B1/B2/B3` mean ordinal sequence positions under the registered formation policy. They are not permanently the first three 3-minute candles. BUILD-5 owns formation timeframe, sequence length `N`, OR clock/window and confirmation-timing research. A study may compare alternative registered policies without changing the ordinal meaning of B1/B2/B3.
+
+Each opening bar retains `PRE_OR_LOCK`, `CROSSES_OR_LOCK`, or `POST_OR_LOCK`. A `CROSSES_OR_LOCK` bar is not a clean post-lock confirmation example. A usable research prefix must be closed, available by the study `decision_as_of`, contiguous under the registered cadence/anchor policy, and explicit about missing, duplicate, revised, out-of-order, unfinished, future, or source-inconsistent bars. If alignment cannot be established, the sample is `UNKNOWN`/`UNAVAILABLE` under the canonical contract rather than guessed or repaired.
+
+Each B-position links to the canonical anatomy/event receipt and hash/lineage rather than copying the calculation. Before a prefix is eligible, the research episode binds exact instrument, contract where applicable, exchange and session identity from canonical receipts. Where supplied by the canonical owner, the research identity preserves `source_timeframe`, `formation_timeframe`, `expected_prefix_bars`, `observed_prefix_bars`, `session_anchor`, bar open time, bar close time, `available_at`, aggregation/resample policy and version, revision/sequence identity, and `source_snapshot_hash`. Independently supplied bars with unknown alignment are not silently substituted.
+
+Sequence-relation studies may use registered/versioned relations such as high/low extension, close progression, overlap, retracement, net displacement, path efficiency, consecutive higher/lower highs, higher/lower lows, and higher/lower closes. These are research features over canonical facts, not a second raw-fact owner. Owner-emitted availability/completeness states remain intact; the research layer does not mint a private missingness enum.
+
+Research reuses the currently registered taxonomy vocabulary in `apps/api/app/behavior/pattern_taxonomy.py` rather than duplicating these calculations:
+
+```text
+body_size
+body_pct_of_range
+upper_wick_size
+lower_wick_size
+close_location_value
+same_direction_body_sequence
+opposite_direction_body_sequence
+body_expansion_sequence
+body_compression_sequence
+wick_expansion_sequence
+wick_compression_sequence
+nearby_candle_confirmation
+nearby_candle_rejection
+nearby_candle_absorption
+nearby_candle_exhaustion
+previous_1_candle
+previous_2_candles
+previous_3_candles
+previous_5_candles
+```
+
+Only the registered vocabulary/canonical facts are reusable as truth. Generated/demo activity or outcome rows from research/scaffolding modules are not historical evidence. In particular, `pattern_by_timeframe.py`, predefined outcome distributions in `event_sequence_mining.py`, and generated taxonomy activity rows must never be promoted to real historical outcomes. Existing `condition_classifier` or adaptive-ORB interpretations may be registered comparator/baseline evidence only; their historical fixed thresholds or `trap_probability`-style fields are not calibrated ORB probabilities and do not become a second source of truth.
+
+Opening-expansion research may study this explicit B1 feature family when each field has canonical lineage:
+
+```text
+B1_range
+B1_body
+upper_wick
+lower_wick
+body_to_range
+
+normalized_range_value
+normalization_basis
+normalization_version
+
+volume
+opening_RVOL
+
+open_minus_previous_close
+open_minus_PDH
+high_minus_PDH
+close_minus_PDH
+
+close_location_value
+```
+
+Normalization identity is mandatory. The historical M3.1 `range_atr` field is based on rolling mean candle range (`average_range`), not Wilder ATR. Research must keep `range_vs_mean_intraday_range` and `range_vs_canonical_wilder_atr` (or repository-equivalent separately versioned identities) distinct. No study may silently relabel one as the other.
+
+Giveback is a versioned research metric, not a hidden threshold. A giveback observation records at least:
+
+```text
+giveback_value
+giveback_ratio
+giveback_numerator_basis
+giveback_denominator_basis
+measurement_start
+measurement_end
+available_at
+metric_version
+```
+
+The source example `B1 range = 6`, `measured giveback = 2.2`, `giveback_ratio = 36.7%`, and examples such as `B1 > 3 ATR`, `B2 giveback > 35%`, `10% giveback`, and 25/50/75 checkpoints are `RESEARCH_CANDIDATE` examples only. They are not production thresholds; the source does not freeze the giveback numerator convention.
+
+Close Location Value is descriptive candle geometry:
+
+```text
+CLV = (Close - Low) / (High - Low)
+```
+
+Research should consume canonical `close_location_value` rather than privately recalculate it. Zero-range and missing inputs follow the canonical M3.1 contract. CLV is not a probability, direction, BUY/SELL signal, or independent evidence family by itself.
+
+PDH/previous-close opening geometry may study:
+
+```text
+previous_close
+PDH
+B1_open
+B1_high
+B1_close
+extension_from_PDH
+gap_above_PDH
+```
+
+Questions may include whether the opening was already extended, how far B1 extended, whether B2 returned into that extension, time to registered 25%/50%/75% giveback checkpoints, PDH touch, accepted closed-candle loss of PDH, PDH reclaim, or a new session high. Touch, wick-through, close-through, acceptance, hold, reclaim and failure remain distinct canonical/registered events.
+
+Research preserves the competing opening hypotheses rather than forcing an early winner:
+
+```text
+H1 BREAKOUT_ACCEPTANCE_CONTINUATION
+H2 BREAKOUT_REJECTION_FAILURE
+H3 PULLBACK_RECLAIM_CONTINUATION
+H4 OPENING_BALANCE_NO_EDGE
+```
+
+For each hypothesis the study representation preserves `support`, `opposition`, `unknown`, `expected_sequence`, `failure_sequence`, `next_discriminating_observation`, `confirmation_condition`, `weakening_condition`, `invalidation_condition`, and `expiry_condition` where the owning contract supplies them.
+
+Source-preserved PDH labels are research aliases/state candidates, not production enums:
+
+```text
+PDH_OPENING_SPIKE_REJECTION
+PDH_OPENING_DRIVE
+PDH_OPENING_DRIVE_REJECTION
+PDH_OPENING_REJECTION_CANDIDATE
+PDH_OPENING_2BAR_REJECTION
+PDH_FAILED_BREAKOUT_FADE
+PDH_BREAKOUT_PULLBACK_CONTINUATION
+
+Family: OPENING_LOCATION_STRUCTURE
+Context: ABOVE_PDH
+Event: EXPANSION
+Reaction: REJECTION
+Confirmation: 2_BAR_FOLLOW_THROUGH
+
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_HOLD
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_FAIL
+```
+
+`B3` rejection is not a confirmed failed breakout. A source-preserved fade path and a pullback/reclaim continuation path must both remain available until later causal evidence matures the registered failure/continuation condition. No hindsight relabeling is allowed.
+
 BUILD-5 owns timeframe/N/OR-window search. BUILD-7 owns thresholds. The research engine does not smuggle those choices into BUILD-4 implementation constants.
 
 ## Outcome labels
@@ -840,6 +976,26 @@ Outcome construction must be causal, deterministic and matured before use. Candi
 
 Every label records event time, availability/maturity time, source snapshots, reference-price identity, session/contract identity and label version. Outcomes unavailable at the study cutoff remain unknown; they are not dropped into the winning class.
 
+### Outcome-freeze and independent-episode rules
+
+Outcome columns may include `+5m`, `+15m`, `+30m` returns, MFE, MAE, PDH hold/fail, ORH/ORL break, VWAP reclaim, new high/low, failure, reversal and continuation, but they are revealed only after the causal prefix, anchor, feature vector, candidate state/hypothesis and historical episode IDs are frozen.
+
+Outcome fields are inaccessible to candidate construction, feature calculation, anchor selection, formation labeling at `decision_as_of`, analogue selection, ranking tie-breaks and hyperparameter selection. Revealing or changing matured outcomes must not change the previously selected historical episode IDs.
+
+Overlapping prefixes from one session are not automatically independent samples. Where applicable, research stores:
+
+```text
+episode_id
+session_id
+symbol_or_instrument_id
+anchor_identity
+prefix_end
+overlap_group
+independence_group
+```
+
+Reports distinguish `raw_sample_count`, `independent_episode_count`, and `independent_session_count`. A later PDH failure may be an outcome label; it may not retroactively turn an earlier B3 rejection prefix into a failed-breakout input feature.
+
 ## Mandatory adjacent ablation ladder
 
 Register exactly:
@@ -858,6 +1014,8 @@ A9 + DTW reranking
 ```
 
 Each `A[n]` must justify itself against `A[n-1]` under equivalent samples, chronology, costs and decision times. A8 is not run merely because STUMPY exists; A9 is not run merely because DTW is expressive. Unsupported rungs stop progression.
+
+Feature progression is reversible. If `A[n]` does not add repeatable unseen-data value over `A[n-1]`, the added feature/challenger is recorded as `REJECTED`, removed from the promoted configuration, demoted, or retained `RESEARCH_CANDIDATE` only. Negative/no-go results remain in experiment history; unsupported complexity is not silently carried forward.
 
 ## Proof protocol
 
@@ -882,6 +1040,71 @@ At minimum, every serious opening-sequence study records:
 
 Train/test rows from one market session are not treated as independent merely because there are multiple candles or labels. Future constituents, future liquidity, future corporate actions, future contract masters or reconstructed winners are forbidden.
 
+### Causality, pattern-fishing, reproducibility and cost realism
+
+A fixed-prefix proof is mandatory. Example:
+
+```text
+decision_as_of = 09:24
+build receipt/hash H and freeze features + candidate state
+
+append 09:27, 09:30, 10:00 and later session data
+reconstruct decision_as_of = 09:24
+
+required:
+same receipt
+same hash H
+same feature vector
+same candidate state/hypotheses
+
+otherwise:
+FUTURE_DEPENDENCY_DETECTED
+```
+
+Before holdout outcomes are inspected, freeze the research generation: grammar version, candidate behavior/pattern families, anchor policy, feature manifest, parameter search space, normalization policy, training window, walk-forward scheme, holdout set, evaluation metrics and failure criteria. Any post-hoc hypothesis or search-space expansion starts a new experiment/version and cannot reuse the consulted holdout as untouched confirmation.
+
+Historical universe construction is point-in-time. Reject current constituents copied backward, modern sector membership used historically, present-day contract masters for old futures, future corporate-action knowledge, future liquidity/volatility, future universe eligibility, future selector outcomes, or examples chosen because they later became winners.
+
+When hypothetical strategy outcomes are evaluated, the research identity states the applicable fees, slippage, spread, latency assumption, fill convention, entry timing, exit timing and stop/target convention. A result that ignores material execution costs may be descriptive research, but it is not presented as tradeable edge.
+
+Deterministic replay binds at least:
+
+```text
+dataset_version
+source_snapshot_hash
+feature_manifest_version
+formation_grammar_version
+parameter_version
+anchor_policy_version
+normalization_version
+universe_version
+research_code_version
+split_definition
+cost_model_version
+random_seed_if_any
+```
+
+Identical research identity must reproduce identical selection and results. Prefer deterministic algorithms when randomness is unnecessary.
+
+Negative results are first-class records: `NO_GO`, no incremental value, unstable, insufficient sample/history, OOD, too sparse, cost-sensitive, overfit, regime-specific, unavailable, unknown and rejected experiments are retained rather than deleted.
+
+Current research-result language uses evidence states such as:
+
+```text
+UNTESTED
+RESEARCH_CANDIDATE
+TESTED_NO_GO
+TESTED_IN_SAMPLE
+WALK_FORWARD_SUPPORTED
+HOLDOUT_SUPPORTED
+UNSTABLE
+INSUFFICIENT_HISTORY
+UNAVAILABLE
+REJECTED
+```
+
+Historical sections above may retain words such as "best" or "winner" as plan/report labels and illustrative examples; current claims must not use them as evidence of edge unless a named B8/OOS experiment supports the statement.
+
 ## M3.3 first, external similarity challengers later
 
 Historical retrieval order is:
@@ -899,6 +1122,26 @@ only if incremental value remains: bounded DTW reranker
 ```
 
 STUMPY/DTW are not production dependencies in this campaign. Any later adoption requires licence compatibility, PIT/causality compatibility, dependency/maintenance review, runtime suitability and incremental BUILD-8 proof. Reference-only libraries with uncertain licences remain reference-only.
+
+### Similarity normalization and third-party adoption gate
+
+Historical similarity uses a registered/versioned feature manifest and normalized geometry appropriate to the feature. Raw absolute-price matching across instruments is not accepted as a default similarity basis. PIT corpus cutoff, same-time/prefix matching, bounded top-K retrieval, independent analogue counts, episode independence and OOD remain explicit. A challenger manifest may test normalized PDH distance, VWAP distance, volatility/range, volume/RVOL, benchmark/sector context and structure features only when their canonical receipts are available; these dimensions are research candidates, not mandatory truth fields.
+
+Any external package/algorithm, including STUMPY or DTW, remains a challenger until all applicable gates are recorded:
+
+```text
+licence_compatibility
+PIT_and_causality_compatibility
+maintenance_health
+dependency_risk
+runtime_suitability
+determinism_and_replayability
+data_requirements
+incremental_research_value
+OOS_proof
+```
+
+Availability on GitHub is not adoption proof. No dependency installation is implied by this plan.
 
 ## Research/runtime boundary
 
@@ -937,6 +1180,21 @@ untouched holdout
 outcome specification
 ```
 
+### FORM-001 ... FORM-010 - research consequences
+
+The Research Engine does not re-own the formation contracts; it records and tests their research consequences:
+
+- **FORM-001 - arbitrary `as_of`:** every research episode binds `decision_as_of`, `knowledge_cutoff`, `source_snapshot_hash`, `formation_snapshot_hash` and composition/feature identity. Hard law: `information_used_at <= knowledge_cutoff <= decision_as_of`.
+- **FORM-002 - deterministic anchors:** research consumes only canonical causal anchors known by the historical cutoff. Preserve `anchor_type`, `event_id`, canonical owner, market time, known-at time, source snapshot and anchor policy/version when supplied. Completed-day hindsight anchors are forbidden.
+- **FORM-003 - multi-scale identity:** preserve `source_timeframe`, `formation_timeframe`, `scope`, `horizon` and anchor. Registered scopes such as `MICRO`, `LOCAL_SWING`, `OPENING_SEQUENCE`, `INTRADAY` and `SESSION` may coexist without automatic contradiction.
+- **FORM-004 - lifecycle research:** study `SEED`, `DEVELOPING`, `TESTING_BOUNDARY`, `CONFIRMED`, `FAILED`, `EXPIRED` and `AMBIGUOUS`; do not train only on completed textbook formations.
+- **FORM-005 - discriminator contract:** preserve `support[]`, `opposition[]`, `unknown[]`, `expected_sequence[]`, `failure_sequence[]`, `next_discriminating_observation`, confirmation, weakening, invalidation and expiry conditions.
+- **FORM-006 - prefix-safe analogues:** retrieve from historical prefixes only; freeze episode IDs/rank/retrieval version/feature manifest before matured outcomes are exposed. Outcome changes must not alter retrieval at the same cutoff.
+- **FORM-007 - versioned behavioral grammar:** research the hierarchy `CANDLE FACTS -> RELATIONSHIPS -> SEQUENCE BEHAVIOR -> STRUCTURAL FORMATION -> OPTIONAL HUMAN ALIAS`. Behavior candidates include `IMPULSE`, `PULLBACK`, `COMPRESSION`, `EXPANSION`, `RETEST`, `RECLAIM`, `REJECTION`, `FAILURE` and `BALANCE`.
+- **FORM-008 - transition diary:** preserve `formation_id`, `previous_state`, `current_state`, `changed_at`, `evidence_added[]`, `evidence_removed[]`, `reason`, source/formation snapshot hashes and transition version so trajectory research is reproducible.
+- **FORM-009 - dependency lineage:** preserve `source_event_ids[]`, `dependency_family`, and `derived_from[]`; report raw feature count separately from independent evidence-family count so aliases do not manufacture importance/confluence.
+- **FORM-010 - geometry/tolerance versioning:** research artifacts explicitly record `boundary_tolerance_basis`, `pivot_prominence_basis`, `minimum_touch_count`, `slope_policy`, `compression_policy`, `overlap_policy`, `retracement_policy`, `normalization_basis`, `normalization_version` and `parameter_version`. B7 owns candidate policy, B8 proves it, B10 freezes only proven configuration.
+
 ## Prefix-safe analogue rule
 
 Historical candidate retrieval uses only historical prefixes available at the equivalent cutoff. Freeze episode IDs/rank/retrieval version before revealing matured outcomes. Outcome fields may not participate in retrieval, feature construction, anchor choice, tie-breaks or hyperparameter selection.
@@ -956,6 +1214,12 @@ Candidate variables may include versioned, source-backed representations of:
 - explicit missingness/availability.
 
 These are research candidates until the owner/stage contract and feature lineage are frozen. Human aliases alone are insufficient features unless their deterministic underlying grammar is retained.
+
+### Abstention and incomplete-higher-timeframe research
+
+`NO_STABLE_FORMATION` / explicit unresolved state is a valid research label. Do not force every prefix into a flag, triangle, breakout, reversal or continuation. Research reports coverage, abstention frequency, performance conditional on stable formation, performance conditional on ambiguity, and false-forced-pattern rate; unresolved samples are not silently dropped.
+
+Closed lower-timeframe sub-bars may support a `PROVISIONAL` higher-timeframe research feature only when it is causally constructible at that moment. The same feature may not be labeled `CONFIRMED` before the registered higher-timeframe close. Datasets preserve `closed` versus `provisional` identity.
 
 ## Pattern-fishing controls
 
@@ -979,5 +1243,52 @@ At minimum:
 8. `NO_STABLE_FORMATION` abstention case;
 9. missingness preservation;
 10. feature-OFF legacy parity.
+
+11. giveback-policy identity - changing numerator/denominator/start/end policy changes metric version/hash;
+12. CLV lineage - research consumes canonical `close_location_value`; a private redefinition or zero-range fallback fails;
+13. premature-failure attack - B3 rejection alone cannot be labeled using a later PDH failure;
+14. symmetry/metamorphic attack - where semantics permit, `PDH <-> PDL`, bull <-> bear, and price x10 normalized geometry preserve mirrored behavior;
+15. outcome/episode-independence attack - changing matured outcome values after episode IDs are frozen cannot alter prefix selection or independent-episode grouping;
+16. opening-prefix data-integrity attack - missing/duplicate/revised/out-of-order/unfinished/future bars, wrong anchor/vendor aggregation, missing level/RVOL, and futures roll/settlement mismatches remain explicit and fail closed where required.
+
+### Research architecture, epistemic and authority lock
+
+```text
+RAW FACT CALCULATED ONCE
+        -> MANY BRAINS INTERPRET
+        -> EVERY INTERPRETATION TRACEABLE
+```
+
+The Research Engine consumes immutable/versioned canonical receipts. It is not another candle engine, ATR engine, PDH/PDL engine, session engine, market-identity owner, M3.3 memory owner, B6 lifecycle owner, B7 runtime-parameter owner, D6 final arbiter, order router or execution engine.
+
+Epistemic law:
+
+```text
+missing != neutral
+unknown != false
+unavailable != safe
+synthetic != real
+error != zero
+no_signal != unavailable
+no_output != neutral
+```
+
+Missing research evidence is never silently imputed to numeric zero unless the registered feature contract states that zero is an observed value.
+
+Zero-authority contract:
+
+```text
+research_only = true
+trade_allowed = false
+order_routing_enabled = false
+live_trading_blocked = true
+human_approval_required = true
+
+authority = NONE
+may_execute=false
+may_set_final_band=false
+```
+
+D6 `FINAL_CONFLUENCE_ARBITER` remains the sole final guidance-band authority. Research ranking, similarity, pattern score, historical frequency and any later calibrated model probability are evidence only; research evidence is never execution authority.
 
 A statistically interesting study result does not authorize B10 freeze, B12 probability, final guidance, or trading.
