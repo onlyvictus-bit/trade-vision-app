@@ -998,3 +998,127 @@ CONFIRMED
 ```
 
 until closed.
+---
+
+### 7. Pattern-search leakage test
+
+Change post-10:30 candles.
+
+Required:
+
+At 10:30 these remain unchanged:
+
+```text
+anchor
+window
+hypothesis candidates
+pattern aliases
+parameter version
+```
+
+---
+
+# Questions I used to judge whether the design is sufficient
+
+These are the useful decision questions—not private hidden reasoning:
+
+1. Can ORB describe behavior without assigning a named chart pattern? **Yes.**
+2. Can ORB represent an unfinished formation? **Yes, after explicit lifecycle support.**
+3. Can several competing explanations coexist? **Yes.**
+4. Can the engine state what would distinguish them? **Yes, after making discriminator fields mandatory.**
+5. Can this run at arbitrary intraday times rather than only B1/B2/B3? **Needs the new intraday formation view.**
+6. Can pattern start points be chosen without hindsight? **Needs deterministic anchor rules.**
+7. Can 3m and 15m interpretations coexist? **Needs explicit scale/scope identity.**
+8. Can current partial behavior be matched against history causally? **Needs prefix-safe retrieval.**
+9. Can classical pattern names remain interpretations instead of raw facts? **Yes, with a grammar/alias registry.**
+10. Can repeated names derived from the same candles avoid false confluence? **Needs explicit dependency lineage.**
+11. Can tolerances and geometry definitions remain reproducible? **Needs versioned B7 policy.**
+12. Can the system return “nothing stable yet”? **Must be explicitly legal.**
+13. Can incomplete candles provide useful early clues without gaining authority? **Yes, as provisional zero-authority views.**
+14. Can STUMPY/DTW help later without replacing M3.3? **Yes.**
+15. Can the system prove there was no future leakage? **Yes, with fixed-****`as_of`** **replay plus anchor and analogue attacks.**
+16. Can any of this bypass D6? **No.**
+
+---
+
+# Final recommended architecture
+
+```text
+CANONICAL MARKET DATA
+        │
+        ▼
+D2 CLOSED-CANDLE FACTS
+        │
+ ┌──────┼──────────────┐
+ ▼      ▼              ▼
+M3.1  LEVELS       M3.2 CONTEXT
+shape structure    benchmark/sector/etc
+ │      │              │
+ └──────┼──────────────┘
+        ▼
+DETERMINISTIC EVENT GRAMMAR
+        │
+        ▼
+OrbIntradayFormationViewV1
+        │
+ ┌──────┴────────┐
+ ▼               ▼
+MULTI-SCALE      CLASSICAL ALIASES
+STATE            flag/VCP/triangle/etc
+ │               │
+ └──────┬────────┘
+        ▼
+COMPETING HYPOTHESES
+        │
+ support
+ opposition
+ unknown
+ expected path
+ failure path
+ confirm condition
+ invalidate condition
+ next discriminator
+ expiry
+        │
+        ▼
+FORMATION TRANSITION DIARY
+        │
+        ▼
+M3.3 PREFIX-SAFE ANALOGUES
+        │
+        ▼
+optional STUMPY challenger
+        │
+        ▼
+optional bounded DTW reranker
+        │
+        ▼
+MATURED OUTCOMES
+        │
+        ▼
+B11
+FOR / AGAINST / UNKNOWN
++ dependency lineage
+        │
+        ▼
+M4 / AFRE
+        │
+        ▼
+D6 FINAL_CONFLUENCE_ARBITER
+        │
+ WAIT / WATCH / PAPER-CANDIDATE
+```
+
+## Verdict
+
+**Do not replace the new ORB build plan. Extend it.**
+
+The essential delta is:
+
+**`OrbIntradayFormationViewV1`** **+ arbitrary-****`as_of`** **reasoning + deterministic anchors + multi-scale identity + formation lifecycle + explicit next discriminator/confirm/kill rules + prefix-safe analogues + versioned pattern grammar + formation transition history + dependency de-duplication + versioned geometry policies.**
+
+Once those are formally added and later proven by B8/B14, the architecture will match your requirement:
+
+> **At 10:30, describe what is forming NOW, preserve the plausible alternatives, explain why each remains plausible, and state exactly what next causal observation would strengthen, confirm, weaken, or kill each one—without using anything after 10:30.**
+
+**Assessment confluence: TIGHT** across the existing B4-OS causal contracts, the requirements demonstrated by your six intraday examples, and the historical-analogue architecture. The main remaining weakness is implementation/proof: these additions have not yet been coded and passed fixed-prefix adversarial tests.
