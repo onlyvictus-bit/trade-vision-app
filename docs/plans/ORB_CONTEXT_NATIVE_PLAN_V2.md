@@ -621,3 +621,396 @@ Closed sub-bars may support a `PROVISIONAL` description of an unfinished higher-
 ## No duplicate calculation owner
 
 The formation view may expose deterministic event/grammar results and lineage, but it may not reimplement ATR, candle anatomy, structure, levels, session identity, prior-session levels, or memory retrieval behind a new context API.
+
+# CURRENT-ARCHITECTURE RECONCILIATION / ORB_BUILD_CHANGE CONTEXT COMPLETENESS PASS — 2026-09-19
+
+Status: `DOCUMENTATION_RECONCILIATION_ONLY`.
+
+Historical Context Native text above remains unchanged and continues to record the v2.01-track design, research results, NO-GO findings, rollback rules and migration history. The binding interpretation below only closes context-facing gaps exposed by the full `ORB_BUILD_CHANGE.txt` re-audit and the current FORM/B4-OS traceability contracts. It does not claim that the described runtime has been implemented.
+
+## Namespace protection: historical Context Native IDs vs current ORB build IDs
+
+Two old namespaces must not be silently reinterpreted.
+
+1. The historical Context Native `M0 ... M6` milestones above are local v2.01-track milestone names. They are **not** the current canonical BUILD-0 ... BUILD-14 stage identifiers. For example, historical Context-Native `M5` means execution realism, while current `BUILD-5` owns timeframe / sequence-length / OR-clock research.
+2. The historical M0 pre-test `H1 / H2 / H3` above means narrow-vs-wide, gap-aligned-vs-counter-gap and CPR-redundancy tests. Those NO-GO results remain preserved. They are **not** the B4 opening-sequence hypothesis IDs below.
+
+Current B4 opening hypotheses use their full names to avoid collision:
+
+```text
+H1 BREAKOUT_ACCEPTANCE_CONTINUATION
+H2 BREAKOUT_REJECTION_FAILURE
+H3 PULLBACK_RECLAIM_CONTINUATION
+H4 OPENING_BALANCE_NO_EDGE
+```
+
+The historical M0 H1/H2/H3 NO-GO result is not converted into a verdict on these later B4 hypotheses.
+
+## Context receipt identity, causality and deterministic replay
+
+Every Context Native fact consumed by B4/M4 must retain the identity supplied by its canonical owner. A context receipt binds, where applicable:
+
+```text
+instrument / contract / venue / session identity
+universe / selection provenance
+source_id / source_version / source_hash
+observed_at
+available_at
+effective date or session
+knowledge_cutoff
+decision_as_of
+source_snapshot_hash
+context_snapshot_hash
+```
+
+When the context is consumed by `OrbIntradayFormationViewV1`, the downstream formation receipt also binds its own `formation_snapshot_hash`; Context Native does not mint or replace that formation identity.
+
+Hard causal law:
+
+```text
+context_information_known_at
+<= knowledge_cutoff
+<= decision_as_of
+```
+
+A context fact published or becoming available after the historical cutoff cannot be pulled backward merely because the value is now known.
+
+The D-1 context snapshot remains immutable evidence for the relevant historical decision. Corrections, revisions or later source publications require new lineage; they do not silently mutate an older receipt.
+
+Fixed-`as_of` replay requirement:
+
+```text
+decision_as_of = 10:30
+context receipt/hash = X
+formation-facing context input = Y
+
+append later benchmark moves
+append later sector moves
+append later VIX / event updates
+append later candles and final session outcomes
+
+replay decision_as_of = 10:30
+
+required:
+context receipt/hash == X
+formation-facing context input == Y
+
+otherwise:
+FUTURE_DEPENDENCY_DETECTED
+```
+
+No later session classification, final-day regime, outcome or hindsight-selected anchor may alter the earlier context result.
+
+## Current source-readiness and provenance contract
+
+The historical HSTRY-computable / needs-file / needs-feed inventory remains useful provenance. Current BUILD-0 requirement language refers to the source-readiness contract as `OrbSourceReadinessV1`; the current implementation enum is `SourceReadiness` and preserves these states:
+
+```text
+COMPUTABLE_LOCAL
+NEEDS_VERSIONED_FILE
+NEEDS_EXTERNAL_FEED
+AVAILABLE_REAL_PIT
+UNAVAILABLE
+NOT_APPLICABLE
+ERROR
+```
+
+A designed field is not evidence that a live source exists. `NEEDS_EXTERNAL_FEED` does not become `AVAILABLE_REAL_PIT` without a real PIT source receipt. Synthetic/mock/generated data is never substituted for a real source.
+
+Candidate/universe provenance is also preserved rather than inferred:
+
+```text
+ONLINE_SELECTED
+OFFLINE_RESEARCH_UNIVERSE
+HISTORICAL_RECONSTRUCTED_SELECTION
+```
+
+A reconstructed historical selection or reconstructed context must never be presented as an observed online selection.
+
+Historical context reconstruction must not use future index constituents, future sector membership, later corporate-action knowledge, later event publications, future liquidity, future volatility, future universe eligibility, present-day contract metadata for an old contract, or future outcomes.
+
+## Instrument, session and reference applicability
+
+Context Native consumes BUILD-1/2/3 typed identity; it does not infer market semantics from a ticker or a familiar cash-market clock.
+
+Registered instrument types include:
+
+```text
+NSE_EQUITY
+NSE_DERIVATIVE
+COMMODITY_FUTURE
+REGISTERED_OTHER
+```
+
+Context applicability is market-specific:
+
+- cash-equity previous close / adjusted close semantics must remain typed;
+- derivatives may require exact contract, expiry/roll and settlement semantics;
+- session close is not silently substituted for official settlement;
+- raw cash, raw contract, adjusted and continuous-series bases are not interchangeable;
+- commodity sessions do not inherit NSE cash-session anchors;
+- Nifty/sector context is not automatically applicable to a commodity future;
+- benchmark/sector evidence is `NOT_APPLICABLE`, `UNAVAILABLE` or `UNKNOWN` unless a registered PIT-safe context contract exists for that instrument/session.
+
+PDC, PDH, PDL, settlement, gap and prior-session context therefore retain exact prior session, reference type, data basis and source provenance from BUILD-1/2/3. Context Native may interpret those receipts; it does not recalculate or silently retype them.
+
+## Opening-sequence context seam
+
+`OrbOpeningSequenceViewV1` remains a read-only B4 composition view. Context Native may contribute typed context receipts to the view, but it is not another bar builder, candle calculator, level engine or sequence-state owner.
+
+`B1/B2/B3` are ordinal sequence positions under the registered formation policy. They do not permanently mean the first three 3-minute candles.
+
+Formation evidence retains, from the canonical owners:
+
+```text
+source_timeframe
+formation_timeframe
+session/bar anchor
+bar open / bar close
+available_at
+aggregation / resample policy and version
+source_snapshot_hash
+revision / sequence identity
+```
+
+If the required alignment cannot be established, the context/formation seam remains `UNKNOWN` or `UNAVAILABLE`; it does not guess a bar boundary or substitute another source.
+
+Each formation bar retains one OR-lock relationship:
+
+```text
+PRE_OR_LOCK
+CROSSES_OR_LOCK
+POST_OR_LOCK
+```
+
+A `CROSSES_OR_LOCK` bar is not a clean post-lock confirmation.
+
+The current pattern-taxonomy primitives remain canonical inputs owned outside Context Native and may be referenced without recalculation:
+
+```text
+body_size
+body_pct_of_range
+upper_wick_size
+lower_wick_size
+close_location_value
+same_direction_body_sequence
+opposite_direction_body_sequence
+body_expansion_sequence
+body_compression_sequence
+wick_expansion_sequence
+wick_compression_sequence
+nearby_candle_confirmation
+nearby_candle_rejection
+nearby_candle_absorption
+nearby_candle_exhaustion
+previous_1_candle
+previous_2_candles
+previous_3_candles
+previous_5_candles
+```
+
+Touch, wick-through, close-through, acceptance, hold, reclaim and failure remain distinct canonical events. Context Native may reference them; it does not collapse them into one boolean.
+
+Historical M3.1 `range_atr` remains rolling mean candle-range normalization rather than Wilder ATR. Any context consumer must preserve `normalization_basis` and `normalization_version` rather than silently renaming the metric.
+
+## Context contribution to competing hypotheses and PDH opening states
+
+Context Native does not choose a single B4 hypothesis. It may supply `FOR`, `AGAINST` and `UNKNOWN` context evidence to multiple hypotheses simultaneously.
+
+Where the B4/M4 hypothesis receipt exposes them, contextual evidence can contribute to:
+
+```text
+support[]
+opposition[]
+unknown[]
+expected_sequence[]
+failure_sequence[]
+next_discriminating_observation
+confirmation_condition
+weakening_condition
+invalidation_condition
+expiry_condition
+```
+
+Context axes may include, only when causally available and applicable:
+
+```text
+previous-session / reference-price context
+gap state
+benchmark / index alignment
+sector alignment
+regime
+volatility
+event / calendar state
+participation / RVOL availability
+registered level interaction context
+```
+
+The following source-preserved PDH names remain B4/B6 research/state vocabulary, not Context Native state ownership:
+
+```text
+PDH_OPENING_SPIKE_REJECTION
+PDH_OPENING_DRIVE
+PDH_OPENING_DRIVE_REJECTION
+PDH_OPENING_REJECTION_CANDIDATE
+PDH_OPENING_2BAR_REJECTION
+PDH_FAILED_BREAKOUT_FADE
+PDH_BREAKOUT_PULLBACK_CONTINUATION
+```
+
+Context Native may explain why context supports or opposes one of those interpretations. It must not transition the B6 lifecycle itself.
+
+Critical causal distinction:
+
+```text
+B3 rejection
+!=
+confirmed PDH_FAILED_BREAKOUT_FADE
+```
+
+Context known later in the session cannot retroactively force the earlier rejection candidate into the fade path; the pullback-continuation path remains possible until causal evidence resolves it.
+
+## Price/sequence facts consumed, not owned
+
+The source also preserves useful sequence metrics and research aliases. They do not become Context Native calculators.
+
+- `CLV = (Close - Low) / (High - Low)` and canonical `close_location_value` belong to candle/price truth in M3.1.
+- `giveback` / `giveback_ratio` are B7 research metrics whose numerator, denominator, measurement window and version must be explicit before use.
+- `extension_from_PDH`, `gap_above_PDH`, PDH touch/wick/close/acceptance/hold/reclaim/fail are canonical price/sequence references consumed by context when relevant.
+- illustrative 3 ATR, 35%, 10%, 25%, 50% and 75% values remain research examples, not Context Native defaults.
+
+The source-proposed taxonomy:
+
+```text
+OPENING_LOCATION_STRUCTURE
+ABOVE_PDH
+EXPANSION
+REJECTION
+2_BAR_FOLLOW_THROUGH
+
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_HOLD
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_FAIL
+```
+
+remains research alias/state vocabulary owned by the B4/B6/B7/B8 path unless separately registered. Context Native may contribute the contextual facts behind `ABOVE_PDH` or other registered context fields; it does not declare these strings production enums.
+
+## FORM-001 ... FORM-010 — Context Native responsibility map
+
+The FORM lifecycle remains owned by the formation architecture. Context Native contributes evidence only at the following seams:
+
+| FORM | Context Native responsibility | Canonical owner boundary |
+|---|---|---|
+| **FORM-001** | Bind context `decision_as_of`, `knowledge_cutoff`, source/context snapshot identity and availability; no later context may leak backward. | B4-F/B14 own formation receipt/replay. |
+| **FORM-002** | Supply only canonical contextual facts/events already known by `decision_as_of`; do not invent PDH/PDL, ORH/ORL, VWAP, pivot, structure-break or expansion-start events. | Event/price/session owners define anchors; B4 selects registered causal anchors. |
+| **FORM-003** | Preserve source timeframe, formation timeframe, scope, horizon and anchor context where supplied. Micro, local-swing, opening-sequence, intraday and session context may coexist. | B4/B6 own formation identity/state. |
+| **FORM-004** | Expose context support/opposition/unknown as formation evolves through `SEED / DEVELOPING / TESTING_BOUNDARY / CONFIRMED / FAILED / EXPIRED / AMBIGUOUS`. | B6 owns lifecycle transitions. |
+| **FORM-005** | Contribute contextual FOR/AGAINST/UNKNOWN evidence and discriminator inputs without forcing a winner. | B4/M4 own hypothesis receipt and reasoning. |
+| **FORM-006** | Any historical context lookup must be prefix-safe: match with information available by the cutoff, freeze episode IDs, then reveal outcomes. | M3.3/B9 own analogue retrieval. |
+| **FORM-007** | Human pattern names are not raw context facts. Context participates at canonical-fact / relationship / behaviour layers before any optional alias. | B4/B6 own grammar/formation aliasing. |
+| **FORM-008** | Make context evidence additions/removals and availability/alignment changes timestamped and traceable. | B6 owns the transition diary. |
+| **FORM-009** | Preserve contextual dependency lineage so correlated market/sector/benchmark descendants do not become independent votes. | B11 packages dependency-aware evidence; D6 consumes it. |
+| **FORM-010** | Do not hard-code vague context geometry or strength terms. Threshold/policy identity must be registered and versioned. | B7 researches; B8 proves; B10 freezes proven policy only. |
+
+`NO_STABLE_FORMATION`, `UNRESOLVED` and `AMBIGUOUS` remain valid downstream outcomes. Context Native must not manufacture directional context merely to prevent one of those states.
+
+An unfinished higher-timeframe context view may be `PROVISIONAL` only when constructed from facts genuinely known at that moment. It has zero confirmation authority and cannot turn an incomplete higher-timeframe candle into a `CONFIRMED` formation before close.
+
+## Dependency lineage and false-confluence protection
+
+Context facts can share ancestry. Nifty trend, sector trend, breadth, benchmark momentum, volatility regime and other market-state descendants are not automatically independent evidence.
+
+Where the canonical evidence contract supports lineage, Context Native preserves:
+
+```text
+source_event_ids[]
+dependency_family
+derived_from[]
+```
+
+and the downstream law remains:
+
+```text
+correlated evidence != independent evidence
+```
+
+A context package may contain several correlated descriptions, but B11/D6 must be able to see their shared dependency family rather than count them as multiple independent confirmations.
+
+## Historical memory, adjacent ablation and external challengers
+
+Context Native does not own historical memory or shape matching. Canonical M3.3 is tested first; optional STUMPY and bounded DTW remain B9 research challengers only after a measured M3.3 limitation and incremental proof.
+
+The source-preserved adjacent ablation ladder remains:
+
+```text
+A0 existing ORB
+A1 + canonical M3.1 candle anatomy
+A2 + level-interaction sequence
+A3 + B1/B2/B3 transition / giveback
+A4 + valid same-time participation / RVOL
+A5 + benchmark / sector / context
+A6 + B6 formation-state abstraction
+A7 + canonical M3.3 analogues
+A8 + STUMPY challenger
+A9 + DTW top-K reranking
+```
+
+Context Native's primary incremental contribution is **A5**. It must justify A5 against A4; it does not claim ownership of A7/A8/A9.
+
+Any external context/pattern/similarity dependency must separately pass:
+
+```text
+licence compatibility
+PIT / causality compatibility
+source / version identity
+maintenance / dependency review
+runtime suitability
+determinism / replayability where required
+incremental proof
+```
+
+No dependency installation is implied by this plan.
+
+## Missingness, provisional context and abstention
+
+The current supersession of historical fail-open semantics is strengthened by the project epistemic law:
+
+```text
+missing != neutral
+unknown != false
+unavailable != safe
+synthetic != real
+error != zero
+no_signal != unavailable
+no_output != neutral
+```
+
+Missing benchmark, sector, event, volume, derivatives, settlement, reference-price or analogue context is never silently converted to zero, false confirmation or permission.
+
+Applicability is distinct from availability. A fact can be `NOT_APPLICABLE` for one instrument and `UNAVAILABLE` or `UNKNOWN` for another.
+
+## Historical research results and rollback remain preserved
+
+The M0 H1/H2/H3 results above remain historical NO-GO evidence for those specific gap/CPR tests. This reconciliation does not convert them into GO findings.
+
+The existing rollback law also remains binding: context complexity that fails its adjacent walk-forward/OOS comparison is disabled/demoted and the result remains recorded rather than erased.
+
+## Authority boundary
+
+Context Native is an evidence/context layer. A raw context receipt does not gain final-veto, final-band, broker or execution authority merely because an older rule table describes a `VETO_DIRECTION`, `SKIP_DAY` or sizing action. Where a later registered policy consumes context into a gate, the authority belongs to that registered policy and remains subject to the higher-level proof/authority contract.
+
+Current safety boundary:
+
+```text
+research_only = true
+trade_allowed = false
+order_routing_enabled = false
+live_trading_blocked = true
+human_approval_required = true
+
+authority = NONE
+may_execute=false
+may_set_final_band=false
+```
+
+D6 `FINAL_CONFLUENCE_ARBITER` remains the sole final guidance-band authority. Context Native can supply evidence to `WAIT`, `WATCH` or `PAPER-CANDIDATE` reasoning; it cannot route an order, size a live position, publish an uncalibrated probability, or set the final band.
