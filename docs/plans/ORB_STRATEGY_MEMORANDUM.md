@@ -506,3 +506,354 @@ Anchors, candidate windows and aliases must be reconstructible from information 
 ## Research-only authority
 
 Nothing in this formation vocabulary authorizes BUY/SELL, broker routing, position management, final-band setting or automatic strategy execution. D6 remains final guidance authority and human paper approval remains separate.
+
+# CURRENT ARCHITECTURE RECONCILIATION — ORB_BUILD_CHANGE exhaustive completeness pass — 2026-09-19
+
+Status: `SOURCE-PRESERVED STRATEGY RECONCILIATION`. This section adds only strategy/research interpretation that was still absent after the 2026-09-18 and 2026-09-19 reconciliations. It does not replace any historical rule above, create a new raw-fact owner, promote a source example into a production threshold, or claim runtime implementation.
+
+Primary source audited for this pass: `m4-d6-orb-build3-prior-session@8ba2de96c875b02defe8f3645acbf82584f830b8:ORB_BUILD_CHANGE.txt`, blob `cde19d0859cc84a87f4672a58e218cea84401b61`.
+
+## Opening-sequence strategic identity and OR-lock semantics
+
+`OrbOpeningSequenceViewV1` remains a read-only composition over D2, BUILD-1, BUILD-2, BUILD-3, M3.1 and M3.3 facts. Strategy research consumes canonical receipts; it does not recalculate candle anatomy, ATR, VWAP, PDH/PDL/PDC, settlement, session identity, contract identity, volume statistics or historical memory.
+
+A strategy-facing opening-sequence episode must retain enough canonical identity to prevent false comparison: instrument/contract/session identity, `decision_as_of`, source snapshot identity, source timeframe, formation timeframe, expected/observed prefix length, session/bar anchor, bar open/close, `available_at`, aggregation/resample policy/version and revision/sequence identity where the canonical owner supplies them.
+
+Prefix evidence must be closed, contiguous and source-consistent under the registered policy. Missing, duplicate, revised, out-of-order, unfinished, future or ambiguously aligned bars are not silently repaired. Unknown alignment remains `UNKNOWN`/`UNAVAILABLE`; it is not a guessed pattern.
+
+Every formation bar preserves one OR-lock relationship:
+
+```text
+PRE_OR_LOCK
+CROSSES_OR_LOCK
+POST_OR_LOCK
+```
+
+A `CROSSES_OR_LOCK` bar must not be treated as a clean post-lock confirmation. `B1/B2/B3` remain ordinal sequence positions under the registered formation policy, never permanent synonyms for the first three 3-minute candles.
+
+Research may use canonical/versioned relations such as extension, retracement, overlap, net displacement, path efficiency, higher/lower highs, higher/lower lows and higher/lower closes. These are interpretations over canonical bar facts, not a second calculation authority.
+
+The current pattern-taxonomy vocabulary may be referenced where its canonical facts are available:
+
+```text
+body_size
+body_pct_of_range
+upper_wick_size
+lower_wick_size
+close_location_value
+same_direction_body_sequence
+opposite_direction_body_sequence
+body_expansion_sequence
+body_compression_sequence
+wick_expansion_sequence
+wick_compression_sequence
+nearby_candle_confirmation
+nearby_candle_rejection
+nearby_candle_absorption
+nearby_candle_exhaustion
+```
+
+Strategy interpretation must preserve the existing normalization correction: historical M3.1 `range_atr` means rolling mean candle range, not Wilder ATR. Any normalized opening feature therefore keeps `normalization_basis` and `normalization_version`; mean-range and canonical-Wilder-ATR studies remain separate research identities.
+
+## Competing opening hypotheses, not one forced pattern
+
+The initial opening-sequence hypothesis set remains explicitly competing:
+
+```text
+H1 BREAKOUT_ACCEPTANCE_CONTINUATION
+H2 BREAKOUT_REJECTION_FAILURE
+H3 PULLBACK_RECLAIM_CONTINUATION
+H4 OPENING_BALANCE_NO_EDGE
+```
+
+No hypothesis must win immediately. Where the canonical hypothesis contract supplies them, a strategy interpretation preserves:
+
+```text
+state
+support[]
+opposition[]
+unknown[]
+expected_sequence[]
+failure_sequence[]
+next_discriminating_observation
+confirmation_condition
+weakening_condition
+invalidation_condition
+expiry_condition
+```
+
+Pattern strength, alias count, similarity or heuristic confidence is not probability. Calibrated event/horizon probability remains a later BUILD-12 concern only after the required proof.
+
+## Source-preserved PDH opening progression
+
+The source-preserved umbrella alias `PDH_OPENING_SPIKE_REJECTION` and the following names are research/state vocabulary, not automatically current runtime enum members:
+
+```text
+B1  -> PDH_OPENING_DRIVE
+B2  -> PDH_OPENING_DRIVE_REJECTION
+       PDH_OPENING_REJECTION_CANDIDATE
+B3  -> PDH_OPENING_2BAR_REJECTION
+later registered PDH failure
+    -> PDH_FAILED_BREAKOUT_FADE
+```
+
+The competing continuation path remains live:
+
+```text
+PDH_BREAKOUT_PULLBACK_CONTINUATION
+```
+
+Critical anti-hindsight rule:
+
+```text
+B3 rejection
+!=
+confirmed PDH_FAILED_BREAKOUT_FADE
+```
+
+The deterministic event interpretation may use source-preserved events such as `CLOSE_ABOVE_PDH`, `NEW_SESSION_HIGH`, `NO_NEW_SESSION_HIGH`, `CLOSE_INSIDE_B1_RANGE`, `LOWER_CLOSE_THAN_B1`, `LOWER_HIGH_THAN_B2` and `LOWER_CLOSE_THAN_B2`, provided those events come from canonical point-in-time facts. A later failure may mature H2; it may not rewrite the earlier prefix.
+
+## Opening-expansion research features, giveback, CLV and PDH geometry
+
+When canonically available, opening-expansion research may compare:
+
+```text
+B1_range
+B1_body
+upper_wick
+lower_wick
+body_to_range
+normalized_range_value
+normalization_basis
+normalization_version
+volume
+opening_RVOL
+open_minus_previous_close
+open_minus_PDH
+high_minus_PDH
+close_minus_PDH
+close_location_value
+```
+
+Giveback remains a typed/versioned research metric because the source does not freeze one universal numerator convention:
+
+```text
+giveback_value
+giveback_ratio
+giveback_numerator_basis
+giveback_denominator_basis
+measurement_start
+measurement_end
+available_at
+metric_version
+```
+
+The historical examples `B1 > 3 ATR`, `B2 giveback > 35%`, `10%` giveback and 25/50/75 giveback checkpoints remain `RESEARCH_CANDIDATE` illustrations only. They are not production thresholds.
+
+The source formula for Close Location Value is retained for interpretation:
+
+```text
+CLV = (Close - Low) / (High - Low)
+```
+
+Strategy research should consume canonical `close_location_value` rather than create another CLV calculator. Zero-range or missing inputs retain the canonical missingness state; CLV is not a direction verdict or probability.
+
+Previous-close/PDH geometry may study:
+
+```text
+previous_close
+PDH
+B1_open
+B1_high
+B1_close
+extension_from_PDH
+gap_above_PDH
+```
+
+Touch, wick-through, close-through, acceptance, hold, reclaim and failure remain distinct events.
+
+The following identifiers are preserved only as `SOURCE-PROPOSED RESEARCH TAXONOMY` until the owning B6/B7/B8 contracts register and prove them:
+
+```text
+Family: OPENING_LOCATION_STRUCTURE
+Context: ABOVE_PDH
+Event: EXPANSION
+Reaction: REJECTION
+Confirmation: 2_BAR_FOLLOW_THROUGH
+
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_HOLD
+OPEN_ABOVE_PDH__EXPANSION__2BAR_REJECTION__PDH_FAIL
+```
+
+No additional canonical taxonomy ID is implied here.
+
+## M3.3-first memory and similarity discipline
+
+Strategy-level historical comparison follows this order:
+
+```text
+canonical M3.3 bounded analogue retrieval
+        ->
+registered ORB opening/formation feature manifest
+        ->
+measure a concrete limitation
+        ->
+optional STUMPY challenger
+        ->
+only if incremental value remains:
+optional bounded DTW top-K reranking
+```
+
+STUMPY does not become a three-candle oracle merely because B1/B2/B3 exist. Candidate definition remains event/context based first. Historical matching is prefix-safe: build the historical prefix, freeze the selected episode IDs/rank/feature-manifest identity, and only then reveal matured future outcomes. Outcome fields may not choose the analogue.
+
+Similarity research uses registered normalized geometry rather than raw absolute price by default. Independent analogue count, episode/session independence, OOD and sparse/abstention states remain explicit.
+
+Any third-party challenger requires, before adoption:
+
+```text
+licence compatibility
+PIT / causality compatibility
+maintenance health
+dependency risk
+runtime suitability
+determinism / replayability
+data requirements
+incremental research value
+OOS proof
+```
+
+A useful library is not automatically an approved dependency.
+
+## Adjacent ablation and proof discipline
+
+The source-preserved adjacent ladder is:
+
+```text
+A0 existing ORB
+A1 A0 + canonical M3.1 candle anatomy
+A2 A1 + level-interaction sequence
+A3 A2 + B1/B2/B3 transition / giveback features
+A4 A3 + valid same-time RVOL / participation
+A5 A4 + benchmark / sector / regime context
+A6 A5 + B6 formation-state abstraction
+A7 A6 + canonical M3.3 analogues
+A8 A7 + STUMPY challenger
+A9 A8 + DTW top-K reranking
+```
+
+Every `A[n]` must justify itself against `A[n-1]` under equivalent chronology, samples, costs and decision times. A rung without repeatable unseen-data incremental value is rejected, removed, demoted or retained research-only; complexity is not carried forward merely because it exists.
+
+Proof remains chronological and point-in-time: walk-forward/OOS/untouched holdout, costs/slippage when outcomes imply execution, independent session/episode counts, regime/instrument slices, missingness/OOD accounting, MFE/MAE where applicable and stability checks.
+
+Feature OFF must preserve legacy ORB semantics.
+
+## Fixed-as-of causality, pattern fishing and source examples
+
+At a fixed earlier decision time, later data must not rewrite the strategy interpretation. For example:
+
+```text
+decision_as_of = 09:24
+freeze opening receipt/hash + feature vector + candidate hypotheses
+
+append 09:27 / 09:30 / 10:00 / later data
+reconstruct decision_as_of = 09:24
+
+required:
+same receipt/hash
+same feature vector
+same candidate set/state
+
+otherwise:
+FUTURE_DEPENDENCY_DETECTED
+```
+
+The same rule applies to anchors and historical analogue selection. No hindsight anchor, no later outcome selecting its own historical match, no future constituent/sector membership, no future corporate-action knowledge, no future liquidity/universe eligibility and no future winner selection.
+
+Before holdout/outcome inspection, research freezes the applicable grammar/version, candidate family, anchor policy, search space, feature manifest, normalization policy, parameter versions and train/walk-forward/holdout definition. A post-hoc pattern discovered after outcome inspection starts a new research generation; it is not untouched confirmation.
+
+Screenshots and visual examples are `HISTORICAL/RESEARCH ILLUSTRATION`, not canonical market data. Canonical strategy evidence requires timestamped numerical facts and provenance.
+
+## FORM v2 — strategy-facing interpretation only
+
+These FORM identifiers remain owned by the current ORB formation architecture; this memorandum records only their strategic meaning.
+
+- **FORM-001 — arbitrary as-of:** preserve `decision_as_of`, `knowledge_cutoff`, source/formation snapshot identity; `information_used_at <= knowledge_cutoff <= decision_as_of`.
+- **FORM-002 — causal anchors:** only canonical events already known at the historical cutoff may anchor a formation; hindsight anchors are forbidden.
+- **FORM-003 — multi-scale identity:** preserve source timeframe, formation timeframe, scope, horizon and anchor. MICRO, LOCAL_SWING, OPENING_SEQUENCE, INTRADAY and SESSION interpretations may coexist without automatic contradiction.
+- **FORM-004 — lifecycle:** `SEED`, `DEVELOPING`, `TESTING_BOUNDARY`, `CONFIRMED`, `FAILED`, `EXPIRED`, `AMBIGUOUS`.
+- **FORM-005 — discriminator-complete hypotheses:** preserve support, opposition, unknown, expected/failure sequences, next discriminator, confirmation, weakening, invalidation and expiry.
+- **FORM-006 — prefix-safe analogues:** freeze historical episode identity before future outcomes are revealed.
+- **FORM-007 — behavioural grammar:** facts -> relationships -> behaviour -> structural formation -> optional human alias.
+- **FORM-008 — transition diary:** preserve previous/current state, change time, evidence added/removed, reason and snapshot lineage.
+- **FORM-009 — dependency lineage:** preserve `source_event_ids[]`, `dependency_family`, `derived_from[]`; correlated aliases are not independent evidence.
+- **FORM-010 — versioned geometry/tolerance:** boundary, pivot, touch, slope, compression, overlap, retracement and normalization policies stay versioned B7 research parameters until B8 proof and B10 freeze.
+
+`NO_STABLE_FORMATION`, `UNRESOLVED` and `AMBIGUOUS` are valid strategy interpretations. An incomplete higher-timeframe bar may contribute a causal `PROVISIONAL`, zero-authority interpretation only; it cannot create `CONFIRMED` higher-timeframe formation evidence before the required close.
+
+Classical names such as FLAG, TRIANGLE, VCP, DOUBLE_TOP, DOUBLE_BOTTOM, WEDGE and HEAD_AND_SHOULDERS remain optional aliases over causal behaviour, not primary market facts.
+
+## Dependency, epistemic and authority laws
+
+Correlated aliases do not manufacture confluence:
+
+```text
+correlated evidence != independent evidence
+```
+
+A bull flag, bullish pullback, higher-low continuation and ascending micro-channel derived from the same source sequence remain one dependency family unless independent source evidence proves otherwise.
+
+Epistemic law:
+
+```text
+missing != neutral
+unknown != false
+unavailable != safe
+synthetic != real
+error != zero
+no_signal != unavailable
+no_output != neutral
+```
+
+Missing RVOL, volume, level, context, settlement, reference-price or analogue evidence is not replaced by zero unless the canonical feature contract says zero was actually observed.
+
+Architecture law:
+
+```text
+RAW FACT CALCULATED ONCE
+        -> MANY BRAINS INTERPRET
+        -> EVERY INTERPRETATION TRACEABLE
+```
+
+Stage ownership remains:
+
+```text
+B4-F  opening/intraday composer + competing hypotheses
+B5    timeframe / N / OR-clock research
+B6    lifecycle / state
+B7    parameters / geometry / tolerances
+B8    chronological incremental proof
+B9    M3.3-first analogue research + optional challengers
+B10   freeze proven configuration only
+B11   FOR / AGAINST / UNKNOWN + dependency-aware evidence
+B12   calibrated event/horizon prediction only after proof
+B13   matured outcome feedback
+B14   replay / adversarial / release lock
+D6    FINAL_CONFLUENCE_ARBITER
+```
+
+The execution-shaped historical language above remains preserved under the earlier reconciliation. Current authority is explicit:
+
+```text
+research_only = true
+trade_allowed = false
+order_routing_enabled = false
+live_trading_blocked = true
+human_approval_required = true
+
+authority=NONE
+may_execute=false
+may_set_final_band=false
+```
+
+D6 `FINAL_CONFLUENCE_ARBITER` remains the sole final guidance-band authority. Strategy labels, historical frequencies, similarity, analogue proximity, pattern scores, stop/target examples and any later calibrated probability do not create execution authority. Current outward outcomes remain research/paper guidance such as `WAIT`, `WATCH` and `PAPER-CANDIDATE`; no live order routing is authorized.
